@@ -1,8 +1,12 @@
 package org.opentox.util.logging;
 
+import org.opentox.util.logging.processors.AbstractLoggingProcessor;
+import org.opentox.util.logging.logobject.LogObject;
+import org.opentox.util.logging.levels.Warning;
+import org.opentox.util.logging.levels.Debug;
 import org.apache.log4j.Logger;
 import org.opentox.config.Configuration;
-import org.opentox.core.exceptions.YaqpException;
+
 
 /**
  *
@@ -44,7 +48,7 @@ public class YaqpLogger extends AbstractLoggingProcessor<LogObject> {
     }
 
     @Override
-    void logSystemProperties() {
+    public void logSystemProperties() {
         log(new Debug(YaqpLogger.class, "os.name        : " + System.getProperty("os.name")));
         log(new Debug(YaqpLogger.class, "os.version     : " + System.getProperty("os.version")));
         log(new Debug(YaqpLogger.class, "os.arch        : " + System.getProperty("os.arch")));

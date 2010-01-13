@@ -18,9 +18,18 @@ public class YaqpException extends Exception {
             public String toString(){
                 return "Could not load the standard properties hence could not use the standard " +
                         "logger - Using the console instead!";
-            }
+            };
+        },
 
+        pipeline_output_typecasting
+                {
+            @Override
+            public String toString(){
+                return "The output of the pipeline cannot be cast as the type you specified - " +
+                        "Consider using the type 'Object' instead.";
+            };
         }
+
     }
 
     /**

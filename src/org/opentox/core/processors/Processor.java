@@ -1,8 +1,8 @@
 package org.opentox.core.processors;
 
-
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import org.opentox.core.interfaces.JProcessor;
-
 
 /**
  *
@@ -12,19 +12,40 @@ import org.opentox.core.interfaces.JProcessor;
  */
 public abstract class Processor<InputData, Result> implements JProcessor<InputData, Result> {
 
+    /**
+     * A flag that is used to switch on and off the Processor.
+     */
     private boolean enabled = true;
 
+    private PropertyChangeSupport pcs;
+    
+
+    /**
+     * Initializes a new Processor which is by default enabled.
+     */
     public Processor() {
         super();
+        
     }
 
-    public boolean isEnabled(){
+    /**
+     *
+     * @return true if the processor is enabled.
+     */
+    public boolean isEnabled() {
         return enabled;
     }
 
+    /**
+     * Enable or disable the processor
+     * @param enabled true if you want to enable the processor, false otherwise.
+     */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
-   
-  
+
+    void addListener(PropertyChangeListener listener){
+        pcs.addPropertyChangeListener(listener);
+    }
+
 }

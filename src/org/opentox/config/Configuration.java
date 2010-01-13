@@ -19,7 +19,7 @@ public class Configuration {
     public static Properties loadDefaultProperties() throws YaqpException {
         try {
             properties = new Properties();
-            properties.load(new FileInputStream("src/org/opentox/config/serwver.properties"));
+            properties.load(new FileInputStream("src/org/opentox/config/server.properties"));
             properties.setProperty("log4j.useDefaultFile", "true");
         } catch (final Exception ex) {
             properties.setProperty("server.port", "3000");

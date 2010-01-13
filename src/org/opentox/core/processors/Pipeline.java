@@ -3,6 +3,10 @@ package org.opentox.core.processors;
 import java.util.ArrayList;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JProcessor;
+import org.opentox.core.util.PipelineStatus;
+import org.opentox.util.logging.levels.Debug;
+import org.opentox.util.logging.levels.Trace;
+import org.opentox.util.logging.YaqpLogger;
 
 /**
  * A set of jobs to be executed through a pipeline of processors
@@ -13,12 +17,19 @@ public class Pipeline<Input, Output, P extends JProcessor>
         extends ArrayList<P>
         implements JProcessor<Input, Output> {
 
+    
+
+    // TODO: private JPipelineStatus status;
+    private PipelineStatus pipeline_status;
+    
+
     /**
      * Constructs a new Pipeline which is an ordered sequence of Processors
      * that are used to process input data sequentially (if enabled)
      */
     public Pipeline() {
         super();
+        pipeline_status = new PipelineStatus();
     }
     /**
      * A flag to denote if the pipeline is fail safe, i.e. if some
@@ -60,8 +71,9 @@ public class Pipeline<Input, Output, P extends JProcessor>
      * @throws YaqpException
      */
     public Output process(Input data) throws YaqpException {
+        long start_time = System.currentTimeMillis();
         Object o = data;
-       // Process:
+        // Process:
         for (int i = 0; i < size(); i++) {
             try {
                 if (get(i).isEnabled()) {
@@ -69,17 +81,19 @@ public class Pipeline<Input, Output, P extends JProcessor>
                 }
             } catch (Exception exc) {
                 if (failSensitive) {
+                    YaqpLogger.INSTANCE.log(new Debug(Pipeline.class, "Processor "+ i + "is in error state!"));
                     throw new YaqpException();
                 }
-                // TODO log it!
+                YaqpLogger.INSTANCE.log(new Trace(Pipeline.class, "Processor "+ i + "is in error state!"));
             }
         }
-        // Try to cast the result as
+        // Try to cast the result as 'Output'
         try {
             return (Output) o;
         } catch (Exception exc) {
+            YaqpLogger.INSTANCE.log(new org.opentox.util.logging.levels.Error(Pipeline.class,
+                    "Result of pipeline cannot be cast as the specified output type"));
             throw new YaqpException();
-            // TODO log it!
         }
     }
 
@@ -108,5 +122,8 @@ public class Pipeline<Input, Output, P extends JProcessor>
         }
     }
 
+    public static void main(String[] args) {
+        
 
+    }
 }
