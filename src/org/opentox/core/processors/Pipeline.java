@@ -1,27 +1,51 @@
 package org.opentox.core.processors;
 
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import org.opentox.core.exceptions.YaqpException;
+import org.opentox.core.interfaces.JMultiProcessor;
+import org.opentox.core.interfaces.JMultiProcessorStatus;
+import org.opentox.core.interfaces.JMultiProcessorStatus.STATUS;
 import org.opentox.core.interfaces.JProcessor;
-import org.opentox.core.util.PipelineStatus;
+import org.opentox.core.util.MultiProcessorStatus;
 import org.opentox.util.logging.levels.Debug;
 import org.opentox.util.logging.levels.Trace;
 import org.opentox.util.logging.YaqpLogger;
 
 /**
  * A set of jobs to be executed through a pipeline of processors
- * is a sequential layout if some processor is enabled.
- * @author chung
+ * is a sequential layout if some processor is enabled. Note that if P1, P2, ..., PN
+ * is a sequence of processors building a pipeline, then the output type from a processor
+ * P_k should be a valid input to P_k+1 otherwise the processor P_k+1 will throw an
+ * exception.
+ * @param  <Input> Type for the input to the pipeline
+ * @param  <Output> Type for the output of the pipeline
+ * @param  <P> Type of processors contained in the pipeline
+ * @author Sopasakis Pantelis
+ * @author Charalampos Chomenides
  */
 public class Pipeline<Input, Output, P extends JProcessor>
         extends ArrayList<P>
-        implements JProcessor<Input, Output> {
+        implements JMultiProcessor<Input, Output> {
 
     
-
-    // TODO: private JPipelineStatus status;
-    private PipelineStatus pipeline_status;
-    
+    /**
+     * The status of the pipeline including statistics about the
+     * processes running within the pipeline.
+     */
+    private JMultiProcessorStatus status = new MultiProcessorStatus();
+    /**
+     * Property Change Support for this class.
+     */
+    private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+    /**
+     * A flag to denote if the pipeline is fail safe, i.e. if some
+     * of its processes fails, should the whole pipeline be aborted.
+     * If set true, the pipeline is rendered fail-sensitive.
+     */
+    private boolean failSensitive = true;
+    private String PIPELINE_STATUS_PROPERTY = status.getClass().getName();
 
     /**
      * Constructs a new Pipeline which is an ordered sequence of Processors
@@ -29,14 +53,9 @@ public class Pipeline<Input, Output, P extends JProcessor>
      */
     public Pipeline() {
         super();
-        pipeline_status = new PipelineStatus();
+        status = new MultiProcessorStatus();
+        propertyChangeSupport = new PropertyChangeSupport(this);
     }
-    /**
-     * A flag to denote if the pipeline is fail safe, i.e. if some
-     * of its processes fails, should the whole pipeline be aborted.
-     * If set true, the pipeline is rendered fail-sensitive.
-     */
-    private boolean failSensitive = true;
 
     /**
      * Returns true if the pipeline is fail-sensitive. If yes, any
@@ -63,6 +82,21 @@ public class Pipeline<Input, Output, P extends JProcessor>
     }
 
     /**
+     * Returns the status of the pipeline as an instance of MultiProcessorStatus, an object
+     * that encapsulates statistics and valuable information about the pipeline such
+     * as the number of processes in error state.
+     * @return The pipeline's status as a MultiProcessorStatus object.
+     * @see org.opentox.core.interfaces.JMultiProcessorStatus Interface for the pipeline status
+     * @see org.opentox.core.interfaces.JPipeline Interface for the pipeline
+     */
+    public JMultiProcessorStatus getStatus() {
+        return (MultiProcessorStatus) status;
+    }
+
+    /**
+     *
+     * TODO: Important! Implementation not finished!
+     *
      * This method processes the input data to produce some output,
      * using the sequence of processors. The result from the first processor,
      * is input to the second and so on. Any non-enabled processors are overriden.
@@ -71,29 +105,42 @@ public class Pipeline<Input, Output, P extends JProcessor>
      * @throws YaqpException
      */
     public Output process(Input data) throws YaqpException {
-        long start_time = System.currentTimeMillis();
+        long start_time = 0;
+        status.setMessage("pipeline in process");
         Object o = data;
         // Process:
         for (int i = 0; i < size(); i++) {
             try {
                 if (get(i).isEnabled()) {
-                    o = get(i).process(o);
+                    start_time = System.currentTimeMillis();
+                    status.increment(STATUS.INITIALIZED);
+                    o = get(i).process(o); // --> this might throw a YaqpException
+                    status.increment(STATUS.PROCESSED);
+                    status.incrementElapsedTime(STATUS.PROCESSED, System.currentTimeMillis() - start_time);
+                    propertyChangeSupport.firePropertyChange(PIPELINE_STATUS_PROPERTY, null, status);
                 }
             } catch (Exception exc) {
                 if (failSensitive) {
-                    YaqpLogger.INSTANCE.log(new Debug(Pipeline.class, "Processor "+ i + "is in error state!"));
+                    YaqpLogger.INSTANCE.log(new Debug(Pipeline.class,
+                            "Processor " + i + " is in error state!"));
                     throw new YaqpException();
                 }
-                YaqpLogger.INSTANCE.log(new Trace(Pipeline.class, "Processor "+ i + "is in error state!"));
+                status.increment(STATUS.ERROR);
+                status.incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - start_time);
+                YaqpLogger.INSTANCE.log(new Trace(Pipeline.class,
+                        "Processor " + i + " is in error state!"));
             }
         }
+        status.setMessage("Pipeline completed the job.");
+        status.completed();
+        propertyChangeSupport.firePropertyChange(PIPELINE_STATUS_PROPERTY, null, status);
         // Try to cast the result as 'Output'
         try {
             return (Output) o;
         } catch (Exception exc) {
-            YaqpLogger.INSTANCE.log(new org.opentox.util.logging.levels.Error(Pipeline.class,
+            YaqpLogger.INSTANCE.log(new org.opentox.util.logging.levels.ScrewedUp(Pipeline.class,
                     "Result of pipeline cannot be cast as the specified output type"));
-            throw new YaqpException();
+            throw new YaqpException(YaqpException.CAUSE.pipeline_output_typecasting);
         }
     }
 
@@ -122,8 +169,23 @@ public class Pipeline<Input, Output, P extends JProcessor>
         }
     }
 
-    public static void main(String[] args) {
-        
-
+    public void addPropertyChangeListener(final String propertyName,
+            final PropertyChangeListener listener) {
+        propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
     }
+
+    public void removePropertyChangeListener(final String propertyName,
+            final PropertyChangeListener listener) {
+        propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
+    }
+
+    public void addPropertyChangeListener(final PropertyChangeListener listener) {
+        propertyChangeSupport.addPropertyChangeListener(listener);
+    }
+
+    public void removePropertyChangeListener(final PropertyChangeListener listener) {
+        propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+
+   
 }

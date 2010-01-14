@@ -7,7 +7,7 @@ import org.opentox.core.interfaces.JProcessor;
  *
  * @author chung
  */
-public interface ILoggingProcessor<L extends LogObject> extends JProcessor<L, Object>{
+public interface ILoggingProcessor<L extends LogObject> extends JProcessor<L, L>{
 
     void log(L log);    
 

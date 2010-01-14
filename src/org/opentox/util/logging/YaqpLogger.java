@@ -1,15 +1,17 @@
 package org.opentox.util.logging;
 
+import org.apache.log4j.Appender;
 import org.opentox.util.logging.processors.AbstractLoggingProcessor;
 import org.opentox.util.logging.logobject.LogObject;
 import org.opentox.util.logging.levels.Warning;
 import org.opentox.util.logging.levels.Debug;
 import org.apache.log4j.Logger;
 import org.opentox.config.Configuration;
+import org.opentox.util.logging.levels.Trace;
 
 
 /**
- *
+ * Default logger used in yaqp.
  * @author chung
  */
 public class YaqpLogger extends AbstractLoggingProcessor<LogObject> {
@@ -49,10 +51,10 @@ public class YaqpLogger extends AbstractLoggingProcessor<LogObject> {
 
     @Override
     public void logSystemProperties() {
-        log(new Debug(YaqpLogger.class, "os.name        : " + System.getProperty("os.name")));
-        log(new Debug(YaqpLogger.class, "os.version     : " + System.getProperty("os.version")));
-        log(new Debug(YaqpLogger.class, "os.arch        : " + System.getProperty("os.arch")));
-        log(new Debug(YaqpLogger.class, "java.version   : " + System.getProperty("java.version")));
-        log(new Debug(YaqpLogger.class, "java.vendor    : " + System.getProperty("java.vendor")));
+        log(new Trace(YaqpLogger.class, "os.name        : " + System.getProperty("os.name")));
+        log(new Trace(YaqpLogger.class, "os.version     : " + System.getProperty("os.version")));
+        log(new Trace(YaqpLogger.class, "os.arch        : " + System.getProperty("os.arch")));
+        log(new Trace(YaqpLogger.class, "java.version   : " + System.getProperty("java.version")));
+        log(new Trace(YaqpLogger.class, "java.vendor    : " + System.getProperty("java.vendor")));
     }
 }

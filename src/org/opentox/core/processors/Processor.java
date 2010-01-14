@@ -1,7 +1,6 @@
 package org.opentox.core.processors;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+
 import org.opentox.core.interfaces.JProcessor;
 
 /**
@@ -17,7 +16,6 @@ public abstract class Processor<InputData, Result> implements JProcessor<InputDa
      */
     private boolean enabled = true;
 
-    private PropertyChangeSupport pcs;
     
 
     /**
@@ -44,8 +42,6 @@ public abstract class Processor<InputData, Result> implements JProcessor<InputDa
         this.enabled = enabled;
     }
 
-    void addListener(PropertyChangeListener listener){
-        pcs.addPropertyChangeListener(listener);
-    }
+
 
 }

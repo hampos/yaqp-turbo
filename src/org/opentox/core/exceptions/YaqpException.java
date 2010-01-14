@@ -13,21 +13,27 @@ public class YaqpException extends Exception {
     private String message;
 
     public static enum CAUSE{
-        could_not_load_properties{
-            @Override
-            public String toString(){
-                return "Could not load the standard properties hence could not use the standard " +
-                        "logger - Using the console instead!";
-            };
-        },
 
-        pipeline_output_typecasting
-                {
-            @Override
-            public String toString(){
-                return "The output of the pipeline cannot be cast as the type you specified - " +
-                        "Consider using the type 'Object' instead.";
-            };
+
+        could_not_load_properties("Could not load the standard properties hence could not use the standard " +
+                        "logger - Using the console instead!"),
+
+        pipeline_output_typecasting("The output of the pipeline cannot be cast as the type you specified - " +
+                        "Consider using the type 'Object' instead."),
+        time_out_exception("The operation timed out.")
+                        ;
+
+
+
+        private String message;
+
+        private CAUSE(String explanation){
+            this.message = explanation;
+        };
+
+        @Override
+        public String toString(){
+            return message;
         }
 
     }

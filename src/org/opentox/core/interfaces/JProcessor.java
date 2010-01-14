@@ -1,5 +1,6 @@
 package org.opentox.core.interfaces;
 
+import java.util.concurrent.Callable;
 import org.opentox.core.exceptions.YaqpException;
 
 /**
@@ -7,7 +8,8 @@ import org.opentox.core.exceptions.YaqpException;
  * and produce some output provided that it is enabled.
  * @author chung
  */
-public interface JProcessor<InputData, Result> {
+public interface JProcessor<InputData, Result>
+        {
 
     /**
      * Processes some input data to produce some output.
@@ -17,6 +19,7 @@ public interface JProcessor<InputData, Result> {
      * to produce a result for the given data.
      */
     Result process(InputData data) throws YaqpException;
+    
 
     /**
      *

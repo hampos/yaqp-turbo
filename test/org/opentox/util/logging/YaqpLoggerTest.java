@@ -1,6 +1,6 @@
 package org.opentox.util.logging;
 
-import org.opentox.util.logging.levels.Error;
+import org.opentox.util.logging.levels.ScrewedUp;
 import org.opentox.util.logging.levels.Fatal;
 import org.opentox.util.logging.levels.Trace;
 import org.opentox.util.logging.levels.Warning;
@@ -48,7 +48,7 @@ public class YaqpLoggerTest {
         YaqpLogger.INSTANCE.log(new Debug(YaqpLoggerTest.class));
         YaqpLogger.INSTANCE.log(new Info(YaqpLoggerTest.class));
         YaqpLogger.INSTANCE.log(new Warning(YaqpLoggerTest.class));
-        YaqpLogger.INSTANCE.log(new Error(YaqpLoggerTest.class));
+        YaqpLogger.INSTANCE.log(new ScrewedUp(YaqpLoggerTest.class));
         YaqpLogger.INSTANCE.log(new Fatal(YaqpLoggerTest.class));
     }
 
