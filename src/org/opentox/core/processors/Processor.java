@@ -22,8 +22,7 @@ public abstract class Processor<InputData, Result> implements JProcessor<InputDa
      * Initializes a new Processor which is by default enabled.
      */
     public Processor() {
-        super();
-        
+        super();        
     }
 
     /**

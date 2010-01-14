@@ -6,6 +6,8 @@ package org.opentox.core.processors;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -51,11 +53,11 @@ public class ParallelProcessorTest {
         public String process(String data) throws YaqpException {
 
             try {
-                Thread.sleep(100000);
+                Thread.sleep(10000);
                 throw new YaqpException();
             } catch (InterruptedException ex) {
                 throw new YaqpException();
-            }            
+            }
         }
     };
 
@@ -82,32 +84,75 @@ public class ParallelProcessorTest {
      * Test of isfailSensitive method, of class ParallelProcessor.
      */
     @Test
-    public void mytest() throws Exception {
+    public void firstTest()  {
+        System.out.println("-- first test --");
         JMultiProcessor pp = new ParallelProcessor<Processor>();
-
-        ArrayList<String> list = new ArrayList<String>();
-
-
-        
-
+        ArrayList<String> list = new ArrayList<String>(2);
         pp.setfailSensitive(true);
 
         pp.add(p1);
-        pp.add(p2);
-        
-
         list.add("1");
+        pp.add(p2);
         list.add("2");
-        
 
         try {
             ArrayList result = (ArrayList) pp.process(list);
             System.out.println(result.get(1));
         } catch (Exception ex) {
-            System.out.println(ex);
-//            fail();
+            fail();
         }
 
         System.out.println(pp.getStatus());
+    }
+
+
+    @Test
+    public void largeLoad(){
+        System.out.println("-- largeLoad test --");
+        final int load = 20;
+        JMultiProcessor pp = new ParallelProcessor<Processor>(5, 20);
+        pp.setfailSensitive(true);
+        ArrayList<String> list = new ArrayList<String>(2);
+        for (int i=0;i<load;i++){
+            pp.add(p1);
+            list.add("in"+i);
+        }
+        try {
+            ArrayList result = (ArrayList) pp.process(list);
+            for (int i=0;i<load;i++){
+                assertEquals(result.get(i), "in"+i+" <-- p1");
+            }
+            System.out.println(pp.getStatus());
+        } catch (Exception ex) {
+            fail();
+        }
+
+    }
+
+    @Test
+    public void noInput(){
+        System.out.println("-- No input to processors --");
+        JMultiProcessor pp = new ParallelProcessor<Processor>();
+        pp.add(p1);
+        pp.setfailSensitive(true);
+        try {
+            pp.process(null);
+        } catch (YaqpException ex) {
+            System.out.println(ex);
+            assertTrue(ex instanceof YaqpException);
+        }
+    }
+
+    @Test
+    public void stackOverFlow(){
+        System.out.println("-- No processors --");
+        JMultiProcessor pp = new ParallelProcessor<Processor>();
+        pp.setfailSensitive(true);
+        try {
+            Object o = pp.process(pp);
+
+        } catch (YaqpException ex) {
+            Logger.getLogger(ParallelProcessorTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 }

@@ -37,7 +37,15 @@ public class YaqpException extends Exception {
         /**
          * A processor was brutally interrupted while performing an operation
          */
-        processor_interruption("A processor was brutally interrupted while performing an operation");
+        processor_interruption("A processor was brutally interrupted while performing an operation"),
+        /**
+         * Input to a parallel processor cannot be null!
+         */
+        null_input_to_parallel_processor("Input to a parallel processor cannot be null!"),
+        /**
+         * There were no processors found in this bundle of processors
+         */
+        no_processors_found("No processors found");
 
         /**
          * Explanatory message for the cause of the exception
@@ -67,7 +75,7 @@ public class YaqpException extends Exception {
         super();
     }
 
-    public YaqpException(CAUSE cause) {
+    public YaqpException(CAUSE cause) {        
         super(cause.toString());
     }
 

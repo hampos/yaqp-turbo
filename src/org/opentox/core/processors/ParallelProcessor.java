@@ -16,6 +16,7 @@ import org.opentox.core.interfaces.JProcessor;
 import org.opentox.core.util.MultiProcessorStatus;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.*;
+import org.opentox.core.exceptions.YaqpException.CAUSE;
 
 /**
  * A Parallel Processor is a collection of processors that run in parallel. 
@@ -47,6 +48,8 @@ public class ParallelProcessor<P extends JProcessor>
      * @param poolSize fixed pool size for the processor.
      */
     public ParallelProcessor(final int poolSize) {
+        this.corePoolSize = poolSize;
+        this.maxPoolSize = poolSize;
     }
 
     /**
@@ -57,6 +60,7 @@ public class ParallelProcessor<P extends JProcessor>
      * @param maxPoolSize maximum pool size.
      */
     public ParallelProcessor(final int corePoolSize, final int maxPoolSize) {
+        this();
         this.corePoolSize = corePoolSize;
         this.maxPoolSize = maxPoolSize;
     }
@@ -102,9 +106,20 @@ public class ParallelProcessor<P extends JProcessor>
 
     public ArrayList process(final ArrayList data) throws YaqpException {
 
+
+
+        if (data == null) {
+            throw new YaqpException(CAUSE.null_input_to_parallel_processor);
+        }
+
         if (data.size() != size()) {
             throw new YaqpException("sizes of input array list and processors unequal!");
         }
+
+        if (size()==0){
+            throw new YaqpException(CAUSE.no_processors_found);
+        }
+
 
         final ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(size() + 2);
 
@@ -121,7 +136,7 @@ public class ParallelProcessor<P extends JProcessor>
         parallel_executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 1, TimeUnit.MINUTES, queue);
 
 
-        status.setMessage("parallel processor initialized");
+        status.setMessage("processing in progress");
 
         long start_time = 0;
 
@@ -161,7 +176,7 @@ public class ParallelProcessor<P extends JProcessor>
          * Await for the processors to terminate, but no more than a fixed timeout.
          */
         try {
-            parallel_executor.awaitTermination(5000, TimeUnit.MILLISECONDS);
+            parallel_executor.awaitTermination(timeout, timeUnit);
 
 
             /**
@@ -169,41 +184,46 @@ public class ParallelProcessor<P extends JProcessor>
              * completed, and the parallel processor is fail-sensitive, then throw
              * an exception
              */
-            if (failSensitive && !parallel_executor.isTerminated()) {
-                parallel_executor.shutdownNow();
-                YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
-                        YaqpException.CAUSE.time_out_exception.toString()));
-                System.out.println("Waiting for " + timeout + timeUnit);
-                throw new YaqpException(YaqpException.CAUSE.time_out_exception);
+            if (!parallel_executor.isTerminated()) {
+                if (failSensitive) {
+                    parallel_executor.shutdownNow();
+                    YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                            CAUSE.time_out_exception.toString()));
+                    System.out.println("Waiting for " + timeout + timeUnit);
+                    status.setMessage("completed unsuccessfully - timeout");
+                    status.completed();
+                    throw new YaqpException(CAUSE.time_out_exception);
+                } else {
+                    YaqpLogger.INSTANCE.log(new Debug(ParallelProcessor.class,
+                            "Some processes in a parallel processor took very long "
+                            + "to complete but the parallel is not fail-sensitive so "
+                            + "no exception is thrown"));
+                }
             }
 
-            YaqpLogger.INSTANCE.log(new Info(ParallelProcessor.class,
-                    "Some processes in a parallel processor took very long "
-                    + "to complete but the parallel is not fail-sensitive so "
-                    + "no exception is thrown"));
-
         } catch (InterruptedException ex) {
+            status.setMessage("interrupted - not running");
+            status.completed();
+            throw new YaqpException(CAUSE.processor_interruption);
         }
 
 
 
-
-
-
-
         for (int i = 0; i < size(); i++) {
+            long error_start_time = 0;
             try {
                 // Successful processing...
+                error_start_time = System.currentTimeMillis();
                 result.add(future_array[i].get());
-                status.increment(STATUS.PROCESSED);
-                status.incrementElapsedTime(STATUS.PROCESSED, System.currentTimeMillis() - start_time);
-                propertyChangeSupport.firePropertyChange(PROPERTY, null, status);
+                status.increment(STATUS.PROCESSED); // increment number of successful processors
             } catch (InterruptedException ex) {
                 YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
                         "Noway!!!! We didn't expect this to happen! (?)"));
-                throw new YaqpException(YaqpException.CAUSE.unknown_cause);
+                status.setMessage("completed unexpectedly");
+                status.completed();
+                throw new YaqpException(CAUSE.unknown_cause);
             } catch (Exception ex) {
-                start_time = System.currentTimeMillis();
+
 
                 /**
                  * If a processor error happens and the Parallel Processor is fail
@@ -213,6 +233,8 @@ public class ParallelProcessor<P extends JProcessor>
                     YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
                             "It seems a computation within this ParallelProcessor died."));
                     parallel_executor.shutdownNow(); // force shut down.
+                    status.setMessage("completed unsuccessfully");
+                    status.completed();
                     throw new YaqpException();
                 }
 
@@ -226,11 +248,13 @@ public class ParallelProcessor<P extends JProcessor>
                 }
                 result.add(null); // If the processor fails, the result should be null.
                 status.increment(STATUS.ERROR);
-                status.incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - start_time);
+                status.incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - error_start_time);
 
             }
         }
-        status.setMessage("completed");
+        status.incrementElapsedTime(STATUS.PROCESSED, System.currentTimeMillis() - start_time);
+        propertyChangeSupport.firePropertyChange(PROPERTY, null, status);
+        status.setMessage("completed successfully");
         status.completed();
 
 
@@ -286,7 +310,7 @@ public class ParallelProcessor<P extends JProcessor>
             public Object call() throws Exception {
                 Object o;
                 o = processor.process(input);
-                return o;
+                return (Object ) o;
             }
         };
         return callable;

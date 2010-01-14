@@ -81,8 +81,10 @@ public final class MultiProcessorStatus
 
         builder.append("* Elapsed Time Report *\n");
         // builder.append("Initialization Time    : " + getElapsedTime(STATUS.INITIALIZED) + "ms\n");
-        builder.append("Processing Time        : " + getElapsedTime(STATUS.PROCESSED) + "ms\n");
-        builder.append("Error Time             : " + getElapsedTime(STATUS.ERROR) + "ms\n\n");
+        String prossesing_time = getElapsedTime(STATUS.PROCESSED) > 1000 ? getElapsedTime(STATUS.PROCESSED)/1000+" s" : Long.toString(getElapsedTime(STATUS.PROCESSED));
+        String error_time = getElapsedTime(STATUS.ERROR) > 1000 ? getElapsedTime(STATUS.ERROR)/1000+" s" : Long.toString(getElapsedTime(STATUS.ERROR));
+        builder.append("Processing Time        : " + prossesing_time + "\n");
+        builder.append("Error Time             : " + error_time + "\n\n");
         builder.append("* Statistics *\n");
         builder.append("Number of Initialized Processors  : " + getNumProcessors(STATUS.INITIALIZED)+"\n");
         builder.append("Number of Succesful Processors    : " + getNumProcessors(STATUS.PROCESSED)+"\n");
