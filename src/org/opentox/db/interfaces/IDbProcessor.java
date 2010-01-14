@@ -11,6 +11,7 @@ import org.opentox.core.interfaces.JProcessor;
 public interface IDbProcessor<InputData, Result> extends JProcessor<InputData, Result>, IDbAccess{
 
     void setConnection(Connection connection) throws DbException;
+    
     Connection getConnection();
 
 }

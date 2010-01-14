@@ -12,6 +12,7 @@ import org.opentox.core.util.MultiProcessorStatus;
 import org.opentox.util.logging.levels.Debug;
 import org.opentox.util.logging.levels.Trace;
 import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.ScrewedUp;
 
 /**
  * A set of jobs to be executed through a pipeline of processors
@@ -27,7 +28,7 @@ import org.opentox.util.logging.YaqpLogger;
  */
 public class Pipeline<Input, Output, P extends JProcessor>
         extends ArrayList<P>
-        implements JMultiProcessor<Input, Output> {
+        implements JMultiProcessor<Input, Output, P> {
 
     
     /**
@@ -105,6 +106,7 @@ public class Pipeline<Input, Output, P extends JProcessor>
      * @throws YaqpException
      */
     public Output process(Input data) throws YaqpException {
+
         long start_time = 0;
         status.setMessage("pipeline in process");
         Object o = data;
@@ -138,8 +140,8 @@ public class Pipeline<Input, Output, P extends JProcessor>
         try {
             return (Output) o;
         } catch (Exception exc) {
-            YaqpLogger.INSTANCE.log(new org.opentox.util.logging.levels.ScrewedUp(Pipeline.class,
-                    "Result of pipeline cannot be cast as the specified output type"));
+            YaqpLogger.INSTANCE.log(new ScrewedUp( Pipeline.class,
+                    YaqpException.CAUSE.pipeline_output_typecasting.toString()));
             throw new YaqpException(YaqpException.CAUSE.pipeline_output_typecasting);
         }
     }

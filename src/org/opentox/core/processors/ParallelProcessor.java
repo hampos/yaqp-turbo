@@ -5,7 +5,6 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -20,31 +19,61 @@ import org.opentox.util.logging.levels.*;
 
 /**
  * A Parallel Processor is a collection of processors that run in parallel. 
- * Use this processor in cases where no synchronization is needed.
- * @param <I> Common Input Type - might be Object
- * @param <O> Common Output Type - might be Object
- * @author chung
+ * Use this processor in cases where no synchronization is needed. Note also that a
+ * parallel processor is by default enabled and not fail-sensitive. If some process
+ * fails, the corresponding output of the ParallelProcessor will be null but the whole
+ * processor will not throw an Exception.
+ * @author Sopasakis Pantelis
+ * @author Charalampos Chomenides
  */
-public class ParallelProcessor
-        extends ArrayList<JProcessor>
-        implements JMultiProcessor<ArrayList, ArrayList> {
+public class ParallelProcessor<P extends JProcessor>
+        extends ArrayList<P>
+        implements JMultiProcessor<ArrayList, ArrayList, P> {
 
     private ThreadPoolExecutor parallel_executor;
-    private boolean failSensitive = true;
+    private boolean failSensitive = false;
     private JMultiProcessorStatus status = new MultiProcessorStatus();
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
     private String PROPERTY = status.getClass().getName();
-
-    private int corePoolSize = 4 , maxPoolSize = 4 ;
-
+    private int corePoolSize = 4, maxPoolSize = 4;
+    private int timeout = 1;
+    private TimeUnit timeUnit = TimeUnit.HOURS;
 
     public ParallelProcessor() {
-
     }
 
-    public ParallelProcessor(int corePoolSize, int maxPoolSize){
+    /**
+     * Construct a ParallelProcessor with fixed pool size.
+     * @param poolSize fixed pool size for the processor.
+     */
+    public ParallelProcessor(final int poolSize) {
+    }
+
+    /**
+     * Once the parallel processor is initialized, a number of threads is generated
+     * which is equal to the parameter corePoolSize. On runtime, the number of threads
+     * will not exceed maxPoolSize.
+     * @param corePoolSize initial pool size for the Parallel Processor.
+     * @param maxPoolSize maximum pool size.
+     */
+    public ParallelProcessor(final int corePoolSize, final int maxPoolSize) {
         this.corePoolSize = corePoolSize;
         this.maxPoolSize = maxPoolSize;
+    }
+
+    /**
+     * Construct a parallel processor
+     * @param corePoolSize
+     * @param maxPoolSize
+     * @param timeout
+     * @param timeunit
+     */
+    public ParallelProcessor(final int corePoolSize, final int maxPoolSize,
+            final int timeout, final TimeUnit timeunit) {
+        this.corePoolSize = corePoolSize;
+        this.maxPoolSize = maxPoolSize;
+        this.timeout = timeout;
+        this.timeUnit = timeunit;
     }
 
     /**
@@ -73,89 +102,182 @@ public class ParallelProcessor
 
     public ArrayList process(final ArrayList data) throws YaqpException {
 
-        final ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(size()+2);
-        System.err.println(size()+2);
+        if (data.size() != size()) {
+            throw new YaqpException("sizes of input array list and processors unequal!");
+        }
+
+        final ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(size() + 2);
+
+        /**
+         * A null processor (a processor always returning (Object)null ; created on the fly.
+         */
+        JProcessor nullProcessor = new Processor() {
+
+            public Object process(Object data) throws YaqpException {
+                return null;
+            }
+        };
 
         parallel_executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 1, TimeUnit.MINUTES, queue);
 
 
         status.setMessage("parallel processor initialized");
+
         long start_time = 0;
 
         Future[] future_array = new Future[size()];
         ArrayList result = new ArrayList();
+        start_time = System.currentTimeMillis();
+
 
         /**
          * Do the nasty job....
+         * Every processor takes the corresponding job
          */
         for (int i = 0; i < size(); i++) {
-            start_time = System.currentTimeMillis();
             status.increment(STATUS.INITIALIZED);
-            future_array[i] = parallel_executor.submit(getCallable(get(i), data.get(i)));
-            status.increment(STATUS.PROCESSED);
-            status.incrementElapsedTime(STATUS.PROCESSED, System.currentTimeMillis() - start_time);
-            propertyChangeSupport.firePropertyChange(PROPERTY, null, status);
+            if (get(i).isEnabled()) {
+                /**
+                 * If the processor is enabled, submit the job to be done...
+                 */
+                future_array[i] = parallel_executor.submit(getCallable(get(i), data.get(i)));
+            } else {
+                /**
+                 * If the i-th processor is not enabled, it is not parallelized with
+                 * other processors and a nullProcessor is used instead which returns
+                 * just a null object.
+                 */
+                future_array[i] = parallel_executor.submit(getCallable(nullProcessor, null));
+            }
         }
 
+
+        /**
+         * Graceful shutdown of the parallel executor.
+         */
         parallel_executor.shutdown();
+
+        /**
+         * Await for the processors to terminate, but no more than a fixed timeout.
+         */
         try {
-            parallel_executor.awaitTermination(1, TimeUnit.DAYS);
+            parallel_executor.awaitTermination(5000, TimeUnit.MILLISECONDS);
+
+
+            /**
+             * If there are still some open threads, i.e. the process has not
+             * completed, and the parallel processor is fail-sensitive, then throw
+             * an exception
+             */
+            if (failSensitive && !parallel_executor.isTerminated()) {
+                parallel_executor.shutdownNow();
+                YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                        YaqpException.CAUSE.time_out_exception.toString()));
+                System.out.println("Waiting for " + timeout + timeUnit);
+                throw new YaqpException(YaqpException.CAUSE.time_out_exception);
+            }
+
+            YaqpLogger.INSTANCE.log(new Info(ParallelProcessor.class,
+                    "Some processes in a parallel processor took very long "
+                    + "to complete but the parallel is not fail-sensitive so "
+                    + "no exception is thrown"));
+
         } catch (InterruptedException ex) {
-            start_time = System.currentTimeMillis();
-            YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
-                    "It seems the parallel processor timed out"));
-            status.increment(STATUS.ERROR);
-            status.incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - start_time);
-            throw new YaqpException(YaqpException.CAUSE.time_out_exception);
         }
+
+
+
+
+
+
 
         for (int i = 0; i < size(); i++) {
             try {
+                // Successful processing...
                 result.add(future_array[i].get());
+                status.increment(STATUS.PROCESSED);
+                status.incrementElapsedTime(STATUS.PROCESSED, System.currentTimeMillis() - start_time);
+                propertyChangeSupport.firePropertyChange(PROPERTY, null, status);
             } catch (InterruptedException ex) {
-
                 YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
                         "Noway!!!! We didn't expect this to happen! (?)"));
-            } catch (ExecutionException ex) {
+                throw new YaqpException(YaqpException.CAUSE.unknown_cause);
+            } catch (Exception ex) {
                 start_time = System.currentTimeMillis();
+
+                /**
+                 * If a processor error happens and the Parallel Processor is fail
+                 * sensitive it should throw an exception and terminate.
+                 */
                 if (failSensitive) {
                     YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
                             "It seems a computation within this ParallelProcessor died."));
-                    status.increment(STATUS.ERROR);
-                    status.incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - start_time);
+                    parallel_executor.shutdownNow(); // force shut down.
                     throw new YaqpException();
                 }
-                // Computational Error in some processor & Not fail sensitive =>
-                // do nothing
+
+                /**
+                 * In case a Yaqp exception is thrown, it seems there is an error
+                 * with the processor - input could not be properly processed.
+                 */
+                if (ex instanceof YaqpException) {
+                    YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                            "It seems a computation within this ParallelProcessor died."));
+                }
+                result.add(null); // If the processor fails, the result should be null.
+                status.increment(STATUS.ERROR);
+                status.incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - start_time);
+
             }
         }
         status.setMessage("completed");
         status.completed();
+
+
         return result;
     }
 
     public boolean isEnabled() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        for (int i = 0; i < size(); i++) {
+            if (get(i).isEnabled()) {
+                return true;
+            }
+        }
+        return false;
     }
 
+    /**
+     * Enables/Disables every sub-processor, that is if enabled=true,
+     * all processeors are enabled, while enabled=false disables all
+     * processors in the parallel structure.
+     * @param enabled
+     */
     public void setEnabled(boolean enabled) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        for (int i = 0; i < size(); i++) {
+            get(i).setEnabled(enabled);
+        }
     }
 
-    public void addPropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void addPropertyChangeListener(final String propertyName,
+            final PropertyChangeListener listener) {
+        propertyChangeSupport.addPropertyChangeListener(propertyName, listener);
     }
 
-    public void removePropertyChangeListener(String propertyName, PropertyChangeListener listener) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void removePropertyChangeListener(final String propertyName,
+            final PropertyChangeListener listener) {
+        propertyChangeSupport.removePropertyChangeListener(propertyName, listener);
     }
 
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void addPropertyChangeListener(final PropertyChangeListener listener) {
+        propertyChangeSupport.addPropertyChangeListener(listener);
     }
 
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void removePropertyChangeListener(final PropertyChangeListener listener) {
+        propertyChangeSupport.removePropertyChangeListener(listener);
+    }
+
+    public JMultiProcessorStatus getStatus() {
+        return status;
     }
 
     private Callable getCallable(final JProcessor processor, final Object input) {
@@ -168,9 +290,5 @@ public class ParallelProcessor
             }
         };
         return callable;
-    }
-
-    public JMultiProcessorStatus getStatus() {
-        return status;
     }
 }

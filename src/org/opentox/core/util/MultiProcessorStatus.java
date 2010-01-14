@@ -80,8 +80,8 @@ public final class MultiProcessorStatus
         StringBuilder builder = new StringBuilder();
 
         builder.append("* Elapsed Time Report *\n");
-        builder.append("Initialization Time    : " + getElapsedTime(STATUS.INITIALIZED) + "ms\n");
-        builder.append("Procession Time        : " + getElapsedTime(STATUS.PROCESSED) + "ms\n");
+        // builder.append("Initialization Time    : " + getElapsedTime(STATUS.INITIALIZED) + "ms\n");
+        builder.append("Processing Time        : " + getElapsedTime(STATUS.PROCESSED) + "ms\n");
         builder.append("Error Time             : " + getElapsedTime(STATUS.ERROR) + "ms\n\n");
         builder.append("* Statistics *\n");
         builder.append("Number of Initialized Processors  : " + getNumProcessors(STATUS.INITIALIZED)+"\n");

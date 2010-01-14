@@ -8,6 +8,7 @@ import org.opentox.core.interfaces.JProcessor;
  */
 public class ProcessorException extends YaqpException {
 
+
     /**
      * Creates a new instance of <code>ProcessorException</code> without detail message.
      */
