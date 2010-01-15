@@ -16,4 +16,8 @@ public interface JTurboProcessor<Input, Output> extends JProcessor<Input, Output
     void addPropertyChangeListener(final PropertyChangeListener listener);
 
     void removePropertyChangeListener(final PropertyChangeListener listener);
+    
+    void firePropertyChange(String propertyName, Object oldValue, Object newValue);
+
+
 }

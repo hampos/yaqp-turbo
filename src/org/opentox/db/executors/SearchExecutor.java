@@ -17,12 +17,6 @@ public class SearchExecutor<Query extends ISearchQuery> extends StatementExecuto
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public boolean isEnabled() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
-    public void setEnabled(boolean enabled) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
 }

@@ -5,6 +5,8 @@ import java.util.Properties;
 import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Processor;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Trace;
 
 /**
  * This is an abstract entity intended to be subclassed by all loggers in the 
@@ -30,7 +32,7 @@ public abstract class AbstractLoggingProcessor<L extends LogObject>
         } catch (YaqpException ex) {
             System.out.println(ex);
         }
-        
+
 
     }
 
@@ -56,10 +58,12 @@ public abstract class AbstractLoggingProcessor<L extends LogObject>
     /**
      * Write the properties of the system to the log target (console or file)
      */
-    public abstract void logSystemProperties();
-    /**
-     * The method:
-     *  void log(L log);
-     * is to be implemented by implementations of AbstractLoggingProcessor
-     */
+    public void logSystemProperties() {
+        log((L)new Trace(AbstractLoggingProcessor.class, "os.version     : " + System.getProperty("os.version")));
+        log((L)new Trace(YaqpLogger.class, "os.version     : " + System.getProperty("os.version")));
+        log((L)new Trace(YaqpLogger.class, "os.arch        : " + System.getProperty("os.arch")));
+        log((L)new Trace(YaqpLogger.class, "java.version   : " + System.getProperty("java.version")));
+        log((L)new Trace(YaqpLogger.class, "java.vendor    : " + System.getProperty("java.vendor")));
+    }
+   
 }

@@ -29,6 +29,8 @@ public final class MultiProcessorStatus
 
     public void setNumberOfProcessors(STATUS status, long numberOfProcessors) {
         records[status.ordinal()] = numberOfProcessors;
+        setChanged();
+        notifyObservers();
     }
 
     public void increment(STATUS status) {
@@ -43,6 +45,8 @@ public final class MultiProcessorStatus
 
     public void setElapsedTime(STATUS status, long elapsedTime) {
         time_elapsed[status.ordinal()] = elapsedTime;
+        setChanged();
+        notifyObservers();
     }
 
     public void incrementElapsedTime(STATUS status, long timeIncrement) {
@@ -81,8 +85,8 @@ public final class MultiProcessorStatus
 
         builder.append("* Elapsed Time Report *\n");
         // builder.append("Initialization Time    : " + getElapsedTime(STATUS.INITIALIZED) + "ms\n");
-        String prossesing_time = getElapsedTime(STATUS.PROCESSED) > 1000 ? getElapsedTime(STATUS.PROCESSED)/1000+" s" : Long.toString(getElapsedTime(STATUS.PROCESSED));
-        String error_time = getElapsedTime(STATUS.ERROR) > 1000 ? getElapsedTime(STATUS.ERROR)/1000+" s" : Long.toString(getElapsedTime(STATUS.ERROR));
+        String prossesing_time = getElapsedTime(STATUS.PROCESSED) > 1000 ? getElapsedTime(STATUS.PROCESSED)/1000+" s" : Long.toString(getElapsedTime(STATUS.PROCESSED))+" ms";
+        String error_time = getElapsedTime(STATUS.ERROR) > 1000 ? getElapsedTime(STATUS.ERROR)/1000+" s" : Long.toString(getElapsedTime(STATUS.ERROR))+" ms";
         builder.append("Processing Time        : " + prossesing_time + "\n");
         builder.append("Error Time             : " + error_time + "\n\n");
         builder.append("* Statistics *\n");

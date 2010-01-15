@@ -4,7 +4,7 @@ import org.apache.log4j.Level;
 
 /**
  * LogObjects contain information about a log event which will be handled by some
- * {@link AbstractLoggingProcessor }.
+ * {@link org.opentox.util.logging.processors.AbstractLoggingProcessor Logging Processor }.
  * @author Sopasakis Pantelis
  * @author Charalampos Chomenides
  */
@@ -26,28 +26,26 @@ public interface LogObject {
     /**
      * Return the type of the logging object.
      * @return type of log object.
-     * @see LogObject#setLogType(org.opentox.util.logging.LogObject.LOG_TYPE)
      */
     Level getLevel();
 
     /**
      * Declare the type of the log object.
      * @param logType
-     * @see LOG_TYPE
      */
     void setLogType(Level logType);
 
     /**
      * Declare the source of the log, that is the
      * class that sends the logging message.
-     * @param object
+     * @param clash Reference to class calling the logger.
      */
     void setSource(Class clash);
 
 
     /**
-     * Returns the class that calls the logger.
-     * @return
+     * 
+     * @return the class that calls the logger.
      */
     Class getSource();
 

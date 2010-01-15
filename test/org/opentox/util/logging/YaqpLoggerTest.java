@@ -24,6 +24,7 @@ public class YaqpLoggerTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        System.err.println("Testing :"+YaqpLogger.class.getCanonicalName());
     }
 
     @AfterClass
@@ -43,13 +44,16 @@ public class YaqpLoggerTest {
      */
     @Test
     public void testLogger() {
-        System.out.println("YaqpLogger.log");
+        try{
         YaqpLogger.INSTANCE.log(new Trace(YaqpLoggerTest.class));
         YaqpLogger.INSTANCE.log(new Debug(YaqpLoggerTest.class));
         YaqpLogger.INSTANCE.log(new Info(YaqpLoggerTest.class));
         YaqpLogger.INSTANCE.log(new Warning(YaqpLoggerTest.class));
         YaqpLogger.INSTANCE.log(new ScrewedUp(YaqpLoggerTest.class));
         YaqpLogger.INSTANCE.log(new Fatal(YaqpLoggerTest.class));
+        }catch(Throwable ex){
+            fail();
+        }
     }
 
     

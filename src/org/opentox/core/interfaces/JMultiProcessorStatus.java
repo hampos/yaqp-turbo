@@ -1,9 +1,12 @@
 package org.opentox.core.interfaces;
 
+import org.opentox.core.processors.ParallelProcessor;
+
 
 /**
- * This interface is used to manage the batch process which are being executed
- * in a pipeline and are handled by a Batch Processor. It is used as a tool to
+ * This interface is used to manage the processes which are being executed in
+ * a multi-processing device such as a {@link ParallelProcessor ParallelProcessor }
+ * or a {@link JMultiProcessor Multi-Processor } in general. It is used as a tool to
  * supervise the execution in a pipelin keeping track of the status of the execution.
  * @author chung
  */
@@ -16,7 +19,7 @@ public interface JMultiProcessorStatus {
      *
      * TODO: Think of other processor statuses as well!
      */
-    public enum STATUS {
+    public static enum STATUS {
 
 
         INITIALIZED {
