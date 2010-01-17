@@ -163,7 +163,7 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
 
                 firePropertyChange(PROPERTY, null, getStatus());
             } catch (InterruptedException ex) {
-                YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
                         "Noway!!!! We didn't expect this to happen! (?)"));
                 getStatus().setMessage("completed unexpectedly");
                 getStatus().completed();
@@ -176,7 +176,7 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
                  * sensitive it should throw an exception and terminate.
                  */
                 if (isfailSensitive()) {
-                    YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                    YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
                             "It seems a computation within this ParallelProcessor died."));
                     parallel_executor.shutdownNow(); // force shut down.
                     getStatus().setMessage("completed unsuccessfully");
@@ -190,7 +190,7 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
                  * with the processor - input could not be properly processed.
                  */
                 if (ex instanceof YaqpException) {
-                    YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                    YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
                             "It seems a computation within this ParallelProcessor died."));
                 }
                 result.add(null); // If the processor fails, the result should be null.
@@ -232,7 +232,7 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
         if (!parallel_executor.isTerminated()) {
             if (isfailSensitive()) {
                 parallel_executor.shutdownNow();
-                YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
                         CAUSE.time_out_exception.toString()));
                 System.out.println("Waiting for " + timeout + timeUnit);
                 getStatus().setMessage("completed unsuccessfully - timeout");
@@ -240,7 +240,7 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
                 firePropertyChange(PROPERTY, null, getStatus());
                 throw new YaqpException(CAUSE.time_out_exception);
             } else {
-                YaqpLogger.INSTANCE.log(new Debug(ParallelProcessor.class,
+                YaqpLogger.LOG.log(new Debug(ParallelProcessor.class,
                         "Some processes in a parallel processor took very long "
                         + "to complete but the parallel is not fail-sensitive so "
                         + "no exception is thrown"));

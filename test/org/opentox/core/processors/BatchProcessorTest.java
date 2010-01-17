@@ -75,10 +75,10 @@ public class BatchProcessorTest {
     public void tearDown() {
     }
 
-    @Test
+    //@Test
     public void batchLogging() throws Exception {
         System.out.println("-- core test --");
-        BatchProcessor bp = new BatchProcessor(YaqpLogger.INSTANCE);
+        BatchProcessor bp = new BatchProcessor(YaqpLogger.LOG);
         ArrayList<LogObject> list = new ArrayList<LogObject>();
         list.add(new Warning(BatchProcessorTest.class));
         list.add(new Warning(BatchProcessorTest.class));
@@ -94,7 +94,7 @@ public class BatchProcessorTest {
 
     }
 
-    @Test
+    //@Test
     public void turboBatch() {
         System.out.println("-- testing using p1 --");
         BatchProcessor bp = new BatchProcessor(p1, 10, 12);
@@ -124,7 +124,7 @@ public class BatchProcessorTest {
 
     }
 
-    @Test
+    //@Test
     public void timeOutTest() {
         System.out.println("-- timeout test --");
         BatchProcessor<String, Integer, Processor<String, Integer>> bp =
@@ -147,4 +147,32 @@ public class BatchProcessorTest {
         }
 
     }
+
+
+    @Test
+    public void synch(){
+        System.out.println("-- synchronization test --");
+        p1.setSynchronized(true);
+        BatchProcessor bp = new BatchProcessor(p1, 10, 12);
+        ArrayList<String> listOfJobs = new ArrayList<String>();
+        // all these will run in parallel
+        listOfJobs.add("1");
+        listOfJobs.add("2");
+        listOfJobs.add("3");
+        listOfJobs.add("4");
+        listOfJobs.add("5");
+        listOfJobs.add("6");
+        listOfJobs.add("7");
+        listOfJobs.add("8");
+        listOfJobs.add("9");
+        listOfJobs.add("10");
+        try {
+            ArrayList<String> result = bp.process(listOfJobs);
+            System.out.println(bp.getStatus());
+        } catch (YaqpException ex) {
+            fail();
+        }
+
+    }
 }
+

@@ -68,7 +68,7 @@ public class Configuration {
         properties = new Properties();
         properties.setProperty("server.port", "3000");
         properties.setProperty("server.domainName", "opentox.ntua.gr");
-        properties.setProperty("database.name", "modelsDb");
+        properties.setProperty("database.url", "jdbc:derby://localhost:1527/modelsDb");
         properties.setProperty("database.user", "itsme");
         properties.setProperty("database.driver", "org.apache.derby.jdbc.EmbeddedDriver");
         properties.setProperty("log4j.rootCategory", "WARN, file");

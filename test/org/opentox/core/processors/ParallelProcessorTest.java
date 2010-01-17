@@ -6,6 +6,8 @@ package org.opentox.core.processors;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -81,7 +83,7 @@ public class ParallelProcessorTest {
     /**
      * Test of isfailSensitive method, of class ParallelProcessor.
      */
-    @Test
+    //@Test
     public void firstTest() {
         System.out.println("-- first test --");
         JMultiProcessor pp =
@@ -104,7 +106,7 @@ public class ParallelProcessorTest {
         System.out.println(pp.getStatus());
     }
 
-    @Test
+    //@Test
     public void largeLoad() {
         System.out.println("-- largeLoad test --");
         final int load = 20;
@@ -130,7 +132,7 @@ public class ParallelProcessorTest {
         }
     }
 
-    @Test
+    //@Test
     public void timeOut() {
         System.out.println("-- timeout test --");
         final int load = 20;
@@ -159,6 +161,33 @@ public class ParallelProcessorTest {
     }
 
     @Test
+    public void synch(){
+        System.out.println("-- Synchronization (NEW!) --");
+        final int timeout = 1600;
+        ParallelProcessor pp =
+                new ParallelProcessor<String, String, Processor<ArrayList<String>, ArrayList<String>>>(2, 6);
+        pp.setfailSensitive(false);
+        pp.setTimeOut(timeout, TimeUnit.MILLISECONDS);
+               p1.setEnabled(true);
+               p2.setEnabled(true);
+        p2.setSynchronized(true);
+        pp.add(p1);
+        pp.add(p2);
+        ArrayList<String> list = new ArrayList<String>(2);
+        list.add("3");
+        list.add("4");
+        try {
+            ArrayList result = pp.process(list);
+            System.out.println("result from 0: "+result.get(0));
+            System.out.println("result from 1" +
+                    ": "+result.get(1));
+            System.out.println(pp.getStatus());
+        } catch (YaqpException ex) {
+            
+        }
+    }
+
+    //@Test
     public void noInput() {
         System.out.println("-- No input to processors --");
         JMultiProcessor pp =
@@ -173,7 +202,7 @@ public class ParallelProcessorTest {
         }
     }
 
-    @Test
+    //@Test
     public void noProcessorsFound() {
         System.out.println("-- No processors --");
         JMultiProcessor pp =

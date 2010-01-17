@@ -70,13 +70,13 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
                 }
             } catch (Exception exc) {
                 if (isfailSensitive()) {
-                    YaqpLogger.INSTANCE.log(new Debug(Pipeline.class,
+                    YaqpLogger.LOG.log(new Debug(Pipeline.class,
                             "Processor " + i + " is in error state!"));
                     throw new YaqpException();
                 }
                 getStatus().increment(STATUS.ERROR);
                 getStatus().incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - start_time);
-                YaqpLogger.INSTANCE.log(new Trace(Pipeline.class,
+                YaqpLogger.LOG.log(new Trace(Pipeline.class,
                         "Processor " + i + " is in error state!"));
             }
         }
@@ -87,7 +87,7 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
         try {
             return (Output) o;
         } catch (Exception exc) {
-            YaqpLogger.INSTANCE.log(new ScrewedUp( Pipeline.class,
+            YaqpLogger.LOG.log(new ScrewedUp( Pipeline.class,
                     YaqpException.CAUSE.pipeline_output_typecasting.toString()));
             throw new YaqpException(YaqpException.CAUSE.pipeline_output_typecasting);
         }

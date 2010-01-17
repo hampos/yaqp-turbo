@@ -1,13 +1,12 @@
 package org.opentox.db.processors;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.interfaces.JDbProcessor;
 import org.opentox.core.processors.Processor;
 import org.opentox.db.interfaces.JQuery;
-import org.opentox.db.util.DbConnector;
+import org.opentox.db.util.TheDbConnector;
 
 /**
  * This abstract class holds and manipulates the connection to the database.
@@ -25,7 +24,7 @@ public abstract class AbstractDbProcessor<Query extends JQuery, QueryResult>
 
 
     public QueryResult process(Query query) throws YaqpException {        
-        if (!DbConnector.INSTANCE.isConnected()) {
+        if (!TheDbConnector.DB.isConnected()) {
             throw new DbException("no connection");
         }
         try {

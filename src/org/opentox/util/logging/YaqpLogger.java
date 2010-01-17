@@ -16,7 +16,11 @@ import org.opentox.config.Configuration;
 public class YaqpLogger extends AbstractLoggingProcessor<LogObject> {
 
     private static YaqpLogger instanceOfThis = null;
-    public static YaqpLogger INSTANCE = getInstance();
+
+    /**
+     * Public & Unique access point for the logger.
+     */
+    public static YaqpLogger LOG = getInstance();
 
     private static YaqpLogger getInstance() {
         if (instanceOfThis == null) {
@@ -41,6 +45,7 @@ public class YaqpLogger extends AbstractLoggingProcessor<LogObject> {
         }
         logSystemProperties();
     }
+
 
     public void log(LogObject log) {
         Logger.getLogger(log.getSource()).log(log.getLevel(), log.getMessage());

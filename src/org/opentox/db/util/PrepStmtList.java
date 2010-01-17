@@ -71,7 +71,7 @@ public class PrepStmtList {
         if (STMT_addUser == null) {
             try {
                 // TODO: complete the following line...
-                STMT_addUser = DbConnector.INSTANCE.getConnection().prepareStatement("insert into ");
+                STMT_addUser = TheDbConnector.DB.getConnection().prepareStatement("insert into ");
             } catch (SQLException ex) {
                 // TODO: think of it laser
                 Logger.getLogger(PrepStmtList.class.getName()).log(Level.SEVERE, null, ex);

@@ -1,6 +1,7 @@
 package org.opentox.db.interfaces;
 
 import java.sql.Connection;
+import org.opentox.core.exceptions.YaqpException;
 
 /**
  *
@@ -24,7 +25,9 @@ public interface JDbConnector {
 
     String getDatabaseUrl();
 
-    int getDatabasePort();
+    int getDatabasePort() throws YaqpException;
+
+    String getDatabaseUser();
 
     String getDatabaseDriver();
 

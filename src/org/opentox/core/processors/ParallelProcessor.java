@@ -182,7 +182,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
 
                 firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
             } catch (InterruptedException ex) {
-                YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
                         "Noway!!!! We didn't expect this to happen! (?)"));
                 getStatus().setMessage("completed unexpectedly");
                 getStatus().completed();
@@ -195,7 +195,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
                  * sensitive it should throw an exception and terminate.
                  */
                 if (isfailSensitive()) {
-                    YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                    YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
                             "It seems a computation within this ParallelProcessor died."));
                     parallel_executor.shutdownNow(); // force shut down.
                     getStatus().setMessage("completed unsuccessfully");
@@ -209,7 +209,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
                  * with the processor - input could not be properly processed.
                  */
                 if (ex instanceof YaqpException) {
-                    YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                    YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
                             "It seems a computation within this ParallelProcessor died."));
                 }
                 result.add(null); // If the processor fails, the result should be null.
@@ -232,7 +232,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
             return (ArrayList<Output>) result;
         } catch (Exception ex) {
             final String explanation = "Output of parallel processor cannot be cast as the specified type!";
-            YaqpLogger.INSTANCE.log(new Debug(ParallelProcessor.class, explanation));
+            YaqpLogger.LOG.log(new Debug(ParallelProcessor.class, explanation));
             throw new YaqpException(explanation);
         }
 
@@ -285,7 +285,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
         if (!parallel_executor.isTerminated()) {
             if (isfailSensitive()) {
                 parallel_executor.shutdownNow();
-                YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
                         CAUSE.time_out_exception.toString()));
                 System.out.println("Waiting for " + timeout + timeUnit);
                 getStatus().setMessage("completed unsuccessfully - timeout");
@@ -293,7 +293,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
                 firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
                 throw new YaqpException(CAUSE.time_out_exception);
             } else {
-                YaqpLogger.INSTANCE.log(new Debug(ParallelProcessor.class,
+                YaqpLogger.LOG.log(new Debug(ParallelProcessor.class,
                         "Some processes in a parallel processor took very long "
                         + "to complete but the parallel is not fail-sensitive so "
                         + "no exception is thrown"));

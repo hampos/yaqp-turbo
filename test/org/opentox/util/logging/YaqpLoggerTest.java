@@ -45,12 +45,12 @@ public class YaqpLoggerTest {
     @Test
     public void testLogger() {
         try{
-        YaqpLogger.INSTANCE.log(new Trace(YaqpLoggerTest.class));
-        YaqpLogger.INSTANCE.log(new Debug(YaqpLoggerTest.class));
-        YaqpLogger.INSTANCE.log(new Info(YaqpLoggerTest.class));
-        YaqpLogger.INSTANCE.log(new Warning(YaqpLoggerTest.class));
-        YaqpLogger.INSTANCE.log(new ScrewedUp(YaqpLoggerTest.class));
-        YaqpLogger.INSTANCE.log(new Fatal(YaqpLoggerTest.class));
+        YaqpLogger.LOG.log(new Trace(YaqpLoggerTest.class));
+        YaqpLogger.LOG.log(new Debug(YaqpLoggerTest.class));
+        YaqpLogger.LOG.log(new Info(YaqpLoggerTest.class));
+        YaqpLogger.LOG.log(new Warning(YaqpLoggerTest.class));
+        YaqpLogger.LOG.log(new ScrewedUp(YaqpLoggerTest.class));
+        YaqpLogger.LOG.log(new Fatal(YaqpLoggerTest.class));
         }catch(Throwable ex){
             fail();
         }
