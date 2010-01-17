@@ -4,7 +4,7 @@ package org.opentox.db.queries;
  *
  * @author chung
  */
-public class QueryParam<T> implements IQueryParam<T>{
+public class QueryParam<T> implements IQueryParam<T> {
 
     protected Class type;
     protected T value;
@@ -31,8 +31,11 @@ public class QueryParam<T> implements IQueryParam<T>{
     }
 
     @Override
-	public String toString() {
-		if (value == null) return null;
-		else return value.toString();
-	}
+    public String toString() {
+        if (value == null) {
+            return null;
+        } else {
+            return value.toString();
+        }
+    }
 }

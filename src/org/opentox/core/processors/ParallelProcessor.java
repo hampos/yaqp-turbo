@@ -19,6 +19,9 @@ import org.opentox.core.exceptions.YaqpException.CAUSE;
  * parallel processor is by default enabled and not fail-sensitive. If some process
  * fails, the corresponding output of the ParallelProcessor will be null but the whole
  * processor will not throw an Exception.
+ * @param <Input> Input type
+ * @param <Output> Output type
+ * @param <P> Processor type
  * @author Sopasakis Pantelis
  * @author Charalampos Chomenides
  */
@@ -59,10 +62,10 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
 
     /**
      * Construct a parallel processor
-     * @param corePoolSize
-     * @param maxPoolSize
-     * @param timeout
-     * @param timeunit
+     * @param corePoolSize initial pool size for the Parallel Processor.
+     * @param maxPoolSize maximum pool size.
+     * @param timeout when to interrupt the procedure
+     * @param timeunit units for the timeout
      */
     public ParallelProcessor(final int corePoolSize, final int maxPoolSize,
             final int timeout, final TimeUnit timeunit) {
@@ -134,30 +137,9 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
          */
         try {
             parallel_executor.awaitTermination(timeout, timeUnit);
+            handleTimeOut();
 
-
-            /**
-             * If there are still some open threads, i.e. the process has not
-             * completed, and the parallel processor is fail-sensitive, then throw
-             * an exception
-             */
-            if (!parallel_executor.isTerminated()) {
-                if (isfailSensitive()) {
-                    parallel_executor.shutdownNow();
-                    YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
-                            CAUSE.time_out_exception.toString()));
-                    System.out.println("Waiting for " + timeout + timeUnit);
-                    getStatus().setMessage("completed unsuccessfully - timeout");
-                    getStatus().completed();
-                    firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-                    throw new YaqpException(CAUSE.time_out_exception);
-                } else {
-                    YaqpLogger.INSTANCE.log(new Debug(ParallelProcessor.class,
-                            "Some processes in a parallel processor took very long "
-                            + "to complete but the parallel is not fail-sensitive so "
-                            + "no exception is thrown"));
-                }
-            }
+            
         } catch (InterruptedException ex) {
             getStatus().setMessage("interrupted - not running");
             getStatus().completed();
@@ -232,12 +214,26 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
 
     }
 
+    /**
+     * Set the timeout for the batch processor. 
+     * @param timeout when to interrupt the procedure
+     * @param timeout_unit units for the timeout
+     */
     public void setTimeOut(final int timeout, final TimeUnit timeout_unit) {
         this.timeout = timeout;
         this.timeUnit = timeout_unit;
     }
 
-    private Callable getCallable(final JProcessor processor, final Object input) {
+    /**
+     * The corresponding callable for a given processor with a given input. The
+     * result occcurs from the invokation of the method call in the callable object
+     * which is equivalent to the method process in JProcessor. Thus a processor
+     * is equivalent to a Callable when input is determined.
+     * @param processor A processor
+     * @param input Some input for the processor
+     * @return
+     */
+    protected Callable getCallable(final JProcessor processor, final Object input) {
         Callable callable = new Callable() {
 
             public Object call() throws Exception {
@@ -248,4 +244,34 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
         };
         return callable;
     }
+
+
+    /**
+     * Handles a possible time out of a thread in the processor. If there are still
+     * some open threads, i.e. the process has not completed, and the parallel
+     * processor is fail-sensitive, then throw an exception. Otherwise, just log
+     * the event.
+     * @throws YaqpException
+     */
+    protected void handleTimeOut() throws YaqpException{
+            if (!parallel_executor.isTerminated()) {
+                if (isfailSensitive()) {
+                    parallel_executor.shutdownNow();
+                    YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                            CAUSE.time_out_exception.toString()));
+                    System.out.println("Waiting for " + timeout + timeUnit);
+                    getStatus().setMessage("completed unsuccessfully - timeout");
+                    getStatus().completed();
+                    firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
+                    throw new YaqpException(CAUSE.time_out_exception);
+                } else {
+                    YaqpLogger.INSTANCE.log(new Debug(ParallelProcessor.class,
+                            "Some processes in a parallel processor took very long "
+                            + "to complete but the parallel is not fail-sensitive so "
+                            + "no exception is thrown"));
+                }
+            }
+    }
+
+
 }

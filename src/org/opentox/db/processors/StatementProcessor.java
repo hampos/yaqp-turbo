@@ -1,11 +1,10 @@
-package org.opentox.db.executors;
+package org.opentox.db.processors;
 
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.interfaces.IStatement;
-import org.opentox.db.processors.AbstractDbProcessor;
 import org.opentox.core.exceptions.ProcessorException;
 import org.opentox.core.exceptions.YaqpException;
 
@@ -13,7 +12,7 @@ import org.opentox.core.exceptions.YaqpException;
  *
  * @author chung
  */
-public abstract class StatementExecutor<Query extends IStatement, Results>
+public abstract class StatementProcessor<Query extends IStatement, Results>
         extends AbstractDbProcessor<Query, Results>{
 
     public void open() throws DbException {

@@ -1,4 +1,4 @@
-package org.opentox.db.executors;
+package org.opentox.db.processors;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -9,7 +9,7 @@ import org.opentox.core.exceptions.YaqpException;
  *
  * @author chung
  */
-public class UpdateExecutor<Query extends IUpdateQuery> extends StatementExecutor<Query, Integer> {
+public class UpdateEngine<Query extends IUpdateQuery> extends StatementProcessor<Query, Integer> {
 
     @Override
     protected Integer execute(Connection c, Query target) throws SQLException, YaqpException {

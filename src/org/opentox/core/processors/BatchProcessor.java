@@ -33,8 +33,10 @@ import static org.opentox.core.util.MultiProcessorStatus.STATUS;
  * can implement the interface {@link BatchProcessor }, extends the abstract class
  * {@link AbstractBatchProcessor } or do both. The corresponding prototypes are:
  * <ul>
- * <li>class MyBatchProcessor&lt;I,O,P extends JProcessor&lt;I,O&gt;&gt; implements JBatchProcessor&lt;I,O,P&lt;I,O&gt;&gt;</li>
- * <li>class MyBatchProcessor&lt;I,O,P extends JProcessor&lt;I,O&gt;&gt; extends AbstractProcessor&lt;I,O,P&lt;I,O&gt;&gt;</li>
+ * <li>class MyBatchProcessor&lt;I,O,P extends JProcessor&lt;I,O&gt;&gt;
+ * implements JBatchProcessor&lt;I,O,P&lt;I,O&gt;&gt;</li>
+ * <li>class MyBatchProcessor&lt;I,O,P extends JProcessor&lt;I,O&gt;&gt;
+ * extends AbstractProcessor&lt;I,O,P&lt;I,O&gt;&gt;</li>
  * </ul>
  * </p>
  *
@@ -45,9 +47,8 @@ import static org.opentox.core.util.MultiProcessorStatus.STATUS;
  * @param <P> Type of internal processor
  */
 public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
-        extends AbstractBatchProcessor<Input, Output, P>
-          {
-    
+          extends AbstractBatchProcessor<Input, Output, P> {
+
     private String PROPERTY = getStatus().getClass().getName();
     private int corePoolSize = 4, maxPoolSize = 4;
     private int timeout = 1;
@@ -61,6 +62,17 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
     public BatchProcessor(final P processor) {
         this();
         setProcessor(processor);
+    }
+
+    public BatchProcessor(final P processor, final int corePoolSize, final int maxPoolSize) {
+        this.corePoolSize = corePoolSize;
+        this.maxPoolSize = maxPoolSize;
+        setProcessor(processor);
+    }
+
+    public void setTimeOut(final int timeout, final TimeUnit timeout_unit) {
+        this.timeout = timeout;
+        this.timeUnit = timeout_unit;
     }
 
     /**
@@ -87,8 +99,8 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
             throw new YaqpException("No batch!");
         }
 
-        
-        JProcessor nullProcessor = new Processor() {
+
+        P nullProcessor = (P) new Processor() {
 
             public Object process(Object data) throws YaqpException {
                 return null;
@@ -107,20 +119,18 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
             getStatus().increment(STATUS.INITIALIZED);
             if (getProcessor().isEnabled()) {
                 future_array[i] = parallel_executor.submit(getCallable(getProcessor(), data.get(i)));
-            } else {                
+            } else {
                 future_array[i] = parallel_executor.submit(getCallable(nullProcessor, null));
             }
         }
         parallel_executor.shutdown();
-
-
 
         /**
          * Await for the processors to terminate, but no more than a fixed timeout.
          */
         try {
             parallel_executor.awaitTermination(timeout, timeUnit);
-            handleTimeOut();           
+            handleTimeOut();
         } catch (InterruptedException ex) {
             getStatus().setMessage("interrupted - not running");
             getStatus().completed();
@@ -134,8 +144,14 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
             try {
                 // Successful processing...
                 error_start_time = System.currentTimeMillis();
-                result.add(future_array[i].get());
-                getStatus().increment(STATUS.PROCESSED); // increment number of successful processors
+                if (future_array[i].isDone()) {
+                    result.add(future_array[i].get());
+                    getStatus().increment(STATUS.PROCESSED);
+                } else {
+                    result.add(null);
+                    getStatus().increment(STATUS.ERROR);
+                }
+
                 firePropertyChange(PROPERTY, null, getStatus());
             } catch (InterruptedException ex) {
                 YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
@@ -183,41 +199,41 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
         return result;
 
     }
-    
-    private Callable getCallable(final JProcessor processor, final Object input) {
+
+    protected Callable getCallable(final P processor, final Input input) {
         Callable callable = new Callable() {
 
-            public Object call() throws Exception {
+            public Output call() throws Exception {
                 Object o;
                 o = processor.process(input);
-                return (Object) o;
+                return (Output) o;
             }
         };
         return callable;
     }
 
-    protected void handleTimeOut() throws YaqpException{
-         if (!parallel_executor.isTerminated()) {
-                if (isfailSensitive()) {
-                    parallel_executor.shutdownNow();
-                    YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
-                            CAUSE.time_out_exception.toString()));
-                    System.out.println("Waiting for " + timeout + timeUnit);
-                    getStatus().setMessage("completed unsuccessfully - timeout");
-                    getStatus().completed();
-                    firePropertyChange(PROPERTY, null, getStatus());
-                    throw new YaqpException(CAUSE.time_out_exception);
-                } else {
-                    YaqpLogger.INSTANCE.log(new Debug(ParallelProcessor.class,
-                            "Some processes in a parallel processor took very long "
-                            + "to complete but the parallel is not fail-sensitive so "
-                            + "no exception is thrown"));
-                }
+    /**
+     * Specifies how to cope with timeouts.
+     * @throws YaqpException
+     */
+    protected void handleTimeOut() throws YaqpException {
+        if (!parallel_executor.isTerminated()) {
+            if (isfailSensitive()) {
+                parallel_executor.shutdownNow();
+                YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                        CAUSE.time_out_exception.toString()));
+                System.out.println("Waiting for " + timeout + timeUnit);
+                getStatus().setMessage("completed unsuccessfully - timeout");
+                getStatus().completed();
+                firePropertyChange(PROPERTY, null, getStatus());
+                throw new YaqpException(CAUSE.time_out_exception);
+            } else {
+                YaqpLogger.INSTANCE.log(new Debug(ParallelProcessor.class,
+                        "Some processes in a parallel processor took very long "
+                        + "to complete but the parallel is not fail-sensitive so "
+                        + "no exception is thrown"));
             }
+        }
 
     }
-
-    
-
-  
 }
