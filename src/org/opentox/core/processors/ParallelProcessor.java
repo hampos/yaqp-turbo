@@ -26,13 +26,16 @@ import org.opentox.core.exceptions.YaqpException.CAUSE;
  * @author Charalampos Chomenides
  */
 public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Input>, ArrayList<Output>>>
-          extends AbstractMultiProcessor<ArrayList<Input>, ArrayList<Output>, P> {
+              extends AbstractMultiProcessor<ArrayList<Input>, ArrayList<Output>, P> {
 
     private ThreadPoolExecutor parallel_executor;
     private String PROPERTY_PARALLEL_STATUS = getStatus().getClass().getName();
     private int corePoolSize = 4, maxPoolSize = 4;
     private int timeout = 1;
     private TimeUnit timeUnit = TimeUnit.HOURS;
+    ArrayList<JProcessor<Input, Output>> synchronizedProcessors = new ArrayList<JProcessor<Input, Output>>();
+    ArrayList<Input> synchronizedJobs = new ArrayList<Input>();
+    ArrayList synchronizedIndices = new ArrayList();
 
     public ParallelProcessor() {
         super();
@@ -89,6 +92,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
             throw new YaqpException(CAUSE.no_processors_found);
         }
 
+
         /**
          * A null processor (a processor always returning (Object)null ; created on the fly.
          */
@@ -98,8 +102,11 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
                 return null;
             }
         };
+
         final ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(size() + 2);
         parallel_executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 1, TimeUnit.MINUTES, queue);
+
+
         getStatus().setMessage("processing in progress");
         long start_time = 0;
 
@@ -114,10 +121,22 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
         for (int i = 0; i < size(); i++) {
             getStatus().increment(STATUS.INITIALIZED);
             if (get(i).isEnabled()) {
+
                 /**
                  * If the processor is enabled, submit the job to be done...
-                 */
-                future_array[i] = parallel_executor.submit(getCallable(get(i), data.get(i)));
+                 * */
+                if (!get(i).isSynchronized()) {
+                    future_array[i] = parallel_executor.submit(getCallable(get(i), data.get(i)));
+                } else {
+                    /** Override the synchronized jobs **/
+                    future_array[i] = parallel_executor.submit(getCallable(nullProcessor, null));
+                    synchronizedProcessors.add((JProcessor<Input, Output>) get(i));
+                    synchronizedJobs.add(data.get(i));
+                    synchronizedIndices.add(i);
+                }
+
+
+
             } else {
                 /**
                  * If the i-th processor is not enabled, it is not parallelized with
@@ -138,8 +157,6 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
         try {
             parallel_executor.awaitTermination(timeout, timeUnit);
             handleTimeOut();
-
-            
         } catch (InterruptedException ex) {
             getStatus().setMessage("interrupted - not running");
             getStatus().completed();
@@ -147,10 +164,12 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
             throw new YaqpException(CAUSE.processor_interruption);
         }
 
+
         for (int i = 0; i < size(); i++) {
             long error_start_time = 0;
             try {
-                // Successful processing...
+
+
                 error_start_time = System.currentTimeMillis();
                 if (future_array[i].isDone()) {
                     result.add(future_array[i].get());
@@ -159,6 +178,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
                     result.add(null);
                     getStatus().increment(STATUS.ERROR);
                 }
+
 
                 firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
             } catch (InterruptedException ex) {
@@ -204,6 +224,10 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
         getStatus().completed();
         firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
 
+        for (int j = 0; j < synchronizedProcessors.size(); j++) {
+            result.add(Integer.parseInt(synchronizedIndices.get(j).toString()), synchronizedProcessors.get(j).process(synchronizedJobs.get(j)));
+        }
+
         try {
             return (ArrayList<Output>) result;
         } catch (Exception ex) {
@@ -231,20 +255,24 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
      * is equivalent to a Callable when input is determined.
      * @param processor A processor
      * @param input Some input for the processor
+     * @param synchron whether the method 'call' is synchronized
      * @return
      */
     protected Callable getCallable(final JProcessor processor, final Object input) {
-        Callable callable = new Callable() {
 
-            public Object call() throws Exception {
+        Callable callable;
+        callable = new Callable() {
+
+            public synchronized Object call() throws Exception {
                 Object o;
                 o = processor.process(input);
                 return (Object) o;
             }
         };
+
+
         return callable;
     }
-
 
     /**
      * Handles a possible time out of a thread in the processor. If there are still
@@ -253,25 +281,23 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
      * the event.
      * @throws YaqpException
      */
-    protected void handleTimeOut() throws YaqpException{
-            if (!parallel_executor.isTerminated()) {
-                if (isfailSensitive()) {
-                    parallel_executor.shutdownNow();
-                    YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
-                            CAUSE.time_out_exception.toString()));
-                    System.out.println("Waiting for " + timeout + timeUnit);
-                    getStatus().setMessage("completed unsuccessfully - timeout");
-                    getStatus().completed();
-                    firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-                    throw new YaqpException(CAUSE.time_out_exception);
-                } else {
-                    YaqpLogger.INSTANCE.log(new Debug(ParallelProcessor.class,
-                            "Some processes in a parallel processor took very long "
-                            + "to complete but the parallel is not fail-sensitive so "
-                            + "no exception is thrown"));
-                }
+    protected void handleTimeOut() throws YaqpException {
+        if (!parallel_executor.isTerminated()) {
+            if (isfailSensitive()) {
+                parallel_executor.shutdownNow();
+                YaqpLogger.INSTANCE.log(new ScrewedUp(ParallelProcessor.class,
+                        CAUSE.time_out_exception.toString()));
+                System.out.println("Waiting for " + timeout + timeUnit);
+                getStatus().setMessage("completed unsuccessfully - timeout");
+                getStatus().completed();
+                firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
+                throw new YaqpException(CAUSE.time_out_exception);
+            } else {
+                YaqpLogger.INSTANCE.log(new Debug(ParallelProcessor.class,
+                        "Some processes in a parallel processor took very long "
+                        + "to complete but the parallel is not fail-sensitive so "
+                        + "no exception is thrown"));
             }
+        }
     }
-
-
 }

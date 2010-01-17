@@ -99,6 +99,15 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
             throw new YaqpException("No batch!");
         }
 
+        /**
+         * If the internal processor is synchronized, run all processes in
+         * a single query.
+         */
+        if (getProcessor().isSynchronized()){
+            corePoolSize = 1;
+            maxPoolSize = 1;
+        }
+
 
         P nullProcessor = (P) new Processor() {
 
@@ -211,6 +220,9 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
         };
         return callable;
     }
+
+
+
 
     /**
      * Specifies how to cope with timeouts.

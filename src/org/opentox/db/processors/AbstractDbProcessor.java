@@ -2,44 +2,38 @@ package org.opentox.db.processors;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.exceptions.DbException;
-import org.opentox.db.interfaces.IDbAccess;
-import org.opentox.db.interfaces.IDbProcessor;
+import org.opentox.db.interfaces.JDbProcessor;
 import org.opentox.core.processors.Processor;
+import org.opentox.db.interfaces.JQuery;
+import org.opentox.db.util.DbConnector;
 
 /**
  * This abstract class holds and manipulates the connection to the database.
  * @author chung
  */
-public abstract class AbstractDbProcessor<Query, Result>
-        extends Processor<Query, Result>
-        implements IDbProcessor<Query, Result>, IDbAccess {
+public abstract class AbstractDbProcessor<Query extends JQuery, QueryResult>
+        extends Processor<Query, QueryResult>
+        implements JDbProcessor<Query, QueryResult> {
+    
 
-    protected Connection connection;
 
-    public AbstractDbProcessor(){
-        super();
+    public AbstractDbProcessor() {
+        super();     
     }
 
-    public Connection getConnection() {
-        return connection;
-    }
 
-    public void setConnection(Connection connection) throws DbException {
-        if ((this.connection != null) && (this.connection != connection)) {
-            try {
-                close();
-            } catch (SQLException x) {
-                //logger.error(x);
-            }
+    public QueryResult process(Query query) throws YaqpException {        
+        if (!DbConnector.INSTANCE.isConnected()) {
+            throw new DbException("no connection");
         }
-        this.connection = connection;
+        try {
+            return execute(query);
+        } catch (Exception x) {
+            throw new YaqpException();
+        }
     }
 
-    public void close() throws SQLException {
-        if ((connection != null) && (!connection.isClosed())) {
-            connection.close();
-        }
-        connection = null;
-    }
+    public abstract QueryResult execute(Query q);
 }

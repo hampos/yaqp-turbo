@@ -34,4 +34,9 @@ public interface JProcessor<InputData, Result>
      */
     void setEnabled(boolean enabled);
 
+    
+    boolean isSynchronized();
+
+    void setSynchronized(boolean synch);
+
 }

@@ -16,6 +16,8 @@ public abstract class Processor<InputData, Result> implements JProcessor<InputDa
      */
     private boolean enabled = true;
 
+    private boolean isSynchronized = false;
+
     
 
     /**
@@ -40,6 +42,18 @@ public abstract class Processor<InputData, Result> implements JProcessor<InputDa
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
     }
+
+    public boolean isSynchronized() {
+        return isSynchronized;
+    }
+
+    public void setSynchronized(boolean isSynchronized) {
+        this.isSynchronized = isSynchronized;
+    }
+
+
+
+
 
 
 

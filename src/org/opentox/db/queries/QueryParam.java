@@ -1,10 +1,12 @@
 package org.opentox.db.queries;
 
+import org.opentox.db.interfaces.JQueryParam;
+
 /**
  *
  * @author chung
  */
-public class QueryParam<T> implements IQueryParam<T> {
+public class QueryParam<T> implements JQueryParam<T> {
 
     protected Class type;
     protected T value;

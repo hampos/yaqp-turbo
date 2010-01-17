@@ -25,7 +25,10 @@ public abstract class AbstractMultiProcessor<Input, Output, P extends JProcessor
      * Property Change Support for this class.
      */
     private PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
+
     private boolean failSensitive = false;
+
+    private boolean isSynchronized = false;
 
     public AbstractMultiProcessor() {
         super();
@@ -100,4 +103,15 @@ public abstract class AbstractMultiProcessor<Input, Output, P extends JProcessor
             get(i).setEnabled(enabled);
         }
     }
+
+    public boolean isSynchronized() {
+        return isSynchronized;
+    }
+
+    public void setSynchronized(boolean synch) {
+        this.isSynchronized = synch;
+    }
+
+
+
 }
