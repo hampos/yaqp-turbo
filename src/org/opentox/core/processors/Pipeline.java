@@ -71,13 +71,13 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
             } catch (Exception exc) {
                 if (isfailSensitive()) {
                     YaqpLogger.LOG.log(new Debug(Pipeline.class,
-                            "Processor " + i + " is in error state!"));
+                            "Processor " + i + " is in error state :: "+exc));
                     throw new YaqpException();
                 }
                 getStatus().increment(STATUS.ERROR);
                 getStatus().incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - start_time);
                 YaqpLogger.LOG.log(new Trace(Pipeline.class,
-                        "Processor " + i + " is in error state!"));
+                        "Processor " + i + " is in error state :: "+exc));
             }
         }
         getStatus().setMessage("Pipeline completed the job.");

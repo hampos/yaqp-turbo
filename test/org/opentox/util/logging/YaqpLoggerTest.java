@@ -52,6 +52,7 @@ public class YaqpLoggerTest {
         YaqpLogger.LOG.log(new ScrewedUp(YaqpLoggerTest.class));
         YaqpLogger.LOG.log(new Fatal(YaqpLoggerTest.class));
         }catch(Throwable ex){
+            System.out.println(ex);
             fail();
         }
     }

@@ -1,14 +1,19 @@
 package org.opentox.db.util;
 
-import java.io.IOException;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.Driver;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Properties;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.YaqpException;
-import org.opentox.core.exceptions.YaqpIOException;
 import org.opentox.db.interfaces.JDbConnector;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Fatal;
@@ -23,89 +28,113 @@ import org.opentox.util.logging.levels.ScrewedUp;
 public class TheDbConnector implements JDbConnector {
 
     private static TheDbConnector instanceOfthis = null;
+    /**
+     * Public access point to the {@link TheDbConnector DB Connection Singleton }.
+     * Use this static connection to the database to perform any operations.
+     */
     public static TheDbConnector DB = getInstance();
+    /**
+     * SQL connection to the database
+     */
     private Connection connection;
-    private Properties properties = Configuration.getProperties();
-    private String database_name =
+    /**
+     * Database Properties
+     */
+    private final Properties properties = Configuration.getProperties();
+    /**
+     * Name of the database.
+     */
+    private final String database_name =
             properties.getProperty("database.name", "yaqp/yaqpdb");
-    private String database_port =
+    /**
+     * Database port
+     */
+    private final String database_port =
             properties.getProperty("database.port", "1527");
-    private String database_url =
+    /**
+     * URL of the database
+     */
+    private final String database_url =
             properties.getProperty("database.urlbase", "jdbc:derby://localhost") + ":"
             + database_port + "/" + database_name;
-    private String database_user =
+    /**
+     * User/Schema of the database
+     */
+    private final String database_user =
             properties.getProperty("database.user", "itsme");
-    private String database_driver =
+    /**
+     * Driver used to connect to the database. By default this is
+     * org.apache.derby.jdbc.EmbeddedDriver. Note that derby.jar should
+     * be in thy classpath.
+     */
+    private final String database_driver =
             properties.getProperty("database.driver", "org.apache.derby.jdbc.EmbeddedDriver");
+    /**
+     * Java command. You are adviced to use the SUN variant (version 6 or higher).
+     */
+    private final String javacmd =
+            properties.getProperty("javaCommand", "java");
+    /**
+     * Options/Directives to the java virtual machine.
+     */
+    private final String javaOptions =
+            properties.getProperty("javaOptions", "-Djava.net.preferIPv4Stack=true");
+    /**
+     * Home directory for DERBY
+     */
+    private final String derbyHome =
+            properties.getProperty("derbyHome", "/usr/local/sges-v3/javadb");
+    private static ArrayList<String> TABLE_LIST = null;
+    /**
+     * Connection Flag.
+     */
     private boolean isConnected = false;
+    private final Lock lock = new ReentrantLock();
 
     private static TheDbConnector getInstance() {
-        
         if (instanceOfthis == null) {
             try {
                 instanceOfthis = new TheDbConnector();
             } catch (Throwable e) {
-                System.out.println(e);
                 YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Unable to connect to "
-                        + DB.database_url+" :: "+e));
+                        + DB.database_url + " :: " + e));
             }
         }
         return (TheDbConnector) instanceOfthis;
     }
 
     private TheDbConnector() throws YaqpException {
-        try {
-            YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Starting the derby server..."));
-            String[] command = {
-                properties.getProperty("javaCommand", "java"),
-                properties.getProperty("javaOptions", "-Djava.net.preferIPv4Stack=true"),
-                "-jar",
-                properties.getProperty("derbyHome", "/usr/local/sges-v3/javadb")+"/lib/derbyrun.jar",
-                "server",
-                "start",
-                "-p",
-                properties.getProperty("database.port", "1527"),
-            };
-            
+        connect();
+    }
 
-            Process derby_server = Runtime.getRuntime().exec(command);
+    public Lock getLock() {
+        return lock;
+    }
 
-            /**
-             * Wait a little to let the derby server to start...
-             * 500ms seems to be adequate.
-             */
-            Thread.sleep(500);
-            
-            YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Derby server started; listening and ready" +
-                    " to accept connections on port "+getDatabasePort()));
-            connect();
-        } catch (Throwable ex) {
-            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Unable to connect to "
-                        + DB.database_url+" :: "+ex));
-            throw new YaqpException();
+    /**
+     * If there is no connection to the database, attempts a
+     * new connection.
+     */
+    public void connect() {
+        if (!isConnected()) {
+            try {
+                startDerbyServer();
+                loadDriver();
+                establishConnection();
+            } catch (Throwable ex) {
+                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Unable to connect to "
+                        + DB.database_url + " :: " + ex));
+                throw new RuntimeException(ex);
+
+            }
         }
     }
 
-    public Object getLock() {
-        return (Object) TheDbConnector.DB;
-    }
-
-    public Object getLock(String lockName) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public void connect() {
-        loadDriver();
-        establishConnection();
-        // loadTables();
-    }
-
     public void disconnect() {
-        // TODO: ...
-        instanceOfthis = null;
         if (connection != null) {
             try {
                 connection.close();
+                instanceOfthis = null;
                 isConnected = false;
             } catch (SQLException ex) {
                 YaqpLogger.LOG.log(new ScrewedUp(TheDbConnector.class, "Connection "
@@ -116,7 +145,7 @@ public class TheDbConnector implements JDbConnector {
     }
 
     public String getDatabaseName() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return database_name;
     }
 
     public String getDatabaseUrl() {
@@ -149,6 +178,80 @@ public class TheDbConnector implements JDbConnector {
         return database_user;
     }
 
+    public DatabaseMetaData getMetaData() throws YaqpException {
+        if (connection != null && isConnected()) {
+            try {
+                return connection.getMetaData();
+            } catch (SQLException ex) {
+                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "No connection to the database :" + database_name));
+                throw new YaqpException("No connection to the database");
+            }
+        } else {
+            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "No connection to the database :" + database_name));
+            throw new YaqpException("No connection to the database");
+        }
+
+    }
+
+    public ArrayList<String> getTableNames() throws YaqpException {
+        if (TABLE_LIST == null) {
+            try {
+                TABLE_LIST = new ArrayList<String>();
+                DatabaseMetaData md = getMetaData();
+                String[] rsOps = {"TABLE"};
+                ResultSet rs = md.getTables(null, null, "%", rsOps);
+                while (rs.next()) {
+                    TABLE_LIST.add(rs.getString(3));
+                }
+            } catch (SQLException ex) {
+                throw new YaqpException(ex);
+            }
+        }
+        return TABLE_LIST;
+    }
+
+    private void startDerbyServer() throws Exception {
+        String[] derby_start_command = {
+            javacmd, javaOptions,
+            "-jar", derbyHome + "/lib/derbyrun.jar", "server", "start",
+            "-p", database_port
+        };
+
+        String[] derby_ping_command = {
+            javacmd, javaOptions,
+            "-jar", derbyHome + "/lib/derbyrun.jar", "server", "ping",
+            "-p", database_port};
+
+
+        Runtime runtime = Runtime.getRuntime();
+
+        YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Attempting connection to the derby server..."));
+        // Check if the server is started:
+        boolean is_server_started = false;
+        Process derby_ping = runtime.exec(derby_ping_command);
+        BufferedReader br = new BufferedReader(new InputStreamReader(derby_ping.getInputStream()));
+        if (br.readLine().contains("Connection obtained")) {
+            is_server_started = true;
+        }
+
+        if (!is_server_started) {
+            YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Derby server is down. Now starting..."));
+            Process derby_start = runtime.exec(derby_start_command);
+            // Wait until the derby server is started.
+            derby_ping = runtime.exec(derby_ping_command);
+            br = new BufferedReader(new InputStreamReader(derby_ping.getInputStream()));
+            while (!br.readLine().contains("Connection obtained")) {
+                derby_ping = runtime.exec(derby_ping_command);
+                br = new BufferedReader(new InputStreamReader(derby_ping.getInputStream()));
+            }
+        }
+
+
+        YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Derby server is up, listening and ready"
+                + " to accept connections on port " + getDatabasePort()));
+
+    }
+
     /**
      * Load the JDBC driver specified in the properties section
      * @see Configuration server configuration
@@ -162,7 +265,7 @@ public class TheDbConnector implements JDbConnector {
                     + " was successfully loaded."));
             assert (myDriver.jdbcCompliant());
         } catch (Exception exc) {
-            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Error while loading the JDBC driver ::"+exc));
+            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Error while loading the JDBC driver ::" + exc));
         }
     }
 
@@ -171,6 +274,7 @@ public class TheDbConnector implements JDbConnector {
      * if the specified is not found.
      */
     private void establishConnection() {
+        YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Attempting connection to :" + database_url));
         try {
             connection = DriverManager.getConnection(database_url, database_user, "letmein");
             isConnected = true;
@@ -178,20 +282,22 @@ public class TheDbConnector implements JDbConnector {
                     + database_url + " by " + database_user + " - Now Connected!"));
         } catch (SQLException e) {
             if (e.getErrorCode() == 40000) {
-                YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Database " + database_url
-                        + " was not found -- creating..."));
+                YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Database " + database_url + " was not found -- creating..."));
                 createDataBase();
             } else {
-                // TODO: log
+                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Unexpected condition while connecting to the database :: " + e));
+                throw new RuntimeException(e);
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Unable to connect to "
-                        + DB.database_url+"--"+e));
+                    + DB.database_url + "--" + e));
         }
     }
 
     /**
-     *
+     * This method is called when the specified database does not exist and it is
+     * created. The directive <code>create=true</code> is used within the URL
+     * of the database
      */
     private void createDataBase() {
         try {
@@ -202,15 +308,8 @@ public class TheDbConnector implements JDbConnector {
                 isConnected = true;
             }
         } catch (SQLException ex) {
-            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Encountered an error while trying to " +
-                    "create a new database :: "+ex));
+            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Encountered an error while trying to "
+                    + "create a new database :: " + ex));
         }
     }
-
-    
-    private void loadTables(){
-        
-    }
-
-
 }

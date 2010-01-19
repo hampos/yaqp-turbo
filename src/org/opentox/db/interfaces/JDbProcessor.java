@@ -1,7 +1,5 @@
 package org.opentox.db.interfaces;
 
-import java.sql.Connection;
-import org.opentox.db.exceptions.DbException;
 import org.opentox.core.interfaces.JProcessor;
 
 /**
@@ -10,9 +8,6 @@ import org.opentox.core.interfaces.JProcessor;
  */
 public interface JDbProcessor<InputData, Result> extends JProcessor<InputData, Result>{
 
-    Connection getConnection() throws DbException;
-
-    void disconnect() throws DbException;
-
+    public abstract Result execute(InputData q);
 
 }

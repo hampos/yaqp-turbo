@@ -75,15 +75,12 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
         this.timeUnit = timeout_unit;
     }
 
+    
     /**
-     * TODO: More Constructors have to be created.
-     */
-    /**
-     * TODO: Initial Implementation of Process
-     * TODO: Consider Not providing input data as an ArrayList but throught an iterator
-     * @param data
+     * @param data A list of data to be processed by the BatchProcessor.
      * @return Batch Processor Output
-     * @throws YaqpException
+     * @throws YaqpException In case something goes wrong while processing
+     * input data.
      */
     public ArrayList<Output> process(ArrayList<Input> data) throws YaqpException {
 

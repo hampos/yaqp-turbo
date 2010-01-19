@@ -10,6 +10,7 @@ public class QueryParam<T> implements JQueryParam<T> {
 
     protected Class type;
     protected T value;
+    protected String parameterName;
 
     public QueryParam(Class type, T value) {
         setType(type);
@@ -39,5 +40,13 @@ public class QueryParam<T> implements JQueryParam<T> {
         } else {
             return value.toString();
         }
+    }
+
+    public String getParameterName() {
+        return parameterName;
+    }
+
+    public void setParameterName(String parameterName) {
+        this.parameterName = parameterName;
     }
 }

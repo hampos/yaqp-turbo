@@ -3,7 +3,7 @@ package org.opentox.db.interfaces;
 
 
 import java.util.ArrayList;
-import org.opentox.db.util.PrepStmtList.PREP_STMT;
+import org.opentox.db.util.PrepStmt;
 import org.opentox.db.util.QueryType;
 
 /**
@@ -29,14 +29,14 @@ public interface JQuery<T> {
      *
      * @return standard prepared statement for the database
      */
-    PREP_STMT getPrepStmt();
+    PrepStmt getPrepStmt();
 
     /**
      * Set the prepared statement using some statement preparation factory such
      * as {@link PREP_STMT }.
      * @param prepStmt
      */
-    void setPrepStmt(PREP_STMT prepStmt);
+    void setPrepStmt(PrepStmt prepStmt);
 
    
 
