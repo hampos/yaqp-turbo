@@ -12,34 +12,14 @@ import org.opentox.db.processors.AbstractDbProcessor;
  * @see TableCreator
  * @see TableDropper
  */
-public abstract class AbstractTableProcessor extends AbstractDbProcessor<Object, Object>{
+public abstract class AbstractTableProcessor extends AbstractDbProcessor<Table, Object>{
 
-    private String TABLE_NAME = "";
-
-    private String TABLE_STRUCTURE = "";
-    
+    private Table table;
 
     public AbstractTableProcessor(){
         super();
     }
-    
-    public AbstractTableProcessor(final String table_name, final String table_structure){
-        this.TABLE_NAME = table_name;
-        this.TABLE_STRUCTURE = table_structure;
-    }
-
-    public AbstractTableProcessor(final StandardTables TABLE){
-        this.TABLE_NAME = TABLE.getTableName();
-        this.TABLE_STRUCTURE = TABLE.getTableStructure();
-    }
-
-    public String getTableName(){
-        return TABLE_NAME;
-    }
-
-    public String getTableStructure(){
-        return TABLE_STRUCTURE;
-    }
+   
 
     /**
      * An implementation of {@link AbstractDbProcessor#execute(java.lang.Object) execute()}
@@ -49,7 +29,7 @@ public abstract class AbstractTableProcessor extends AbstractDbProcessor<Object,
      * whatsoever.
      * @return null by default
      */
-    public abstract Object execute(Object q);
+    public abstract Object execute(Table q);
 
 
 }

@@ -17,6 +17,10 @@ public class Table implements JDbTable<TableColumn>{
         super();
     }
 
+    public Table(String tableName){
+        this.tableName = tableName.toUpperCase();
+    }
+
     public ArrayList<TableColumn> getTableColumns() {
         return listOfColumns;
     }
@@ -34,11 +38,49 @@ public class Table implements JDbTable<TableColumn>{
     }
 
     public void setTableName(String tableName) {
-        this.tableName = tableName;
+        this.tableName = tableName.toUpperCase();
     }
 
     public String getTableName() {
         return this.tableName;
+    }
+
+    public String getSQL() {
+        String SQL = "CREATE TABLE " + getTableName() + "\n( ";
+        ArrayList<TableColumn> colList = new ArrayList<TableColumn>();
+        colList = getTableColumns();
+        TableColumn temp;
+        for (int i = 0; i < colList.size(); i++) {
+            temp = colList.get(i);
+            SQL = SQL + temp.getColumnName() + " " + temp.getColumnType().toString();
+
+            if (temp.isUnique()) {
+                SQL = SQL + " UNIQUE";
+            }
+            if (temp.isNotNull()) {
+                SQL = SQL + " NOT NULL";
+            }
+            if (temp.isPrimaryKey()) {
+                SQL = SQL + " PRIMARY KEY ";
+            }
+
+            if (temp.hasDefault()) {
+                SQL = SQL + temp.getDefaultValue();
+            }
+
+            if (temp.isConstrained()) {
+                SQL = SQL + temp.getConstraint() ;
+            }
+
+            if (temp.isForeignKey()) {
+                SQL = SQL + ",\n" + temp.getForeignKey();
+            }
+            if (i != colList.size() -1 ) {
+                SQL = SQL + ",\n";
+            }
+        }
+        SQL = SQL + "\n)";
+        return SQL;
     }
 
 }

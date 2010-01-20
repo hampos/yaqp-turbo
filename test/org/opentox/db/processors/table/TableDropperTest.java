@@ -48,7 +48,6 @@ public class TableDropperTest {
         System.out.println("execute");
         TheDbConnector db = TheDbConnector.DB;
         TableDropper dropper = null ;
-        dropper.process(new Object());
     }
 
 }

@@ -25,12 +25,20 @@ public class TableColumn implements JDbTableColumn {
     private boolean isConstrained = false;
     private boolean hasDefault = false;
 
+    public TableColumn(){
+        super();
+    }
+
+    public TableColumn(String columnName){
+        setColumnName(columnName);
+    }
+
     public String getColumnName() {
         return this.columnName;
     }
 
     public void setColumnName(String columnName) {
-        this.columnName = columnName;
+        this.columnName = columnName.toUpperCase();
     }
 
     public void setColumnType(SQLDataTypes columnType) {
@@ -52,8 +60,8 @@ public class TableColumn implements JDbTableColumn {
 
     public void setForeignKey(String TableName, String ForeignColumn, boolean OnDeleteCascade) {
         this.isForeignKey = true;
-        this.referencesTable = TableName;
-        this.referencesColumn = ForeignColumn;
+        this.referencesTable = TableName.toUpperCase();
+        this.referencesColumn = ForeignColumn.toUpperCase();
         this.isOnDeleteCascade = OnDeleteCascade;
 
     }
@@ -71,7 +79,7 @@ public class TableColumn implements JDbTableColumn {
 
     public void setDefaultValue(String defaultValue) {
         this.hasDefault = true;
-        this.defaultValue = defaultValue;
+        this.defaultValue = defaultValue.toUpperCase();
     }
 
     public String getDefaultValue() {
@@ -93,8 +101,8 @@ public class TableColumn implements JDbTableColumn {
 
     public void setConstraint(String constraintName, String Condition) {
         this.isConstrained = true;
-        this.constraintName = constraintName;
-        this.constraintCondition = Condition;
+        this.constraintName = constraintName.toUpperCase();
+        this.constraintCondition = Condition.toUpperCase();
     }
 
     public String getConstraint() {

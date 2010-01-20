@@ -21,25 +21,10 @@ import org.opentox.util.logging.levels.*;
  */
 public final class TableCreator extends AbstractTableProcessor {
 
-    private TableCreator() {
+    public TableCreator() {
         super();
     }
 
-    public TableCreator(String tableName, String tableStructure) {
-        super(tableName, tableStructure);
-    }
-
-    /**
-     * This is the constructor you are adviced to use.
-     * @param TABLE
-     */
-    public TableCreator(StandardTables TABLE) {
-        super(TABLE);
-    }
-
-
-
-    
 
 
     /**
@@ -52,31 +37,30 @@ public final class TableCreator extends AbstractTableProcessor {
      * certain input.
      */
     @Override
-    public Object execute(Object q) {
+    public Object execute(Table q) {
         TheDbConnector db = TheDbConnector.DB;
         try {
             // If the database does not contain the table, it will be created....
-            if (!db.getTableNames().contains(getTableName())) {
-                String createTable =
-                        "CREATE TABLE  " + getTableName() + "(" + getTableStructure() + ")";
+            if (!db.getTableNames().contains(q.getTableName())) {
+                String createTable = q.getSQL();
                 YaqpLogger.LOG.log(new Trace(getClass(), "Table Creation SQL Command ::" + createTable));
                 try {
                     Statement stmt = db.getConnection().createStatement();
                     stmt.execute(createTable);
                     stmt.close();
-                    YaqpLogger.LOG.log(new Info(getClass(), "The table '" + getTableName().toUpperCase() + "' was created without content"));
+                    YaqpLogger.LOG.log(new Info(getClass(), "The table '" + q.getTableName().toUpperCase() + "' was created without content"));
                 } catch (SQLException ex) {
                     if (ex.toString().contains("already exists")) {
                         YaqpLogger.LOG.log(new Trace(getClass(), ex.toString()));
-                        YaqpLogger.LOG.log(new Warning(getClass(), "The table '" + getTableName().toUpperCase()
+                        YaqpLogger.LOG.log(new Warning(getClass(), "The table '" + q.getTableName().toUpperCase()
                                 + "' could not be created because it already exists"));
                     } else {
-                        YaqpLogger.LOG.log(new ScrewedUp(getClass(), "The table '" + getTableName().toUpperCase()
+                        YaqpLogger.LOG.log(new ScrewedUp(getClass(), "The table '" + q.getTableName().toUpperCase()
                                 + "' could not be created :: " + ex));
                     }
                 }
             } else {
-                YaqpLogger.LOG.log(new Info(getClass(), "The table '" + getTableName() + "' exists"));
+                YaqpLogger.LOG.log(new Info(getClass(), "The table '" + q.getTableName() + "' exists"));
             }
         } catch (YaqpException ex) {
             YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Exception :: " + ex));

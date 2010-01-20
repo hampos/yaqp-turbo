@@ -80,7 +80,7 @@ public enum PrepStmt {
         if (STMT_addAlgOntol == null) {
             try {
                 STMT_addAlgOntol = TheDbConnector.DB.getConnection().
-                        prepareStatement("INSERT INTO " + StandardTables.ALGORITHM_ONTOLOGIES.getTableName()
+                        prepareStatement("INSERT INTO " + StandardTables.ALGORITHM_ONTOLOGIES.getTable().getTableName()
                         + "(NAME, URI) VALUES (?,?)");
             } catch (SQLException ex) {
                 //Logger.getLogger(PrepStmt.class.getName()).log(Level.SEVERE, null, ex);
@@ -93,7 +93,7 @@ public enum PrepStmt {
         if (STMT_addUserRole == null) {
             try {
                 STMT_addUserRole = TheDbConnector.DB.getConnection().prepareStatement("INSERT INTO "
-                        + StandardTables.USER_AUTH.getTableName() + "(NAME, USER_LEVEL) VALUES (?,?)");
+                        + StandardTables.USER_AUTH.getTable().getTableName() + "(NAME, USER_LEVEL) VALUES (?,?)");
             } catch (SQLException ex) {
                 //Logger.getLogger(PrepStmt.class.getName()).log(Level.SEVERE, null, ex);
             }
