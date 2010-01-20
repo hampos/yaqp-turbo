@@ -5,7 +5,8 @@ import org.opentox.db.util.SQLDataTypes;
 
 /**
  *
- * @author chung
+ * @author Sopasakis Pantelis
+ * @author Charalampos Chomenides
  */
 public class QueryParam implements JQueryParam {
 
