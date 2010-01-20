@@ -1,6 +1,5 @@
 package org.opentox.db.util;
 
-import java.sql.PreparedStatement;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -27,11 +26,10 @@ public class PrepSwimmingPool {
         try {
             TheDbConnector db = TheDbConnector.DB;
             for (PrepStmt prepStmt : PrepStmt.values()) {
-                ArrayBlockingQueue queue_i = new ArrayBlockingQueue<PreparedStatement>(_POOL_SIZE);
+                ArrayBlockingQueue<HyperStatement> queue_i = new ArrayBlockingQueue<HyperStatement>(_POOL_SIZE);
                 for (int i = 0; i < _POOL_SIZE; i++) {
                     queue_i.add(new HyperStatement(prepStmt.getSql()));
                 }
-                System.out.println();
                 BlockingQueues.put(prepStmt, queue_i);
             }
         } catch (Exception ex) {
