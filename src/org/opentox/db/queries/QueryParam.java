@@ -1,45 +1,32 @@
 package org.opentox.db.queries;
 
 import org.opentox.db.interfaces.JQueryParam;
+import org.opentox.db.util.SQLDataTypes;
 
 /**
  *
  * @author chung
  */
-public class QueryParam<T> implements JQueryParam<T> {
+public class QueryParam implements JQueryParam {
 
-    protected Class type;
-    protected T value;
+    protected SQLDataTypes type;
+    protected String value;
     protected String parameterName;
 
-    public QueryParam(Class type, T value) {
-        setType(type);
-        setValue(value);
-    }
-
-    public void setType(Class type) {
+    public void setType(SQLDataTypes type) {
         this.type = type;
     }
 
-    public void setValue(T value) {
+    public void setValue(String value) {
         this.value = value;
     }
 
-    public Class getType() {
+    public SQLDataTypes getType() {
         return type;
     }
 
-    public T getValue() {
+    public String getValue() {
         return value;
-    }
-
-    @Override
-    public String toString() {
-        if (value == null) {
-            return null;
-        } else {
-            return value.toString();
-        }
     }
 
     public String getParameterName() {
@@ -49,4 +36,6 @@ public class QueryParam<T> implements JQueryParam<T> {
     public void setParameterName(String parameterName) {
         this.parameterName = parameterName;
     }
+
+    
 }

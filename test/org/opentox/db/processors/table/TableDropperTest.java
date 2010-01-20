@@ -5,7 +5,7 @@
 
 package org.opentox.db.processors.table;
 
-import org.opentox.db.table.TableDropper;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

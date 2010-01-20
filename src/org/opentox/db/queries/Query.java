@@ -11,10 +11,10 @@ import org.opentox.db.util.QueryType;
  *
  * @author chung
  */
-public class Query<T> implements JQuery<T> {
+public class Query implements JQuery {
 
     private PrepStmt  prepStmt;
-    private ArrayList<JQueryParam<T>> list;
+    private ArrayList<JQueryParam> list;
     private QueryType qt;
 
     public QueryType getQueryType() {
@@ -25,11 +25,11 @@ public class Query<T> implements JQuery<T> {
         this.qt = query_type;
     }
 
-    public ArrayList<JQueryParam<T>> getParameters() {
+    public ArrayList<JQueryParam> getParameters() {
         return this.list;
     }
 
-    public void setParameters(ArrayList<JQueryParam<T>> parameters){
+    public void setParameters(ArrayList<JQueryParam> parameters){
         this.list = parameters;
     }
 

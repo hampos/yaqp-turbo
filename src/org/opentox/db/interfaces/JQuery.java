@@ -10,7 +10,7 @@ import org.opentox.db.util.QueryType;
  * A Prepared statement with a list of parameters for it.
  * @author Charalampos Chomenides
  */
-public interface JQuery<T> {
+public interface JQuery {
 
     /**
      * 
@@ -23,7 +23,7 @@ public interface JQuery<T> {
      *
      * @return a list of parameters for the prepared statement of the query.
      */
-    ArrayList<JQueryParam<T>> getParameters();
+    ArrayList<JQueryParam> getParameters();
 
     /**
      *

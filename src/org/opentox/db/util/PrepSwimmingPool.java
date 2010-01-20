@@ -1,17 +1,12 @@
 package org.opentox.db.util;
 
 import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
-import org.opentox.core.exceptions.YaqpException;
-import org.opentox.core.processors.BatchProcessor;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Fatal;
-import org.opentox.core.processors.Processor;
 
 /**
  * Pool of hyper statements
@@ -79,43 +74,5 @@ public class PrepSwimmingPool {
 
     }
 
-    public static void main(String[] args) throws SQLException, InterruptedException, DbException {
-        //PrepSwimmingPool p = PrepSwimmingPool.POOL;
-        System.out.println("xx");
-
-
-
-        Processor<Integer, Object> p = new Processor<Integer, Object>() {
-
-            public Object process(Integer data) throws YaqpException {
-                HyperStatement hp = null;
-                try {
-                    hp = PrepSwimmingPool.POOL.take(PrepStmt.add_algorithm_ontology);
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
-                hp.setString(1, "name_" + data);
-                hp.setString(2, "http://sth.com/t/" + data);
-                hp.executeUpdate();
-                PrepSwimmingPool.POOL.put(hp);
-                return new Object();
-            }
-        };
-
-
-        BatchProcessor<Integer, Object, Processor<Integer, Object>> bp = new BatchProcessor<Integer, Object, Processor<Integer, Object>>(p, 50, 90);
-        ArrayList<Integer> jobs = new ArrayList<Integer>(10000);
-        for (int i = 0; i < 10000; i++) {
-            jobs.add(new Integer(i));
-        }
-        try {
-            bp.process(jobs);
-        } catch (YaqpException ex) {
-            throw new RuntimeException(ex);
-        }
-
-
-
-
-    }
+    
 }

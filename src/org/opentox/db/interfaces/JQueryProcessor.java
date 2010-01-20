@@ -11,8 +11,7 @@ import org.opentox.db.util.PrepStmt;
  * @author chung
  * @param <ParameterType> Type for the parameters of the query
  */
-public interface JQueryProcessor<ParameterType>
-    extends JProcessor<ArrayList<QueryParam<ParameterType>>, JQuery<ParameterType>>{
+public interface JQueryProcessor  extends JProcessor<ArrayList<QueryParam>, JQuery>{
 
     PrepStmt getPrepStmt();
 

@@ -16,6 +16,7 @@ import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JProcessor;
 import org.opentox.core.processors.BatchProcessor;
+import org.opentox.db.exceptions.DbException;
 import org.opentox.db.interfaces.JDbConnector;
 import org.opentox.db.table.StandardTables;
 import org.opentox.db.table.Table;
@@ -95,6 +96,7 @@ public class TheDbConnector implements JDbConnector {
      * Connection Flag.
      */
     private boolean isConnected = false;
+    private boolean isInitialized = false;
     private final Lock lock = new ReentrantLock();
 
     private static TheDbConnector getInstance() {
@@ -109,8 +111,8 @@ public class TheDbConnector implements JDbConnector {
         return (TheDbConnector) instanceOfthis;
     }
 
-    public static void init() {
-        TheDbConnector db = TheDbConnector.DB;
+    public static void init() throws DbException{
+
         TableCreator creator = new TableCreator();
 
         BatchProcessor<Table, Object, JProcessor<Table, Object>> bp =
@@ -122,13 +124,21 @@ public class TheDbConnector implements JDbConnector {
         }
 
         try {
-            System.out.println("creating tables");
+            YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Attempting to create the standard tables..."));
             bp.process(tableToBeCreated);
-            System.out.println("done");
+            YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Standard tables were created..."));
+            DB.isInitialized = true;
+            // TODO; Check if the tables were really created!
         } catch (YaqpException ex) {
             YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, ex.toString()));
         }
     }
+
+
+    public boolean isInitialized(){
+        return isInitialized;
+    }
+
 
     private TheDbConnector() throws YaqpException {
         connect();
