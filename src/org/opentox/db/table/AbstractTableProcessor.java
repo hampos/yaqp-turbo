@@ -14,8 +14,6 @@ import org.opentox.db.processors.AbstractDbProcessor;
  */
 public abstract class AbstractTableProcessor extends AbstractDbProcessor<Table, Object>{
 
-    private Table table;
-
     public AbstractTableProcessor(){
         super();
     }

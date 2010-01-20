@@ -39,6 +39,7 @@ public final class TableCreator extends AbstractTableProcessor {
     @Override
     public Object execute(Table q) {
         TheDbConnector db = TheDbConnector.DB;
+
         try {
             // If the database does not contain the table, it will be created....
             if (!db.getTableNames().contains(q.getTableName())) {

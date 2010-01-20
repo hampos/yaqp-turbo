@@ -24,6 +24,10 @@ public class SQLDataTypes {
         return new SQLDataTypes("VARCHAR("+size+")");
     }
 
+    public static SQLDataTypes LongVarChar(){
+        return new SQLDataTypes("LONG VARCHAR");
+    }
+
     public static SQLDataTypes Float(){
         return new SQLDataTypes("FLOAT");
     }

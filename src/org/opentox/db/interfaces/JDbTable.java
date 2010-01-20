@@ -4,7 +4,8 @@ import java.util.ArrayList;
 
 /**
  *
- * @author chung
+ * @author Sopasakis Pantelis
+ * @author Charalampos Chomenides
  */
 public interface JDbTable<TableColumn extends JDbTableColumn> {
 

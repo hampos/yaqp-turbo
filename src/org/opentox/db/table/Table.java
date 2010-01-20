@@ -64,6 +64,10 @@ public class Table implements JDbTable<TableColumn>{
                 SQL = SQL + " PRIMARY KEY ";
             }
 
+            if (temp.isAlwaysAsIdentity()){
+                SQL = SQL + " GENERATED ALWAYS AS IDENTITY ";
+            }
+
             if (temp.hasDefault()) {
                 SQL = SQL + temp.getDefaultValue();
             }

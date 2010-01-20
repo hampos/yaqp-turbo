@@ -14,7 +14,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.YaqpException;
+import org.opentox.core.interfaces.JProcessor;
+import org.opentox.core.processors.BatchProcessor;
 import org.opentox.db.interfaces.JDbConnector;
+import org.opentox.db.table.StandardTables;
+import org.opentox.db.table.Table;
+import org.opentox.db.table.TableCreator;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Fatal;
 import org.opentox.util.logging.levels.Info;
@@ -33,6 +38,7 @@ public class TheDbConnector implements JDbConnector {
      * Use this static connection to the database to perform any operations.
      */
     public static TheDbConnector DB = getInstance();
+    
     /**
      * SQL connection to the database
      */
@@ -101,6 +107,27 @@ public class TheDbConnector implements JDbConnector {
             }
         }
         return (TheDbConnector) instanceOfthis;
+    }
+
+    public static void init() {
+        TheDbConnector db = TheDbConnector.DB;
+        TableCreator creator = new TableCreator();
+
+        BatchProcessor<Table, Object, JProcessor<Table, Object>> bp =
+                new BatchProcessor<Table, Object, JProcessor<Table, Object>>(creator, 1, 1);
+
+        ArrayList<Table> tableToBeCreated = new ArrayList<Table>();
+        for (StandardTables t : StandardTables.values()) {
+            tableToBeCreated.add(t.getTable());
+        }
+
+        try {
+            System.out.println("creating tables");
+            bp.process(tableToBeCreated);
+            System.out.println("done");
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, ex.toString()));
+        }
     }
 
     private TheDbConnector() throws YaqpException {

@@ -48,34 +48,29 @@ public class TheDbConnectorTest {
     @Test
     public void InstantiationTest() {
         System.out.println("-- instantiation test --");
+
         
-        TheDbConnector db = TheDbConnector.DB;
-        TableCreator creator = new TableCreator();
-        creator.setSynchronized(true);
-        BatchProcessor<Table, Object , JProcessor<Table, Object>> bp = new BatchProcessor<Table, Object, JProcessor<Table, Object>>(creator, 1, 1);
+        TheDbConnector.init();
+        
+        // TheDbConnector.INIT.init();
 
-        ArrayList<Table>  tableToBeCreated = new ArrayList<Table>();
-        for (StandardTables t : StandardTables.values()) {
-            tableToBeCreated.add(t.getTable());
-        }
-
-        try {
-            bp.process(tableToBeCreated);
-            System.out.println(bp.getStatus());
-        } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Fatal(TheDbConnectorTest.class, ex.toString()));
-           fail();
-        }
-
-        try {
-            ArrayList<String> list = db.getTableNames();
-            for (int i=0;i<list.size();i++){
-                System.out.println(list.get(i));
-            }
-
-        } catch (YaqpException ex) {
-            fail();
-        }
+//        TableCreator creator = new TableCreator();
+//
+//        BatchProcessor<Table, Object, JProcessor<Table, Object>> bp =
+//                new BatchProcessor<Table, Object, JProcessor<Table, Object>>(creator, 1, 1);
+//
+//        ArrayList<Table> tableToBeCreated = new ArrayList<Table>();
+//        for (StandardTables t : StandardTables.values()) {
+//            tableToBeCreated.add(t.getTable());
+//        }
+//
+//        try {
+//            System.out.println("creating tables");
+//            bp.process(tableToBeCreated);
+//            System.out.println("done");
+//        } catch (YaqpException ex) {
+//            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, ex.toString()));
+//        }
 
 
     }

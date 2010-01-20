@@ -14,6 +14,10 @@ public class DbException extends YaqpException {
     public DbException() {
     }
 
+    public DbException(Throwable thr){
+        super(thr);
+    }
+
 
     /**
      * Constructs an instance of <code>DbException</code> with the specified detail message.

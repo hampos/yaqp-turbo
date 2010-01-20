@@ -47,7 +47,7 @@ public class TableDropperTest {
     public void testExecute() throws YaqpException {
         System.out.println("execute");
         TheDbConnector db = TheDbConnector.DB;
-        TableDropper dropper = null ;
+        System.out.println(db.isConnected());
     }
 
 }
