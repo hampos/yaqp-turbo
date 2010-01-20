@@ -26,7 +26,7 @@ public class Configuration {
     public static Properties loadDefaultProperties() throws YaqpException {
         try {
             properties = new Properties();
-            if (System.getProperty("os.name").contains("linux")) {
+            if (System.getProperty("os.name").contains("Linux")) {
                 properties.load(new FileInputStream("src/org/opentox/config/server.properties"));
             } else if (System.getProperty("os.name").contains("Mac OS")) {
                 properties.load(new FileInputStream("src/org/opentox/config/macos.server.properties"));

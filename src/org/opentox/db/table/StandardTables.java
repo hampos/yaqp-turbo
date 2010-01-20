@@ -486,7 +486,7 @@ public enum StandardTables {
     public static Table AlgorithmOntolRelation() {
         Table table = new Table("ALG_ONT_RELATION");
 
-        TableColumn algorithm_uid = new TableColumn("ALGORITHMS");
+        TableColumn algorithm_uid = new TableColumn("ALGORITHM_UID");
           algorithm_uid.setColumnType(SQLDataTypes.Int());
           algorithm_uid.setForeignKey(Algorithms().getTableName(), "UID", true);
          table.addColumn(algorithm_uid);

@@ -1,22 +1,14 @@
 package org.opentox.db.util;
 
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.opentox.core.exceptions.YaqpException;
-import org.opentox.core.interfaces.JProcessor;
-import org.opentox.core.processors.BatchProcessor;
-import org.opentox.core.processors.Pipeline;
 import org.opentox.db.exceptions.DbException;
-import org.opentox.db.table.TableCreator;
 import org.opentox.db.table.StandardTables;
-import org.opentox.db.table.Table;
-import org.opentox.util.logging.YaqpLogger;
-import org.opentox.util.logging.levels.Fatal;
 
 /**
  *
@@ -50,7 +42,12 @@ public class TheDbConnectorTest {
     public void InstantiationTest() throws DbException {
         System.out.println("-- instantiation test --");       
         TheDbConnector.init();
+    }
 
+    @Test
+    public void Prepared_Deletion() throws SQLException{
 
+        PreparedStatement ds = TheDbConnector.DB.getConnection().prepareStatement(StandardTables.ALGORITHM_ONTOL_RELATION.getTable().getDeletionSQL());
+        ds.executeUpdate();
     }
 }

@@ -61,7 +61,7 @@ public class StandardTablesTest {
     public void testSQL() {
         System.out.println("-- AlgorithmOntologies --");
         for (StandardTables t : StandardTables.values()) {
-            System.out.println(t.getTable().getSQL());
+            System.out.println(t.getTable().getCreationSQL());
         }
     }
 }

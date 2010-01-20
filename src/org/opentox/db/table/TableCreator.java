@@ -43,7 +43,7 @@ public final class TableCreator extends AbstractTableProcessor {
         try {
             // If the database does not contain the table, it will be created....
             if (!db.getTableNames().contains(q.getTableName())) {
-                String createTable = q.getSQL();
+                String createTable = q.getCreationSQL();
                 YaqpLogger.LOG.log(new Trace(getClass(), "Table Creation SQL Command ::" + createTable));
                 try {
                     Statement stmt = db.getConnection().createStatement();

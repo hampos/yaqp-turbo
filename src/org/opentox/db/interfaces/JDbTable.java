@@ -15,6 +15,8 @@ public interface JDbTable<TableColumn extends JDbTableColumn> {
     void removeColumn(TableColumn column);
     void setTableName(String tableName);
     String getTableName();
-    String getSQL();
+    String getCreationSQL();
+    String getDeletionSQL();
+
 
 }

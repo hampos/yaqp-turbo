@@ -4,16 +4,12 @@
  */
 package org.opentox.db.util;
 
-import java.util.ArrayList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opentox.core.exceptions.YaqpException;
-import org.opentox.core.processors.BatchProcessor;
-import org.opentox.core.processors.Processor;
-import static org.junit.Assert.*;
+import org.opentox.db.exceptions.DbException;
 
 /**
  *
@@ -44,41 +40,29 @@ public class PrepSwimmingPoolTest {
      * Test of take method, of class PrepSwimmingPool.
      */
     @Test
-    public void testTake() throws Exception {
-        TheDbConnector.init();
-        
-        Processor<Integer, Object> p = new Processor<Integer, Object>() {            
-            
-            public Object process(Integer data) throws YaqpException {
-                HyperStatement hp = null;
-                try {
-                    hp = PrepSwimmingPool.POOL.take(PrepStmt.add_algorithm_ontology);
-                } catch (InterruptedException ex) {
-                    throw new RuntimeException(ex);
-                }
-                hp.setString(1, "name_" + data);
-                hp.setString(2, "http://sth.com/t/" + data);
-                hp.executeUpdate();
-                PrepSwimmingPool.POOL.put(hp);
-                return new Object();
-            }
-        };
-
-
-        final int _SIZE = 100;
-        BatchProcessor<Integer, Object, Processor<Integer, Object>> bp = new BatchProcessor<Integer, Object, Processor<Integer, Object>>(p, 50, 90);
-        ArrayList<Integer> jobs = new ArrayList<Integer>(_SIZE);
-        for (int i = 0; i < _SIZE; i++) {
-            jobs.add(new Integer(i));
+    public void testAddUserGroup() {
+        try {
+            TheDbConnector.init();
+        } catch (DbException ex) {
+            System.out.println("1-----\n" + ex);
+        }
+        HyperStatement hp = null;
+        try {
+            System.err.println(PrepSwimmingPool.POOL.take(PrepStmt.ADD_USER_GROUP));
+            hp = PrepSwimmingPool.POOL.take(PrepStmt.ADD_USER_GROUP);
+        } catch (InterruptedException ex) {
+            throw new RuntimeException(ex);
         }
         try {
-            bp.process(jobs);
-        } catch (YaqpException ex) {
-            fail(ex.toString());
+            hp.setString(1, "GROUP_A");
+            hp.setInt(2, 17);
+            hp.executeUpdate();
+        } catch (DbException ex) {
+            System.out.println("2-----\n"+ex);
         }
 
-
-
-
+        
     }
+
+   
 }

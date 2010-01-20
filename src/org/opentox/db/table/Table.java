@@ -3,21 +3,20 @@ package org.opentox.db.table;
 import java.util.ArrayList;
 import org.opentox.db.interfaces.JDbTable;
 
-
 /**
  *
  * @author chung
  */
-public class Table implements JDbTable<TableColumn>{
+public class Table implements JDbTable<TableColumn> {
 
     private ArrayList<TableColumn> listOfColumns = new ArrayList<TableColumn>();
     private String tableName = null;
 
-    public Table(){
+    public Table() {
         super();
     }
 
-    public Table(String tableName){
+    public Table(String tableName) {
         this.tableName = tableName.toUpperCase();
     }
 
@@ -45,7 +44,7 @@ public class Table implements JDbTable<TableColumn>{
         return this.tableName;
     }
 
-    public String getSQL() {
+    public String getCreationSQL() {
         String SQL = "CREATE TABLE " + getTableName() + "\n( ";
         ArrayList<TableColumn> colList = new ArrayList<TableColumn>();
         colList = getTableColumns();
@@ -64,7 +63,7 @@ public class Table implements JDbTable<TableColumn>{
                 SQL = SQL + " PRIMARY KEY ";
             }
 
-            if (temp.isAlwaysAsIdentity()){
+            if (temp.isAlwaysAsIdentity()) {
                 SQL = SQL + " GENERATED ALWAYS AS IDENTITY ";
             }
 
@@ -73,18 +72,24 @@ public class Table implements JDbTable<TableColumn>{
             }
 
             if (temp.isConstrained()) {
-                SQL = SQL + temp.getConstraint() ;
+                SQL = SQL + temp.getConstraint();
             }
 
             if (temp.isForeignKey()) {
                 SQL = SQL + ",\n" + temp.getForeignKey();
             }
-            if (i != colList.size() -1 ) {
+            if (i != colList.size() - 1) {
                 SQL = SQL + ",\n";
             }
         }
         SQL = SQL + "\n)";
         return SQL;
     }
+
+    public String getDeletionSQL() {
+        String SQL = "DROP TABLE " + getTableName();
+        return SQL;
+    }
+
 
 }
