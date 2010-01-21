@@ -2,6 +2,7 @@ package org.opentox.db.interfaces;
 
 import java.sql.ResultSet;
 import org.opentox.db.exceptions.DbException;
+import org.opentox.db.queries.HyperResult;
 import org.opentox.db.util.SQLDataTypes;
 
 
@@ -17,7 +18,7 @@ public interface JHyperStatement {
     void setObject(int index, Object value) throws DbException;
     void setObject(int index, String value, SQLDataTypes datatype) throws DbException;
     int executeUpdate() throws DbException;
-    ResultSet executeQuery() throws DbException;
+    HyperResult executeQuery() throws DbException;
     @Override
     String toString();
     void flush() throws DbException;

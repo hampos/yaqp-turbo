@@ -1,5 +1,8 @@
 package org.opentox.db.interfaces;
 
+import org.opentox.db.queries.QueryParam;
+import org.opentox.db.util.QueryType;
+
 /**
  *
  * @author chung
@@ -7,6 +10,7 @@ package org.opentox.db.interfaces;
 public interface JPrepStmt {
 
     String getSql();
-    String[] getParameterSequence();
+    QueryParam[] getParameters();
+   
 
 }

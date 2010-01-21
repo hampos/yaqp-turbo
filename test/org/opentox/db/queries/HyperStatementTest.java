@@ -1,0 +1,55 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+
+package org.opentox.db.queries;
+
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.opentox.db.util.PrepStmt;
+import static org.junit.Assert.*;
+import org.opentox.db.util.QueryType;
+import org.opentox.db.util.SQLDataTypes;
+
+/**
+ *
+ * @author chung
+ */
+public class HyperStatementTest {
+
+    public HyperStatementTest() {
+    }
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+    }
+
+    @Before
+    public void setUp() {
+    }
+
+    @After
+    public void tearDown() {
+    }
+
+    
+
+    /**
+     * Test of executeQuery method, of class HyperStatement.
+     */
+    @Test
+    public void testExecuteQuery() throws Exception {
+        HyperStatement hs = new HyperStatement("SELECT * FROM ALGORITHM_ONTOLOGIES");
+        HyperResult hr = hs.executeQuery();
+        System.out.println(hr.toString());
+    }
+
+}

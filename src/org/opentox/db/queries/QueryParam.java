@@ -1,38 +1,29 @@
 package org.opentox.db.queries;
 
-import org.opentox.db.interfaces.JQueryParam;
-import org.opentox.db.util.SQLDataTypes;
 
 /**
  *
  * @author Sopasakis Pantelis
  * @author Charalampos Chomenides
  */
-@Deprecated
-public class QueryParam implements JQueryParam {
+public class QueryParam  {
 
-    protected SQLDataTypes type;
-    protected String value;
-    protected String parameterName;
+   
+    private final Class valueType;
+    private final String parameterName;
 
-    public QueryParam(String name, String value, SQLDataTypes type){
-
+    public QueryParam(final String parameterName, final Class type){
+        this.parameterName = parameterName;
+        this.valueType = type;
     }
 
-    public void setType(SQLDataTypes type) {
-        this.type = type;
+  
+    public Class getType() {
+        return valueType;
     }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public SQLDataTypes getType() {
-        return type;
-    }
-
-    public String getValue() {
-        return value;
+    public String getName(){
+        return parameterName;
     }
 
     

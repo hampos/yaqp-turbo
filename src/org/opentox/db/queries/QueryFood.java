@@ -9,7 +9,7 @@ import org.opentox.db.interfaces.JQueryFood;
  */
 public class QueryFood implements JQueryFood {
 
-    private HashMap<String, String> nameValuePairs;
+    private HashMap<String, String> nameValuePairs = new HashMap<String, String>();
 
     public void add(String name, String value) {
         nameValuePairs.put(name, value);

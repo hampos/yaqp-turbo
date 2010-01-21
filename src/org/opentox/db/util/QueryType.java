@@ -6,11 +6,13 @@ package org.opentox.db.util;
  */
 public enum QueryType {
 
-    update,
-    insert,
-    search,
-    create_table,
-    drop_table,
-    meta
+    /**
+     * Queries such as Insert, Update, Delete
+     */
+    UPDATE,
+    /**
+     * Select-related queries
+     */
+    SELECT;
 
 }
