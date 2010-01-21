@@ -3,8 +3,6 @@ package org.opentox.db.util;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.interfaces.JHyperStatement;
 

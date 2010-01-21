@@ -1,5 +1,7 @@
 package org.opentox.db.interfaces;
 
+import org.opentox.db.util.SQLDataTypes;
+
 /**
  * A Parameter for a Database Query, for example "user_name='barbie'". A Query Parameter
  * consists of two parts: The value and the datatype for this value.
@@ -7,31 +9,31 @@ package org.opentox.db.interfaces;
  * @author Charalampos Chomenides
  * @param <T> Generic Datatype for the value of the Query Parameter.
  */
-public interface JQueryParam<T> {
+public interface JQueryParam {
 
     /**
      * Define the type of the parameter.
      * @param type type of the database parameter.
      */
-    void setType(Class type);
+    void setType(SQLDataTypes type);
 
     /**
      * Set the value to a parameter
      * @param value parameter value
      */
-    void setValue(T value);
+    void setValue(String value);
 
     /**
      *
      * @return type of the parameter.
      */
-    Class getType();
+    SQLDataTypes getType();
 
     /**
      *
      * @return value of the parameter
      */
-    T getValue();
+    String getValue();
 
     /**
      *

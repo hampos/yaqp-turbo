@@ -11,6 +11,7 @@ import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JProcessor;
 import org.opentox.core.processors.BatchProcessor;
 import org.opentox.core.processors.Pipeline;
+import org.opentox.db.exceptions.DbException;
 import org.opentox.db.table.TableCreator;
 import org.opentox.db.table.StandardTables;
 import org.opentox.db.table.Table;
@@ -46,31 +47,9 @@ public class TheDbConnectorTest {
      * Test of getLock method, of class DbConnector.
      */
     @Test
-    public void InstantiationTest() {
-        System.out.println("-- instantiation test --");
-
-        
+    public void InstantiationTest() throws DbException {
+        System.out.println("-- instantiation test --");       
         TheDbConnector.init();
-        
-        // TheDbConnector.INIT.init();
-
-//        TableCreator creator = new TableCreator();
-//
-//        BatchProcessor<Table, Object, JProcessor<Table, Object>> bp =
-//                new BatchProcessor<Table, Object, JProcessor<Table, Object>>(creator, 1, 1);
-//
-//        ArrayList<Table> tableToBeCreated = new ArrayList<Table>();
-//        for (StandardTables t : StandardTables.values()) {
-//            tableToBeCreated.add(t.getTable());
-//        }
-//
-//        try {
-//            System.out.println("creating tables");
-//            bp.process(tableToBeCreated);
-//            System.out.println("done");
-//        } catch (YaqpException ex) {
-//            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, ex.toString()));
-//        }
 
 
     }

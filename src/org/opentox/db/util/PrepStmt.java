@@ -12,7 +12,6 @@ public enum PrepStmt {
     // TODO: populate the list of statements
     //add_user(""),
     add_algorithm_ontology("INSERT INTO "+StandardTables.ALGORITHM_ONTOLOGIES.getTable().getTableName()+" (NAME, URI) VALUES (?,?)"),   
-    //add_user_role("")
     ;
 
 
