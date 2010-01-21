@@ -59,11 +59,10 @@ public abstract class AbstractLoggingProcessor<L extends LogObject>
      * Write the properties of the system to the log target (console or file)
      */
     public void logSystemProperties() {
-        log((L)new Trace(AbstractLoggingProcessor.class, "os.version     : " + System.getProperty("os.version")));
-        log((L)new Trace(YaqpLogger.class, "os.version     : " + System.getProperty("os.version")));
-        log((L)new Trace(YaqpLogger.class, "os.arch        : " + System.getProperty("os.arch")));
-        log((L)new Trace(YaqpLogger.class, "java.version   : " + System.getProperty("java.version")));
-        log((L)new Trace(YaqpLogger.class, "java.vendor    : " + System.getProperty("java.vendor")));
+        log((L) new Trace(YaqpLogger.class, "os.name     : " + System.getProperty("os.name")));
+        log((L) new Trace(YaqpLogger.class, "os.version     : " + System.getProperty("os.version")));
+        log((L) new Trace(YaqpLogger.class, "os.arch        : " + System.getProperty("os.arch")));
+        log((L) new Trace(YaqpLogger.class, "java.version   : " + System.getProperty("java.version")));
+        log((L) new Trace(YaqpLogger.class, "java.vendor    : " + System.getProperty("java.vendor")));
     }
-   
 }

@@ -22,11 +22,15 @@ public class Configuration {
         }
         return properties;
     }
-    
+
     public static Properties loadDefaultProperties() throws YaqpException {
         try {
             properties = new Properties();
-            properties.load(new FileInputStream("src/org/opentox/config/server.properties"));
+            if (System.getProperty("os.name").contains("linux")) {
+                properties.load(new FileInputStream("src/org/opentox/config/server.properties"));
+            } else if (System.getProperty("os.name").contains("Mac OS")) {
+                properties.load(new FileInputStream("src/org/opentox/config/macos.server.properties"));
+            }
             properties.setProperty("log4j.useDefaultFile", "true");
         } catch (final Exception ex) {
             backupProperties();
@@ -78,5 +82,4 @@ public class Configuration {
         properties.setProperty("log4j.appender.file.layout.ConversionPattern", "%d [%t] %-5p %c - %m%n");
         properties.setProperty("log4j.useDefaultFile", "false");
     }
-
 }
