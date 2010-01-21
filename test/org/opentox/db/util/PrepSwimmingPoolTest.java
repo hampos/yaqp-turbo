@@ -56,6 +56,7 @@ public class PrepSwimmingPoolTest {
             hp.setString(1, "GROUP_E");
             hp.setInt(2, 199);
             hp.executeUpdate();
+            PrepSwimmingPool.POOL.put(hp);
         } catch (DbException ex) {
             System.out.println("2-----\n" + ex);
             fail();

@@ -35,20 +35,7 @@ public interface JQueryParam {
      */
     String getValue();
 
-    /**
-     *
-     * @return The name of the parameter normally corresponding to
-     * the name of a column in a table of the database.
-     */
-    String getParameterName();
-
-
-    /**
-     *
-     * @param parameterName the Name of the parameter.
-     */
-    void setParameterName(String parameterName);
-
+    
     /**
      * The parameter and its value as a string.
      * @return

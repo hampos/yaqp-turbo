@@ -383,6 +383,12 @@ public enum StandardTables {
           cost.setConstraint("COST_CONSTRAINT", cost.getColumnName() + " > 0.0");
          table.addColumn(cost);
 
+
+         TableColumn bias = new TableColumn("BIAS");
+          bias.setColumnType(SQLDataTypes.Float());
+          bias.setDefaultValue("0");
+         table.addColumn(bias);
+
         TableColumn tolerance = new TableColumn("TOLERANCE");
           tolerance.setColumnType(SQLDataTypes.Float());
           tolerance.setDefaultValue("0.0001");
@@ -438,6 +444,11 @@ public enum StandardTables {
           cost.setDefaultValue("100");
           cost.setConstraint("COST_C", cost.getColumnName()+" > 0.0");
          table.addColumn(cost);
+
+         TableColumn bias = new TableColumn("BIAS");
+          bias.setColumnType(SQLDataTypes.Float());
+          bias.setDefaultValue("0");
+         table.addColumn(bias);
 
         TableColumn tolerance = new TableColumn("TOLERANCE");
           tolerance.setColumnType(SQLDataTypes.Float());

@@ -1,10 +1,12 @@
-package org.opentox.db.util;
+package org.opentox.db.queries;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.interfaces.JHyperStatement;
+import org.opentox.db.util.SQLDataTypes;
+import org.opentox.db.util.TheDbConnector;
 
 
 

@@ -5,7 +5,6 @@ import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.interfaces.JDbProcessor;
 import org.opentox.core.processors.Processor;
-import org.opentox.db.interfaces.JQuery;
 import org.opentox.db.util.QueryType;
 import org.opentox.db.util.TheDbConnector;
 

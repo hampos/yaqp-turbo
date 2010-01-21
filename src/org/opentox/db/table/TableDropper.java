@@ -25,15 +25,13 @@ public final class TableDropper extends AbstractTableProcessor{
      * @return
      */
     public Object execute(Table q) {
-        String createTable =
-                "DROP TABLE  " + q.getTableName() ;
+        String deleteTable =q.getDeletionSQL();
         try {
             Statement stmt = TheDbConnector.DB.getConnection().createStatement();
-            stmt.execute(createTable);
+            stmt.execute(deleteTable);
             stmt.close();
             YaqpLogger.LOG.log(new Info(TableDropper.class, "The table '" + q.getTableName().toUpperCase() +"' was dropped"));
         } catch (SQLException ex) {
-            System.out.println(ex);
             if (ex.toString().contains("because it does not exist")){
                 YaqpLogger.LOG.log(new Warning(TableDropper.class, "The table '" + q.getTableName().toUpperCase()
                     + "' could not be dropped because it does not exist"));
