@@ -5,6 +5,7 @@
 
 package org.opentox.db.queries;
 
+import java.util.Iterator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -49,7 +50,14 @@ public class HyperStatementTest {
     public void testExecuteQuery() throws Exception {
         HyperStatement hs = new HyperStatement("SELECT * FROM ALGORITHM_ONTOLOGIES");
         HyperResult hr = hs.executeQuery();
-        System.out.println(hr.toString());
+        //System.out.println(hr.toString());
+
+        Iterator<String> it = hr.getRowIterator(3);
+        while(it.hasNext()){
+            System.out.println(it.next());
+        }
+           //         System.out.println(it.next());
+
     }
 
 }

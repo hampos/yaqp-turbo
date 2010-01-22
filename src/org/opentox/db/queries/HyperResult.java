@@ -37,16 +37,12 @@ public class HyperResult {
 
     public Iterator<String> getRowIterator(int colNum) {
         Hyperator hyp = null;
-        try {
-            hyp = new Hyperator(colNum);
-        } catch (DbException ex) {
-            YaqpLogger.LOG.log(new Fatal(HyperResult.class, ex.toString()));
-        }
+        hyp = new Hyperator(colNum);
         return hyp;
     }
 
     public Iterator<String> getColumnIterator(int rowNum) {
-        if (rowNum <= data.size()) {
+        if (rowNum <= data.size() && rowNum > 0) {
             Iterator<ArrayList<String>> rowIt = this.getRowIterator();
             ArrayList<String> row = null;
             while (rowIt.hasNext() && (rowNum != 0)) {
@@ -56,7 +52,8 @@ public class HyperResult {
             return row.iterator();
 
         } else {
-            return null;
+            throw new ArrayIndexOutOfBoundsException("Array index out of bounds while reading database vertically");
+
         }
     }
 
@@ -84,9 +81,9 @@ public class HyperResult {
         private int currentRow = 0;
         private Iterator<String> colIt;
 
-        private Hyperator(int colNum) throws DbException {
-            if(data.get(currentRow).size() < colNum){
-               throw new DbException("Asked Column does not exist!");
+        private Hyperator(int colNum) {
+            if (data.get(currentRow).size() < colNum || colNum < 1) {
+                throw new ArrayIndexOutOfBoundsException("Array index out of bounds while reading database horizontally");
             }
             this.colNum = colNum;
         }
@@ -95,8 +92,9 @@ public class HyperResult {
             int tempCurrent = currentRow;
             tempCurrent++;
             int col = this.colNum;
+            try{
             colIt = getColumnIterator(tempCurrent);
-            if(colIt == null){
+            }catch(RuntimeException e){
                 return false;
             }
             return true;
@@ -107,14 +105,9 @@ public class HyperResult {
             String data = null;
             int col = this.colNum;
             colIt = getColumnIterator(currentRow);
-            if (colIt != null) {
-                while (colIt.hasNext() && col != 0) {
-                    data = colIt.next();
-                    col--;
-                }
-            }
-            else{
-                throw new RuntimeException("Out of bounds of Array");
+            while (colIt.hasNext() && col != 0) {
+                data = colIt.next();
+                col--;
             }
             return data;
         }

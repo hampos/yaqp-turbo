@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.opentox.db.processors;
 
 import java.util.logging.Level;
@@ -18,6 +17,7 @@ import static org.junit.Assert.*;
 import org.opentox.db.queries.HyperStatement;
 import org.opentox.db.queries.QueryFood;
 import org.opentox.db.util.PrepStmt;
+import org.opentox.db.util.PrepSwimmingPool;
 import org.opentox.db.util.TheDbConnector;
 
 /**
@@ -57,18 +57,21 @@ public class QueryProcessorTest {
             System.out.println("1-----\n" + ex);
             fail();
         }
+        for (int i = 0; i < 100; i++) {
+            QueryProcessor pr = new QueryProcessor(PrepStmt.ADD_ALGORITHM_ONTOLOGY);
+            QueryFood food = new QueryFood();
+            food.add("URI", "uri"+i);
+            food.add("NAME", "name"+i);
+            try {
+                HyperStatement hs = pr.process(food);
+                hs.executeUpdate();
+                hs.flush();
+                PrepSwimmingPool.POOL.put(hs);
 
-        QueryProcessor pr = new QueryProcessor(PrepStmt.ADD_ALGORITHM_ONTOLOGY);
-        QueryFood food = new QueryFood();
-        food.add("URI", "NULL");
-        food.add("NAME", "asda");
-        try {
-            HyperStatement hs = pr.process(food);
-            hs.executeUpdate();
-         
-        } catch (Exception ex) {
-            Logger.getLogger(QueryProcessorTest.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                Logger.getLogger(QueryProcessorTest.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
-    }
 
+    }
 }
