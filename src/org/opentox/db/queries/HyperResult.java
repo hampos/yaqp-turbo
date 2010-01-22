@@ -3,6 +3,11 @@ package org.opentox.db.queries;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.opentox.db.exceptions.DbException;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Fatal;
 
 /**
  *
@@ -11,19 +16,48 @@ import java.util.Iterator;
 public class HyperResult {
 
     private ResultSet resultSet;
-    
     private ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 
-    public void addRow(ArrayList<String> entry){
+    public void addRow(ArrayList<String> entry) {
         data.add(entry);
     }
 
-    public ArrayList<String> getRow(int rowIndex){
+    public ArrayList<String> getRow(int rowIndex) {
         return data.get(rowIndex);
     }
 
-    public ArrayList<String> getColumn(int columnIndex){
+    public ArrayList<String> getColumn(int columnIndex) {
         throw new UnsupportedOperationException();
+    }
+
+    public Iterator<ArrayList<String>> getRowIterator() {
+        Iterator<ArrayList<String>> rowIt = data.iterator();
+        return rowIt;
+    }
+
+    public Iterator<String> getRowIterator(int colNum) {
+        Hyperator hyp = null;
+        try {
+            hyp = new Hyperator(colNum);
+        } catch (DbException ex) {
+            YaqpLogger.LOG.log(new Fatal(HyperResult.class, ex.toString()));
+        }
+        return hyp;
+    }
+
+    public Iterator<String> getColumnIterator(int rowNum) {
+        if (rowNum <= data.size()) {
+            Iterator<ArrayList<String>> rowIt = this.getRowIterator();
+            ArrayList<String> row = null;
+            while (rowIt.hasNext() && (rowNum != 0)) {
+                row = rowIt.next();
+                rowNum--;
+            }
+            return row.iterator();
+
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -31,12 +65,12 @@ public class HyperResult {
      * @return
      */
     @Override
-    public String toString(){
+    public String toString() {
         String result = "";
         Iterator<ArrayList<String>> it = data.iterator();
-        while (it.hasNext()){
+        while (it.hasNext()) {
             ArrayList<String> row = it.next();
-            for (int i=0;i<row.size();i++){
+            for (int i = 0; i < row.size(); i++) {
                 result = result + row.get(i) + " - ";
             }
             result = result + "\n";
@@ -44,6 +78,49 @@ public class HyperResult {
         return result;
     }
 
+    private class Hyperator implements Iterator<String> {
 
+        private final int colNum;
+        private int currentRow = 0;
+        private Iterator<String> colIt;
 
+        private Hyperator(int colNum) throws DbException {
+            if(data.get(currentRow).size() < colNum){
+               throw new DbException("Asked Column does not exist!");
+            }
+            this.colNum = colNum;
+        }
+
+        public boolean hasNext() {
+            int tempCurrent = currentRow;
+            tempCurrent++;
+            int col = this.colNum;
+            colIt = getColumnIterator(tempCurrent);
+            if(colIt == null){
+                return false;
+            }
+            return true;
+        }
+
+        public String next() {
+            currentRow++;
+            String data = null;
+            int col = this.colNum;
+            colIt = getColumnIterator(currentRow);
+            if (colIt != null) {
+                while (colIt.hasNext() && col != 0) {
+                    data = colIt.next();
+                    col--;
+                }
+            }
+            else{
+                throw new RuntimeException("Out of bounds of Array");
+            }
+            return data;
+        }
+
+        public void remove() {
+            throw new UnsupportedOperationException("Not supported yet.");
+        }
+    }
 }
