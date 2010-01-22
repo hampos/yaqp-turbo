@@ -36,14 +36,27 @@ public enum PrepStmt implements JPrepStmt {
                     }
     ),
 
-//    ADD_USER(
-//    "INSERT INTO " + USERS.getTable().getTableName()
-//    + " ( USERNAME, PASS, FIRSTNAME, LASTNAME, EMAIL, ORGANIZATION, COUNTRY, CITY, ADDRESS, WEBPAGE, ROLE) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-//    new String[]{"USERNAME", "PASS", "FIRSTNAME", "LASTNAME", "EMAIL", "ORGANIZATION", "COUNTRY", "CITY", "ADDRESS", "WEBPAGE", "ROLE"}),
-//
-//    ADD_USER_GROUP("INSERT INTO " + USER_AUTH.getTable().getTableName() + "(NAME, USER_LEVEL) VALUES (?,?)",
-//    new String[]{"NAME", "USER_LEVEL"}),
-//
+    ADD_USER(
+    "INSERT INTO " + USERS.getTable().getTableName()
+    + " ( USERNAME, PASS, FIRSTNAME, LASTNAME, EMAIL, ORGANIZATION, COUNTRY, CITY, ADDRESS, WEBPAGE, ROLE) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+    new QueryParam[]{
+                        new QueryParam("USERNAME", String.class),
+                        new QueryParam("PASS", String.class),
+                        new QueryParam("FIRSTNAME", String.class),
+                        new QueryParam("LASTNAME", String.class),
+                        new QueryParam("EMAIL", String.class),
+                        new QueryParam("ORGANIZATION", String.class),
+                        new QueryParam("COUNTRY", String.class),
+                        new QueryParam("CITY", String.class),
+                        new QueryParam("ADDRESS", String.class),
+                        new QueryParam("WEBPAGE", String.class),
+                        new QueryParam("ROLE", Integer.class)
+    }),
+    ADD_USER_GROUP("INSERT INTO " + USER_AUTH.getTable().getTableName() + "(NAME, USER_LEVEL) VALUES (?,?)",
+    new QueryParam[]{
+                        new QueryParam("NAME", String.class),
+                        new QueryParam("USER_LEVEL", Integer.class),
+    })
 //    ADD_ALGORITHM("INSERT INTO " + ALGORITHMS.getTable().getTableName() + " (NAME, URI) VALUES (?,?)",
 //    new String[]{"NAME", "URI"}),
 //

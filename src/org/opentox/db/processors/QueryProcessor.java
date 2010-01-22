@@ -61,7 +61,14 @@ public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatemen
             YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Exception thrown :: "+ ex));
         } catch (DbException ex){
             YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Exception thrown :: "+ ex));
+        } finally{
+            try {
+                PrepSwimmingPool.POOL.put(hs);
+            } catch (DbException ex) {
+                YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Could not put the statement back into the POOL"));
+            }
         }
+
         return hs;
 
     }
