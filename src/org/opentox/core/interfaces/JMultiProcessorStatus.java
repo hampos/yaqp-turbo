@@ -17,7 +17,6 @@ public interface JMultiProcessorStatus {
      * {@link STATUS#INITIALIZED }, {@link STATUS#ERROR } and
      * {@link STATUS#PROCESSED }.
      *
-     * TODO: Think of other processor statuses as well!
      */
     public static enum STATUS {
 

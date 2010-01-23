@@ -5,11 +5,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import org.opentox.db.exceptions.DbException;
+import org.opentox.db.exceptions.DuplicateKeyException;
 import org.opentox.db.interfaces.JHyperStatement;
 import org.opentox.db.processors.DbProcessor;
 import org.opentox.db.util.QueryType;
-import org.opentox.db.util.SQLDataTypes;
 import org.opentox.db.util.TheDbConnector;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Warning;
 
 
 
@@ -34,7 +36,7 @@ public class HyperStatement implements JHyperStatement{
             this.preparedStatement = TheDbConnector.DB.getConnection().prepareStatement(sql);
             this.sql = sql;
         } catch (SQLException ex) {
-            throw new DbException(ex);
+            throw new DbException("Cannot prepare a statement in the database. Reproducing SQLException :"+ex, ex);
         }
     }
     
@@ -43,7 +45,7 @@ public class HyperStatement implements JHyperStatement{
         try {
             preparedStatement.setInt(index, value);
         } catch (SQLException ex) {
-            throw new DbException(ex);
+            throw new DbException("Cannot set a parameteter with index "+index +" to the integer value : "+value, ex);
         }
     }
 
@@ -51,27 +53,28 @@ public class HyperStatement implements JHyperStatement{
         try {
             preparedStatement.setString(index, value);
         } catch (SQLException ex) {
-            throw new DbException(ex);
+            throw new DbException("Cannot set a parameteter with index "+index +" to String value : "+value, ex);
         }
     }
 
-    public void setObject(int index, Object value) throws DbException{
+    public void setDouble(int index, double value) throws DbException {
         try {
-            preparedStatement.setObject(index, value);
+            preparedStatement.setDouble(index, value);
         } catch (SQLException ex) {
-            throw new DbException(ex);
+            throw new DbException("Cannot set a parameteter with index "+index +" to double value : "+value, ex);
         }
     }
 
-    public void setObject(int index, String value, SQLDataTypes datatype) throws DbException{
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
     public int executeUpdate() throws DbException{
         try {
             return preparedStatement.executeUpdate();
         } catch (SQLException ex) {
-            throw new DbException(ex);
+            if (ex.toString().contains("duplicate key")) {
+                YaqpLogger.LOG.log(new Warning(getClass(), "Duplicate Key Exception while executing update"));
+                throw new DuplicateKeyException();
+            }
+            throw new DbException("Error while executing update... ", ex);
         }
     }
 
@@ -92,7 +95,7 @@ public class HyperStatement implements JHyperStatement{
             rs.close();
             return result;
         } catch (SQLException ex) {
-            throw new DbException(ex);
+            throw new DbException("Exception while executing a database query through HyperStatement#executeQuery() ", ex);
         }
     }
 
@@ -105,7 +108,7 @@ public class HyperStatement implements JHyperStatement{
         try {
             this.preparedStatement.clearParameters();
         } catch (SQLException ex) {
-            throw new DbException(ex);
+            throw new DbException("Cannot clear the parameters from a prepared statements ", ex);
         }
     }
 

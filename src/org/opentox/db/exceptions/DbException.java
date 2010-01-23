@@ -26,4 +26,8 @@ public class DbException extends YaqpException {
     public DbException(String msg) {
         super(msg);
     }
+
+    public DbException(String msg, Throwable throwable){
+        super(msg, throwable);
+    }
 }

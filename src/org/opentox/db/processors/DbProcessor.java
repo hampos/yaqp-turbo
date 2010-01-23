@@ -1,7 +1,5 @@
 package org.opentox.db.processors;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.queries.HyperResult;
 import org.opentox.db.queries.HyperStatement;
@@ -13,16 +11,13 @@ import org.opentox.db.util.QueryType;
  */
 public class DbProcessor extends AbstractDbProcessor<HyperStatement, HyperResult> {
 
-    public HyperResult execute(HyperStatement q) {
-        try {
-            if (q.getType().equals(QueryType.UPDATE)) {
-                q.executeUpdate();
-            }else{
+    public HyperResult execute(HyperStatement q) throws DbException {
 
-            }
-        } catch (DbException ex) {
-            Logger.getLogger(DbProcessor.class.getName()).log(Level.SEVERE, null, ex);
+        if (q.getType().equals(QueryType.UPDATE)) {
+            q.executeUpdate();
+        } else {
         }
-        throw new UnsupportedOperationException("Not supported yet.");
+
+        return null;
     }
 }

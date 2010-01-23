@@ -3,23 +3,22 @@
  * and open the template in the editor.
  */
 
-package org.opentox.db.queries;
+package org.opentox.db.entities;
 
-import java.util.Iterator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
+import static org.junit.Assert.*;
 
 /**
  *
  * @author chung
  */
-public class HyperStatementTest {
+public class UserGroupTest {
 
-    public HyperStatementTest() {
+    public UserGroupTest() {
     }
 
     @BeforeClass
@@ -38,22 +37,16 @@ public class HyperStatementTest {
     public void tearDown() {
     }
 
-    
+  
 
     /**
-     * Test of executeQuery method, of class HyperStatement.
+     * Test of toString method, of class UserGroup.
      */
     @Test
-    public void testExecuteQuery() throws Exception {
-        HyperStatement hs = new HyperStatement("SELECT * FROM ALGORITHM_ONTOLOGIES");
-        HyperResult hr = hs.executeQuery();
-
-        Iterator<String> it = hr.getRowIterator(3);
-        while(it.hasNext()){
-            System.out.println(it.next());
-        }
-        System.out.println(it.next());
-
+    public void testToString() {
+        System.out.println("-- testing toString() --");
+        UserGroup group = new UserGroup("ADMINISTRATORS", 15);
+        System.out.println(group);
     }
 
 }

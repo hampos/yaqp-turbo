@@ -1,21 +1,18 @@
 package org.opentox.db.queries;
 
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.opentox.db.exceptions.DbException;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Fatal;
+import org.opentox.util.logging.levels.Trace;
 
 /**
- *
- * @author chung
+ * This is the set of results from a SELECT operation on the database.
+ * @author Charalampos Chomenides
+ * @author Sopasakis Pantelis
  */
 public class HyperResult {
 
-    private ResultSet resultSet;
     private ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 
     public void addRow(ArrayList<String> entry) {
@@ -52,14 +49,15 @@ public class HyperResult {
             return row.iterator();
 
         } else {
-            throw new ArrayIndexOutOfBoundsException("Array index out of bounds while reading database vertically");
-
+            String message = "Vertical Iterator reached an end";
+            YaqpLogger.LOG.log(new Trace(getClass(), message));
+            throw new ArrayIndexOutOfBoundsException(message);
         }
     }
 
     /**
      * Mainly for testing purposes
-     * @return
+     * @return string representation of the HyperResult
      */
     @Override
     public String toString() {
@@ -83,7 +81,9 @@ public class HyperResult {
 
         private Hyperator(int colNum) {
             if (data.get(currentRow).size() < colNum || colNum < 1) {
-                throw new ArrayIndexOutOfBoundsException("Array index out of bounds while reading database horizontally");
+                String message = "Array index out of bounds while reading database horizontally";
+                YaqpLogger.LOG.log(new Fatal(getClass(), message));
+                throw new ArrayIndexOutOfBoundsException(message);
             }
             this.colNum = colNum;
         }
@@ -92,9 +92,10 @@ public class HyperResult {
             int tempCurrent = currentRow;
             tempCurrent++;
             int col = this.colNum;
-            try{
-            colIt = getColumnIterator(tempCurrent);
-            }catch(RuntimeException e){
+            try {
+                colIt = getColumnIterator(tempCurrent);
+            } catch (RuntimeException e) {
+                YaqpLogger.LOG.log(new Trace(getClass(), "([VeRtiCal] End of Hyp(It)erator...) :: " + e));
                 return false;
             }
             return true;

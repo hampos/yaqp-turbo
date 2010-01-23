@@ -1,5 +1,6 @@
 package org.opentox.db.util;
 
+import java.util.Random;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -54,10 +55,10 @@ public class PrepSwimmingPoolTest {
             throw new RuntimeException(ex);
         }
         try {
-            hp.setString(1, "GROUP_E");
+            hp.setString(1, "GROUP_F");
             hp.setInt(2, 199);
             hp.executeUpdate();
-            PrepSwimmingPool.POOL.put(hp);
+            PrepSwimmingPool.POOL.recycle(hp);
         } catch (DbException ex) {
             System.out.println("2-----\n" + ex);
             fail();
@@ -76,11 +77,11 @@ public class PrepSwimmingPoolTest {
             throw new RuntimeException(ex);
         }
         try {
-            hp.setString(1, "chung");
-            hp.setString(2, "sdlf4o8fsndlfn4otjlkejelfsf");
+            hp.setString(1, Long.toHexString(new Random().nextLong()));
+            hp.setString(2, java.util.UUID.randomUUID().toString());
             hp.setString(3,"Pantelis");
             hp.setString(4,"Sopasakis");
-            hp.setString(5,"chvng@mail.ntua.gr");
+            hp.setString(5,java.util.UUID.randomUUID().toString());
             hp.setString(6,"NTUA");
             hp.setString(7,"Greece/Hellas");
             hp.setString(8,"Athens/Pireaus");

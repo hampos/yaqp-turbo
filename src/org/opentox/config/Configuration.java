@@ -2,6 +2,7 @@ package org.opentox.config;
 
 import java.io.FileInputStream;
 import java.util.Properties;
+import org.opentox.core.exceptions.ExceptionDetails;
 import org.opentox.core.exceptions.YaqpException;
 
 /**
@@ -38,7 +39,7 @@ public class Configuration {
             if (properties != null) {
                 return properties;
             } else {
-                throw new YaqpException(YaqpException.CAUSE.could_not_load_properties);
+                throw new YaqpException(ExceptionDetails.could_not_load_properties);
             }
         }
     }
@@ -55,7 +56,7 @@ public class Configuration {
         if (properties != null) {
             return properties;
         } else {
-            throw new YaqpException(YaqpException.CAUSE.could_not_load_properties);
+            throw new YaqpException(ExceptionDetails.could_not_load_properties);
         }
 
     }
@@ -64,7 +65,7 @@ public class Configuration {
         if (properties != null) {
             Configuration.properties = properties;
         } else {
-            throw new YaqpException(YaqpException.CAUSE.could_not_load_properties);
+            throw new YaqpException(ExceptionDetails.could_not_load_properties);
         }
     }
 

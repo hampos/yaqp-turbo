@@ -7,13 +7,18 @@ import org.opentox.db.processors.AbstractDbProcessor;
  * A Processor for the manipulation of the tables in the database. Subclasses of
  * {@link AbstractTableProcessor this processor } are responsible for the creation
  * and deletion of new tables in the database.
- * @author Sopasakis Pantelis
+ * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
+ *
  * @see TableCreator
  * @see TableDropper
  */
 public abstract class AbstractTableProcessor extends AbstractDbProcessor<Table, Object>{
 
+    /**
+     * Create a new Abstract Table Creator. This constructor is intended to be
+     * overriden by subclasses that implement AbstractTableCreator.
+     */
     public AbstractTableProcessor(){
         super();
     }

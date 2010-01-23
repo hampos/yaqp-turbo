@@ -1,16 +1,21 @@
 package org.opentox.db.table;
 
 import org.opentox.db.util.SQLDataTypes;
+import org.opentox.db.util.TheDbConnector;
 
 /**
  *
  * This is an enumeration of some standard tables in the database of YAQP. All these 
- * tables should exist in the database, otherwise are created on startup.
+ * tables should exist in the database, otherwise are created on startup. The static
+ * method {@link TheDbConnector#init() init()} in the class {@link TheDbConnector }
+ * generated these tables if they do not already exist (this is the case when a new
+ * database is to be generated)
  *
  * @author Sopasakis Pantelis
  * @author Charalampos Chomenides
  *
- * @see TableCreator
+ * @see TableCreator create a table
+ * @see TableDropper delete a table
  */
 public enum StandardTables {
 
@@ -101,7 +106,7 @@ public enum StandardTables {
 
     /**
      * Whether the table is to be included in the database.
-     * @return
+     * @return true if the table is to be included in the table creation procedure
      */
     public boolean is2Bincluded() {
         return toBeIncluded;

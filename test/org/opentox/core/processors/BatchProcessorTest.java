@@ -14,6 +14,7 @@ import org.opentox.core.interfaces.JMultiProcessorStatus.STATUS;
 import static org.junit.Assert.*;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Fatal;
+import org.opentox.util.logging.levels.Info;
 import org.opentox.util.logging.levels.ScrewedUp;
 import org.opentox.util.logging.levels.Warning;
 import org.opentox.util.logging.logobject.LogObject;
@@ -75,9 +76,10 @@ public class BatchProcessorTest {
     public void tearDown() {
     }
 
-    //@Test
+    @Test
     public void batchLogging() throws Exception {
         System.out.println("-- core test --");
+        YaqpLogger.LOG.log(new Info(getClass(), "Initializing new Batch Processor"));
         BatchProcessor bp = new BatchProcessor(YaqpLogger.LOG);
         ArrayList<LogObject> list = new ArrayList<LogObject>();
         list.add(new Warning(BatchProcessorTest.class));
@@ -87,16 +89,18 @@ public class BatchProcessorTest {
         list.add(new ScrewedUp(BatchProcessorTest.class));
         list.add(new ScrewedUp(BatchProcessorTest.class));
         list.add(new Fatal(BatchProcessorTest.class));
+        YaqpLogger.LOG.log(new Info(getClass(), "Batch Processor is ready. Now processing"));
         bp.process(list);
+        YaqpLogger.LOG.log(new Info(getClass(), "BatchProcessing Completed"));
         assertTrue(bp.isEnabled());
-
         System.out.println(bp.getStatus());
-
+        YaqpLogger.LOG.log(new Info(getClass(), "Success!"));
     }
 
-    //@Test
+    @Test
     public void turboBatch() {
         System.out.println("-- testing using p1 --");
+        YaqpLogger.LOG.log(new Info(getClass(), "Turbo Batch Processor"));
         BatchProcessor bp = new BatchProcessor(p1, 10, 12);
         ArrayList<String> listOfJobs = new ArrayList<String>();
         // all these will run in parallel
@@ -118,15 +122,17 @@ public class BatchProcessorTest {
             System.out.println(bp.getStatus());
             assertTrue(Math.abs(bp.getStatus().getElapsedTime(STATUS.PROCESSED) - 1000) < 50);
             assertTrue(!bp.getStatus().isInProgress());
+            YaqpLogger.LOG.log(new Info(getClass(), "Turbo Batch Processor Completed"));
         } catch (YaqpException ex) {
             fail();
         }
 
     }
 
-    //@Test
+    @Test
     public void timeOutTest() {
         System.out.println("-- timeout test --");
+        YaqpLogger.LOG.log(new Info(getClass(), "Batch Processor TimeOut"));
         BatchProcessor<String, Integer, Processor<String, Integer>> bp =
                 new BatchProcessor<String, Integer, Processor<String, Integer>>(p2, 2, 2);
         assertTrue(bp.getStatus().isInProgress());
@@ -142,6 +148,7 @@ public class BatchProcessorTest {
             }
             assertEquals(result.get(0), new Integer(1234));
             assertEquals(result.get(1), null);
+            YaqpLogger.LOG.log(new Info(getClass(), "Batch Processor timeout test completed"));
         } catch (YaqpException ex) {
             fail();
         }
@@ -152,6 +159,7 @@ public class BatchProcessorTest {
     @Test
     public void synch(){
         System.out.println("-- synchronization test --");
+        YaqpLogger.LOG.log(new Info(getClass(), "Batch Processor Synch Test"));
         p1.setSynchronized(true);
         BatchProcessor bp = new BatchProcessor(p1, 10, 12);
         ArrayList<String> listOfJobs = new ArrayList<String>();
@@ -169,6 +177,7 @@ public class BatchProcessorTest {
         try {
             ArrayList<String> result = bp.process(listOfJobs);
             System.out.println(bp.getStatus());
+            YaqpLogger.LOG.log(new Info(getClass(), "Synch Test completed"));
         } catch (YaqpException ex) {
             fail();
         }

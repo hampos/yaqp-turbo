@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.Properties;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JProcessor;
@@ -22,12 +24,10 @@ import org.opentox.db.table.StandardTables;
 import org.opentox.db.table.Table;
 import org.opentox.db.table.TableCreator;
 import org.opentox.util.logging.YaqpLogger;
-import org.opentox.util.logging.levels.Fatal;
-import org.opentox.util.logging.levels.Info;
-import org.opentox.util.logging.levels.ScrewedUp;
+import org.opentox.util.logging.levels.*;
 
 /**
- *
+ * This Singleton Class manages the connection to the database.
  * @author Sopasakis Pantelis
  * @author Charalampos Chomenides
  */
@@ -37,9 +37,11 @@ public class TheDbConnector implements JDbConnector {
     /**
      * Public access point to the {@link TheDbConnector DB Connection Singleton }.
      * Use this static connection to the database to perform any operations.
+     * The first time this field is retrieved, a new DB connection is started.
+     *
+     * @see TheDbConnector#init() DB initialization.
      */
     public static TheDbConnector DB = getInstance();
-    
     /**
      * SQL connection to the database
      */
@@ -99,7 +101,7 @@ public class TheDbConnector implements JDbConnector {
     private boolean isInitialized = false;
     private final Lock lock = new ReentrantLock();
 
-    private static TheDbConnector getInstance() {
+    private synchronized static TheDbConnector getInstance() {
         if (instanceOfthis == null) {
             try {
                 instanceOfthis = new TheDbConnector();
@@ -107,51 +109,71 @@ public class TheDbConnector implements JDbConnector {
                 YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Unable to connect to "
                         + DB.database_url + " :: " + e));
             }
-        }
+        }        
         return (TheDbConnector) instanceOfthis;
     }
 
-    public static void init() throws DbException{
+    /**
+     * Initialize the Connection to the database. Initializes the standard tables of
+     * the database. Check if the database is initialized usign the method {@link
+     * TheDbConnector#isInitialized() }. If the database connection is already
+     * initialized, no action is taken.
+     *
+     * @throws DbException If the database could not be initialized properly.
+     */
+    public synchronized static void init() throws DbException {
 
-        TableCreator creator = new TableCreator();
+        if (!instanceOfthis.isInitialized()) {
+            TableCreator creator = new TableCreator();
 
-        BatchProcessor<Table, Object, JProcessor<Table, Object>> bp =
-                new BatchProcessor<Table, Object, JProcessor<Table, Object>>(creator, 1, 1);
+            BatchProcessor<Table, Object, JProcessor<Table, Object>> bp =
+                    new BatchProcessor<Table, Object, JProcessor<Table, Object>>(creator, 1, 1);
 
-        ArrayList<Table> tableToBeCreated = new ArrayList<Table>();
-        for (StandardTables t : StandardTables.values()) {
-            tableToBeCreated.add(t.getTable());
+            ArrayList<Table> tableToBeCreated = new ArrayList<Table>();
+            for (StandardTables t : StandardTables.values()) {
+                tableToBeCreated.add(t.getTable());
+            }
+
+            try {
+                YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Attempting to create the standard tables..."));
+                bp.process(tableToBeCreated);
+                YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Standard tables were initialized..."));
+                DB.isInitialized = true;
+                // TODO; Check if the tables were really created!
+            } catch (YaqpException ex) {
+                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, ex.toString()));
+            }
+        }else{
+            YaqpLogger.LOG.log(new Trace(TheDbConnector.class, "Database is Already Initialized"));
         }
 
-        try {
-            YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Attempting to create the standard tables..."));
-            bp.process(tableToBeCreated);
-            YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Standard tables were created..."));
-            DB.isInitialized = true;
-            // TODO; Check if the tables were really created!
-        } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, ex.toString()));
-        }
     }
 
-
-    public boolean isInitialized(){
+    /**
+     * Retrieves whether the database connection is properly initialized, i.e.
+     * if there is an established connection and the standard tables where
+     * created.
+     * @return true if the database is initialized
+     */
+    public boolean isInitialized() {
         return isInitialized;
     }
 
-
+    /**
+     * Private constructor.
+     * @throws YaqpException If a connection cannot be established. In such a
+     * case, check again your server.properties file.
+     */
     private TheDbConnector() throws YaqpException {
         connect();
     }
 
+    
     public Lock getLock() {
         return lock;
     }
 
-    /**
-     * If there is no connection to the database, attempts a
-     * new connection.
-     */
+    
     public void connect() {
         if (!isConnected()) {
             try {
@@ -167,6 +189,8 @@ public class TheDbConnector implements JDbConnector {
         }
     }
 
+
+    
     public void disconnect() {
         if (connection != null) {
             try {
@@ -181,14 +205,17 @@ public class TheDbConnector implements JDbConnector {
 
     }
 
+    
     public String getDatabaseName() {
         return database_name;
     }
 
+   
     public String getDatabaseUrl() {
         return database_url;
     }
 
+   
     public int getDatabasePort() throws YaqpException {
         try {
             return Integer.parseInt(database_port);
@@ -199,22 +226,27 @@ public class TheDbConnector implements JDbConnector {
 
     }
 
+    
     public String getDatabaseDriver() {
         return database_driver;
     }
 
+  
     public boolean isConnected() {
         return isConnected;
     }
 
+    
     public Connection getConnection() {
         return connection;
     }
 
+  
     public String getDatabaseUser() {
         return database_user;
     }
 
+  
     public DatabaseMetaData getMetaData() throws YaqpException {
         if (connection != null && isConnected()) {
             try {
@@ -229,6 +261,7 @@ public class TheDbConnector implements JDbConnector {
         }
 
     }
+
 
     public ArrayList<String> getTableNames() throws YaqpException {
         if (TABLE_LIST == null) {
@@ -291,6 +324,7 @@ public class TheDbConnector implements JDbConnector {
 
     /**
      * Load the JDBC driver specified in the properties section
+     *
      * @see Configuration server configuration
      * @see Configuration#getProperties() current properties
      * @see Configuration#loadDefaultProperties() default properties
@@ -307,7 +341,7 @@ public class TheDbConnector implements JDbConnector {
     }
 
     /**
-     * Establushes a connection with the database or creates a new database
+     * Establishes a connection with the database or creates a new database
      * if the specified is not found.
      */
     private void establishConnection() {

@@ -5,7 +5,8 @@ import org.opentox.db.util.SQLDataTypes;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenides
  */
 public class TableColumn implements JDbTableColumn {
 

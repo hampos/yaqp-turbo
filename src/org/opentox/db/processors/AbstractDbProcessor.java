@@ -30,14 +30,14 @@ public abstract class AbstractDbProcessor<Query, QueryResult>
     }
 
 
-    public QueryResult process(Query query) throws YaqpException {
+    public QueryResult process(Query query) throws DbException {
         if (!TheDbConnector.DB.isConnected()) {            
-            throw new DbException("There in no connection to "+TheDbConnector.DB.getDatabaseName());
+            throw new DbException("Connection to "+TheDbConnector.DB.getDatabaseName()+" could not be established");
         }
         try {
             return execute(query);
         } catch (Exception x) {
-            throw new YaqpException(x);
+            throw new DbException(x);
         }
     }
 

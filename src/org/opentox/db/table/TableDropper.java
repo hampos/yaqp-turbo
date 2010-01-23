@@ -10,7 +10,8 @@ import org.opentox.util.logging.levels.Warning;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenides
  */
 public final class TableDropper extends AbstractTableProcessor{
 
@@ -22,7 +23,7 @@ public final class TableDropper extends AbstractTableProcessor{
     /**
      * Drops a table from the database.
      * @param q
-     * @return
+     * @return always returns <code>null</code>.
      */
     public Object execute(Table q) {
         String deleteTable =q.getDeletionSQL();

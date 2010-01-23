@@ -1,12 +1,13 @@
 package org.opentox.core.processors;
 
+import org.opentox.core.exceptions.ExceptionDetails;
+import org.opentox.core.exceptions.ProcessorException;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JMultiProcessorStatus.STATUS;
 import org.opentox.core.interfaces.JProcessor;
-import org.opentox.util.logging.levels.Debug;
-import org.opentox.util.logging.levels.Trace;
+import org.opentox.util.logging.levels.*;
 import org.opentox.util.logging.YaqpLogger;
-import org.opentox.util.logging.levels.ScrewedUp;
+
 
 /**
  * A set of jobs to be executed through a pipeline of processors
@@ -42,7 +43,6 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
     
     /**
      *
-     * TODO: Important! Do some tests...
      *
      * This method processes the input data to produce some output,
      * using the sequence of processors. The result from the first processor,
@@ -72,7 +72,7 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
                 if (isfailSensitive()) {
                     YaqpLogger.LOG.log(new Debug(Pipeline.class,
                             "Processor " + i + " is in error state :: "+exc));
-                    throw new YaqpException();
+                    throw new ProcessorException(exc);
                 }
                 getStatus().increment(STATUS.ERROR);
                 getStatus().incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - start_time);
@@ -88,8 +88,8 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
             return (Output) o;
         } catch (Exception exc) {
             YaqpLogger.LOG.log(new ScrewedUp( Pipeline.class,
-                    YaqpException.CAUSE.pipeline_output_typecasting.toString()));
-            throw new YaqpException(YaqpException.CAUSE.pipeline_output_typecasting);
+                    ExceptionDetails.pipeline_output_typecasting.toString()));
+            throw new YaqpException(ExceptionDetails.pipeline_output_typecasting);
         }
     }
 

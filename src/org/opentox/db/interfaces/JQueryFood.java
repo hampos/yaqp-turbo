@@ -2,7 +2,8 @@ package org.opentox.db.interfaces;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenides
  */
 public interface JQueryFood {
 

@@ -5,9 +5,8 @@ import org.opentox.db.util.SQLDataTypes;
 /**
  * A Parameter for a Database Query, for example "user_name='barbie'". A Query Parameter
  * consists of two parts: The value and the datatype for this value.
- * @author Sopasakis Pantelis
+ * @author Pantelis Sopasakis 
  * @author Charalampos Chomenides
- * @param <T> Generic Datatype for the value of the Query Parameter.
  */
 public interface JQueryParam {
 
@@ -38,7 +37,7 @@ public interface JQueryParam {
     
     /**
      * The parameter and its value as a string.
-     * @return
+     * @return string representation of the JQueryParam object.
      */
     @Override
     String toString();

@@ -6,12 +6,12 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import org.opentox.core.exceptions.ExceptionDetails;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JMultiProcessorStatus.STATUS;
 import org.opentox.core.interfaces.JProcessor;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.*;
-import org.opentox.core.exceptions.YaqpException.CAUSE;
 
 /**
  * A Parallel Processor is a collection of processors that run in parallel. 
@@ -81,7 +81,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
     public ArrayList<Output> process(final ArrayList<Input> data) throws YaqpException {
 
         if (data == null) {
-            throw new YaqpException(CAUSE.null_input_to_parallel_processor);
+            throw new YaqpException(ExceptionDetails.null_input_to_parallel_processor);
         }
 
         if (data.size() != size()) {
@@ -89,7 +89,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
         }
 
         if (size() == 0) {
-            throw new YaqpException(CAUSE.no_processors_found);
+            throw new YaqpException(ExceptionDetails.no_processors_found);
         }
 
 
@@ -161,7 +161,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
             getStatus().setMessage("interrupted - not running");
             getStatus().completed();
             firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-            throw new YaqpException(CAUSE.processor_interruption);
+            throw new YaqpException(ExceptionDetails.processor_interruption);
         }
 
 
@@ -187,7 +187,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
                 getStatus().setMessage("completed unexpectedly");
                 getStatus().completed();
                 firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-                throw new YaqpException(CAUSE.unknown_cause);
+                throw new YaqpException(ExceptionDetails.unknown_cause);
             } catch (Exception ex) {
 
                 /**
@@ -255,7 +255,6 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
      * is equivalent to a Callable when input is determined.
      * @param processor A processor
      * @param input Some input for the processor
-     * @param synchron whether the method 'call' is synchronized
      * @return
      */
     protected Callable getCallable(final JProcessor processor, final Object input) {
@@ -286,12 +285,12 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
             if (isfailSensitive()) {
                 parallel_executor.shutdownNow();
                 YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
-                        CAUSE.time_out_exception.toString()));
+                        ExceptionDetails.time_out_exception.toString()));
                 System.out.println("Waiting for " + timeout + timeUnit);
                 getStatus().setMessage("completed unsuccessfully - timeout");
                 getStatus().completed();
                 firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-                throw new YaqpException(CAUSE.time_out_exception);
+                throw new YaqpException(ExceptionDetails.time_out_exception);
             } else {
                 YaqpLogger.LOG.log(new Debug(ParallelProcessor.class,
                         "Some processes in a parallel processor took very long "

@@ -3,6 +3,7 @@ package org.opentox.db.table;
 import java.sql.SQLException;
 import java.sql.Statement;
 import org.opentox.core.exceptions.YaqpException;
+import org.opentox.core.interfaces.JProcessor;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.*;
@@ -30,7 +31,7 @@ public final class TableCreator extends AbstractTableProcessor {
     /**
      * Creates a new table in the database.
      * @param q this parameters stands only for reasong of consistency and
-     * compliance with the {@link JProcessor Processor Pattern }. Set it to
+     * compliance with the {@link org.opentox.core.interfaces.JProcessor Processor Pattern}. Set it to
      * <code>null</code> or <code>new Object()</code>; it is not used whatsoever.
      * @return Returns always <code>null</code> since this is a processor from
      * which we don't expect a certain output neither do we need to provide a

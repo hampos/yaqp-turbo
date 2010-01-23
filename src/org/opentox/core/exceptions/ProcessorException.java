@@ -19,6 +19,10 @@ public class ProcessorException extends YaqpException {
         
     }
 
+    
+
+
+
 
     /**
      * Constructs an instance of <code>ProcessorException</code> with the specified detail message.
@@ -26,5 +30,13 @@ public class ProcessorException extends YaqpException {
      */
     public ProcessorException(String msg) {
         super(msg);
+    }
+
+    public ProcessorException(ExceptionDetails exceptionDetails) {
+        super(exceptionDetails);
+    }
+
+    public ProcessorException(Throwable exc) {
+        super(exc);
     }
 }

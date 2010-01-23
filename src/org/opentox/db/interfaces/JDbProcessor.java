@@ -1,6 +1,7 @@
 package org.opentox.db.interfaces;
 
 import org.opentox.core.interfaces.JProcessor;
+import org.opentox.db.exceptions.DbException;
 
 /**
  *
@@ -8,6 +9,6 @@ import org.opentox.core.interfaces.JProcessor;
  */
 public interface JDbProcessor<InputData, Result> extends JProcessor<InputData, Result>{
 
-    public abstract Result execute(InputData q);
+    public abstract Result execute(InputData q) throws DbException;
 
 }

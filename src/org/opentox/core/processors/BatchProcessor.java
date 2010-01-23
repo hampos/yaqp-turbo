@@ -6,8 +6,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import org.opentox.core.exceptions.ExceptionDetails;
+import org.opentox.core.exceptions.ProcessorException;
 import org.opentox.core.exceptions.YaqpException;
-import org.opentox.core.exceptions.YaqpException.CAUSE;
 import org.opentox.core.interfaces.JProcessor;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.*;
@@ -85,15 +86,15 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
     public ArrayList<Output> process(ArrayList<Input> data) throws YaqpException {
 
         if (data == null) {
-            throw new YaqpException(CAUSE.null_input_to_parallel_processor);
+            throw new ProcessorException(ExceptionDetails.null_input_to_parallel_processor);
         }
 
         if (data.size() != data.size()) {
-            throw new YaqpException("sizes of input array list and processors unequal!");
+            throw new ProcessorException("sizes of input array list and processors unequal!");
         }
 
         if (data.size() == 0) {
-            throw new YaqpException("No batch!");
+            throw new ProcessorException("No batch!");
         }
 
         /**
@@ -141,7 +142,7 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
             getStatus().setMessage("interrupted - not running");
             getStatus().completed();
             firePropertyChange(PROPERTY, null, getStatus());
-            throw new YaqpException(CAUSE.processor_interruption);
+            throw new ProcessorException(ExceptionDetails.processor_interruption);
         }
 
         for (int i = 0; i < data.size(); i++) {
@@ -165,7 +166,7 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
                 getStatus().setMessage("completed unexpectedly");
                 getStatus().completed();
                 firePropertyChange(PROPERTY, null, getStatus());
-                throw new YaqpException(CAUSE.unknown_cause);
+                throw new ProcessorException(ExceptionDetails.unknown_cause);
             } catch (Exception ex) {
 
                 /**
@@ -179,7 +180,7 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
                     getStatus().setMessage("completed unsuccessfully");
                     getStatus().completed();
                     firePropertyChange(PROPERTY, null, getStatus());
-                    throw new YaqpException();
+                    throw new ProcessorException("The batch Processor is fail-sensitive");
                 }
 
                 /**
@@ -230,12 +231,12 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
             if (isfailSensitive()) {
                 parallel_executor.shutdownNow();
                 YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
-                        CAUSE.time_out_exception.toString()));
+                        ExceptionDetails.time_out_exception.toString()));
                 System.out.println("Waiting for " + timeout + timeUnit);
                 getStatus().setMessage("completed unsuccessfully - timeout");
                 getStatus().completed();
                 firePropertyChange(PROPERTY, null, getStatus());
-                throw new YaqpException(CAUSE.time_out_exception);
+                throw new ProcessorException(ExceptionDetails.time_out_exception);
             } else {
                 YaqpLogger.LOG.log(new Debug(ParallelProcessor.class,
                         "Some processes in a parallel processor took very long "
