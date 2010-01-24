@@ -8,6 +8,7 @@ import org.opentox.util.logging.levels.Trace;
 
 /**
  * This is the set of results from a SELECT operation on the database.
+ * 
  * @author Charalampos Chomenides
  * @author Sopasakis Pantelis
  */
@@ -15,7 +16,7 @@ public class HyperResult {
 
     private ArrayList<ArrayList<String>> data = new ArrayList<ArrayList<String>>();
 
-    public void addRow(ArrayList<String> entry) {
+    protected void addRow(ArrayList<String> entry) {
         data.add(entry);
     }
 

@@ -1,6 +1,5 @@
 package org.opentox.db.handlers;
 
-import java.util.concurrent.TimeUnit;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.entities.AlgorithmOntology;
 import org.opentox.db.entities.User;
