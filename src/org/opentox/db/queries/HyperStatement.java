@@ -2,6 +2,7 @@ package org.opentox.db.queries;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import org.opentox.db.exceptions.DbException;
@@ -13,8 +14,6 @@ import org.opentox.db.util.TheDbConnector;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Warning;
 
-
-
 /**
  *
  * This is a proxy for {@link java.sql.PreparedStatement Java PreparedStatement }
@@ -25,28 +24,26 @@ import org.opentox.util.logging.levels.Warning;
  * @author Pantelis Sopasakis
  * @author Chomenides Charalampos
  */
-public class HyperStatement implements JHyperStatement{
+public class HyperStatement implements JHyperStatement {
 
     private String sql;
     private PreparedStatement preparedStatement;
 
+    public HyperStatement(final String sql) throws DbException {
 
-    public HyperStatement(final String sql) throws DbException{
-        
         try {
             this.preparedStatement = TheDbConnector.DB.getConnection().prepareStatement(sql);
             this.sql = sql;
         } catch (SQLException ex) {
-            throw new DbException("Cannot prepare a statement in the database. Reproducing SQLException :"+ex, ex);
+            throw new DbException("Cannot prepare a statement in the database. Reproducing SQLException :" + ex, ex);
         }
     }
-    
 
     public void setInt(int index, int value) throws DbException {
         try {
             preparedStatement.setInt(index, value);
         } catch (SQLException ex) {
-            throw new DbException("Cannot set a parameteter with index "+index +" to the integer value : "+value, ex);
+            throw new DbException("Cannot set a parameteter with index " + index + " to the integer value : " + value, ex);
         }
     }
 
@@ -54,7 +51,7 @@ public class HyperStatement implements JHyperStatement{
         try {
             preparedStatement.setString(index, value);
         } catch (SQLException ex) {
-            throw new DbException("Cannot set a parameteter with index "+index +" to String value : "+value, ex);
+            throw new DbException("Cannot set a parameteter with index " + index + " to String value : " + value, ex);
         }
     }
 
@@ -62,12 +59,11 @@ public class HyperStatement implements JHyperStatement{
         try {
             preparedStatement.setDouble(index, value);
         } catch (SQLException ex) {
-            throw new DbException("Cannot set a parameteter with index "+index +" to double value : "+value, ex);
+            throw new DbException("Cannot set a parameteter with index " + index + " to double value : " + value, ex);
         }
     }
 
-
-    public int executeUpdate() throws DbException{
+    public int executeUpdate() throws DbException {
         try {
             return preparedStatement.executeUpdate();
         } catch (SQLException ex) {
@@ -83,16 +79,21 @@ public class HyperStatement implements JHyperStatement{
         HyperResult result = new HyperResult();
         try {
             ResultSet rs = preparedStatement.executeQuery();
-            
+            ResultSetMetaData rsmd = rs.getMetaData();
+
             ArrayList<String> row = new ArrayList<String>();
-           
-            while (rs.next()){
-                for (int col_index = 0 ; col_index < rs.getMetaData().getColumnCount(); col_index++ ){
-                    row.add(rs.getString(col_index+1));
+
+            for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
+                result.addColName(rsmd.getColumnName(col_index+1), col_index+1);
+            }
+            while (rs.next()) {
+                for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
+                    row.add(rs.getString(col_index + 1));
                 }
                 result.addRow(row);
                 row = new ArrayList<String>();
             }
+            
             rs.close();
             return result;
         } catch (SQLException ex) {
@@ -101,7 +102,7 @@ public class HyperStatement implements JHyperStatement{
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return this.sql;
     }
 
@@ -113,12 +114,11 @@ public class HyperStatement implements JHyperStatement{
         }
     }
 
-    public QueryType getType(){
-        if (sql.contains("SELECT")){
+    public QueryType getType() {
+        if (sql.contains("SELECT")) {
             return QueryType.SELECT;
-        }else{
+        } else {
             return QueryType.UPDATE;
         }
     }
-
 }
