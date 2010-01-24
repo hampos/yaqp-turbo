@@ -40,12 +40,7 @@ public class DbProcessor extends AbstractDbProcessor<HyperStatement, HyperResult
             throw new DbException(e);
         } finally {
             PrepSwimmingPool.POOL.recycle(q);
-
-            if (q.getType().equals(QueryType.UPDATE)) {
-                q.executeUpdate();
-            } else {
-            }
-            return result;
         }
+        return result;
     }
 }
