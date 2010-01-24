@@ -21,7 +21,8 @@ import org.opentox.util.logging.levels.Warning;
  * containing the set of necessary methods to prepare a statement. HyperStatements
  * are fed into a {@link DbProcessor DataBase Processor } to produce {@link
  * HyperResult Hyper Results }.
- * @author Sopasakis Pantelis
+ * 
+ * @author Pantelis Sopasakis
  * @author Chomenides Charalampos
  */
 public class HyperStatement implements JHyperStatement{
