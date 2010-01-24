@@ -59,7 +59,8 @@ public class TheDbConnectorTest {
     @Test
     public void Prepared_Deletion() throws SQLException {
 
-        PreparedStatement ds = TheDbConnector.DB.getConnection().prepareStatement(StandardTables.ALGORITHM_ONTOL_RELATION.getTable().getDeletionSQL());
+        PreparedStatement ds = TheDbConnector.DB.getConnection().prepareStatement(
+                StandardTables.ALGORITHM_ONTOL_RELATION.getTable().getDeletionSQL());
         ds.executeUpdate();
     }
 

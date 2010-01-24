@@ -152,18 +152,16 @@ public enum StandardTables {
     public static Table UserAuth() {
         Table user_auth_table = new Table("USER_AUTH");
 
-        TableColumn uid = new TableColumn("UID");
-        uid.setColumnType(SQLDataTypes.Int());
-        uid.setNotNull(true);
-        uid.setPrimaryKey(true, true);
-
         TableColumn name = new TableColumn("NAME");
+        name.setPrimaryKey(true, false);
         name.setColumnType(SQLDataTypes.VarChar(40));
         name.setNotNull(true);
+
         TableColumn user_level = new TableColumn("USER_LEVEL");
         user_level.setColumnType(SQLDataTypes.Int());
         user_level.setDefaultValue("0");
-        user_auth_table.addColumn(uid);
+
+
         user_auth_table.addColumn(name);
         user_auth_table.addColumn(user_level);
         return user_auth_table;
@@ -232,8 +230,8 @@ public enum StandardTables {
         table.addColumn(timestamp);
 
         TableColumn role = new TableColumn("ROLE");
-          role.setColumnType(SQLDataTypes.Int());
-          role.setForeignKey(UserAuth().getTableName(), "UID", true);
+          role.setColumnType(SQLDataTypes.VarChar(40));
+          role.setForeignKey(UserAuth().getTableName(), "NAME", true);
          table.addColumn(role);
 
         return table;
