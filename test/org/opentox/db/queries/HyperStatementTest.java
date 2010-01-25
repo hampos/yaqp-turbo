@@ -48,11 +48,11 @@ public class HyperStatementTest {
         HyperStatement hs = new HyperStatement("SELECT * FROM ALGORITHM_ONTOLOGIES");
         HyperResult hr = hs.executeQuery();
 
-        Iterator<String> it = hr.getRowIterator(3);
+        Iterator<String> it = hr.getRowIterator("ASDF");
         while(it.hasNext()){
             System.out.println(it.next());
         }
-        System.out.println(it.next());
+      //  System.out.println(it.next());
 
     }
 

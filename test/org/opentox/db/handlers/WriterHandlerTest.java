@@ -57,23 +57,23 @@ public class WriterHandlerTest {
     @Test
     public void testAddAlgorithmOntology() {
         try {
-            WriterHandler.addAlgorithmOntology(new AlgorithmOntology("B", "B"));
-            fail();
+            for (int i = 0; i < 100; i++) {
+                WriterHandler.addAlgorithmOntology(new AlgorithmOntology("name" + i, "uri" + i));
+            }
         } catch (DuplicateKeyException ex) {
             Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+            fail();
         }
     }
 
     @Test
     public void testAddUser() {
         try {
-            WriterHandler.addUser
-                    (
-                      new User(
-                      "chugn", "pasnfe8", "Pantelis", "Sopasakis",
-                      "chvng@mail.ntua.gr", "", "NTUA", "Greece",
-                       "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new")
-                    );
+            WriterHandler.addUser(
+                    new User(
+                    "chugn", "pasnfe8", "Pantelis", "Sopasakis",
+                    "chvng@mail.ntua.gr", "", "NTUA", "Greece",
+                    "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new"));
             fail();
         } catch (DuplicateKeyException ex) {
             Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
