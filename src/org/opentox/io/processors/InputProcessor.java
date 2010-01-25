@@ -2,12 +2,16 @@ package org.opentox.io.processors;
 
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.exceptions.YaqpIOException;
@@ -31,7 +35,6 @@ import org.restlet.data.MediaType;
  */
 public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
 
-
     /**
      * Engine used to convert the remote or local representation into an
      * ontological model.
@@ -42,14 +45,12 @@ public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
         super();
     }
 
-    private static ArrayList<MediaType> supportedMediaTypes(){
+    private static ArrayList<MediaType> supportedMediaTypes() {
         ArrayList<MediaType> list = new ArrayList<MediaType>();
         list.add(MediaType.APPLICATION_RDF_XML);
         list.add(MediaType.APPLICATION_RDF_TURTLE);
         return list;
     }
-
-
 
     private boolean IsMimeAvailable(URI serviceUri, MediaType mime) {
 
@@ -62,30 +63,26 @@ public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
             connexion.setUseCaches(false);
             connexion.addRequestProperty("Accept", mime.toString());
 
-            if ((connexion.getResponseCode() >= 200) && (connexion.getResponseCode() < 300)) {
+            if (connexion.getResponseCode() == 200) {
                 return true;
             } else {
                 return false;
             }
         } catch (IOException ex) {
             return false;
-        }finally{
+        } finally {
             connexion.disconnect();
         }
     }
 
-    private MediaType getAvailableMime(URI uri){
-        for (int i=0;i<supportedMediaTypes().size();i++){
-            if (IsMimeAvailable(uri, supportedMediaTypes().get(i))){
+    private MediaType getAvailableMime(URI uri) {
+        for (int i = 0; i < supportedMediaTypes().size(); i++) {
+            if (IsMimeAvailable(uri, supportedMediaTypes().get(i))) {
                 return supportedMediaTypes().get(i);
-            }            
+            }
         }
         return null;
     }
-
-
-
-  
 
     /**
      * Initialized the connection to the Resource.
@@ -94,22 +91,36 @@ public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
      * @throws IOException In case a communication or access issue occurs, or
      * Internet connection is down.
      */
-    private HttpURLConnection initializeConnection(URI uri)  {
+    private HttpURLConnection initializeConnection(URI uri) {
         try {
             HttpURLConnection con = null;
+                                        System.err.println("a");
+
             HttpURLConnection.setFollowRedirects(true);
+                            System.err.println("b");
+
             URL dataset_url = uri.toURL();
+                            System.err.println("c");
+
             con = (HttpURLConnection) dataset_url.openConnection();
+                            System.err.println("d");
+
             con.setDoInput(true);
             con.setDoOutput(true);
             con.setUseCaches(false);
+                            System.err.println("e");
+
             media = getAvailableMime(uri);
+                            System.err.println("f");
+
             con.setRequestProperty("Accept", media.toString());
+                            System.err.println("g");
+
             return con;
         } catch (MalformedURLException ex) {
-            YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Ex :"+ex));
+            YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Ex :" + ex));
         } catch (IOException ex) {
-            YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Ex :"+ex));
+            YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Ex :" + ex));
         }
         return null;
     }
@@ -126,13 +137,34 @@ public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
         YaqpIOStream is = null;
         try {
             HttpURLConnection con = initializeConnection(uri);
-            is = new YaqpIOStream(con.getInputStream());
+            InputStream remoteStream = con.getInputStream();
+
+                            System.err.println("BeforePassed");
+
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(remoteStream));
+                            System.err.println("Passed");
+
+            String line = "";
+            String T = "";
+
+            while ((line = reader.readLine()) != null) {                
+                T += line+"\n";
+            }
+            
+
+            InputStream inp = new ByteArrayInputStream(T.getBytes());
+
+            is = new YaqpIOStream(inp);
             IOEngine engine = EngineFactory.createEngine(media);
             yaqpOntModel = engine.getYaqpOntModel(is);
         } catch (Exception ex) {
             YaqpLogger.LOG.log(new Warning(getClass(), ex.toString()));
             throw new YaqpIOException(ex);
-        } 
+        }
         return yaqpOntModel;
     }
+
+
+
 }

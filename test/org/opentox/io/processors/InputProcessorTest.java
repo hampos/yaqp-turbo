@@ -42,8 +42,9 @@ public class InputProcessorTest {
         try{
         InputProcessor p = new InputProcessor();
         
-        URI uri = new URI("http://147.102.82.32:3000/algorithm");
-        //URI uri = new URI("http://opentox.ntua.gr/ds.rdf");
+        // URI uri = new URI("http://opentox.ntua.gr:3000/algorithm");
+        URI uri = new URI(ServerList.ambit.getBaseURI()+"/dataset/6");
+        
         p.handle(uri).printConsole("RDF/XML");
 
         }catch (Exception e){

@@ -31,7 +31,7 @@ public enum ServerList {
     public boolean suppFeatures(){
         return this.supportsFeatures;
     }
-
+// curl -X POST -d 'dataset_uri=http://ambit.uni-plovdiv.bg:8080/ambit2/dataset/6'
     public boolean suppCompounds() {
         return this.supportsCompounds;
     }
