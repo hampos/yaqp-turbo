@@ -2,25 +2,36 @@ package org.opentox.io.processors;
 
 import java.net.URI;
 import org.opentox.core.exceptions.YaqpIOException;
-import org.opentox.io.engines.Engine;
 import org.opentox.io.engines.EngineFactory;
+import org.opentox.io.engines.IOEngine;
 import org.opentox.ontology.YaqpOntModel;
 import org.restlet.data.MediaType;
+import org.restlet.data.Response;
 
 /**
  *
+ * This acts like a HTTP POSTer. It posts a representation of a YaqpOntModel (in
+ * some mediatype specified in the constructor) to a remote service
+ *
  * @author hampos
  */
-public class OutputProcessor extends AbstractIOProcessor<YaqpOntModel,URI> {
+public class OutputProcessor
+        extends AbstractIOProcessor<YaqpOntModel,Response>
+{
 
-    private Engine engine;
+    private IOEngine engine;
+   
 
-    public OutputProcessor(MediaType mediatype){
-        this.engine = EngineFactory.createEngine(mediatype);
+    public OutputProcessor(){
+       
     }
 
-    public URI handle(YaqpOntModel i) throws YaqpIOException {
+    public Response handle(YaqpOntModel i) throws YaqpIOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    
+
+
 
 }

@@ -4,11 +4,16 @@ import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFReader;
-import com.hp.hpl.jena.rdf.model.impl.RDFDefaultErrorHandler;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.SimpleSelector;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.shared.Lock;
 import com.hp.hpl.jena.vocabulary.DC;
 import com.hp.hpl.jena.vocabulary.OWL;
+import com.hp.hpl.jena.vocabulary.RDF;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 import org.opentox.ontology.namespaces.OTNS;
@@ -26,42 +31,34 @@ import org.restlet.data.MediaType;
  */
 public class YaqpOntModel {
 
+
     private OntModel jenaModel;
+
+    private URI uri;
 
     /**
      * This is a private constructor that generates new instances of YaqpOntModel.
      *
      * @param specifications Ontological Specifications.
      */
-    private YaqpOntModel(OntModelSpec specifications) {
-        jenaModel = ModelFactory.createOntologyModel(specifications);
-        Map<String, String> prefixesMap = new HashMap<String, String>();
-        prefixesMap.put("ot", OTNS.NS);
-        prefixesMap.put("owl", OWL.NS);
-        prefixesMap.put("dc", DC.NS);
-        /*   prefixesMap.put("ot_algorithmTypes", AbsOntClass.NS_AlgorithmTypes);   */
-        jenaModel.setNsPrefixes(prefixesMap);
+    public YaqpOntModel(final OntModel jenaModel) {
+        this.jenaModel = jenaModel;
     }
 
+    
     /**
-     * This static method stands for the default constructor of this class.
-     * @return new Instance of YaqpOntModel.
+     * This is intended to be used by RED-related engines to write this object
+     * to some OutputStream in some RDF-related mediatype.
+     * 
+     * @param out
+     * @param mediatype
      */
-    public static YaqpOntModel createOntModel() {
-        return new YaqpOntModel(OntModelSpec.OWL_DL_MEM);
-    }
-
-    public void read(InputStream in, MediaType mediatype) {
-        RDFReader reader = jenaModel.getReader();
-        jenaModel.enterCriticalSection(Lock.WRITE);
-        jenaModel.leaveCriticalSection();
-        reader.setProperty("error-mode", "lax");
-        reader.setProperty("WARN_REDEFINITION_OF_ID", "EM_IGNORE");
-        reader.read(jenaModel, in, getJenaFormat(mediatype));
+    public void write(OutputStream out, MediaType mediatype){
+        jenaModel.write(out, getJenaFormat(mediatype));
     }
 
     private String getJenaFormat(MediaType mediaType) {
-
+    
         if (mediaType.equals(MediaType.APPLICATION_RDF_TURTLE)) {
             return "TURTLE";
         } else if (mediaType.equals(MediaType.TEXT_RDF_N3)) {
@@ -73,7 +70,33 @@ public class YaqpOntModel {
         }
     }
 
-    public void printConsole() {
-        jenaModel.write(System.out);
+
+    public void printConsole(String LANG) {
+        jenaModel.write(System.out, LANG);
     }
+
+    public URI getUri() {
+        return uri;
+    }
+
+    public void setUri(final URI uri) {
+        this.uri = uri;
+    }
+
+    public OTNS.OTClass getType(){
+        System.out.println(uri.toString());
+        StmtIterator typeIterator = 
+                jenaModel.listStatements(new SimpleSelector(jenaModel.createOntResource(uri.toString()), RDF.type, (Resource)null));
+        System.out.println("b");
+        if (typeIterator.hasNext()){
+                System.out.println("c");
+            System.out.println(typeIterator.next().getObject().as(Resource.class).getURI());
+        }
+        
+        return null;
+    }
+
+   
+
+    
 }

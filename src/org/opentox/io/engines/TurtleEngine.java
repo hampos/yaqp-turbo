@@ -5,18 +5,29 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import java.io.InputStream;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.YaqpOntModel;
+import org.restlet.data.MediaType;
+
 
 /**
  *
  * @author hampos
  */
-public class RDFEngine extends IOEngine {
+public class TurtleEngine extends IOEngine {
 
-    public RDFEngine() {
+
+
+    public TurtleEngine(){
         super();
     }
 
-    @Override
+
+
+
+
+
+
+
+   @Override
     public YaqpOntModel getYaqpOntModel(YaqpIOStream is) {
         OntModel model = ModelFactory.createOntologyModel();
         model.read((InputStream) is.getStream(), null);
@@ -24,5 +35,4 @@ public class RDFEngine extends IOEngine {
         return yaqpOntModel;
     }
 
-   
 }

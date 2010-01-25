@@ -8,11 +8,18 @@ import org.restlet.data.MediaType;
  */
 public class EngineFactory {
 
-    public static Engine createEngine(final MediaType mediatype) {
-        Engine e = null;
-        if ((mediatype.equals(MediaType.APPLICATION_RDF_XML)) || (mediatype.equals(MediaType.APPLICATION_RDF_TURTLE))) {
-            e = new RDFEngine(mediatype);
+    public static IOEngine createEngine(final MediaType mediatype) {
+        IOEngine e = null;
+
+
+        if ((mediatype.equals(MediaType.APPLICATION_RDF_XML)) ) {
+            System.out.println("Engine: RDF");
+            e = new RDFEngine();
+        } else if ((mediatype.equals(MediaType.APPLICATION_RDF_TURTLE)) ){
+            System.out.println("Engine: Turtle");
+            e = new TurtleEngine();
         } else if (mediatype.equals(MediaType.APPLICATION_JSON)) {
+            System.out.println("Engine: No");
             throw new UnsupportedOperationException();
         } else {
             throw new UnsupportedOperationException();

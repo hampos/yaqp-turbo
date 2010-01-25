@@ -1,19 +1,23 @@
 package org.opentox.io.processors;
 
+import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.exceptions.YaqpIOException;
-import org.opentox.io.engines.Engine;
 import org.opentox.io.engines.EngineFactory;
+import org.opentox.io.util.YaqpIOStream;
+import org.opentox.io.engines.IOEngine;
+import org.opentox.io.engines.RDFEngine;
 import org.opentox.ontology.YaqpOntModel;
 import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.ScrewedUp;
 import org.opentox.util.logging.levels.Warning;
 import org.restlet.data.MediaType;
 
@@ -27,60 +31,61 @@ import org.restlet.data.MediaType;
  */
 public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
 
-    /**
-     * HTTP connection used to connect to the remote resource.
-     */
-    private HttpURLConnection con = null;
+
     /**
      * Engine used to convert the remote or local representation into an
      * ontological model.
      */
-    private Engine engine;
+    private MediaType media;
 
-
-    public InputProcessor(){
+    public InputProcessor() {
         super();
     }
 
-    /**
-     * The list of supported mediatypes for input. The list is ordered by preference
-     * priority. The MIME application/rdf+xml is always first priority MIME.
-     * @return ArrayList of supported mediatypes
-     */
-    private static List<MediaType> supportedInputMediatypes() {
-        List<MediaType> list = new ArrayList<MediaType>(2);
+    private static ArrayList<MediaType> supportedMediaTypes(){
+        ArrayList<MediaType> list = new ArrayList<MediaType>();
         list.add(MediaType.APPLICATION_RDF_XML);
         list.add(MediaType.APPLICATION_RDF_TURTLE);
         return list;
     }
 
-    /**
-     * Check if a certain MIME type is available from the given uri.
-     * @param uri the URI of the resource
-     * @param mime MIME type.
-     * @return <code>true</code> if the specified mime type is available.
-     */
-    private boolean IsMimeAvailable(URI uri, MediaType mime) {
-        HttpURLConnection.setFollowRedirects(false);
-        HttpURLConnection connection = null;
-        try {
-            connection = (HttpURLConnection) uri.toURL().openConnection();
-            connection.setDoInput(true);
-            connection.setDoOutput(true);
-            connection.setUseCaches(false);
-            connection.addRequestProperty("Accept", mime.toString());
 
-            if ((connection.getResponseCode() == 200)) {
+
+    private boolean IsMimeAvailable(URI serviceUri, MediaType mime) {
+
+        HttpURLConnection.setFollowRedirects(true);
+        HttpURLConnection connexion = null;
+        try {
+            connexion = (HttpURLConnection) serviceUri.toURL().openConnection();
+            connexion.setDoInput(true);
+            connexion.setDoOutput(true);
+            connexion.setUseCaches(false);
+            connexion.addRequestProperty("Accept", mime.toString());
+
+            if ((connexion.getResponseCode() >= 200) && (connexion.getResponseCode() < 300)) {
                 return true;
             } else {
                 return false;
             }
         } catch (IOException ex) {
             return false;
-        } finally {
-            connection.disconnect();
+        }finally{
+            connexion.disconnect();
         }
     }
+
+    private MediaType getAvailableMime(URI uri){
+        for (int i=0;i<supportedMediaTypes().size();i++){
+            if (IsMimeAvailable(uri, supportedMediaTypes().get(i))){
+                return supportedMediaTypes().get(i);
+            }            
+        }
+        return null;
+    }
+
+
+
+  
 
     /**
      * Initialized the connection to the Resource.
@@ -89,31 +94,24 @@ public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
      * @throws IOException In case a communication or access issue occurs, or
      * Internet connection is down.
      */
-    private void initializeConnection(URI uri) throws MalformedURLException, IOException {
-        HttpURLConnection.setFollowRedirects(true);
-        URL dataset_url = uri.toURL();
-        con = (HttpURLConnection) dataset_url.openConnection();
-        con.setDoInput(true);
-        con.setDoOutput(true);
-        con.setUseCaches(false);
-    }
-
-    /**
-     * Get the first available media type.
-     * @param uri URI of the resource.
-     * @return The first available mediatype among the supported ones.
-     */
-    private MediaType getAvailableMediaType(URI uri) throws YaqpException {
-        MediaType mediatype = null;
-
-        Iterator<MediaType> it = supportedInputMediatypes().iterator();
-        while (it.hasNext()) {
-            mediatype = it.next();
-            if (IsMimeAvailable(uri, mediatype)) {
-                return mediatype;
-            }
+    private HttpURLConnection initializeConnection(URI uri)  {
+        try {
+            HttpURLConnection con = null;
+            HttpURLConnection.setFollowRedirects(true);
+            URL dataset_url = uri.toURL();
+            con = (HttpURLConnection) dataset_url.openConnection();
+            con.setDoInput(true);
+            con.setDoOutput(true);
+            con.setUseCaches(false);
+            media = getAvailableMime(uri);
+            con.setRequestProperty("Accept", media.toString());
+            return con;
+        } catch (MalformedURLException ex) {
+            YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Ex :"+ex));
+        } catch (IOException ex) {
+            YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Ex :"+ex));
         }
-        throw new YaqpException("None available MediaType in URI="+uri.toString());
+        return null;
     }
 
     /**
@@ -125,15 +123,16 @@ public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
      */
     public YaqpOntModel handle(URI uri) throws YaqpIOException {
         YaqpOntModel yaqpOntModel = null;
+        YaqpIOStream is = null;
         try {
-            initializeConnection(uri);
-            engine = EngineFactory.createEngine(getAvailableMediaType(uri));
-            yaqpOntModel = engine.getOntModel(con, uri);
+            HttpURLConnection con = initializeConnection(uri);
+            is = new YaqpIOStream(con.getInputStream());
+            IOEngine engine = EngineFactory.createEngine(media);
+            yaqpOntModel = engine.getYaqpOntModel(is);
         } catch (Exception ex) {
             YaqpLogger.LOG.log(new Warning(getClass(), ex.toString()));
             throw new YaqpIOException(ex);
-        }
+        } 
         return yaqpOntModel;
     }
-
 }
