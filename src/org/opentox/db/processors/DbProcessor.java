@@ -18,11 +18,10 @@ import org.opentox.db.util.QueryType;
  */
 public class DbProcessor extends AbstractDbProcessor<HyperStatement, HyperResult> {
 
-    public DbProcessor(){
+    public DbProcessor() {
         super();
     }
 
-<<<<<<< HEAD
     /**
      *
      * @param q
@@ -41,12 +40,6 @@ public class DbProcessor extends AbstractDbProcessor<HyperStatement, HyperResult
             throw new DbException(e);
         } finally {
             PrepSwimmingPool.POOL.recycle(q);
-=======
-        if (q.getType().equals(QueryType.UPDATE)) {
-            q.executeUpdate();
-        } else {
-            
->>>>>>> 67e3dd2b5daab91c32a83797b4d87213a770e39f
         }
         return result;
     }
