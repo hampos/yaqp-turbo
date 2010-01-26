@@ -12,6 +12,10 @@ public class YaqpIOException extends YaqpException {
     public YaqpIOException() {
     }
 
+    public YaqpIOException(Throwable thr){
+        super(thr);
+    }
+
 
     /**
      * Constructs an instance of <code>YaqpIOException</code> with the specified detail message.

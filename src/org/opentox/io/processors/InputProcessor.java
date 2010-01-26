@@ -8,13 +8,13 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.core.exceptions.YaqpException;
-import org.opentox.core.processors.Processor;
+import org.opentox.core.exceptions.YaqpIOException;
 import org.opentox.io.engines.Engine;
 import org.opentox.io.engines.EngineFactory;
 import org.opentox.ontology.YaqpOntModel;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Warning;
 import org.restlet.data.MediaType;
 
 /**
@@ -25,7 +25,7 @@ import org.restlet.data.MediaType;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class InputProcessor extends Processor<URI, YaqpOntModel> {
+public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
 
     /**
      * HTTP connection used to connect to the remote resource.
@@ -36,6 +36,11 @@ public class InputProcessor extends Processor<URI, YaqpOntModel> {
      * ontological model.
      */
     private Engine engine;
+
+
+    public InputProcessor(){
+        super();
+    }
 
     /**
      * The list of supported mediatypes for input. The list is ordered by preference
@@ -98,20 +103,17 @@ public class InputProcessor extends Processor<URI, YaqpOntModel> {
      * @param uri URI of the resource.
      * @return The first available mediatype among the supported ones.
      */
-    private MediaType getAvailableMediaType(URI uri) {
-        MediaType mediatype = null, temp = null;
-
+    private MediaType getAvailableMediaType(URI uri) throws YaqpException {
+        MediaType mediatype = null;
 
         Iterator<MediaType> it = supportedInputMediatypes().iterator();
         while (it.hasNext()) {
-            temp = it.next();
-            if (IsMimeAvailable(uri, temp)) {
-                mediatype = temp;
-                engine = EngineFactory.createInputEngine(mediatype);
+            mediatype = it.next();
+            if (IsMimeAvailable(uri, mediatype)) {
                 return mediatype;
             }
         }
-        return mediatype;
+        throw new YaqpException("None available MediaType in URI="+uri.toString());
     }
 
     /**
@@ -121,19 +123,17 @@ public class InputProcessor extends Processor<URI, YaqpOntModel> {
      * @return The resource encapsulated in a {@link YaqpOntModel } object.
      * @throws YaqpException
      */
-    public YaqpOntModel process(URI uri) throws YaqpException {
-        System.out.println(getAvailableMediaType(uri).toString());
+    public YaqpOntModel handle(URI uri) throws YaqpIOException {
         YaqpOntModel yaqpOntModel = null;
         try {
             initializeConnection(uri);
+            engine = EngineFactory.createEngine(getAvailableMediaType(uri));
             yaqpOntModel = engine.getOntModel(con, uri);
         } catch (Exception ex) {
-            Logger.getLogger(InputProcessor.class.getName()).log(Level.SEVERE, null, ex);
+            YaqpLogger.LOG.log(new Warning(getClass(), ex.toString()));
+            throw new YaqpIOException(ex);
         }
         return yaqpOntModel;
     }
-
-
-    
 
 }
