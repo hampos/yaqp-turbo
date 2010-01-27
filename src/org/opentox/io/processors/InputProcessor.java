@@ -1,26 +1,18 @@
 package org.opentox.io.processors;
 
-import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.exceptions.YaqpIOException;
 import org.opentox.io.engines.EngineFactory;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.io.engines.IOEngine;
-import org.opentox.io.engines.RDFEngine;
-import org.opentox.ontology.YaqpOntModel;
+import org.opentox.ontology.TurboOntModel;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.ScrewedUp;
 import org.opentox.util.logging.levels.Warning;
@@ -34,7 +26,7 @@ import org.restlet.data.MediaType;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
+public class InputProcessor extends AbstractIOProcessor<URI, TurboOntModel> {
 
     /**
      * Engine used to convert the remote or local representation into an
@@ -95,28 +87,14 @@ public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
     private HttpURLConnection initializeConnection(URI uri) {
         try {
             HttpURLConnection con = null;
-            System.err.println("a");
-
             HttpURLConnection.setFollowRedirects(true);
-            System.err.println("b");
-
             URL dataset_url = uri.toURL();
-            System.err.println("c");
-
             con = (HttpURLConnection) dataset_url.openConnection();
-            System.err.println("d");
-
             con.setDoInput(true);
             con.setDoOutput(true);
             con.setUseCaches(false);
-            System.err.println("e");
-
             media = getAvailableMime(uri);
-            System.err.println("f");
-
             con.setRequestProperty("Accept", media.toString());
-            System.err.println("g");
-
             return con;
         } catch (MalformedURLException ex) {
             YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Ex :" + ex));
@@ -133,18 +111,22 @@ public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
      * @return The resource encapsulated in a {@link YaqpOntModel } object.
      * @throws YaqpException
      */
-    public YaqpOntModel handle(URI uri) throws YaqpIOException {
-        YaqpOntModel yaqpOntModel = null;
+    public TurboOntModel handle(URI uri) throws YaqpIOException {
+        TurboOntModel yaqpOntModel = null;
         YaqpIOStream is = null;
+        double start = 0, buff_time = 0, parse_time = 0;
         try {
+            start = System.currentTimeMillis();
             HttpURLConnection con = initializeConnection(uri);
-            InputStream remoteStream = new BufferedInputStream(con.getInputStream(),4194304);
-            //InputStream remoteStream = con.getInputStream();
-            System.err.println("BeforePassed");
-
+            InputStream remoteStream = new BufferedInputStream(con.getInputStream(), 4194304*64);
             is = new YaqpIOStream(remoteStream);
-            IOEngine engine = EngineFactory.createEngine(media);
+            buff_time = System.currentTimeMillis() - start;
+            start = System.currentTimeMillis();
+            IOEngine engine = EngineFactory.createEngine(media);            
             yaqpOntModel = engine.getYaqpOntModel(is);
+            parse_time = System.currentTimeMillis() - start;
+                    System.out.println("Buffer Time : "+buff_time+" +  Reading :"+parse_time+" = "+(buff_time+parse_time));
+
         } catch (Exception ex) {
             YaqpLogger.LOG.log(new Warning(getClass(), ex.toString()));
             throw new YaqpIOException(ex);

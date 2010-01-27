@@ -16,13 +16,10 @@ public class YaqpIOStream {
 
     public YaqpIOStream(Object ioStream){
         if (ioStream instanceof InputStream){
-            System.out.println("I-Stream");
             in = (InputStream) ioStream;
         }else if (ioStream instanceof OutputStream){
-            System.out.println("O-Stream");
             out = (OutputStream) ioStream;
         }else{
-            System.out.println("NO-Stream");
             // TODO: Exception
         }
     }

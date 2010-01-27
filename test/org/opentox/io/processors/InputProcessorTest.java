@@ -42,16 +42,22 @@ public class InputProcessorTest {
         try {
             InputProcessor p = new InputProcessor();
 
-            //  URI uri = new URI("http://opentox.ntua.gr:3000/algorithm");
-            URI uri = new URI(ServerList.ambit.getBaseURI() + "/dataset/6");
+            URI uri = new URI("http://opentox.ntua.gr/big.rdf");
+            //URI uri = new URI(ServerList.ambit.getBaseURI() + "/dataset/6");
 
-            p.handle(uri);
+            p.handle(uri).printConsole();
 
-            long start = System.currentTimeMillis();
-            for (int i = 0; i < 20; i++) {
-                p.handle(uri);
-            }
-            System.out.println(Double.parseDouble(Long.toString( System.currentTimeMillis() - start)) / 20);
+//            //double start = 0, duration = 0, sum = 0;
+//            final int N = 10;
+//            for (int i = 0; i < N; i++) {
+//              //  start = System.currentTimeMillis();
+//                p.handle(uri);
+//                //duration = System.currentTimeMillis() - start;
+//              //  System.out.println(duration);
+//                //sum += duration;
+//            }
+//            //System.out.println("Average :"+(double)sum/(double)N);
+//            
 
         } catch (Exception e) {
             System.out.println(e);

@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.opentox.ontology.interfaces;
 
 /**
@@ -10,5 +5,7 @@ package org.opentox.ontology.interfaces;
  * @author chung
  */
 public interface JOntModel {
+
+    void printConsole();
 
 }

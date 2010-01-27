@@ -5,6 +5,7 @@ package org.opentox.ontology.namespaces;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
+@Deprecated
 public class OTNS {
 
     private static final String _NS = "http://www.opentox.org/api/1.1#%s";

@@ -1,10 +1,13 @@
 package org.opentox.io.engines;
 
 import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import org.opentox.io.util.YaqpIOStream;
-import org.opentox.ontology.YaqpOntModel;
+import org.opentox.ontology.TurboOntModel;
 
 /**
  *
@@ -17,12 +20,7 @@ public class RDFEngine extends IOEngine {
     }
 
     @Override
-    public YaqpOntModel getYaqpOntModel(YaqpIOStream is) {
-        OntModel model = ModelFactory.createOntologyModel();
-        model.read((InputStream) is.getStream(), null);
-        YaqpOntModel yaqpOntModel = new YaqpOntModel(model);
-        return yaqpOntModel;
+    public TurboOntModel getYaqpOntModel(YaqpIOStream is) {
+        return new TurboOntModel(is);
     }
-
-   
 }

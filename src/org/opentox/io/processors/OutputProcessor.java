@@ -4,7 +4,7 @@ import java.net.URI;
 import org.opentox.core.exceptions.YaqpIOException;
 import org.opentox.io.engines.EngineFactory;
 import org.opentox.io.engines.IOEngine;
-import org.opentox.ontology.YaqpOntModel;
+import org.opentox.ontology.TurboOntModel;
 import org.restlet.data.MediaType;
 import org.restlet.data.Response;
 
@@ -16,7 +16,7 @@ import org.restlet.data.Response;
  * @author hampos
  */
 public class OutputProcessor
-        extends AbstractIOProcessor<YaqpOntModel,Response>
+        extends AbstractIOProcessor<TurboOntModel,Response>
 {
 
     private IOEngine engine;
@@ -26,7 +26,7 @@ public class OutputProcessor
        
     }
 
-    public Response handle(YaqpOntModel i) throws YaqpIOException {
+    public Response handle(TurboOntModel i) throws YaqpIOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

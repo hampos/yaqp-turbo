@@ -1,6 +1,6 @@
 package org.opentox.ontology.interfaces;
 
-import org.opentox.ontology.YaqpOntModel;
+import org.opentox.ontology.TurboOntModel;
 
 /**
  *
@@ -8,5 +8,5 @@ import org.opentox.ontology.YaqpOntModel;
  */
 public interface JOntProcessor<Output> {
 
-    Output convert(YaqpOntModel yaqpOntModel);
+    Output convert(TurboOntModel yaqpOntModel);
 }
