@@ -38,19 +38,24 @@ public class InputProcessorTest {
      * Test of process method, of class InputProcessor.
      */
     @Test
-    public void testProcess(){
-        try{
-        InputProcessor p = new InputProcessor();
-        
-        // URI uri = new URI("http://opentox.ntua.gr:3000/algorithm");
-        URI uri = new URI(ServerList.ambit.getBaseURI()+"/dataset/6");
-        
-        p.handle(uri).printConsole("RDF/XML");
+    public void testProcess() {
+        try {
+            InputProcessor p = new InputProcessor();
 
-        }catch (Exception e){
+            //  URI uri = new URI("http://opentox.ntua.gr:3000/algorithm");
+            URI uri = new URI(ServerList.ambit.getBaseURI() + "/dataset/6");
+
+            p.handle(uri);
+
+            long start = System.currentTimeMillis();
+            for (int i = 0; i < 20; i++) {
+                p.handle(uri);
+            }
+            System.out.println(Double.parseDouble(Long.toString( System.currentTimeMillis() - start)) / 20);
+
+        } catch (Exception e) {
             System.out.println(e);
             fail(e.toString());
         }
     }
-
 }

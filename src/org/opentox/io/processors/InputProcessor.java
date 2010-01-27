@@ -2,6 +2,7 @@ package org.opentox.io.processors;
 
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -76,12 +77,12 @@ public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
     }
 
     private MediaType getAvailableMime(URI uri) {
-        for (int i = 0; i < supportedMediaTypes().size(); i++) {
-            if (IsMimeAvailable(uri, supportedMediaTypes().get(i))) {
-                return supportedMediaTypes().get(i);
-            }
-        }
-        return null;
+//        for (int i = 0; i < supportedMediaTypes().size(); i++) {
+//            if (IsMimeAvailable(uri, supportedMediaTypes().get(i))) {
+//                return supportedMediaTypes().get(i);
+//            }
+//        }
+        return MediaType.APPLICATION_RDF_XML;
     }
 
     /**
@@ -94,27 +95,27 @@ public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
     private HttpURLConnection initializeConnection(URI uri) {
         try {
             HttpURLConnection con = null;
-                                        System.err.println("a");
+            System.err.println("a");
 
             HttpURLConnection.setFollowRedirects(true);
-                            System.err.println("b");
+            System.err.println("b");
 
             URL dataset_url = uri.toURL();
-                            System.err.println("c");
+            System.err.println("c");
 
             con = (HttpURLConnection) dataset_url.openConnection();
-                            System.err.println("d");
+            System.err.println("d");
 
             con.setDoInput(true);
             con.setDoOutput(true);
             con.setUseCaches(false);
-                            System.err.println("e");
+            System.err.println("e");
 
             media = getAvailableMime(uri);
-                            System.err.println("f");
+            System.err.println("f");
 
             con.setRequestProperty("Accept", media.toString());
-                            System.err.println("g");
+            System.err.println("g");
 
             return con;
         } catch (MalformedURLException ex) {
@@ -137,25 +138,11 @@ public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
         YaqpIOStream is = null;
         try {
             HttpURLConnection con = initializeConnection(uri);
-            InputStream remoteStream = con.getInputStream();
+            InputStream remoteStream = new BufferedInputStream(con.getInputStream(),4194304);
+            //InputStream remoteStream = con.getInputStream();
+            System.err.println("BeforePassed");
 
-                            System.err.println("BeforePassed");
-
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(remoteStream));
-                            System.err.println("Passed");
-
-            String line = "";
-            String T = "";
-
-            while ((line = reader.readLine()) != null) {                
-                T += line+"\n";
-            }
-            
-
-            InputStream inp = new ByteArrayInputStream(T.getBytes());
-
-            is = new YaqpIOStream(inp);
+            is = new YaqpIOStream(remoteStream);
             IOEngine engine = EngineFactory.createEngine(media);
             yaqpOntModel = engine.getYaqpOntModel(is);
         } catch (Exception ex) {
@@ -164,7 +151,4 @@ public class InputProcessor extends AbstractIOProcessor<URI, YaqpOntModel> {
         }
         return yaqpOntModel;
     }
-
-
-
 }
