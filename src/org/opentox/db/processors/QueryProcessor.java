@@ -17,7 +17,7 @@ import org.opentox.util.logging.levels.Debug;
  * @author Sopasakis Pantelis
  * @author Charalampos Chomenides
  */
-public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatement> implements JQueryProcessor{
+public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatement> implements JQueryProcessor {
 
     private PrepStmt prepStmt;
 
@@ -44,8 +44,7 @@ public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatemen
             hs = PrepSwimmingPool.POOL.take(prepStmt);
             String value = "";
 
-
-            for (int i = 0; i < prepStmt.getParameters().length; i++) {
+            for (int i = 0; prepStmt.getParameters() != null && i < prepStmt.getParameters().length; i++) {
 
                 if (!food.containsName(prepStmt.getParameters()[i].getName())) {
                     String message = "The parameter " + prepStmt.getParameters()[i].getName() + " is not set";
@@ -57,7 +56,7 @@ public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatemen
                 } else if (prepStmt.getParameters()[i].getType().equals(Integer.class)) {
                     hs.setInt((i + 1), Integer.parseInt(value));
                 } else if (prepStmt.getParameters()[i].getType().equals(Double.class)) {
-                    hs.setDouble((i+1), Double.parseDouble(value));
+                    hs.setDouble((i + 1), Double.parseDouble(value));
                 }
             }
         } catch (InterruptedException ex) {
@@ -75,4 +74,5 @@ public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatemen
     public void setPrepStmt(PrepStmt prepStmt) {
         this.prepStmt = prepStmt;
     }
+
 }

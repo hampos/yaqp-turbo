@@ -26,26 +26,28 @@ import org.opentox.db.util.PrepStmt;
  */
 public class DbPipeline<QF extends QueryFood, HR extends HyperResult> extends AbstractDbProcessor<QF, HR>{
 
-    private PrepStmt prepStmt;
+
+    private Pipeline pipeline;
 
     /**
      * Construct a new
      * @param prepStmt
      */
     public DbPipeline(PrepStmt prepStmt){
-        this.prepStmt = prepStmt;
+       pipeline = new Pipeline();
+       pipeline.add(new QueryProcessor(prepStmt));
+       pipeline.add(new DbProcessor());
+
     }
 
     public HR execute(QF q) throws DbException {
-       Pipeline pipeline = new Pipeline();
-       pipeline.add(new QueryProcessor(prepStmt));
-       pipeline.add(new DbProcessor());
+       HR result;
         try {
-            HR result = (HR) pipeline.process(q);
+            result = (HR) pipeline.process(q);
         } catch (YaqpException ex) {
             throw new DbException(ex);
         }
-       return null;
+       return result;
     }
 
 

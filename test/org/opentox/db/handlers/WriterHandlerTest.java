@@ -46,15 +46,15 @@ public class WriterHandlerTest {
     @Test
     public void testAddUserGroup() {
         WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60));
-        WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 60));
-        WriterHandler.addUserGroup(new UserGroup("MYGROUP10", 60));
-        WriterHandler.addUserGroup(new UserGroup("MYGROUP11", 60));
+        WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 70));
+        WriterHandler.addUserGroup(new UserGroup("MYGROUP10", 80));
+        WriterHandler.addUserGroup(new UserGroup("ADMIN", 10));
     }
 
     /**
      * Test of addAlgorithmOntology method, of class WriterHandler.
      */
-    @Test
+    //@Test
     public void testAddAlgorithmOntology() {
         try {
             for (int i = 0; i < 100; i++) {
@@ -69,14 +69,16 @@ public class WriterHandlerTest {
     @Test
     public void testAddUser() {
         try {
+            for (int i=5100;i<15000;i++)
             WriterHandler.addUser(
                     new User(
-                    "chugn", "pasnfe8", "Pantelis", "Sopasakis",
-                    "chvng@mail.ntua.gr", "", "NTUA", "Greece",
-                    "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new"));
-            fail();
+                    "user_"+i, "pass"+i, "firstname"+i, "lastname"+i,
+                    "chvng"+i+"@mail.ntua.gr", "NTUA", "Greece",
+                    "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new", null, "ADMIN"));
         } catch (DuplicateKeyException ex) {
             Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+
 }

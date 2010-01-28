@@ -68,7 +68,7 @@ public enum PrepStmt implements JPrepStmt {
                         new QueryParam("CITY", String.class),
                         new QueryParam("ADDRESS", String.class),
                         new QueryParam("WEBPAGE", String.class),
-                        new QueryParam("ROLE", Integer.class)
+                        new QueryParam("ROLE", String.class)
     }),
 
     /**
@@ -103,13 +103,13 @@ public enum PrepStmt implements JPrepStmt {
                         new QueryParam("PREDICTION_FEATURE", Integer.class),
                         new QueryParam("DEPENDENT_FEATURE",Integer.class),
                         new QueryParam("ALGORITHM",Integer.class),
-                        new QueryParam("CREATED_BY",Integer.class)
+                        new QueryParam("CREATED_BY",String.class)
                     }
     ),
     /**
      * Add a new MLR model in the database.
      */
-    ADD_MODEL_MLR("INSERT INTO " + MlrModels().getTableName() + " (DATASET) VALUES (?)",
+    ADD_MLR_MODEL("INSERT INTO " + MlrModels().getTableName() + " (DATASET) VALUES (?)",
     new QueryParam[]{
                         new QueryParam("DATASET", String.class)
                     }
@@ -152,11 +152,48 @@ public enum PrepStmt implements JPrepStmt {
      */
     ADD_FEATURE("INSERT INTO " + Features().getTableName() + " (URI) VALUES (?)",
     new QueryParam[]{
-            new QueryParam("URI", String.class)})
-            ;
+            new QueryParam("URI", String.class)
+                    }
+    ),
 
 
+            
+    GET_USERS("SELECT * FROM "+Users().getTableName(), null),
 
+    GET_ALGORITHM_ONTOLOGIES("SELECT * FROM "+AlgorithmOntologies().getTableName(), null),
+
+    GET_ALGORITHM_ONTOLOGY_RELATION("SELECT * FROM "+AlgorithmOntolRelation().getTableName()+
+            " WHERE ALGORITHM_UID=?",
+    new QueryParam[]{
+                        new QueryParam("ALGORITHM_UID",Integer.class)
+                    }
+    ),
+
+    GET_ONTOLOGY_ALGORITHM_RELATION("SELECT * FROM "+AlgorithmOntolRelation().getTableName()+
+            " WHERE ONTOLOGY_UID=?",
+    new QueryParam[]{
+                        new QueryParam("ONTOLOGY_UID",Integer.class)
+                    }
+    ),
+
+    GET_USER_GROUPS("SELECT * FROM "+UserAuth().getTableName(), null),
+
+    GET_ALGORITHMS("SELECT * FROM "+Algorithms().getTableName(), null),
+
+    GET_PRED_MODELS("SELECT * FROM "+PredictionModels().getTableName(), null),
+
+    GET_MLR_MODELS("SELECT * FROM "+MlrModels().getTableName(), null),
+
+    GET_SVM_MODELS("SELECT * FROM "+SvmModels().getTableName(), null),
+
+    GET_SVC_MODELS("SELECT * FROM "+SvcModels().getTableName(), null),
+
+    GET_FEATURES("SELECT * FROM "+Features().getTableName(), null);
+
+//    GET_USERS("SELECT * FROM "+Users().getTableName(), null),
+//    GET_USERS("SELECT * FROM "+Users().getTableName(), null),
+//    GET_USERS("SELECT * FROM "+Users().getTableName(), null),
+//    GET_USERS("SELECT * FROM "+Users().getTableName(), null)
 
 
     private String sql;

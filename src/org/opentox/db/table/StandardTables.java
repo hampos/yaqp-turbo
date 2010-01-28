@@ -170,12 +170,6 @@ public enum StandardTables {
     public static Table Users() {
         Table table = new Table("USERS");
 
-        TableColumn uid = new TableColumn("UID");
-          uid.setColumnType(SQLDataTypes.Int());
-          uid.setNotNull(true);
-          uid.setPrimaryKey(true, true);
-         table.addColumn(uid);
-
         TableColumn username = new TableColumn("USERNAME");
           username.setColumnType(SQLDataTypes.VarChar(20));
           username.setUnique(true);
@@ -200,7 +194,7 @@ public enum StandardTables {
         TableColumn email = new TableColumn("EMAIL");
           email.setColumnType(SQLDataTypes.VarChar(50));
           email.setNotNull(true);
-          email.setUnique(true);
+          email.setPrimaryKey(true,false);
          table.addColumn(email);
 
         TableColumn organization = new TableColumn("ORGANIZATION");
@@ -317,9 +311,9 @@ public enum StandardTables {
          PredictioModels_table.addColumn(algorithm);
 
         TableColumn createdBy = new TableColumn("CREATED_BY");
-          createdBy.setColumnType(SQLDataTypes.Int());
+          createdBy.setColumnType(SQLDataTypes.VarChar(50));
           createdBy.setNotNull(true);
-          createdBy.setForeignKey(Users().getTableName(), "UID", true);
+          createdBy.setForeignKey(Users().getTableName(), "EMAIL", true);
          PredictioModels_table.addColumn(createdBy);
 
         TableColumn timestamp = new TableColumn("TMSTMP");
@@ -540,9 +534,9 @@ public enum StandardTables {
          table.addColumn(status);
 
         TableColumn createdBy = new TableColumn("CREATED_BY");
-          createdBy.setColumnType(SQLDataTypes.Int());
+          createdBy.setColumnType(SQLDataTypes.VarChar(50));
           createdBy.setNotNull(true);
-          createdBy.setForeignKey(Users().getTableName(), "UID", true);
+          createdBy.setForeignKey(Users().getTableName(), "EMAIL", true);
          table.addColumn(createdBy);
 
 

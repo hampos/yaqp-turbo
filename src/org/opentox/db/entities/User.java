@@ -24,6 +24,7 @@ public class User implements Serializable {
             _city,
             _address,
             _webpage,
+            _timeStamp,
             _userGroup;
                     /*
                      *  Note: _userGroup is the *NAME* of the user group
@@ -63,18 +64,20 @@ public class User implements Serializable {
             String firstName,
             String lastName,
             String email,
-            String userGroup,
             String organization,
             String country,
             String city,
             String address,
-            String webpage){
+            String webpage,
+            String timestamp,
+            String userGroup){
         this(userName, userPass, firstName, lastName, email, userGroup);
         setOrganization(organization);
         setCountry(country);
         setCity(city);
         setAddress(address);
         setWebpage(webpage);
+        setTimeStamp(timestamp);
     }
 
 
@@ -123,6 +126,12 @@ public class User implements Serializable {
         return _webpage;
     }
 
+    public String getTimeStamp(){
+        return _timeStamp;
+    }
+
+
+
     public void setAddress(String address) {
         this._address = address;
     }
@@ -168,6 +177,10 @@ public class User implements Serializable {
         this._webpage = webpage;
     }
 
+    public void setTimeStamp(String timestamp){
+        this._timeStamp = timestamp;
+    }
+
 
     @Override
     public String toString() {
@@ -182,7 +195,8 @@ public class User implements Serializable {
         user += "COUNTRY           : "+getCountry()+"\n";
         user += "CITY              : "+getCity()+"\n";
         user += "ADDRESS           : "+getAddress()+"\n";
-        user += "WEBPAGE URL       : "+getWebpage();
+        user += "WEBPAGE URL       : "+getWebpage()+"\n";
+        user += "TIMESTAMP         : "+getTimeStamp();
         return user;
     }
 

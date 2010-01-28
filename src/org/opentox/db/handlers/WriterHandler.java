@@ -92,10 +92,11 @@ public class WriterHandler {
                     {"CITY", user.getCity()},
                     {"ADDRESS", user.getAddress()},
                     {"WEBPAGE", user.getWebpage()},
-                    {"ROLE", "1"}// TODO: Handle user roles......
+                    {"ROLE", user.getUserGroup()}// TODO: Handle user roles......
                 });
         try {
             pipeline.process(food);
+            System.out.println("User "+user.getUserName()+" added");
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "User added: \n"+user )  );
         } catch (DbException ex) {
             if (ex.toString().contains("DuplicateKeyException")) {
@@ -106,4 +107,6 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, "Could not add the following user :\n" + user));
         }
     }
+
+    
 }

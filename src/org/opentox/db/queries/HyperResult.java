@@ -27,6 +27,14 @@ public class HyperResult {
         columnMap.put(columnName, columnIndex);
     }
 
+    public int getSize(){
+        return data.size();
+    }
+
+    public int getColSize(){
+        return data.get(1).size();
+    }
+
     public ArrayList<String> getRow(int rowIndex) {
         return data.get(rowIndex);
     }
