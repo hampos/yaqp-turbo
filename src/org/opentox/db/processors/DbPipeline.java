@@ -1,13 +1,11 @@
 package org.opentox.db.processors;
 
-
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Pipeline;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.queries.HyperResult;
 import org.opentox.db.queries.QueryFood;
 import org.opentox.db.util.PrepStmt;
-
 
 /**
  * This a bundle for two importand database processors: The {@link QueryProcessor }
@@ -24,8 +22,7 @@ import org.opentox.db.util.PrepStmt;
  * @param <QF> QueryFood type of the input to the pipeline
  * @param <HR> HyperResult is the output type of this pipeline
  */
-public class DbPipeline<QF extends QueryFood, HR extends HyperResult> extends AbstractDbProcessor<QF, HR>{
-
+public class DbPipeline<QF extends QueryFood, HR extends HyperResult> extends AbstractDbProcessor<QF, HR> {
 
     private Pipeline pipeline;
 
@@ -33,24 +30,20 @@ public class DbPipeline<QF extends QueryFood, HR extends HyperResult> extends Ab
      * Construct a new
      * @param prepStmt
      */
-    public DbPipeline(PrepStmt prepStmt){
-       pipeline = new Pipeline();
-       pipeline.add(new QueryProcessor(prepStmt));
-       pipeline.add(new DbProcessor());
+    public DbPipeline(PrepStmt prepStmt) {
+        pipeline = new Pipeline();
+        pipeline.add(new QueryProcessor(prepStmt));
+        pipeline.add(new DbProcessor());
 
     }
 
     public HR execute(QF q) throws DbException {
-       HR result;
+        HR result;
         try {
             result = (HR) pipeline.process(q);
         } catch (YaqpException ex) {
             throw new DbException(ex);
         }
-       return result;
+        return result;
     }
-
-
-
-
 }

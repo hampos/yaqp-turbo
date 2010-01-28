@@ -54,7 +54,7 @@ public class WriterHandlerTest {
     /**
      * Test of addAlgorithmOntology method, of class WriterHandler.
      */
-    //@Test
+    @Test
     public void testAddAlgorithmOntology() {
         try {
             for (int i = 0; i < 100; i++) {
@@ -66,7 +66,7 @@ public class WriterHandlerTest {
         }
     }
 
-    @Test
+   // @Test
     public void testAddUser() {
         try {
             for (int i=5100;i<15000;i++)
