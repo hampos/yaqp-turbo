@@ -16,7 +16,8 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author chung
+ * @author Sopasakis Pantelis
+ * @author Charalampos Chomenides
  */
 public class WriterHandlerTest {
 
@@ -69,7 +70,7 @@ public class WriterHandlerTest {
     @Test
     public void testAddUser() {
         try {
-            for (int i=5100;i<15000;i++)
+            for (int i=0;i<1000;i++)
             WriterHandler.addUser(
                     new User(
                     "user_"+i, "pass"+i, "firstname"+i, "lastname"+i,
