@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package org.opentox.ontology.processors;
 
 import org.opentox.ontology.TurboOntModel;
