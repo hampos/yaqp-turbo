@@ -39,11 +39,11 @@ public class UserTest {
 
     @Test
     public void represent(){
-        User user = new User(
-                "jack_the_ripper",
-                java.util.UUID.randomUUID().toString(),
-                "Jack", "The Ripper", "jacktheripper@yahoo.com", "ADMINISTRATOR",
-                "NTUA", "Greece", "Athens", "Cemetery St., 105", null);
+
+                    User user=new User(
+                    "user_", "pass", "firstname", "lastname",
+                    "chvng@mail.ntua.gr", "NTUA", "Greece",
+                    "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new", null, "ADMIN");
         System.out.println(user);
     }
 
