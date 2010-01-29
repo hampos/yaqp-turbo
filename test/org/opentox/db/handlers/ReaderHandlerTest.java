@@ -6,7 +6,6 @@ package org.opentox.db.handlers;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -16,7 +15,6 @@ import org.opentox.db.entities.Algorithm;
 import org.opentox.db.entities.AlgorithmOntology;
 import org.opentox.db.entities.User;
 import org.opentox.db.entities.UserGroup;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -81,7 +79,7 @@ public class ReaderHandlerTest {
         }
     }
 
-    @Test
+   // @Test
     public void getOntAlgRelationTest(){
         AlgorithmOntology ontology = new AlgorithmOntology("name1", "uri1");
         ArrayList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology);
