@@ -13,6 +13,7 @@ import org.opentox.ontology.namespaces.YaqpOntEntity;
  */
 public class TurboOntModel extends OntModelImpl implements JOntModel{
 
+    
     public TurboOntModel(){
         super(OntModelSpec.OWL_DL_MEM);
     }
@@ -42,6 +43,45 @@ public class TurboOntModel extends OntModelImpl implements JOntModel{
         }
     }
 
+    public void createAnnotationProperties(String[] annotation_uris){
+        if (annotation_uris!=null){
+            for (int i=0;i<annotation_uris.length;i++){
+                createAnnotationProperty(annotation_uris[i]);
+            }
+        }
+    }
+
+    public void createDataTypeProperties(String[] datatype_uris){
+        if (datatype_uris!=null){
+            for (int i=0;i<datatype_uris.length;i++){
+                createAnnotationProperty(datatype_uris[i]);
+            }
+        }
+    }
+
+    public void createObjectProperties(String[] object_uris){
+        if (object_uris!=null){
+            for (int i=0;i<object_uris.length;i++){
+                createObjectProperty(object_uris[i]);
+            }
+        }
+    }
+
+    public void createSymmetricProperties(String[] symmetric_uris){
+        if (symmetric_uris!=null){
+            for (int i=0;i<symmetric_uris.length;i++){
+                createSymmetricProperty(symmetric_uris[i]);
+            }
+        }
+    }
+
+    public void createTransitiveProperties(String[] transitive_uris){
+        if (transitive_uris!=null){
+            for (int i=0;i<transitive_uris.length;i++){
+                createTransitiveProperty(transitive_uris[i]);
+            }
+        }
+    }
 
     
 

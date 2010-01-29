@@ -1,21 +1,22 @@
 package org.opentox.ontology.namespaces;
 
-
+import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.rdf.model.Resource;
+import org.opentox.ontology.TurboOntModel;
 
 /**
  *
  * @author chung
  */
-public class OTClass extends YaqpOntEntity{
+public class OTClass extends YaqpOntEntity {
 
-     public OTClass(Resource resource) {
+    public OTClass(Resource resource) {
         super(resource);
     }
-
-     /**
-      * A Chemical Compound
-      */
+    /**
+     * A Chemical Compound
+     */
     public static final OTClass Compound =
             new OTClass(_model.createResource(String.format(_NS_OT, "Compound")));
     /**
@@ -40,6 +41,54 @@ public class OTClass extends YaqpOntEntity{
      */
     public static final OTClass Feature =
             new OTClass(_model.createResource(String.format(_NS_OT, "Feature")));
+    /**
+     * 
+     * A <code>NumericFeature</code> is a subclass of <code>Feature</code> having
+     * numeric values only.
+     */
+    public static final OTClass NumericFeature =
+            new OTClass(_model.createResource(String.format(_NS_OT, "NumericFeature"))) {
+
+                @Override
+                public OntClass createOntClass(TurboOntModel model) {
+                    OntClass cl = model.createClass(getURI());
+                    cl.setSuperClass(Feature.getResource());
+                    model.includeOntClass(Feature);
+                    return null;
+                }
+            };
+    /**
+     *
+     * A <code>StringFeature</code> is a subclass of <code>Feature</code> having
+     * String values.
+     */
+    public static final OTClass StringFeature =
+            new OTClass(_model.createResource(String.format(_NS_OT, "StringFeature"))) {
+
+                @Override
+                public OntClass createOntClass(TurboOntModel model) {
+                    OntClass cl = model.createClass(getURI());
+                    cl.setSuperClass(Feature.getResource());
+                    model.includeOntClass(Feature);
+                    return null;
+                }
+            };
+    /**
+     *
+     * A <code>NominalFeature</code> is a subclass of <code>Feature</code> accepting
+     * nominal values, i.e. values in a finite set such as <code>{A,B,C}</code>.
+     */
+    public static final OTClass NominalFeature =
+            new OTClass(_model.createResource(String.format(_NS_OT, "NominalFeature"))) {
+
+                @Override
+                public OntClass createOntClass(TurboOntModel model) {
+                    OntClass cl = model.createClass(getURI());
+                    cl.setSuperClass(Feature.getResource());
+                    model.includeOntClass(Feature);
+                    return null;
+                }
+            };
     /**
      * The value of a {@link OTClass#Feature feature} for some {@link OTClass#Compound compound}.
      */
@@ -70,6 +119,4 @@ public class OTClass extends YaqpOntEntity{
      */
     public static final OTClass Parameter =
             new OTClass(_model.createResource(String.format(_NS_OT, "Parameter")));
- 
-
 }

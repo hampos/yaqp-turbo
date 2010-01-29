@@ -37,7 +37,11 @@ public abstract class YaqpOntEntity implements JOntEntity {
     }
 
     public OntClass getOntClass(TurboOntModel model) {
-        return model.getOntClass(getURI());
+        OntClass cl = model.getOntClass(getURI());
+        if (cl==null){
+            cl = createOntClass(model);
+        }
+        return cl;
     }
 
     public String getURI() {

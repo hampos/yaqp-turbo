@@ -18,8 +18,8 @@ import org.opentox.util.logging.levels.Debug;
  */
 public class ReaderHandler {
 
-    private static DbPipeline<QueryFood, HyperResult> getUsersPipeline = null;
-    private static DbPipeline<QueryFood, HyperResult> getAlgorithmOntologiesPipeline = null;
+    private static DbPipeline<QueryFood, HyperResult> getUsersPipeline = null,
+            getAlgorithmOntologiesPipeline = null;
 
     public static ArrayList<User> getUsers() {
         if (getUsersPipeline == null) {
@@ -29,7 +29,7 @@ public class ReaderHandler {
         try {
             result = getUsersPipeline.process(null);
         } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get User list from database\n"));
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "XR51 - Could not get User list from database\n"));
         }
         ArrayList<User> userList = new ArrayList<User>();
         for (int i = 1; i < result.getSize() + 1; i++) {
@@ -51,7 +51,7 @@ public class ReaderHandler {
         try {
             result = getAlgorithmOntologiesPipeline.process(null);
         } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Algorithm Ontologies from database\n"));
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "XR52 - Could not get Algorithm Ontologies from database\n"));
         }
         ArrayList<AlgorithmOntology> algorithmOntologiesList = new ArrayList<AlgorithmOntology>();
         for (int i = 1; i < result.getSize() + 1; i++) {

@@ -12,6 +12,7 @@ import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.vocabulary.DC;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.namespaces.OTClass;
+import org.opentox.ontology.namespaces.OTObjectProperties;
 
 /**
  *
@@ -69,6 +70,9 @@ public class ModelFactoryTest {
         // various properties.....
         algorithm.addLiteral(DC.title,mm.createTypedLiteral("my algorithm",XSDDatatype.XSDstring));
         algorithm.addLiteral(DC.description,mm.createTypedLiteral("This is my first test",XSDDatatype.XSDstring));
+
+        Individual a = mm.createIndividual("http://sth.com/compound/123", OTClass.Compound.getOntClass(mm));
+        algorithm.addProperty(OTObjectProperties.compound.createProperty(mm), a);
 
         mm.printConsole();
     }

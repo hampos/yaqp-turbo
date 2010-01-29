@@ -36,7 +36,12 @@ public class UserGroup implements Serializable{
         this._name = name;
     }
 
-    public void setLevel(int level) {
+    /**
+     *
+     * @param level
+     * @throws NumberFormatException in case the provided level in not an integer
+     */
+    public void setLevel(int level) throws NumberFormatException{
         this._level = level;
     }
 
