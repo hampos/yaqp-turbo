@@ -1,5 +1,6 @@
 package org.opentox.db.handlers;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -7,6 +8,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opentox.db.entities.Algorithm;
 import org.opentox.db.entities.AlgorithmOntology;
 import org.opentox.db.entities.User;
 import org.opentox.db.entities.UserGroup;
@@ -57,7 +59,7 @@ public class WriterHandlerTest {
     @Test
     public void testAddAlgorithmOntology() {
         try {
-            for (int i = 0; i < 100; i++) {
+            for (int i = 1; i <= 100; i++) {
                 WriterHandler.addAlgorithmOntology(new AlgorithmOntology("name" + i, "uri" + i));
             }
         } catch (DuplicateKeyException ex) {
@@ -66,19 +68,32 @@ public class WriterHandlerTest {
         }
     }
 
-   // @Test
+    // @Test
     public void testAddUser() {
         try {
-            for (int i=5100;i<15000;i++)
-            WriterHandler.addUser(
-                    new User(
-                    "user_"+i, "pass"+i, "firstname"+i, "lastname"+i,
-                    "chvng"+i+"@mail.ntua.gr", "NTUA", "Greece",
-                    "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new", null, "ADMIN"));
+            for (int i = 5100; i < 15000; i++) {
+                WriterHandler.addUser(
+                        new User(
+                        "user_" + i, "pass" + i, "firstname" + i, "lastname" + i,
+                        "chvng" + i + "@mail.ntua.gr", "NTUA", "Greece",
+                        "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new", null, "ADMIN"));
+            }
         } catch (DuplicateKeyException ex) {
             Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+    @Test
+    public void testAddAlgorithm() {
+        try {
+            ArrayList<AlgorithmOntology> ontlist = ReaderHandler.getAlgorithmOntologies();
+            for (int i = 1; i <= 100; i++) {
+                WriterHandler.addAlgorithm(new Algorithm("name" + i, "uri" + i, ontlist));
+            }
+    //        WriterHandler.addAlgorithm(new Algorithm("name","uri",ontlist));
+        } catch (DuplicateKeyException ex) {
+            Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
+    }
 }

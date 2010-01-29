@@ -6,13 +6,16 @@ package org.opentox.db.handlers;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opentox.db.entities.Algorithm;
 import org.opentox.db.entities.AlgorithmOntology;
 import org.opentox.db.entities.User;
+import org.opentox.db.entities.UserGroup;
 import static org.junit.Assert.*;
 
 /**
@@ -49,11 +52,53 @@ public class ReaderHandlerTest {
             System.out.println(user);
         }
     }
-    @Test
+   //@Test
     public void getAlgorithmOntologiesTest(){
-        for(int i=0; i<10000; i++){
-        ArrayList<AlgorithmOntology> algont = ReaderHandler.getAlgorithmOntologies();
         
+        ArrayList<AlgorithmOntology> algont = ReaderHandler.getAlgorithmOntologies();
+        Iterator<AlgorithmOntology> it = algont.iterator();
+        while(it.hasNext()){
+            System.out.println(it.next());
+        }
+        
+    }
+  //  @Test
+    public void getUserGroupsTest(){
+        ArrayList<UserGroup> userGroups = ReaderHandler.getUserGroups();
+        Iterator<UserGroup> it = userGroups.iterator();
+        while(it.hasNext()){
+            System.out.println(it.next());
+        }
+    }
+
+    //@Test
+    public void getAlgOntRelationTest(){
+        Algorithm algorithm = new Algorithm("name1","uri1",null);
+        ArrayList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation(algorithm);
+        Iterator<AlgorithmOntology> it = ontologies.iterator();
+        while(it.hasNext()){
+            System.out.println(it.next());
+        }
+    }
+
+    @Test
+    public void getOntAlgRelationTest(){
+        AlgorithmOntology ontology = new AlgorithmOntology("name1", "uri1");
+        ArrayList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology);
+        Iterator<Algorithm> it = algorithms.iterator();
+        while(it.hasNext()){
+            System.out.println(it.next());
+        }
+    }
+
+    //@Test
+    public void getAlgorithmsTest(){
+        ArrayList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
+        Iterator<Algorithm> it = algorithms.iterator();
+        while(it.hasNext()){
+            System.out.println(it.next());
         }
     }
 }
+
+

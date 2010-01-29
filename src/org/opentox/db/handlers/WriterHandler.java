@@ -1,6 +1,10 @@
 package org.opentox.db.handlers;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import org.opentox.core.exceptions.YaqpException;
+import org.opentox.core.processors.BatchProcessor;
+import org.opentox.db.entities.Algorithm;
 import org.opentox.db.entities.AlgorithmOntology;
 import org.opentox.db.entities.User;
 import org.opentox.db.entities.UserGroup;
@@ -22,20 +26,27 @@ import org.opentox.util.logging.levels.*;
  */
 public class WriterHandler {
 
+    private static DbPipeline<QueryFood, HyperResult> addUserPipeline = null;
+    private static DbPipeline<QueryFood, HyperResult> addAlgorithmOntologyPipeline = null;
+    private static DbPipeline<QueryFood, HyperResult> addUserGroupPipeline = null;
+    private static DbPipeline<QueryFood, HyperResult> addAlgorithmPipeline = null;
+    private static DbPipeline<QueryFood, HyperResult> addAlgOntRelationPipeline = null;
+
     /**
      * Add a new UserGroup in the database
      * @param userGroup a user group
      */
     public static void addUserGroup(UserGroup userGroup) {
-        DbPipeline<QueryFood, HyperResult> pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER_GROUP);
-
+        if (addUserGroupPipeline == null) {
+            addUserGroupPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER_GROUP);
+        }
         QueryFood food = new QueryFood(
                 new String[][]{
                     {"NAME", userGroup.getName()},
                     {"USER_LEVEL", Integer.toString(userGroup.getLevel())}
                 });
         try {
-            pipeline.process(food);
+            addUserGroupPipeline.process(food);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Added new user group '" + userGroup.getName()
                     + "' with authorization level :" + userGroup.getLevel()));
         } catch (YaqpException ex) {
@@ -50,15 +61,16 @@ public class WriterHandler {
      * in the database.
      */
     public static void addAlgorithmOntology(AlgorithmOntology ontology) throws DuplicateKeyException {
-        DbPipeline<QueryFood, HyperResult> pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM_ONTOLOGY);
-
+        if (addAlgorithmOntologyPipeline == null) {
+            addAlgorithmOntologyPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM_ONTOLOGY);
+        }
         QueryFood food = new QueryFood(
                 new String[][]{
                     {"NAME", ontology.getName()},
                     {"URI", ontology.getUri()}
                 });
         try {
-            pipeline.process(food);
+            addAlgorithmOntologyPipeline.process(food);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Added new algorithm ontology '" + ontology.getName()
                     + "' with uri :" + ontology.getUri()));
         } catch (DbException ex) {
@@ -79,7 +91,9 @@ public class WriterHandler {
      * or/and username are used by some other user.
      */
     public static void addUser(User user) throws DuplicateKeyException {
-        DbPipeline<QueryFood, HyperResult> pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER);
+        if (addUserPipeline == null) {
+            addUserPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER);
+        }
         QueryFood food = new QueryFood(
                 new String[][]{
                     {"USERNAME", user.getUserName()},
@@ -95,9 +109,8 @@ public class WriterHandler {
                     {"ROLE", user.getUserGroup()}// TODO: Handle user roles......
                 });
         try {
-            pipeline.process(food);
-            System.out.println("User "+user.getUserName()+" added");
-            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "User added: \n"+user )  );
+            addUserPipeline.process(food);
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "User added: \n" + user));
         } catch (DbException ex) {
             if (ex.toString().contains("DuplicateKeyException")) {
                 String message = "Cannot add user because email or username are already used by some other user.";
@@ -108,5 +121,56 @@ public class WriterHandler {
         }
     }
 
-    
+    public static void addAlgorithm(Algorithm algorithm) throws DuplicateKeyException {
+        if (addAlgorithmPipeline == null) {
+            addAlgorithmPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM);
+        }
+        if (addAlgOntRelationPipeline == null) {
+            addAlgOntRelationPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM_ONTOL_RELATION);
+        }
+        BatchProcessor bp = new BatchProcessor(addAlgOntRelationPipeline);
+
+        QueryFood algfood = new QueryFood(
+                new String[][]{
+                    {"NAME", algorithm.getName()},
+                    {"URI", algorithm.getUri()}
+                });
+
+        ArrayList<QueryFood> relfood = new ArrayList<QueryFood>();
+        ArrayList<AlgorithmOntology> ontologies = algorithm.getOntologies();
+        Iterator<AlgorithmOntology> oit = ontologies.iterator();
+
+        while (oit.hasNext()) {
+            QueryFood food = new QueryFood(
+                    new String[][]{
+                        {"ALGORITHM_NAME", algorithm.getName()},
+                        {"ONTOLOGY_NAME", oit.next().getName()}
+                    });
+            relfood.add(food);
+        }
+
+        try {
+            addAlgorithmPipeline.process(algfood);
+
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Algorithm added: \n" + algorithm));
+        } catch (DbException ex) {
+            if (ex.toString().contains("DuplicateKeyException")) {
+                String message = "Cannot add algorithm because it already exists.";
+                YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+                throw new DuplicateKeyException(message, ex);
+            }
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "Could not add the following algorithm :\n" + algorithm));
+        }
+        try {
+              bp.process(relfood);
+//            Iterator<QueryFood> fit = relfood.iterator();
+//            while(fit.hasNext()){
+//                addAlgOntRelationPipeline.process(fit.next());
+//            }
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Algorithm-Ontology relations batch added"));
+        } catch (Exception ex) {
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "Could not batch add Algorithm-Ontology relations :\n" + algorithm));
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
+        }
+    }
 }
