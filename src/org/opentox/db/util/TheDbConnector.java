@@ -253,11 +253,11 @@ public class TheDbConnector implements JDbConnector {
                 return connection.getMetaData();
             } catch (SQLException ex) {
                 YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "No connection to the database :" + database_name));
-                throw new YaqpException("No connection to the database");
+                throw new DbException("No connection to the database");
             }
         } else {
             YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "No connection to the database :" + database_name));
-            throw new YaqpException("No connection to the database");
+            throw new DbException("No connection to the database");
         }
 
     }
@@ -274,7 +274,7 @@ public class TheDbConnector implements JDbConnector {
                     TABLE_LIST.add(rs.getString(3));
                 }
             } catch (SQLException ex) {
-                throw new YaqpException(ex);
+                throw new DbException(ex);
             }
         }
         return TABLE_LIST;

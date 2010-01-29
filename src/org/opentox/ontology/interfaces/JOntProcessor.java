@@ -1,6 +1,7 @@
 package org.opentox.ontology.interfaces;
 
 import org.opentox.ontology.TurboOntModel;
+import org.opentox.ontology.exceptions.YaqpOntException;
 
 /**
  *
@@ -8,5 +9,5 @@ import org.opentox.ontology.TurboOntModel;
  */
 public interface JOntProcessor<Output> {
 
-    Output convert(TurboOntModel yaqpOntModel);
+    Output convert(TurboOntModel yaqpOntModel) throws YaqpOntException;
 }

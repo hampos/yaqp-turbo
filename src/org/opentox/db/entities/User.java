@@ -59,7 +59,8 @@ public class User implements Serializable {
     }
 
 
-    public User(String userName,
+    public User(
+            String userName,
             String userPass,
             String firstName,
             String lastName,

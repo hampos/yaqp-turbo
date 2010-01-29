@@ -1,7 +1,10 @@
 package org.opentox.ontology.namespaces;
 
+import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.ontology.OntClass;
+import com.hp.hpl.jena.ontology.impl.RestrictionImpl;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.OWL;
 import org.opentox.ontology.TurboOntModel;
 
 /**
@@ -33,8 +36,9 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Learning.getResource());
+                    model.includeOntClass(Learning);
                     return cl;
                 }
             };
@@ -47,10 +51,11 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
-                    cl.setRDFType(Classification.getResource());
-                    cl.setRDFType(EagerLearning.getResource());
-                    cl.setRDFType(MultipleTargets.getResource());
+                    OntClass cl = model.createClass(getURI());
+                    cl.addSuperClass(Classification.getResource());
+                    cl.addSuperClass(EagerLearning.getResource());
+                    cl.addSuperClass(MultipleTargets.getResource());
+                    model.includeOntClasses(new YaqpOntEntity[]{Classification, EagerLearning, MultipleTargets});
                     return cl;
                 }
             };
@@ -63,10 +68,11 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
-                    cl.setRDFType(Regression.getResource());
-                    cl.setRDFType(EagerLearning.getResource());
-                    cl.setRDFType(MultipleTargets.getResource());
+                    OntClass cl = model.createClass(getURI());
+                    cl.addSuperClass(Regression.getResource());
+                    cl.addSuperClass(EagerLearning.getResource());
+                    cl.addSuperClass(MultipleTargets.getResource());
+                    model.includeOntClasses(new YaqpOntEntity[]{Regression, EagerLearning, MultipleTargets});
                     return cl;
                 }
             };
@@ -79,10 +85,11 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
-                    cl.setRDFType(Regression.getResource());
-                    cl.setRDFType(EagerLearning.getResource());
-                    cl.setRDFType(SingleTarget.getResource());
+                    OntClass cl = model.createClass(getURI());
+                    cl.addSuperClass(Regression.getResource());
+                    cl.addSuperClass(EagerLearning.getResource());
+                    cl.addSuperClass(SingleTarget.getResource());
+                    model.includeOntClasses(new YaqpOntEntity[]{Regression, EagerLearning, SingleTarget});
                     return cl;
                 }
             };
@@ -95,10 +102,11 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
-                    cl.setRDFType(Classification.getResource());
-                    cl.setRDFType(EagerLearning.getResource());
-                    cl.setRDFType(SingleTarget.getResource());
+                    OntClass cl = model.createClass(getURI());
+                    cl.addSuperClass(Classification.getResource());
+                    cl.addSuperClass(EagerLearning.getResource());
+                    cl.addSuperClass(SingleTarget.getResource());
+                    model.includeOntClasses(new YaqpOntEntity[]{Classification, EagerLearning, SingleTarget});
                     return cl;
                 }
             };
@@ -111,9 +119,11 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Learning.getResource());
                     cl.setDisjointWith(LazyLearning.getResource());
+                    model.includeOntClass(Learning);
+                    model.includeOntClass(LazyLearning);
                     return cl;
                 }
             };
@@ -125,8 +135,9 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Learning.getResource());
+                    model.includeOntClass(Learning);
                     return cl;
                 }
             };
@@ -139,9 +150,11 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Learning.getResource());
                     cl.setDisjointWith(Classification.getResource());
+                    model.includeOntClass(Learning);
+                    model.includeOntClass(Classification);
                     return cl;
                 }
             };
@@ -154,8 +167,9 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(AlgorithmType.getResource());
+                    model.includeOntClass(AlgorithmType);
                     return cl;
                 }
             };
@@ -168,8 +182,9 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(MSDMTox.getResource());
+                    model.includeOntClass(MSDMTox);
                     return cl;
                 }
             };
@@ -182,8 +197,9 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(MSDMTox.getResource());
+                    model.includeOntClass(MSDMTox);
                     return cl;
                 }
             };
@@ -196,9 +212,11 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(MSDMTox.getResource());
                     cl.setDisjointWith(SingleTarget.getResource());
+                    model.includeOntClass(MSDMTox);
+                    model.includeOntClass(SingleTarget);
                     return cl;
                 }
             };
@@ -211,8 +229,9 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(AlgorithmType.getResource());
+                    model.includeOntClass(AlgorithmType);
                     return cl;
                 }
             };
@@ -225,8 +244,9 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(AlgorithmType.getResource());
+                    model.includeOntClass(AlgorithmType);
                     return cl;
                 }
             };
@@ -239,8 +259,9 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Preprocessing.getResource());
+                    model.includeOntClass(Preprocessing);
                     return cl;
                 }
             };
@@ -249,7 +270,16 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
      * Algorithms for the calculation of molecular descriptors.
      */
     public static final OTAlgorithmTypes DescriptorCalculation =
-            new OTAlgorithmTypes(_model.createResource(String.format(_NS_AlgorithmTypes, "DescriptorCalculation")));
+            new OTAlgorithmTypes(_model.createResource(String.format(_NS_AlgorithmTypes, "DescriptorCalculation"))) {
+
+                @Override
+                public OntClass createOntClass(TurboOntModel model) {
+                    OntClass cl = model.createClass(getURI());
+                    cl.setSuperClass(AlgorithmType.getResource());
+                    model.includeOntClass(AlgorithmType);
+                    return cl;
+                }
+            };
     /**
      *
      * Normalization Algorithms.
@@ -259,8 +289,9 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Preprocessing.getResource());
+                    model.includeOntClass(Preprocessing);
                     return cl;
                 }
             };
@@ -273,8 +304,9 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(AlgorithmType.getResource());
+                    model.includeOntClass(AlgorithmType);
                     return cl;
                 }
             };
@@ -287,8 +319,9 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
+                    OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Preprocessing.getResource());
+                    model.includeOntClass(Preprocessing);
                     return cl;
                 }
             };
@@ -301,9 +334,11 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
-                    cl.setRDFType(FeatureSelection.getResource());
-                    cl.setRDFType(Supervised.getResource());
+                    OntClass cl = model.createClass(getURI());
+                    cl.addSuperClass(FeatureSelection.getResource());
+                    cl.addSuperClass(Supervised.getResource());
+                    model.includeOntClass(FeatureSelection);
+                    model.includeOntClass(Supervised);
                     return cl;
                 }
             };
@@ -316,9 +351,11 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
-                    OntClass cl = model.createClass();
-                    cl.setRDFType(FeatureSelection.getResource());
-                    cl.setRDFType(Unsupervised.getResource());
+                    OntClass cl = model.createClass(getURI());
+                    cl.addSuperClass(FeatureSelection.getResource());
+                    cl.addSuperClass(Unsupervised.getResource());
+                    model.includeOntClasses(new YaqpOntEntity[]{FeatureSelection, Unsupervised});
+
                     return cl;
                 }
             };
@@ -327,5 +364,13 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
      * Algorithm of any type.
      */
     public static final OTAlgorithmTypes AlgorithmType =
-            new OTAlgorithmTypes(_model.createResource(String.format(_NS_AlgorithmTypes, "AlgorithmType")));
+            new OTAlgorithmTypes(_model.createResource(String.format(_NS_AlgorithmTypes, "AlgorithmType"))) {
+
+                @Override
+                public OntClass createOntClass(TurboOntModel model) {
+                    OntClass cl = model.createClass(getURI());
+                    cl.setVersionInfo("1.1");
+                    return cl;
+                }
+            };
 }

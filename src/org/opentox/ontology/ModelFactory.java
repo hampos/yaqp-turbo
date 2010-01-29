@@ -1,7 +1,5 @@
 package org.opentox.ontology;
 
-import com.hp.hpl.jena.ontology.Individual;
-import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
 import java.util.HashMap;
 import java.util.Map;
 import org.opentox.ontology.namespaces.OTClass;
@@ -22,14 +20,8 @@ public class ModelFactory {
         return (TurboOntModel) om;
     }
 
-    public static void main(String[] args) {
-        TurboOntModel mm = ModelFactory.createTurboOntModel();
-        mm.includeOntClass(OTClass.Parameter);        
+    
 
-        Individual in = mm.createIndividual(new ResourceImpl("http://sth.com/dataset/1234"));
-        
-        mm.printConsole();
-
-    }
+  
 }
 
