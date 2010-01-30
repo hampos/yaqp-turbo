@@ -97,7 +97,7 @@ public class ReaderHandler {
         }
         QueryFood food = new QueryFood(
                 new String[][]{
-                    {"ALGORITHM_NAME", algorithm.getName()}
+                    {"ALGORITHM", algorithm.getName()}
                 });
         HyperResult result = null;
         try {
@@ -120,7 +120,7 @@ public class ReaderHandler {
         }
         QueryFood food = new QueryFood(
                 new String[][]{
-                    {"ONTOLOGY_NAME", ontology.getName()}
+                    {"ONTOLOGY", ontology.getName()}
                 });
         HyperResult result = null;
         try {
@@ -145,7 +145,7 @@ public class ReaderHandler {
         }
         HyperResult result = null;
         try {
-            result = getAlgorithmsPipeline.process(null);
+            result = getAlgorithmsPipeline.process(new QueryFood());
         } catch (YaqpException e) {
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Algorithms from database\n"));
         }

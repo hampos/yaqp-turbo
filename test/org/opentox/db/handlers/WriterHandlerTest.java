@@ -47,8 +47,8 @@ public class WriterHandlerTest {
     /**
      * Test of addUserGroup method, of class WriterHandler.
      */
-    @Test
-    public void testAddUserGroup() {
+   // @Test
+    public void testAddUserGroup() throws Exception {
         WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60));
         WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 70));
         WriterHandler.addUserGroup(new UserGroup("MYGROUP10", 80));
@@ -58,7 +58,7 @@ public class WriterHandlerTest {
     /**
      * Test of addAlgorithmOntology method, of class WriterHandler.
      */
-    @Test
+    //@Test
     public void testAddAlgorithmOntology() {
         try {
             for (int i = 1; i <= 100; i++) {
@@ -70,7 +70,7 @@ public class WriterHandlerTest {
         }
     }
 
-  //  @Test
+   // @Test
     public void testAddUser() throws BadEmailException {
         try {
             for (int i=0;i<1000;i++)
@@ -93,8 +93,9 @@ public class WriterHandlerTest {
     public void testAddAlgorithm() {
         try {
             ArrayList<AlgorithmOntology> ontlist = ReaderHandler.getAlgorithmOntologies();
+
             for (int i = 1; i <= 100; i++) {
-                WriterHandler.addAlgorithm(new Algorithm("name" + i, "uri" + i, ontlist));
+                WriterHandler.addAlgorithm(new Algorithm("ename" + i, "euri" + i, ontlist));
             }
         } catch (DuplicateKeyException ex) {
             Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);

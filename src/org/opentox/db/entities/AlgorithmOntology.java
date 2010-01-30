@@ -43,8 +43,7 @@ public class AlgorithmOntology implements Serializable{
     @Override
     public String toString(){
         String algorithmOntology = "";
-        algorithmOntology += "NAME    :"+getName();
-        algorithmOntology += "  URI     :"+getUri();
+        algorithmOntology += "Ont : ( "+getName()+" , " + getUri() +" )";
         return algorithmOntology;
     }
 

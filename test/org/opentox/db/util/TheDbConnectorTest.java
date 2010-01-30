@@ -3,6 +3,7 @@ package org.opentox.db.util;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -48,15 +49,19 @@ public class TheDbConnectorTest {
     @Test
     public void InstantiationTest() throws Exception {
         System.out.println("-- instantiation test --");
+        ArrayList<String > tn = TheDbConnector.DB.getTableNames();
+        for (int i=0;i<tn.size();i++){
+            System.out.println(tn.get(i));
+        }
         PreparedStatement ps = TheDbConnector.DB.getConnection().prepareStatement("SELECT * FROM ALGORITHM_ONTOLOGIES WHERE UID = ?");
         ps.setInt(1, 1);
         ResultSet rs = ps.executeQuery();
         while (rs.next()) {
-            //    System.out.println(rs.getMetaData().);
+//                System.out.println(rs.getString("NAME"));
         }
     }
 
-    @Test
+    //@Test
     public void Prepared_Deletion() throws SQLException {
 
         PreparedStatement ds = TheDbConnector.DB.getConnection().prepareStatement(
@@ -64,7 +69,7 @@ public class TheDbConnectorTest {
         ds.executeUpdate();
     }
 
-    @Test
+    //@Test
     public void preparedSelection() throws SQLException {
         PreparedStatement ps = TheDbConnector.DB.getConnection().prepareStatement("SELECT * FROM USERS WHERE LASTNAME LIKE ?");
         ps.setString(1, "%sak%");

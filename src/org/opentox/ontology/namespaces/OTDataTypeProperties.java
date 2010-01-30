@@ -6,7 +6,8 @@ import org.opentox.ontology.TurboOntModel;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenides
  */
 public class OTDataTypeProperties extends YaqpOntEntity{
 
@@ -17,13 +18,13 @@ public class OTDataTypeProperties extends YaqpOntEntity{
 
     /**
      *
-     * A value
+     * A value.
      */
     public static final OTDataTypeProperties value =
             new OTDataTypeProperties(_model.createDatatypeProperty(String.format(_NS_OT, "value")));
     /**
      *
-     *
+     * The units of a parameter or other measure.
      */
     public static final OTDataTypeProperties units =
             new OTDataTypeProperties(_model.createDatatypeProperty(String.format(_NS_OT, "units")));
@@ -35,28 +36,29 @@ public class OTDataTypeProperties extends YaqpOntEntity{
             new OTDataTypeProperties(_model.createDatatypeProperty(String.format(_NS_OT, "has3Dstructure")));
     /**
      *
-     *
+     * The status of an entity. For example for a Task, the range of this variable
+     * is <code>Running, Cancelled, Completed</code>.
      */
     public static final OTDataTypeProperties hasStatus =
             new OTDataTypeProperties(_model.createDatatypeProperty(String.format(_NS_OT, "hasStatus")));
     /**
      *
-     *
+     * Scope of a parameter (optional/mandatory).
      */
     public static final OTDataTypeProperties paramScope =
             new OTDataTypeProperties(_model.createDatatypeProperty(String.format(_NS_OT, "paramScope")));
     /**
      *
-     *
+     * Value of a parameter.
      */
     public static final OTDataTypeProperties paramValue =
             new OTDataTypeProperties(_model.createDatatypeProperty(String.format(_NS_OT, "paramValue")));
     /**
      *
-     *
+     * Percentage of completion of a running task.
      */
     public static final OTDataTypeProperties percentageCompleted =
-            new OTDataTypeProperties(_model.createDatatypeProperty(String.format(_NS_OT, "paramValue")));
+            new OTDataTypeProperties(_model.createDatatypeProperty(String.format(_NS_OT, "percentageCompleted")));
 
 
     @Override

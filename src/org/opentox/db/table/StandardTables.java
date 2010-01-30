@@ -501,12 +501,12 @@ public enum StandardTables {
 //          algorithm_uid.setForeignKey(Algorithms().getTableName(), "UID", true);
 //         table.addColumn(algorithm_uid);
 
-         TableColumn algorithm_name = new TableColumn("ALGORITHM_NAME");
+         TableColumn algorithm_name = new TableColumn("ALGORITHM");
           algorithm_name.setColumnType(SQLDataTypes.VarChar(40));
           algorithm_name.setForeignKey(Algorithms().getTableName(), "NAME", true);
          table.addColumn(algorithm_name);
 
-         TableColumn ontology_name = new TableColumn("ONTOLOGY_NAME");
+         TableColumn ontology_name = new TableColumn("ONTOLOGY");
           ontology_name.setColumnType(SQLDataTypes.VarChar(40));
           ontology_name.setForeignKey(AlgorithmOntologies().getTableName(), "NAME", true);
          table.addColumn(ontology_name);

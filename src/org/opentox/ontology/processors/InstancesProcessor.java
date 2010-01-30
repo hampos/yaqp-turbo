@@ -15,7 +15,8 @@ import weka.core.Instances;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenides
  */
 public class InstancesProcessor extends AbstractOntProcessor<Instances> {
 

@@ -165,8 +165,8 @@ public class WriterHandler {
         while (oit.hasNext()) {
             QueryFood food = new QueryFood(
                     new String[][]{
-                        {"ALGORITHM_NAME", algorithm.getName()},
-                        {"ONTOLOGY_NAME", oit.next().getName()}
+                        {"ALGORITHM", algorithm.getName()},
+                        {"ONTOLOGY", oit.next().getName()}
                     });
             relfood.add(food);
         }

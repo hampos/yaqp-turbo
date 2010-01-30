@@ -1,6 +1,7 @@
 package org.opentox.db.util;
 
 import org.opentox.db.interfaces.JPrepStmt;
+import org.opentox.db.queries.QueryFood;
 import org.opentox.db.queries.QueryParam;
 import static org.opentox.db.table.StandardTables.*;
 
@@ -16,7 +17,8 @@ import static org.opentox.db.table.StandardTables.*;
 public enum PrepStmt implements JPrepStmt {
 
     /**
-     * Add a new Algorithm Ontology in the database.
+     * Add a new Algorithm Ontology in the database. The <code>NAME</code> and the
+     * <code>URI</code> of the algorithm ontology have to be provided.
      *
      * @see PrepStmt#ADD_ALGORITHM Add a new Algorithm
      * @see PrepStmt#ADD_ALGORITHM_ONTOL_RELATION Add an Algorithm-Ontology Relation
@@ -35,15 +37,17 @@ public enum PrepStmt implements JPrepStmt {
      * Add a new Algorithm Ontology Relation in the database. Every algorithm
      * bolengs to one ore more ontological classes. This one-to-many relation is
      * depicted in this table where pairs of algorithm and algorithm ontology are
-     * stored.
+     * stored. The name of the <code>algorithm</code> and the corresponding
+     * <code>ontology</code> have to be provided (as <code>QueryFood</code>).
      *
      * @see PrepStmt#ADD_ALGORITHM Add a new Algorithm
+     * @see QueryFood
      */
     ADD_ALGORITHM_ONTOL_RELATION(
-    "INSERT INTO " + AlgorithmOntolRelation().getTableName() + " (ALGORITHM_NAME, ONTOLOGY_NAME ) VALUES (?,?)",
+    "INSERT INTO " + AlgorithmOntolRelation().getTableName() + " ( ALGORITHM, ONTOLOGY) VALUES (?,?)",
     new QueryParam[]{
-                        new QueryParam("ALGORITHM_NAME", String.class),
-                        new QueryParam("ONTOLOGY_NAME", String.class)
+                        new QueryParam("ALGORITHM", String.class),
+                        new QueryParam("ONTOLOGY", String.class)
 
                     }
    ),
@@ -74,6 +78,8 @@ public enum PrepStmt implements JPrepStmt {
     /**
      * Add a new user group. A user group is characterized by its authorization
      * level which is an integer. Two groups can have the same authorization level.
+     * The parameters one has to provide within the <code>QueryFood</code> are
+     * the <code>NAME</code> and the <code>USER_LEVEL</code> (integer).
      *
      * @see PrepStmt#ADD_USER Add a new user
      */
@@ -132,7 +138,7 @@ public enum PrepStmt implements JPrepStmt {
                     }
     ),
     /**
-     * 
+     *
      */
     ADD_SVC_MODEL("INSERT INTO "+SvcModels().getTableName()+
             " (DATASET, GAMMA, COST, BIAS, TOLERANCE, CACHE, KERNEL, DEGREE ) VALUES (?,?,?,?,?,?,?,?)",
@@ -148,56 +154,92 @@ public enum PrepStmt implements JPrepStmt {
                     }
     ),
     /**
-     * Add a new feature in the database.
+     *
+     * Add a new feature in the database. The <code>URI</code> of the feature has to
+     * be provided in the <code>QueryFood<code>.
      */
     ADD_FEATURE("INSERT INTO " + Features().getTableName() + " (URI) VALUES (?)",
     new QueryParam[]{
             new QueryParam("URI", String.class)
                     }
     ),
-
-
-            
+    /**
+     *
+     * A Prepared Statement to retrieve all users from the database. The SQL command
+     * is: <code>SELECT * FROM USERS</code>.
+     */
     GET_USERS("SELECT * FROM "+Users().getTableName(), null),
-
+    /**
+     *
+     * Prepared statement used to retrieve all algorithm ontologies in the database.
+     * The SQL command is: <code>SELECT * FROM ALGORITHM_ONTOLOGIES</code>
+     */
     GET_ALGORITHM_ONTOLOGIES("SELECT * FROM "+AlgorithmOntologies().getTableName(), null),
 
+    /**
+     *
+     * For a certain Algorithm, retrieve all algorithm ontologies, i.e. the algorithm
+     * types of this algorithm. The SQL Command is: <code>SELECT ALGORITHM_ONTOLOGIES.* FROM
+     * ALGORITHM_ONTOLOGIES INNER JOID ALG_ONT_RELATION ON NAME = ONTOLOGY WHERE ALGORITHM
+     * = ?</code>.
+     */
     GET_ALGORITHM_ONTOLOGY_RELATION("SELECT "+AlgorithmOntologies().getTableName()+".*" +
             " FROM "+AlgorithmOntologies().getTableName()+" INNER JOIN "+AlgorithmOntolRelation().getTableName()+
-            " ON NAME=ONTOLOGY_NAME"+" WHERE ALGORITHM_NAME=?",
+            " ON NAME=ONTOLOGY"+" WHERE ALGORITHM=?",
     new QueryParam[]{
-                        new QueryParam("ALGORITHM_NAME",String.class)
+                        new QueryParam("ALGORITHM",String.class)
                     }
     ),
-
+    /**
+     *
+     * Retrieve all algorithms that hava a certain ontological type.
+     */
     GET_ONTOLOGY_ALGORITHM_RELATION("SELECT "+Algorithms().getTableName()+".*" +
             " FROM "+Algorithms().getTableName()+" INNER JOIN "+AlgorithmOntolRelation().getTableName()+
-            " ON NAME=ALGORITHM_NAME"+" WHERE ONTOLOGY_NAME=?",
+            " ON NAME=ALGORITHM"+" WHERE ONTOLOGY=?",
     new QueryParam[]{
-                        new QueryParam("ONTOLOGY_NAME",String.class)
+                        new QueryParam("ONTOLOGY",String.class)
                     }
     ),
-
+    /**
+     *
+     * Retrieve all algorithm-ontology relations.
+     */
     GET_ALGORITHM_ONTOLOGY_RELATIONS("SELECT * FROM "+AlgorithmOntolRelation().getTableName(), null),
-
+    /**
+     *
+     * Get all user groups.
+     */
     GET_USER_GROUPS("SELECT * FROM "+UserAuth().getTableName(), null),
-
-    GET_ALGORITHMS("SELECT * FROM "+Algorithms().getTableName(), null),
-
+    /**
+     *
+     * Retrieve all algorithms.
+     */
+    GET_ALGORITHMS("SELECT * FROM "+Algorithms().getTableName(), new QueryParam[]{}),
+    /**
+     *
+     * Get all prediction models from the database.
+     */
     GET_PRED_MODELS("SELECT * FROM "+PredictionModels().getTableName(), null),
-
+    /**
+     *
+     * Get all MLR models.
+     */
     GET_MLR_MODELS("SELECT * FROM "+MlrModels().getTableName(), null),
-
+    /**
+     *
+     * Get all SVM models
+     */
     GET_SVM_MODELS("SELECT * FROM "+SvmModels().getTableName(), null),
-
+    /**
+     *
+     * Get all SVC models.
+     */
     GET_SVC_MODELS("SELECT * FROM "+SvcModels().getTableName(), null),
 
-    GET_FEATURES("SELECT * FROM "+Features().getTableName(), null);
+    GET_FEATURES("SELECT * FROM "+Features().getTableName(), null)
 
-//    GET_USERS("SELECT * FROM "+Users().getTableName(), null),
-//    GET_USERS("SELECT * FROM "+Users().getTableName(), null),
-//    GET_USERS("SELECT * FROM "+Users().getTableName(), null),
-//    GET_USERS("SELECT * FROM "+Users().getTableName(), null)
+            ;
 
 
     private String sql;

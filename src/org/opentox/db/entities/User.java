@@ -185,7 +185,7 @@ public class User implements Serializable {
 
     @Override
     public String toString() {
-        String user = "";
+        String user = "-- USER --\n";
         user += "USERNAME          : "+getUserName()+"\n";
         user += "PASSWORD DIGEST   : "+getUserPass()+"\n";
         user += "USER GROUP        : "+getUserGroup()+"\n";

@@ -5,6 +5,8 @@ import org.opentox.db.queries.HyperResult;
 import org.opentox.db.queries.HyperStatement;
 import org.opentox.db.util.PrepSwimmingPool;
 import org.opentox.db.util.QueryType;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Warning;
 
 /**A DbProcessor handles all execution of statements.
  * A {@link HyperStatement} must be provided for it to operate,
@@ -37,6 +39,7 @@ public class DbProcessor extends AbstractDbProcessor<HyperStatement, HyperResult
                 result = q.executeQuery();
             }
         } catch (Exception e) {
+            YaqpLogger.LOG.log(new Warning(getClass(), "Error while executing query :"+q.toString()+". Reproducing SQL Exception ::: "+e.toString()));
             throw new DbException(e);
         } finally {
             PrepSwimmingPool.POOL.recycle(q);
