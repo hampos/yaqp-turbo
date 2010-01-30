@@ -1,11 +1,5 @@
 package org.opentox.io.engines;
 
-import com.hp.hpl.jena.ontology.OntModel;
-import com.hp.hpl.jena.ontology.OntModelSpec;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.TurboOntModel;
 

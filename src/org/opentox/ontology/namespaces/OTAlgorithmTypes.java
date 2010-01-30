@@ -1,10 +1,7 @@
 package org.opentox.ontology.namespaces;
 
-import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.ontology.OntClass;
-import com.hp.hpl.jena.ontology.impl.RestrictionImpl;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.OWL;
 import org.opentox.ontology.TurboOntModel;
 
 /**
@@ -17,6 +14,7 @@ import org.opentox.ontology.TurboOntModel;
 public class OTAlgorithmTypes extends YaqpOntEntity {
 
     public OTAlgorithmTypes() {
+        super();
     }
 
     /**

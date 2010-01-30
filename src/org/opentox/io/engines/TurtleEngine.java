@@ -19,7 +19,7 @@ public class TurtleEngine extends IOEngine {
 
    @Override
     public TurboOntModel getYaqpOntModel(YaqpIOStream is) {       
-        return new TurboOntModel();
+        return new TurboOntModel(is);
     }
 
 }

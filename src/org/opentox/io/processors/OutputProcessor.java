@@ -5,7 +5,6 @@ import org.opentox.core.exceptions.YaqpIOException;
 import org.opentox.io.engines.EngineFactory;
 import org.opentox.io.engines.IOEngine;
 import org.opentox.ontology.TurboOntModel;
-import org.restlet.data.MediaType;
 import org.restlet.data.Response;
 
 /**

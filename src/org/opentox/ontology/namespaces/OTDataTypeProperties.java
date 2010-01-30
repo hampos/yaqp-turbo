@@ -61,8 +61,8 @@ public class OTDataTypeProperties extends YaqpOntEntity{
 
     @Override
     public Property createProperty(TurboOntModel model) {
-        Property p = _model.getProperty(getURI());
-        return p!= null?p:_model.createDatatypeProperty(getURI());
+        Property p = model.getObjectProperty(getURI());
+        return p==null?model.createDatatypeProperty(getURI()):p;
     }
 
     

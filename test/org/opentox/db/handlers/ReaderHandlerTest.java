@@ -49,7 +49,7 @@ public class ReaderHandlerTest {
             System.out.println(user);
         }
     }
-    @Test
+    //@Test
     public void getAlgorithmOntologiesTest(){
         for(int i=0; i<10000; i++){
         ArrayList<AlgorithmOntology> algont = ReaderHandler.getAlgorithmOntologies();

@@ -56,7 +56,7 @@ public class WriterHandlerTest {
     /**
      * Test of addAlgorithmOntology method, of class WriterHandler.
      */
-    //@Test
+    @Test
     public void testAddAlgorithmOntology() {
         try {
             for (int i = 0; i < 100; i++) {
@@ -68,17 +68,21 @@ public class WriterHandlerTest {
         }
     }
 
-    @Test
+    //@Test
     public void testAddUser() throws BadEmailException {
         try {
             for (int i=0;i<1000;i++)
             WriterHandler.addUser(
                     new User(
                     "vser_"+i, "patss"+i, "firstname"+i, "lastname"+i,
-                    "chtvng"+i+"@mailntuagr", "NTUA", "Greece",
+                    "makis"+i+"@mailntua.gr", "NTUA", "Greece",
                     "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new", null, "ADMIN"));
         } catch (DuplicateKeyException ex) {
+            System.out.println(ex);
             Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (Exception ex){
+            System.out.println(ex);
+            fail(ex.toString());
         }
     }
 
