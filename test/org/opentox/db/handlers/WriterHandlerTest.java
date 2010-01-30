@@ -1,5 +1,6 @@
 package org.opentox.db.handlers;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -7,6 +8,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opentox.db.entities.Algorithm;
 import org.opentox.db.entities.AlgorithmOntology;
 import org.opentox.db.entities.User;
 import org.opentox.db.entities.UserGroup;
@@ -45,7 +47,7 @@ public class WriterHandlerTest {
     /**
      * Test of addUserGroup method, of class WriterHandler.
      */
-    //@Test
+    @Test
     public void testAddUserGroup() {
         WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60));
         WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 70));
@@ -59,7 +61,7 @@ public class WriterHandlerTest {
     @Test
     public void testAddAlgorithmOntology() {
         try {
-            for (int i = 0; i < 100; i++) {
+            for (int i = 1; i <= 100; i++) {
                 WriterHandler.addAlgorithmOntology(new AlgorithmOntology("name" + i, "uri" + i));
             }
         } catch (DuplicateKeyException ex) {
@@ -68,7 +70,11 @@ public class WriterHandlerTest {
         }
     }
 
+<<<<<<< HEAD:test/org/opentox/db/handlers/WriterHandlerTest.java
     //@Test
+=======
+  //  @Test
+>>>>>>> 7a4a5f5713a248c14662c83f60ba99cc8e8ffda1:test/org/opentox/db/handlers/WriterHandlerTest.java
     public void testAddUser() throws BadEmailException {
         try {
             for (int i=0;i<1000;i++)
@@ -86,5 +92,18 @@ public class WriterHandlerTest {
         }
     }
 
+
+    @Test
+    public void testAddAlgorithm() {
+        try {
+            ArrayList<AlgorithmOntology> ontlist = ReaderHandler.getAlgorithmOntologies();
+            for (int i = 1; i <= 100; i++) {
+                WriterHandler.addAlgorithm(new Algorithm("name" + i, "uri" + i, ontlist));
+            }
+        } catch (DuplicateKeyException ex) {
+            Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
 
 }

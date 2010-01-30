@@ -40,10 +40,10 @@ public enum PrepStmt implements JPrepStmt {
      * @see PrepStmt#ADD_ALGORITHM Add a new Algorithm
      */
     ADD_ALGORITHM_ONTOL_RELATION(
-    "INSERT INTO " + AlgorithmOntolRelation().getTableName() + " (ALGORITHM_UID, ONTOLOGY_UID ) VALUES (?,?)",
+    "INSERT INTO " + AlgorithmOntolRelation().getTableName() + " (ALGORITHM_NAME, ONTOLOGY_NAME ) VALUES (?,?)",
     new QueryParam[]{
-                        new QueryParam("ALGORITHM_UID", Integer.class),
-                        new QueryParam("ONTOLOGY_UID", Integer.class)
+                        new QueryParam("ALGORITHM_NAME", String.class),
+                        new QueryParam("ONTOLOGY_NAME", String.class)
 
                     }
    ),
@@ -102,7 +102,7 @@ public enum PrepStmt implements JPrepStmt {
                         new QueryParam("URI",String.class),
                         new QueryParam("PREDICTION_FEATURE", Integer.class),
                         new QueryParam("DEPENDENT_FEATURE",Integer.class),
-                        new QueryParam("ALGORITHM",Integer.class),
+                        new QueryParam("ALGORITHM",String.class),
                         new QueryParam("CREATED_BY",String.class)
                     }
     ),
@@ -162,19 +162,23 @@ public enum PrepStmt implements JPrepStmt {
 
     GET_ALGORITHM_ONTOLOGIES("SELECT * FROM "+AlgorithmOntologies().getTableName(), null),
 
-    GET_ALGORITHM_ONTOLOGY_RELATION("SELECT * FROM "+AlgorithmOntolRelation().getTableName()+
-            " WHERE ALGORITHM_UID=?",
+    GET_ALGORITHM_ONTOLOGY_RELATION("SELECT "+AlgorithmOntologies().getTableName()+".*" +
+            " FROM "+AlgorithmOntologies().getTableName()+" INNER JOIN "+AlgorithmOntolRelation().getTableName()+
+            " ON NAME=ONTOLOGY_NAME"+" WHERE ALGORITHM_NAME=?",
     new QueryParam[]{
-                        new QueryParam("ALGORITHM_UID",Integer.class)
+                        new QueryParam("ALGORITHM_NAME",String.class)
                     }
     ),
 
-    GET_ONTOLOGY_ALGORITHM_RELATION("SELECT * FROM "+AlgorithmOntolRelation().getTableName()+
-            " WHERE ONTOLOGY_UID=?",
+    GET_ONTOLOGY_ALGORITHM_RELATION("SELECT "+Algorithms().getTableName()+".*" +
+            " FROM "+Algorithms().getTableName()+" INNER JOIN "+AlgorithmOntolRelation().getTableName()+
+            " ON NAME=ALGORITHM_NAME"+" WHERE ONTOLOGY_NAME=?",
     new QueryParam[]{
-                        new QueryParam("ONTOLOGY_UID",Integer.class)
+                        new QueryParam("ONTOLOGY_NAME",String.class)
                     }
     ),
+
+    GET_ALGORITHM_ONTOLOGY_RELATIONS("SELECT * FROM "+AlgorithmOntolRelation().getTableName(), null),
 
     GET_USER_GROUPS("SELECT * FROM "+UserAuth().getTableName(), null),
 

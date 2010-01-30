@@ -128,20 +128,21 @@ public enum StandardTables {
     public static Table AlgorithmOntologies() {
         Table alg_ont_table = new Table("ALGORITHM_ONTOLOGIES");
 
-        TableColumn uid = new TableColumn("UID");
-            uid.setColumnType(SQLDataTypes.Int());
-            uid.setNotNull(true);
-            uid.setPrimaryKey(true, true);
+//        TableColumn uid = new TableColumn("UID");
+//            uid.setColumnType(SQLDataTypes.Int());
+//            uid.setNotNull(true);
+//            uid.setPrimaryKey(true, true);
 
         TableColumn name = new TableColumn("NAME");
             name.setColumnType(SQLDataTypes.VarChar(40));
             name.setNotNull(true);
+            name.setPrimaryKey(true, false);
 
         TableColumn uri = new TableColumn("URI");
             uri.setColumnType(SQLDataTypes.VarChar(200));
             uri.setUnique(true);
 
-        alg_ont_table.addColumn(uid);
+     //   alg_ont_table.addColumn(uid);
         alg_ont_table.addColumn(name);
         alg_ont_table.addColumn(uri);
         
@@ -233,16 +234,17 @@ public enum StandardTables {
 
     public static Table Algorithms() {
         Table table = new Table("ALGORITHMS");
-        
-        TableColumn uid = new TableColumn("UID");
-          uid.setColumnType(SQLDataTypes.Int());
-          uid.setNotNull(true);
-          uid.setPrimaryKey(true, true);
-         table.addColumn(uid);
+//
+//        TableColumn uid = new TableColumn("UID");
+//          uid.setColumnType(SQLDataTypes.Int());
+//          uid.setNotNull(true);
+//          uid.setPrimaryKey(true, true);
+//         table.addColumn(uid);
         
         TableColumn name = new TableColumn("NAME");
           name.setColumnType(SQLDataTypes.VarChar(40));
           name.setNotNull(true);
+          name.setPrimaryKey(true, false);
          table.addColumn(name);
         
         TableColumn uri = new TableColumn("URI");
@@ -305,9 +307,9 @@ public enum StandardTables {
          PredictioModels_table.addColumn(dependent_feature);
 
         TableColumn algorithm = new TableColumn("ALGORITHM");
-          algorithm.setColumnType(SQLDataTypes.Int());
+          algorithm.setColumnType(SQLDataTypes.VarChar(40));
           algorithm.setNotNull(true);
-          algorithm.setForeignKey(Algorithms().getTableName(), "UID", true);
+          algorithm.setForeignKey(Algorithms().getTableName(), "NAME", true);
          PredictioModels_table.addColumn(algorithm);
 
         TableColumn createdBy = new TableColumn("CREATED_BY");
@@ -494,15 +496,24 @@ public enum StandardTables {
     public static Table AlgorithmOntolRelation() {
         Table table = new Table("ALG_ONT_RELATION");
 
-        TableColumn algorithm_uid = new TableColumn("ALGORITHM_UID");
-          algorithm_uid.setColumnType(SQLDataTypes.Int());
-          algorithm_uid.setForeignKey(Algorithms().getTableName(), "UID", true);
-         table.addColumn(algorithm_uid);
+//        TableColumn algorithm_uid = new TableColumn("ALGORITHM_UID");
+//          algorithm_uid.setColumnType(SQLDataTypes.Int());
+//          algorithm_uid.setForeignKey(Algorithms().getTableName(), "UID", true);
+//         table.addColumn(algorithm_uid);
 
-        TableColumn ontology_uid = new TableColumn("ONTOLOGY_UID");
-          ontology_uid.setColumnType(SQLDataTypes.Int());
-          ontology_uid.setForeignKey(AlgorithmOntologies().getTableName(), "UID", true);
-         table.addColumn(ontology_uid);
+         TableColumn algorithm_name = new TableColumn("ALGORITHM_NAME");
+          algorithm_name.setColumnType(SQLDataTypes.VarChar(40));
+          algorithm_name.setForeignKey(Algorithms().getTableName(), "NAME", true);
+         table.addColumn(algorithm_name);
+
+         TableColumn ontology_name = new TableColumn("ONTOLOGY_NAME");
+          ontology_name.setColumnType(SQLDataTypes.VarChar(40));
+          ontology_name.setForeignKey(AlgorithmOntologies().getTableName(), "NAME", true);
+         table.addColumn(ontology_name);
+//        TableColumn ontology_uid = new TableColumn("ONTOLOGY_UID");
+//          ontology_uid.setColumnType(SQLDataTypes.Int());
+//          ontology_uid.setForeignKey(AlgorithmOntologies().getTableName(), "UID", true);
+//         table.addColumn(ontology_uid);
         return table;
     }
 
@@ -541,9 +552,9 @@ public enum StandardTables {
 
 
         TableColumn algorithm = new TableColumn("ALGORITHM");
-          algorithm.setColumnType(SQLDataTypes.Int());
+          algorithm.setColumnType(SQLDataTypes.VarChar(40));
           algorithm.setNotNull(true);
-          algorithm.setForeignKey(Algorithms().getTableName(), "UID", true);
+          algorithm.setForeignKey(Algorithms().getTableName(), "NAME", true);
          table.addColumn(algorithm);
 
         TableColumn timestamp = new TableColumn("TMSTMP");
