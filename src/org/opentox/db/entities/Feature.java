@@ -28,6 +28,7 @@ public class Feature {
         this._uri = _name;
     }
 
+
     public TurboOntModel getModel(){
         TurboOntModel model = ModelFactory.createTurboOntModel();
         model.includeOntClass(OTClass.Feature);
@@ -35,7 +36,7 @@ public class Feature {
 
         Individual feature = model.createIndividual(_uri, OTClass.Feature.getOntClass(model));
         feature.addProperty(DC.identifier, model.createTypedLiteral(_uri, XSDDatatype.XSDanyURI));
-        
+        /** The result validates as OWL-DL **/
         return model;
     }
 

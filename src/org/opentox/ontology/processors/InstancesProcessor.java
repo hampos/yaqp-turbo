@@ -6,6 +6,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import java.net.URI;
 import org.opentox.io.processors.InputProcessor;
+import org.opentox.io.util.ServerList;
 import org.opentox.ontology.TurboOntModel;
 import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.exceptions.YaqpOntException;
@@ -33,15 +34,21 @@ public class InstancesProcessor extends AbstractOntProcessor<Instances> {
          *
          * Some initial definitions:
          */
-        Resource dataEntryResource = OTClass.DataEntry.getOntClass(yaqpOntModel),
-                dataSetResource = OTClass.Dataset.getOntClass(yaqpOntModel),
-                featureResource = OTClass.Feature.getOntClass(yaqpOntModel);
+        Resource _DataEntry = OTClass.DataEntry.getOntClass(yaqpOntModel),
+                _Dataset = OTClass.Dataset.getOntClass(yaqpOntModel),
+                _Feature = OTClass.Feature.getOntClass(yaqpOntModel),
+                _NumericFeature = OTClass.NumericFeature.getOntClass(yaqpOntModel),
+                _NominalFeature = OTClass.NominalFeature.getOntClass(yaqpOntModel);
+
         FastVector attributes = null;
+
         Instances data = null;
+
         StmtIterator dataSetIterator = null,
                 featureIterator = null,
                 valuesIterator = null,
                 dataEntryIterator = null;
+
         String relationName = null;
 
         /*
@@ -49,7 +56,7 @@ public class InstancesProcessor extends AbstractOntProcessor<Instances> {
          * Iterate over all nodes in the dataset having type 'ot:Dataset'.
          */
         dataSetIterator =
-                yaqpOntModel.listStatements(new SimpleSelector(null, RDF.type, dataSetResource));
+                yaqpOntModel.listStatements(new SimpleSelector(null, RDF.type, _Dataset));
 
         if (dataSetIterator.hasNext()) {
             relationName = dataSetIterator.next().getSubject().getURI();
@@ -74,7 +81,7 @@ public class InstancesProcessor extends AbstractOntProcessor<Instances> {
 
     public static void main(String[] args) throws Exception {
         InputProcessor p = new InputProcessor();
-        URI uri = new URI("http://localhost/ds.rdf");
+        URI uri = new URI(ServerList.ambit.getBaseURI()+"/dataset/6");
         TurboOntModel tom = p.handle(uri);
         InstancesProcessor ipr = new InstancesProcessor();
         ipr.convert(tom);
