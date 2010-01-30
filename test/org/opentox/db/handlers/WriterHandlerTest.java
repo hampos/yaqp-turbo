@@ -70,11 +70,7 @@ public class WriterHandlerTest {
         }
     }
 
-<<<<<<< HEAD:test/org/opentox/db/handlers/WriterHandlerTest.java
-    //@Test
-=======
   //  @Test
->>>>>>> 7a4a5f5713a248c14662c83f60ba99cc8e8ffda1:test/org/opentox/db/handlers/WriterHandlerTest.java
     public void testAddUser() throws BadEmailException {
         try {
             for (int i=0;i<1000;i++)
