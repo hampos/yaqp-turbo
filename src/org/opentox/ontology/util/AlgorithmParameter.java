@@ -29,72 +29,48 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.ontology.components;
 
-import org.opentox.ontology.TurboOntModel;
+
+package org.opentox.ontology.util;
+
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class Task extends YaqpOntComponent {
+public class AlgorithmParameter<E extends Object> {
 
     /**
-     * The possible statuses a task can have.
+     * The parameter's name.
      */
-    public static enum STATUS {
+    public String paramName="";
+    /**
+     * Parameter datatype according to the <a href="http://www.w3.org/TR/xmlschema-2/">
+     * XSD</a> specifications.
+     */
+    public XSDDatatype dataType;
 
-        /**
-         * The task is still running. Waiting for completion.
-         */
-        RUNNING,
-        /**
-         * The task has completed successfully.
-         */
-        COMPLETED,
-        /**
-         * The task was cancelled.
-         */
-        CANCELLED
-    };
-    private String _name, _uri;
-    private STATUS _status;
+    /**
+     * The default value of the parameter.
+     */
+    public E paramValue;
 
-    public Task() {
-        setStatus(STATUS.RUNNING);
+    /**
+     * The scope of the parameter which is either "optional" or
+     * "mandatory".
+     */
+    public String paramScope;
+
+    public AlgorithmParameter(
+            String paramName, XSDDatatype dataType,
+            E paramValue, String paramScope){
+        this.dataType=dataType;
+        this.paramName=paramName;
+        this.paramValue=paramValue;
+        this.paramScope=paramScope;
     }
 
-    public Task(TurboOntModel model) {
-        super(model);
-    }
 
-    public String getName() {
-        return _name;
-    }
-
-    public STATUS getStatus() {
-        return _status;
-    }
-
-    public String getUri() {
-        return _uri;
-    }
-
-    public void setName(String _name) {
-        this._name = _name;
-    }
-
-    public void setStatus(STATUS _status) {
-        this._status = _status;
-    }
-
-    public void setUri(String _uri) {
-        this._uri = _uri;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
-    }
 }

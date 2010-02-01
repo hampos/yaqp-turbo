@@ -23,7 +23,7 @@ package org.opentox.ontology.processors;
 
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Processor;
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.ontology.components.YaqpOntComponent;
 import org.opentox.ontology.interfaces.JOntProcessor;
 
 /**
@@ -31,11 +31,11 @@ import org.opentox.ontology.interfaces.JOntProcessor;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public abstract class AbstractOntProcessor<Output>
-        extends Processor<TurboOntModel, Output>
-        implements JOntProcessor<Output> {
+public abstract class AbstractOntProcessor<Input extends YaqpOntComponent, Output>
+        extends Processor<Input, Output>
+        implements JOntProcessor<Input, Output> {
 
-    public Output process(TurboOntModel data) throws YaqpException {
+    public Output process(Input data) throws YaqpException {
         Output o = convert(data);
         return (Output ) o;
     }

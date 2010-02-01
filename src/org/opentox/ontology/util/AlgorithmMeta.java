@@ -29,58 +29,47 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.ontology.namespaces;
 
-import com.hp.hpl.jena.ontology.OntClass;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.Resource;
-import org.opentox.ontology.TurboOntModel;
-import org.opentox.ontology.interfaces.JOntEntity;
+
+package org.opentox.ontology.util;
+
+import java.util.ArrayList;
+import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public abstract class YaqpOntEntity implements JOntEntity {
+public class AlgorithmMeta extends Meta {
 
-    protected static final String _NS_OT = "http://www.opentox.org/api/1.1#%s";
-    protected static final String _NS_AlgorithmTypes = "http://www.opentox.org/algorithmTypes.owl/#%s";
-    public static final String NS_OT_core = String.format(_NS_OT, "");
-    public static final String NS_AlgorithmTypes = String.format(_NS_AlgorithmTypes, "");
+    /**
+     * Link of the algorithm with some ontology
+     */
+    public OTAlgorithmTypes algorithmType;
 
-    
-    protected static TurboOntModel _model = new TurboOntModel();
-    protected Resource _resource;
+    /**
+     * List of parameters for the algorithm
+     */
+    public ArrayList<AlgorithmParameter> Parameters;
 
-    public YaqpOntEntity() {
+
+    public AlgorithmMeta(){
+        super();
     }
 
-    public YaqpOntEntity(Resource resource) {
-        this._resource = resource;
+
+    public AlgorithmMeta(String about){
+        this.identifier=about;
     }
 
-    public OntClass createOntClass(TurboOntModel model) {
-        return model.createClass(getURI());
+
+    /**
+     * Set the parameters to the algorithm meta data.
+     * @param Parameters
+     */
+    public void setParameters(ArrayList<AlgorithmParameter> Parameters) {
+        this.Parameters=Parameters;
     }
 
-    public Resource getResource() {
-        return this._resource;
-    }
-
-    public OntClass getOntClass(TurboOntModel model) {
-        OntClass cl = model.getOntClass(getURI());
-        if (cl==null){
-            cl = createOntClass(model);
-        }
-        return cl;
-    }
-
-    public String getURI() {
-        return _resource.getURI();
-    }
-
-    public Property createProperty(TurboOntModel model) {
-        return _model.createProperty(getURI());
-    }
 }

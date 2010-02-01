@@ -29,58 +29,46 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.ontology.namespaces;
+package org.opentox.ontology.components;
 
-import com.hp.hpl.jena.ontology.OntClass;
-import com.hp.hpl.jena.rdf.model.Property;
-import com.hp.hpl.jena.rdf.model.Resource;
 import org.opentox.ontology.TurboOntModel;
-import org.opentox.ontology.interfaces.JOntEntity;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public abstract class YaqpOntEntity implements JOntEntity {
+public class MLRModel extends QSARModel {
 
-    protected static final String _NS_OT = "http://www.opentox.org/api/1.1#%s";
-    protected static final String _NS_AlgorithmTypes = "http://www.opentox.org/algorithmTypes.owl/#%s";
-    public static final String NS_OT_core = String.format(_NS_OT, "");
-    public static final String NS_AlgorithmTypes = String.format(_NS_AlgorithmTypes, "");
+    private String dataset;
 
+    public MLRModel(TurboOntModel model) {
+        super(model);
+    }
+
+    public MLRModel(int id, String name, String uri,
+            Feature predictionFeature, Feature dependentFeature,
+            Algorithm algorithm, User user, String timestamp, String dataset) {
+        super(id, name, uri, predictionFeature, dependentFeature, algorithm, user, timestamp);
+        this.dataset = dataset;
+    }
+
+    public String getDataset() {
+        return dataset;
+    }
+
+    public void setDataset(String dataset) {
+        this.dataset = dataset;
+    }
+
+    @Override
+    public String toString() {
+        String mlrModel = "--- MLR MODEL ---\n";
+        mlrModel += super.toString();
+        mlrModel += "DATASET     : " + getDataset() + "\n";
+        mlrModel += "\n---------------------\n";
+
+        return mlrModel;
+    }
     
-    protected static TurboOntModel _model = new TurboOntModel();
-    protected Resource _resource;
-
-    public YaqpOntEntity() {
-    }
-
-    public YaqpOntEntity(Resource resource) {
-        this._resource = resource;
-    }
-
-    public OntClass createOntClass(TurboOntModel model) {
-        return model.createClass(getURI());
-    }
-
-    public Resource getResource() {
-        return this._resource;
-    }
-
-    public OntClass getOntClass(TurboOntModel model) {
-        OntClass cl = model.getOntClass(getURI());
-        if (cl==null){
-            cl = createOntClass(model);
-        }
-        return cl;
-    }
-
-    public String getURI() {
-        return _resource.getURI();
-    }
-
-    public Property createProperty(TurboOntModel model) {
-        return _model.createProperty(getURI());
-    }
 }

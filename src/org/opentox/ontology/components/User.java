@@ -31,62 +31,40 @@
  */
 
 
-package org.opentox.db.entities;
+package org.opentox.ontology.components;
+
+import org.opentox.ontology.TurboOntModel;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class User {
+public class User extends YaqpOntComponent {
      private static final long serialVersionUID = 1726532809162869471L;
 
     private String
-            _userName,
-            _userPass,
-            _firstName,
-            _lastName,
-            _email,
-            _organization,
-            _country,
-            _city,
-            _address,
-            _webpage,
-            _timeStamp,
-            _userGroup;
-    
-                    /*
-                     *  Note: _userGroup is the *NAME* of the user group
-                     *  not the UID in the db.
-                     */
+            userName,
+            userPass,
+            firstName,
+            lastName,
+            email,
+            organization,
+            country,
+            city,
+            address,
+            webpage,
+            timeStamp;
+    private UserGroup userGroup;
+
 
     public User(){
 
     }
 
-    /**
-     *
-     * @param userName username
-     * @param userPass user password
-     * @param firstName first name of the user
-     * @param lastName last name of the user
-     * @param email email
-     * @param userGroup user group
-     */
-    public User(String userName,
-            String userPass,
-            String firstName,
-            String lastName,
-            String email,
-            String userGroup){
-        setUserName(userName);
-        setUserPass(userPass);
-        setFirstName(firstName);
-        setLastName(lastName);
-        setEmail(email);
-        setUserGroup(userGroup);
+    public User(TurboOntModel model) {
+        super(model);
     }
-
 
     public User(
             String userName,
@@ -99,119 +77,126 @@ public class User {
             String city,
             String address,
             String webpage,
-            String timestamp,
-            String userGroup){
-        this(userName, userPass, firstName, lastName, email, userGroup);
-        setOrganization(organization);
-        setCountry(country);
-        setCity(city);
-        setAddress(address);
-        setWebpage(webpage);
-        setTimeStamp(timestamp);
+            String timeStamp,
+            UserGroup userGroup) {
+        this.userName = userName;
+        this.userPass = userPass;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.organization = organization;
+        this.country = country;
+        this.city = city;
+        this.address = address;
+        this.webpage = webpage;
+        this.timeStamp = timeStamp;
+        this.userGroup = userGroup;
     }
 
-
     public String getAddress() {
-        return _address;
+        return address;
     }
 
     public String getCity() {
-        return _city;
+        return city;
     }
 
     public String getCountry() {
-        return _country;
+        return country;
     }
 
     public String getEmail() {
-        return _email;
+        return email;
     }
 
     public String getFirstName() {
-        return _firstName;
+        return firstName;
     }
 
     public String getLastName() {
-        return _lastName;
+        return lastName;
     }
 
     public String getOrganization() {
-        return _organization;
+        return organization;
     }
 
-    public String getUserGroup() {
-        return _userGroup;
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+
+    public UserGroup getUserGroup() {
+        return userGroup;
+    }
 
     public String getUserName() {
-        return _userName;
+        return userName;
     }
 
     public String getUserPass() {
-        return _userPass;
+        return userPass;
     }
 
     public String getWebpage() {
-        return _webpage;
+        return webpage;
     }
-
-    public String getTimeStamp(){
-        return _timeStamp;
-    }
-
-
 
     public void setAddress(String address) {
-        this._address = address;
+        this.address = address;
     }
 
     public void setCity(String city) {
-        this._city = city;
+        this.city = city;
     }
 
     public void setCountry(String country) {
-        this._country = country;
+        this.country = country;
     }
 
     public void setEmail(String email) {
-        this._email = email;
+        this.email = email;
     }
 
     public void setFirstName(String firstName) {
-        this._firstName = firstName;
+        this.firstName = firstName;
     }
 
     public void setLastName(String lastName) {
-        this._lastName = lastName;
+        this.lastName = lastName;
     }
 
     public void setOrganization(String organization) {
-        this._organization = organization;
+        this.organization = organization;
     }
 
-    public void setUserGroup(String _userGroup) {
-        this._userGroup = _userGroup;
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
     }
 
+    public void setUserGroup(UserGroup userGroup) {
+        this.userGroup = userGroup;
+    }
 
     public void setUserName(String userName) {
-        this._userName = userName;
+        this.userName = userName;
     }
 
     public void setUserPass(String userPass) {
-        this._userPass = userPass;
+        this.userPass = userPass;
     }
 
     public void setWebpage(String webpage) {
-        this._webpage = webpage;
-    }
-
-    public void setTimeStamp(String timestamp){
-        this._timeStamp = timestamp;
+        this.webpage = webpage;
     }
 
 
+
+
+    
     @Override
     public String toString() {
         String user = "-- USER --\n";

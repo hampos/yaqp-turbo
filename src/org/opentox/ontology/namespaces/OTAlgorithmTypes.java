@@ -55,6 +55,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
 
                 @Override
                 public OntClass createOntClass(TurboOntModel model) {
+                    // TODO: Move the following line(s) to the 'super' class....
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Learning.getResource());
                     model.includeOntClass(Learning);
@@ -392,4 +393,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
                     return cl;
                 }
             };
+
+
+           
 }

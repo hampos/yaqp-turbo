@@ -31,73 +31,76 @@
  */
 package org.opentox.ontology.components;
 
-import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
-import com.hp.hpl.jena.ontology.Individual;
-import com.hp.hpl.jena.vocabulary.DC;
-import org.opentox.ontology.ModelFactory;
+import java.util.ArrayList;
+import java.util.Iterator;
 import org.opentox.ontology.TurboOntModel;
-import org.opentox.ontology.namespaces.OTClass;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class Feature extends YaqpOntComponent {
+public class Algorithm extends YaqpOntComponent {
 
-    private String uri;
-    private int id;
+    public static final long serialVersionUID = -18477218378326540L;
+    private ArrayList<AlgorithmOntology> ontologies = null;
+    private String name, uri;
+    
 
-    public Feature() {
+    public Algorithm() {
         super();
     }
 
-    /**
-     *
-     * Create a new feature component using a TurboOntModel.
-     * @param model an ontological model for a feature.
-     */
-    public Feature(TurboOntModel model) {
+    public Algorithm(String name, String uri, ArrayList<AlgorithmOntology> ontologies) {
+        super();
+        setName(name);
+        setUri(uri);
+        setOntologies(ontologies);
+    }
+
+    public Algorithm(TurboOntModel model) {
         super(model);
     }
 
-    public Feature(String uri) {
-        this.uri = uri;
+
+
+    public String getName() {
+        return name;
     }
 
-    public Feature(int id, String uri) {
-        this.uri = uri;
-        this.id = id;
-    }
-
-    public String getURI() {
+    public String getUri() {
         return uri;
     }
 
-    public int getID() {
-        return id;
+    public ArrayList<AlgorithmOntology> getOntologies() {
+        return ontologies;
     }
 
-    public void setURI(String _name) {
-        this.uri = _name;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public TurboOntModel getModel() {
-        TurboOntModel model = ModelFactory.createTurboOntModel();
-        model.includeOntClass(OTClass.Feature);
-        model.createAnnotationProperty(DC.identifier.getURI());
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
 
-        Individual feature = model.createIndividual(uri, OTClass.Feature.getOntClass(model));
-        feature.addProperty(DC.identifier, model.createTypedLiteral(uri, XSDDatatype.XSDanyURI));
-        /** The result validates as OWL-DL **/
-        return model;
+    public void setOntologies(ArrayList<AlgorithmOntology> ontologies) {
+        this.ontologies = ontologies;
     }
 
     @Override
     public String toString() {
-        String feature = "";
-        feature += "FEATURE ID          : " + getID() + "\n";
-        feature += "FEATURE URI         : " + getURI();
-        return feature;
+        String algorithm = "-- ALGORITHM -- \n";
+        algorithm += "NAME    :" + getName() + "\n";
+        algorithm += "URI     :" + getUri() + "\n";
+        if (ontologies != null) {
+            algorithm += "ONTOLOGIES:\n";
+            Iterator<AlgorithmOntology> it = ontologies.iterator();
+            while (it.hasNext()) {
+                algorithm += "* " + it.next().toString();
+                algorithm += "\n";
+            }
+        }
+        return algorithm;
     }
 }

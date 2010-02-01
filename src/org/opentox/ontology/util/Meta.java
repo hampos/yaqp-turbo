@@ -29,72 +29,36 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.ontology.components;
 
-import org.opentox.ontology.TurboOntModel;
+
+package org.opentox.ontology.util;
+
+import org.opentox.config.Configuration;
 
 /**
- *
+ * Meta Data in general based on the Dublin Core Metadata Modeling ontology.
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class Task extends YaqpOntComponent {
+public class Meta {
 
-    /**
-     * The possible statuses a task can have.
-     */
-    public static enum STATUS {
+    public String
+            title="",
+            description="",
+            subject="",
+            type="",
+            source=Configuration.getProperties().getProperty("server.home"),
+            relation="http://opentox.org",
+            rights="http://www.gnu.org/licenses/",
+            provenance="",
+            audience="",
+            identifier="",
+            date="",
+            format="",
+            language="en",
+            creator=source,
+            publisher=source,
+            contributor=relation
+            ;
 
-        /**
-         * The task is still running. Waiting for completion.
-         */
-        RUNNING,
-        /**
-         * The task has completed successfully.
-         */
-        COMPLETED,
-        /**
-         * The task was cancelled.
-         */
-        CANCELLED
-    };
-    private String _name, _uri;
-    private STATUS _status;
-
-    public Task() {
-        setStatus(STATUS.RUNNING);
-    }
-
-    public Task(TurboOntModel model) {
-        super(model);
-    }
-
-    public String getName() {
-        return _name;
-    }
-
-    public STATUS getStatus() {
-        return _status;
-    }
-
-    public String getUri() {
-        return _uri;
-    }
-
-    public void setName(String _name) {
-        this._name = _name;
-    }
-
-    public void setStatus(STATUS _status) {
-        this._status = _status;
-    }
-
-    public void setUri(String _uri) {
-        this._uri = _uri;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString();
-    }
 }
