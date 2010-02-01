@@ -26,6 +26,7 @@ import java.util.Iterator;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.entities.Algorithm;
 import org.opentox.db.entities.AlgorithmOntology;
+import org.opentox.db.entities.Feature;
 import org.opentox.db.entities.User;
 import org.opentox.db.entities.UserGroup;
 import org.opentox.db.processors.DbPipeline;
@@ -42,14 +43,13 @@ import org.opentox.util.logging.levels.Debug;
  */
 public class ReaderHandler {
 
-    private static DbPipeline<QueryFood, HyperResult>
-            getUsersPipeline = null,
+    private static DbPipeline<QueryFood, HyperResult> getUsersPipeline = null,
             getAlgorithmOntologiesPipeline = null,
             getUserGroupsPipeline = null,
             getAlgorithmsPipeline = null,
             getAlgOntRelationPipeline = null,
-            getOntAlgRelationPipeline = null;
-
+            getOntAlgRelationPipeline = null,
+            getFeaturesPipeline = null;
 
     public static ArrayList<User> getUsers() {
         if (getUsersPipeline == null) {
@@ -93,7 +93,7 @@ public class ReaderHandler {
         return algorithmOntologiesList;
     }
 
-     public static ArrayList<UserGroup> getUserGroups() {
+    public static ArrayList<UserGroup> getUserGroups() {
         if (getUserGroupsPipeline == null) {
             getUserGroupsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USER_GROUPS);
         }
@@ -113,8 +113,8 @@ public class ReaderHandler {
         return userGroupList;
     }
 
-    public static ArrayList<AlgorithmOntology> getAlgOntRelation(Algorithm algorithm){
-        if (getAlgOntRelationPipeline == null){
+    public static ArrayList<AlgorithmOntology> getAlgOntRelation(Algorithm algorithm) {
+        if (getAlgOntRelationPipeline == null) {
             getAlgOntRelationPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALGORITHM_ONTOLOGY_RELATION);
         }
         QueryFood food = new QueryFood(
@@ -136,8 +136,8 @@ public class ReaderHandler {
         return algorithmOntologiesList;
     }
 
-    public static ArrayList<Algorithm> getOntAlgRelation(AlgorithmOntology ontology){
-        if (getOntAlgRelationPipeline == null){
+    public static ArrayList<Algorithm> getOntAlgRelation(AlgorithmOntology ontology) {
+        if (getOntAlgRelationPipeline == null) {
             getOntAlgRelationPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ONTOLOGY_ALGORITHM_RELATION);
         }
         QueryFood food = new QueryFood(
@@ -153,7 +153,7 @@ public class ReaderHandler {
         ArrayList<Algorithm> algorithmList = new ArrayList<Algorithm>();
         for (int i = 1; i < result.getSize() + 1; i++) {
             Iterator<String> it = result.getColumnIterator(i);
-            Algorithm algorithm = new Algorithm(it.next(), it.next(),null);
+            Algorithm algorithm = new Algorithm(it.next(), it.next(), null);
             ArrayList<AlgorithmOntology> ontologies = getAlgOntRelation(algorithm);
             algorithm.setOntologies(ontologies);
             algorithmList.add(algorithm);
@@ -182,4 +182,23 @@ public class ReaderHandler {
         return algorithms;
     }
 
+    public static ArrayList<Feature> getFeatures() {
+        if (getFeaturesPipeline == null) {
+            getFeaturesPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_FEATURES);
+        }
+
+        HyperResult result = null;
+        try {
+            result = getFeaturesPipeline.process(null);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Features from database\n"));
+        }
+        ArrayList<Feature> featureList = new ArrayList<Feature>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
+            featureList.add(feature);
+        }
+        return featureList;
+    }
 }

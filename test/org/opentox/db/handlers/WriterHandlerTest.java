@@ -77,7 +77,7 @@ public class WriterHandlerTest {
     /**
      * Test of addUserGroup method, of class WriterHandler.
      */
-   // @Test
+    @Test
     public void testAddUserGroup() throws Exception {
         WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60));
         WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 70));
@@ -119,7 +119,7 @@ public class WriterHandlerTest {
     }
 
 
-    @Test
+   // @Test
     public void testAddAlgorithm() {
         try {
             ArrayList<AlgorithmOntology> ontlist = ReaderHandler.getAlgorithmOntologies();

@@ -136,7 +136,7 @@ public enum PrepStmt implements JPrepStmt {
     /**
      * Add a new MLR model in the database.
      */
-    ADD_MLR_MODEL("INSERT INTO " + MlrModels().getTableName() + " (DATASET) VALUES (?)",
+    ADD_MLR_MODEL("INSERT INTO " + MlrModels().getTableName() + " (UID,DATASET) VALUES (?,?)",
     new QueryParam[]{
                         new QueryParam("DATASET", String.class)
                     }

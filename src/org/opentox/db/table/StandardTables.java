@@ -364,7 +364,7 @@ public enum StandardTables {
         TableColumn uid = new TableColumn("UID");
           uid.setColumnType(SQLDataTypes.Int());
           uid.setNotNull(true);
-          uid.setPrimaryKey(true, true);
+          uid.setPrimaryKey(true, false);
           uid.setForeignKey(PredictionModels().getTableName(), "UID", true);
           table.addColumn(uid);
 

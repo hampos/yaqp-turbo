@@ -28,6 +28,7 @@ import org.opentox.core.processors.BatchProcessor;
 import org.opentox.db.entities.Algorithm;
 import org.opentox.db.entities.AlgorithmOntology;
 import org.opentox.db.entities.Feature;
+import org.opentox.db.entities.MlrModel;
 import org.opentox.db.entities.User;
 import org.opentox.db.entities.UserGroup;
 import org.opentox.db.exceptions.BadEmailException;
@@ -211,5 +212,12 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, "Could not batch add Algorithm-Ontology relations :\n" + algorithm));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
+    }
+
+    private void addPredictionModel(){
+
+    }
+    public void addMlrModel(MlrModel mlrModel){
+
     }
 }

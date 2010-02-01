@@ -36,30 +36,47 @@ import org.opentox.ontology.namespaces.OTClass;
  */
 public class Feature implements Serializable {
 
-    private String _uri;
+    private String uri;
+    private int id;
 
-    public Feature(String uri){
-        this._uri = uri;
+    public Feature(String uri) {
+        this.uri = uri;
+    }
+
+    public Feature(int id, String uri) {
+        this.uri = uri;
+        this.id = id;
     }
 
     public String getURI() {
-        return _uri;
+        return uri;
+    }
+
+    public int getID() {
+        return id;
     }
 
     public void setURI(String _name) {
-        this._uri = _name;
+        this.uri = _name;
     }
 
-
-    public TurboOntModel getModel(){
+    public TurboOntModel getModel() {
         TurboOntModel model = ModelFactory.createTurboOntModel();
         model.includeOntClass(OTClass.Feature);
         model.createAnnotationProperty(DC.identifier.getURI());
 
-        Individual feature = model.createIndividual(_uri, OTClass.Feature.getOntClass(model));
-        feature.addProperty(DC.identifier, model.createTypedLiteral(_uri, XSDDatatype.XSDanyURI));
+        Individual feature = model.createIndividual(uri, OTClass.Feature.getOntClass(model));
+        feature.addProperty(DC.identifier, model.createTypedLiteral(uri, XSDDatatype.XSDanyURI));
         /** The result validates as OWL-DL **/
         return model;
+    }
+
+    @Override
+    public String toString() {
+        String feature = "";
+        feature += "FEATURE ID          : " + getID() + "\n";
+        feature += "FEATURE URI         : " + getURI();
+        return feature;
     }
 
     
