@@ -24,7 +24,7 @@ package org.opentox.core.exceptions;
 /**
  *
  * @author Charalampos Chomenides
- * @auhtor Pantelis Sopasakis
+ * @author Pantelis Sopasakis
  */
 public class YaqpIOException extends YaqpException {
 

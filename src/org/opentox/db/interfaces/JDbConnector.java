@@ -125,7 +125,7 @@ public interface JDbConnector {
      * Retrieves whether the database connection is properly initialized, i.e.
      * if there is an established connection and the standard tables where
      * created.
-     * @return
+     * @return <code>true</code> if the connector is initialized.
      */
     boolean isInitialized();
 }

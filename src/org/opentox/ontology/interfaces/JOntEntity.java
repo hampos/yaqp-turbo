@@ -57,7 +57,7 @@ public interface JOntEntity {
 
     /**
      * Returns the Resource of this class
-     * ( {@link org.opentox.interfaces.IOntClass } ).
+     * ( {@link org.opentox.ontology.interfaces.JOntEntity } ).
      * @return the corresponding jena resource.
      */
     Resource getResource();

@@ -276,7 +276,8 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
      * is equivalent to a Callable when input is determined.
      * @param processor A processor
      * @param input Some input for the processor
-     * @return
+     * @return A <code>Callable</code> corresponding to the provided processor
+     * for the specified input.
      */
     protected Callable getCallable(final JProcessor processor, final Object input) {
 

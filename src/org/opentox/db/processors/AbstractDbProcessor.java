@@ -26,12 +26,13 @@ import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.interfaces.JDbProcessor;
 import org.opentox.core.processors.Processor;
+import org.opentox.db.util.PrepStmt;
 import org.opentox.db.util.QueryType;
 import org.opentox.db.util.TheDbConnector;
 
 /**
  * This is an abstraction for the processors which manipulate the data of the
- * database. It processes input data which here are {@link JQuery database queries }.
+ * database. It processes input data which here are {@link PrepStmt database queries }.
  * @author Sopasakis Pantelis
  * @author Charalampos Chomenides
  * @param <Query> A Database Query of any type (Insertion, Update, Deletion etc). The Type

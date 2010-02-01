@@ -129,7 +129,7 @@ public class InputProcessor extends AbstractIOProcessor<URI, TurboOntModel> {
      * 
      * @param uri URI of the resource which is accepted as input to YAQP through
      * this processor.
-     * @return The resource encapsulated in a {@link YaqpOntModel } object.
+     * @return The resource encapsulated in a {@link TurboOntModel } object.
      * @throws YaqpException
      */
     public TurboOntModel handle(URI uri) throws YaqpIOException {

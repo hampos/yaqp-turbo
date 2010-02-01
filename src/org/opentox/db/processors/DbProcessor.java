@@ -47,9 +47,11 @@ public class DbProcessor extends AbstractDbProcessor<HyperStatement, HyperResult
 
     /**
      *
-     * @param q
-     * @return
-     * @throws DbException
+     * @param q A HyperStatement, i.e. a Query to the database. See {@link
+     * HyperStatement } for more detalis.
+     * @return The result of the query as an instance of {@link HyperResult }.
+     * @throws DbException in case the statement cannot be executed either due to
+     * malformed syntax or some connection problem to the database.
      */
     public HyperResult execute(HyperStatement q) throws DbException {
         HyperResult result = null;
