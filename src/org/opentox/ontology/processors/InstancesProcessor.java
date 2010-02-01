@@ -41,7 +41,7 @@ import weka.core.Instances;
 
 /**
  *
- * This processor converts a <code>TurboOntModel</code> for a dataset into the equivalent
+ * This processor converts a <code>Dataset</code> object for a dataset into the equivalent
  * <code>Instances</code> object which can be exploited by <code>weka</code>.
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
@@ -52,9 +52,10 @@ public class InstancesProcessor
 
     /**
      *
-     * Converts an ontological model of a dataset into a <code>weka.core.Instances</code>
+     * Converts an ontological model of a dataset (provided as an instance
+     * of <code>Dataset</code> into a <code>weka.core.Instances</code>
      * object which can be used by weka algorithms and other weka routines.
-     * @param yaqpOntModel An ontological model for a dataset.
+     * @param dataset The dataset to be converted to Instances
      * @return The dataset as Instances (weka object)
      */
     public Instances convert(Dataset dataset) throws YaqpOntException{

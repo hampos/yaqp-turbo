@@ -34,8 +34,7 @@ package org.opentox.ontology.util;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Date;
 import org.opentox.config.Configuration;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.util.vocabulary.Audience;
@@ -45,14 +44,39 @@ import org.opentox.util.logging.levels.Warning;
 import org.restlet.data.MediaType;
 
 /**
- *
+ * <p>In this class, all available algorithms from YAQP are listed with their meta
+ * data. RDF (and all other) representations of algorithms are generated usign these
+ * meta data listed here. If you need to start developing a new algorithm for YAQP,
+ * first of all update this class with the algorithm's meta information. For examlpe, if
+ * you are developing an algorithm called <code>'abc'</code> here is an example of
+ * what you should add in this file:</p>
+ * <p>
+ * <code>
+ * public static final YaqpAlgorithms MyAlgorithm = new YaqpAlgorithms("abc") {<br/>
+ * <br/>
+ * AlgorithmMeta meta = new AlgorithmMeta(getUri());<br/>
+ * meta.title = "ABC Algorithm - User Defined";<br/>
+ * // Populate the meta data...<br/>
+ * }<br/>
+ * </code>
+ * </p>
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
 public class YaqpAlgorithms {
 
+    /**
+     * Algorithm Meta Data
+     */
     private AlgorithmMeta meta;
-    private String name, uri;
+    /**
+     * Name of the algorithm
+     */
+    private String name;
+    /**
+     * URI of the algorithm
+     */
+    private String uri;
 
     private YaqpAlgorithms() {
     }
@@ -73,6 +97,9 @@ public class YaqpAlgorithms {
     public String getUri() {
         return uri;
     }
+    /**
+     * Multiple Linear Regression Algorithm
+     */
     public static final YaqpAlgorithms MLR = new YaqpAlgorithms("mlr") {
 
         @Override
@@ -83,17 +110,20 @@ public class YaqpAlgorithms {
 
             AlgorithmMeta meta = new AlgorithmMeta(getUri());
             meta.title = "Multiple Linear Regression Training Algorithm";
-            meta.description = "Training algorithm for multiple linear regression models. Applies "
-                    + "on datasets which contain exclusively numeric data entries. The algorithm is an "
-                    + "implementation of LinearRegression of Weka.";
+            meta.subject = "Regression, Linear, Training, Multiple Linear Regression, Machine Learning, "
+                    + "Single Target, Eager Learning, Weka";
+            meta.description = "Training algorithm for multiple linear regression models. Applies \n"
+                    + "on datasets which contain exclusively numeric data entries. The algorithm is an \n"
+                    + "implementation of LinearRegression of Weka. More information about Linear Regression \n"
+                    + "you will find at http://en.wikipedia.org/wiki/Linear_regression. The weka API \n"
+                    + "for Linear Regression Training is located at \n"
+                    + "http://weka.sourceforge.net/doc/weka/classifiers/functions/LinearRegression.html";
             meta.format.add(MediaType.APPLICATION_RDF_XML);
+            meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
+            meta.format.add(MediaType.TEXT_RDF_N3);
+            meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
+            meta.format.add(MediaType.APPLICATION_XML);
             meta.identifier = getUri();
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-            try {
-                formatter.parse("2010-01-01");
-            } catch (ParseException ex) {
-                YaqpLogger.LOG.log(new Warning(getClass(), "(MLR) Wrong date : "+ex));
-            }
             meta.type = "http://purl.org/dc/dcmitype/Service";
             meta.audience.add(Audience.Biologists);
             meta.audience.add(Audience.Toxicologists);
@@ -101,15 +131,111 @@ public class YaqpAlgorithms {
             meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
             meta.algorithmType = OTAlgorithmTypes.RegressionEagerSingleTarget;
 
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                meta.date = formatter.parse("2010-01-01");
+            } catch (ParseException ex) {
+                YaqpLogger.LOG.log(new Warning(getClass(), "(MLR) Wrong date : " + ex));
+                meta.date = new Date(System.currentTimeMillis());
+            }
+
+
             return meta;
         }
     };
+    /**
+     *
+     * Support Vector Machine Regression Algorithm
+     */
     public static final YaqpAlgorithms SVM = new YaqpAlgorithms("svm") {
 
         @Override
         public AlgorithmMeta getMeta() {
+
+            ArrayList<AlgorithmParameter> Parameters = new ArrayList<AlgorithmParameter>();
+            Parameters.add(ConstantParameters.CACHESIZE);
+            Parameters.add(ConstantParameters.COEFF0);
+            Parameters.add(ConstantParameters.COST);
+            Parameters.add(ConstantParameters.DEGREE);
+            Parameters.add(ConstantParameters.EPSILON);
+            Parameters.add(ConstantParameters.GAMMA);
+            Parameters.add(ConstantParameters.KERNEL);
+            Parameters.add(ConstantParameters.TARGET);
+            Parameters.add(ConstantParameters.TOLERANCE);
+
             AlgorithmMeta meta = new AlgorithmMeta(getUri());
-            return null;
+            meta.title = "Support Vector Machine Training Algorithm (Regression)";
+            meta.description = "Algorithm for training regression models using the Support Vector "
+                    + "Machine Learning Model. ";
+            meta.format.add(MediaType.APPLICATION_RDF_XML);
+            meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
+            meta.format.add(MediaType.TEXT_RDF_N3);
+            meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
+            meta.format.add(MediaType.APPLICATION_XML);
+            meta.identifier = getUri();
+            meta.type = "http://purl.org/dc/dcmitype/Service";
+            meta.audience.add(Audience.Biologists);
+            meta.audience.add(Audience.Toxicologists);
+            meta.audience.add(Audience.QSARExperts);
+            meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
+            meta.algorithmType = OTAlgorithmTypes.RegressionEagerSingleTarget;
+
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                meta.date = formatter.parse("2010-01-01");
+            } catch (ParseException ex) {
+                YaqpLogger.LOG.log(new Warning(getClass(), "(" + getUri() + ") Wrong date : " + ex));
+                meta.date = new Date(System.currentTimeMillis());
+            }
+
+
+            return meta;
+        }
+    };
+    /**
+     *
+     * Support Vector Machine Classification
+     */
+    public static final YaqpAlgorithms SVC = new YaqpAlgorithms("svc") {
+
+        @Override
+        public AlgorithmMeta getMeta() {
+
+            ArrayList<AlgorithmParameter> Parameters = new ArrayList<AlgorithmParameter>();
+            Parameters.add(ConstantParameters.CACHESIZE);
+            Parameters.add(ConstantParameters.COEFF0);
+            Parameters.add(ConstantParameters.COST);
+            Parameters.add(ConstantParameters.DEGREE);
+            Parameters.add(ConstantParameters.GAMMA);
+            Parameters.add(ConstantParameters.KERNEL);
+            Parameters.add(ConstantParameters.TARGET);
+            Parameters.add(ConstantParameters.TOLERANCE);
+
+            AlgorithmMeta meta = new AlgorithmMeta(getUri());
+            meta.title = "";
+            meta.format.add(MediaType.APPLICATION_RDF_XML);
+            meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
+            meta.format.add(MediaType.TEXT_RDF_N3);
+            meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
+            meta.format.add(MediaType.APPLICATION_XML);
+            meta.identifier = getUri();
+            meta.type = "http://purl.org/dc/dcmitype/Service";
+            meta.audience.add(Audience.Biologists);
+            meta.audience.add(Audience.Toxicologists);
+            meta.audience.add(Audience.QSARExperts);
+            meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
+            meta.algorithmType = OTAlgorithmTypes.ClassificationEagerSingleTarget;
+
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                meta.date = formatter.parse("2010-01-01");
+            } catch (ParseException ex) {
+                YaqpLogger.LOG.log(new Warning(getClass(), "(" + getUri() + ") Wrong date : " + ex));
+                meta.date = new Date(System.currentTimeMillis());
+            }
+
+
+            return meta;
         }
     };
 }

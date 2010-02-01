@@ -43,19 +43,20 @@ import org.opentox.ontology.TurboOntModel;
 public class Algorithm extends YaqpOntComponent {
 
     public static final long serialVersionUID = -18477218378326540L;
-    private ArrayList<AlgorithmOntology> ontologies = null;
+    private AlgorithmOntology ontology = null;
     private String name, uri;
+
     
 
     public Algorithm() {
         super();
     }
 
-    public Algorithm(String name, String uri, ArrayList<AlgorithmOntology> ontologies) {
+    public Algorithm(String name, String uri, AlgorithmOntology ontology) {
         super();
         setName(name);
         setUri(uri);
-        setOntologies(ontologies);
+        setOntology(ontology);
     }
 
     public Algorithm(TurboOntModel model) {
@@ -72,8 +73,8 @@ public class Algorithm extends YaqpOntComponent {
         return uri;
     }
 
-    public ArrayList<AlgorithmOntology> getOntologies() {
-        return ontologies;
+    public AlgorithmOntology getOntology() {
+        return ontology;
     }
 
     public void setName(String name) {
@@ -84,22 +85,18 @@ public class Algorithm extends YaqpOntComponent {
         this.uri = uri;
     }
 
-    public void setOntologies(ArrayList<AlgorithmOntology> ontologies) {
-        this.ontologies = ontologies;
+    public void setOntology(AlgorithmOntology ontology) {
+        this.ontology = ontology;
     }
 
     @Override
     public String toString() {
         String algorithm = "-- ALGORITHM -- \n";
-        algorithm += "NAME    :" + getName() + "\n";
-        algorithm += "URI     :" + getUri() + "\n";
-        if (ontologies != null) {
-            algorithm += "ONTOLOGIES:\n";
-            Iterator<AlgorithmOntology> it = ontologies.iterator();
-            while (it.hasNext()) {
-                algorithm += "* " + it.next().toString();
-                algorithm += "\n";
-            }
+        algorithm += "NAME       :" + getName() + "\n";
+        algorithm += "URI        :" + getUri() + "\n";
+        if (ontology != null) {
+        algorithm += "ONTOLOGY   :"+getOntology();
+            
         }
         return algorithm;
     }
