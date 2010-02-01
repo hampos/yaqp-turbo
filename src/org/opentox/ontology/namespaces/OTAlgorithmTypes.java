@@ -23,6 +23,8 @@ package org.opentox.ontology.namespaces;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.RDF;
+import java.util.ArrayList;
 import org.opentox.ontology.TurboOntModel;
 
 /**
@@ -394,6 +396,5 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
                 }
             };
 
-
-           
+  
 }

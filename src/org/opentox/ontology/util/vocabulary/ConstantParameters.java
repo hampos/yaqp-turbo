@@ -29,9 +29,10 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.ontology.util;
+package org.opentox.ontology.util.vocabulary;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import org.opentox.ontology.util.AlgorithmParameter;
 
 /**
  *

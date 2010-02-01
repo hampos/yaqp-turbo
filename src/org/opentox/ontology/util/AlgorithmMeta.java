@@ -38,6 +38,10 @@ import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 
 /**
  *
+ * Metainformation about algorithms include Dublin Core metadata plus a set of
+ * algorithm parameters. An algorithm parameter consists of its name, (default)
+ * value, XSD type and scope (optional/mandatory). For more information see {@link
+ * AlgorithmParameter }.
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
@@ -60,6 +64,7 @@ public class AlgorithmMeta extends Meta {
 
 
     public AlgorithmMeta(String about){
+        this();
         this.identifier=about;
     }
 

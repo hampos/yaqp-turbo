@@ -31,7 +31,18 @@
  */
 package org.opentox.ontology.util;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.config.Configuration;
+import org.opentox.ontology.namespaces.OTAlgorithmTypes;
+import org.opentox.ontology.util.vocabulary.Audience;
+import org.opentox.ontology.util.vocabulary.ConstantParameters;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Warning;
+import org.restlet.data.MediaType;
 
 /**
  *
@@ -66,11 +77,39 @@ public class YaqpAlgorithms {
 
         @Override
         public AlgorithmMeta getMeta() {
-            AlgorithmMeta meta = new AlgorithmMeta(getUri());            
+
+            ArrayList<AlgorithmParameter> Parameters = new ArrayList<AlgorithmParameter>();
+            Parameters.add(ConstantParameters.TARGET);
+
+            AlgorithmMeta meta = new AlgorithmMeta(getUri());
+            meta.title = "Multiple Linear Regression Training Algorithm";
+            meta.description = "Training algorithm for multiple linear regression models. Applies "
+                    + "on datasets which contain exclusively numeric data entries. The algorithm is an "
+                    + "implementation of LinearRegression of Weka.";
+            meta.format.add(MediaType.APPLICATION_RDF_XML);
+            meta.identifier = getUri();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                formatter.parse("2010-01-01");
+            } catch (ParseException ex) {
+                YaqpLogger.LOG.log(new Warning(getClass(), "(MLR) Wrong date : "+ex));
+            }
+            meta.type = "http://purl.org/dc/dcmitype/Service";
+            meta.audience.add(Audience.Biologists);
+            meta.audience.add(Audience.Toxicologists);
+            meta.audience.add(Audience.QSARExperts);
+            meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
+            meta.algorithmType = OTAlgorithmTypes.RegressionEagerSingleTarget;
+
+            return meta;
+        }
+    };
+    public static final YaqpAlgorithms SVM = new YaqpAlgorithms("svm") {
+
+        @Override
+        public AlgorithmMeta getMeta() {
+            AlgorithmMeta meta = new AlgorithmMeta(getUri());
             return null;
         }
     };
-
-
-    public static final YaqpAlgorithms SVM = new YaqpAlgorithms();
 }
