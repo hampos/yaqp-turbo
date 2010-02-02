@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of the National Technical University of Athens. Please read README for more
+ * School of National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -34,13 +34,14 @@
 package org.opentox.ontology.util;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import java.io.Serializable;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class AlgorithmParameter<E extends Object> {
+public class AlgorithmParameter<E extends Object> implements Serializable {
 
     /**
      * The parameter's name.

@@ -68,7 +68,7 @@ public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatemen
             for (int i = 0; prepStmt.getParameters() != null && i < prepStmt.getParameters().length; i++) {
 
                 if (!food.containsName(prepStmt.getParameters()[i].getName())) {
-                    String message = "The parameter " + prepStmt.getParameters()[i].getName() + " is not set";
+                    String message = "XDR162 - The parameter " + prepStmt.getParameters()[i].getName() + " is not set";
                     throw new DbException(message);
                 }
                 value = food.getValue(prepStmt.getParameters()[i].getName());
@@ -81,9 +81,9 @@ public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatemen
                 }
             }
         } catch (InterruptedException ex) {
-            YaqpLogger.LOG.log(new Debug(getClass(), "Exception thrown :: " + ex));
+            YaqpLogger.LOG.log(new Debug(getClass(), "XDR163 - Exception thrown :: " + ex));
         } catch (DbException ex) {
-            YaqpLogger.LOG.log(new Debug(getClass(), "Exception thrown :: " + ex));
+            YaqpLogger.LOG.log(new Debug(getClass(), "XDR164 - Exception thrown :: " + ex));
         }
         return hs;
     }

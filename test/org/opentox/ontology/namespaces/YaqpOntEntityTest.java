@@ -1,10 +1,11 @@
 /*
+ *
  * YAQP - Yet Another QSAR Project:
  * Machine Learning algorithms designed for the prediction of toxicological
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of the National Technical University of Athens. Please read README for more
+ * School of National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -28,8 +29,12 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.db.entities;
+package org.opentox.ontology.namespaces;
 
+import com.hp.hpl.jena.rdf.model.Resource;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -39,11 +44,12 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author chung
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenides
  */
-public class FeatureTest {
+public class YaqpOntEntityTest {
 
-    public FeatureTest() {
+    public YaqpOntEntityTest() {
     }
 
     @BeforeClass
@@ -62,16 +68,34 @@ public class FeatureTest {
     public void tearDown() {
     }
 
-
-    /**
-     * Test of getModel method, of class Feature.
-     */
     @Test
-    public void testGetModel() {
-        String feature_uri = "http://opentox.ntua.gr:3000/feature/"+java.util.UUID.randomUUID().toString();
-        Feature feature = new Feature(feature_uri);
-        feature.getModel().printConsole();
-
+    public void testSuper_OTClass() {
+        System.out.println("-- Testing OTClass: getSuperEntities() --");
+        OTClass cl = OTClass.NominalFeature;
+        Set<Resource> my_supers = cl.getSuperEntities();
+        Iterator<Resource> it = my_supers.iterator();
+        assertTrue(my_supers.size() == 1);
+        Set<String> resourceURIs = new HashSet<String>();
+        while (it.hasNext()) {
+            resourceURIs.add(it.next().getURI());
+        }
+        assertTrue(resourceURIs.contains(OTClass.Feature.getURI()));
+        System.out.println("OK!");
     }
 
+    @Test
+    public void testSuper_OTAlgorithmTypes() {
+        System.out.println("-- Testing OTAlgorithmTypes: getSuperEntities() --");
+        OTAlgorithmTypes my = OTAlgorithmTypes.DataCleanup;
+        Set<Resource> my_supers = my.getSuperEntities();
+        Iterator<Resource> it = my_supers.iterator();
+        assertTrue(my_supers.size() == 2);
+        Set<String> resourceURIs = new HashSet<String>();
+        while (it.hasNext()) {
+            resourceURIs.add(it.next().getURI());
+        }
+        assertTrue(resourceURIs.contains(OTAlgorithmTypes.AlgorithmType.getURI()));
+        assertTrue(resourceURIs.contains(OTAlgorithmTypes.Preprocessing.getURI()));
+        System.out.println("OK!");
+    }
 }

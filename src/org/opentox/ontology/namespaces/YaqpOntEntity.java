@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of the National Technical University of Athens. Please read README for more
+ * School of National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -33,23 +33,35 @@ package org.opentox.ontology.namespaces;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.SimpleSelector;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
+import com.hp.hpl.jena.vocabulary.RDFS;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
+import org.opentox.ontology.ModelFactory;
 import org.opentox.ontology.TurboOntModel;
 import org.opentox.ontology.interfaces.JOntEntity;
 
 /**
+ * Ontological Entity for YAQP. Ontological Entities include ontological classes
+ * and properties. Example of such entities, are the OpenTox Algorithms, the OT Classes
+ * and the OT Properties defined in the corresponding java classes.
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
+ * @see JOntEntity interface for this class
  */
-public abstract class YaqpOntEntity implements JOntEntity {
+public abstract class YaqpOntEntity implements JOntEntity, Serializable  {
 
-    protected static final String _NS_OT = "http://www.opentox.org/api/1.1#%s";
-    protected static final String _NS_AlgorithmTypes = "http://www.opentox.org/algorithmTypes.owl/#%s";
-    public static final String NS_OT_core = String.format(_NS_OT, "");
-    public static final String NS_AlgorithmTypes = String.format(_NS_AlgorithmTypes, "");
+    protected  static final String _NS_OT = "http://www.opentox.org/api/1.1#%s";
+    protected  static final String _NS_AlgorithmTypes = "http://www.opentox.org/algorithmTypes.owl/#%s";
+    public  static final String NS_OT_core = String.format(_NS_OT, "");
+    public  static final String NS_AlgorithmTypes = String.format(_NS_AlgorithmTypes, "");
 
-    
     protected static TurboOntModel _model = new TurboOntModel();
     protected Resource _resource;
 
@@ -82,5 +94,17 @@ public abstract class YaqpOntEntity implements JOntEntity {
 
     public Property createProperty(TurboOntModel model) {
         return _model.createProperty(getURI());
+    }
+
+    public Set<Resource> getSuperEntities(){
+        TurboOntModel tom = ModelFactory.createTurboOntModel();
+        tom.includeOntClass(this);
+        StmtIterator stmtit = tom.listStatements(new SimpleSelector(null, RDFS.subClassOf, (RDFNode)null));
+        Set<Resource> set = new HashSet<Resource>();
+        while (stmtit.hasNext()){
+            Resource superClass = stmtit.next().getObject().as(Resource.class);
+            set.add(superClass);
+        }
+        return set;
     }
 }

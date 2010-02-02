@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of the National Technical University of Athens. Please read README for more
+ * School of National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -29,30 +29,34 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.ontology.util.vocabulary;
+
+import java.io.Serializable;
+import java.lang.reflect.Field;
 
 /**
  * A collection of audiences that might be interested in YAQP services.
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class Audience {
-    
+public class Audience implements Serializable {
+
     private String name;
 
     private Audience(String name) {
         this.name = name;
     }
 
+    private Audience() {
+    }
+
     /**
+     * Characteristic name for the intended audience.
      * @return the name of the audience.
      */
     public String getName() {
         return name;
     }
-
 
     /**
      *
@@ -89,7 +93,29 @@ public class Audience {
      * Researchers.
      */
     public static final Audience Researchers = new Audience("Researchers");
+    /**
+     *
+     * All expert users (All categories except for the General Public).
+     */
+    public static final Audience AllExpert = getAllExceptGeneralPublic();
 
-    
+    private static Audience getAllExceptGeneralPublic() {
+        try {
+            Audience o = new Audience();
+            String all = "";
+            Field[] fields = o.getClass().getFields();
+            for (int i = 0; i < fields.length - 1; i++) {
+                Audience au = (Audience) fields[i].get(o);
+                if (!au.getName().equals(Audience.GeneralPublic.getName()) && au != null) all += au.getName();                
+                if (i != fields.length - 2 && !au.getName().equals(Audience.GeneralPublic.getName())) all += ",";
+            }
+            return new Audience(all);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
 
+//    public static void main(String[] a) {
+//        System.out.println(Audience.AllExpert.getName());
+//    }
 }

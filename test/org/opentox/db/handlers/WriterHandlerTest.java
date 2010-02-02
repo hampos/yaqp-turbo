@@ -4,7 +4,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of the National Technical University of Athens. Please read README for more
+ * School of National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -30,7 +30,6 @@
  */
 package org.opentox.db.handlers;
 
-import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -38,14 +37,12 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opentox.db.entities.Algorithm;
-import org.opentox.db.entities.AlgorithmOntology;
-import org.opentox.db.entities.User;
-import org.opentox.db.entities.UserGroup;
+import org.opentox.ontology.components.*;
 import org.opentox.db.exceptions.BadEmailException;
 import org.opentox.db.exceptions.DuplicateKeyException;
 import org.opentox.db.util.TheDbConnector;
 import static org.junit.Assert.*;
+import org.opentox.ontology.exceptions.YaqpOntException;
 
 /**
  *
@@ -89,10 +86,10 @@ public class WriterHandlerTest {
      * Test of addAlgorithmOntology method, of class WriterHandler.
      */
     //@Test
-    public void testAddAlgorithmOntology() {
+    public void testAddAlgorithmOntology() throws YaqpOntException {
         try {
             for (int i = 1; i <= 100; i++) {
-                WriterHandler.addAlgorithmOntology(new AlgorithmOntology("name" + i, "uri" + i));
+                WriterHandler.addAlgorithmOntology(new AlgorithmOntology("name" + i));
             }
         } catch (DuplicateKeyException ex) {
             Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
@@ -100,15 +97,19 @@ public class WriterHandlerTest {
         }
     }
 
-   // @Test
+    /**
+     * It seems users are being successfully added in the database.
+     * @throws BadEmailException
+     */
+    @Test
     public void testAddUser() throws BadEmailException {
         try {
-            for (int i=0;i<1000;i++)
+            for (int i=0;i<100;i++)
             WriterHandler.addUser(
                     new User(
                     "vser_"+i, "patss"+i, "firstname"+i, "lastname"+i,
                     "makis"+i+"@mailntua.gr", "NTUA", "Greece",
-                    "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new", null, "ADMIN"));
+                    "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new", null, new UserGroup("ADMIN", 0)));
         } catch (DuplicateKeyException ex) {
             System.out.println(ex);
             Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
@@ -118,19 +119,19 @@ public class WriterHandlerTest {
         }
     }
 
-
-   // @Test
-    public void testAddAlgorithm() {
-        try {
-            ArrayList<AlgorithmOntology> ontlist = ReaderHandler.getAlgorithmOntologies();
-
-            for (int i = 1; i <= 100; i++) {
-                WriterHandler.addAlgorithm(new Algorithm("ename" + i, "euri" + i, ontlist));
-            }
-        } catch (DuplicateKeyException ex) {
-            Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-    }
+//
+//   // @Test
+//    public void testAddAlgorithm() {
+//        try {
+//            ArrayList<AlgorithmOntology> ontlist = ReaderHandler.getAlgorithmOntologies();
+//
+//            for (int i = 1; i <= 100; i++) {
+//                WriterHandler.addAlgorithm(new Algorithm("ename" + i, "euri" + i, ontlist));
+//            }
+//        } catch (DuplicateKeyException ex) {
+//            Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//
+//    }
 
 }

@@ -67,8 +67,8 @@ public class PrepSwimmingPool {
                 BlockingQueues.put(prepStmt, queue_i);
             }
         } catch (Exception ex) {
-            YaqpLogger.LOG.log(new Fatal(getClass(), ex.toString()));
-            throw new RuntimeException(ex);
+            YaqpLogger.LOG.log(new Fatal(getClass(), "XPP501 - " + ex.toString()));
+            throw new RuntimeException("XPP501" , ex);
         }
     }
 
@@ -115,7 +115,8 @@ public class PrepSwimmingPool {
             }
         }
         if (hp_prepStmt == null) {
-            throw new DbException("The HyperStatement you provided does not correspond to a registered prepared statement.");
+            throw new DbException("XPP502 - The HyperStatement you provided does " +
+                    "not correspond to a registered prepared statement :"+hp_prepStmt.getSql());
         }
         try {
             hp.flush();
@@ -125,6 +126,4 @@ public class PrepSwimmingPool {
         }
 
     }
-
-    
 }

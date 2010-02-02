@@ -4,7 +4,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of the National Technical University of Athens. Please read README for more
+ * School of National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -37,11 +37,10 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opentox.db.entities.Algorithm;
-import org.opentox.db.entities.AlgorithmOntology;
-import org.opentox.db.entities.User;
-import org.opentox.db.entities.UserGroup;
+import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
+import org.opentox.ontology.exceptions.YaqpOntException;
+import org.opentox.ontology.util.AlgorithmMeta;
 
 /**
  *
@@ -80,7 +79,7 @@ public class ReaderHandlerTest {
     }
 
     //@Test
-    public void getAlgorithmOntologiesTest(){
+    public void getAlgorithmOntologiesTest() throws YaqpOntException{
 
         ArrayList<AlgorithmOntology> algont = ReaderHandler.getAlgorithmOntologies();
         Iterator<AlgorithmOntology> it = algont.iterator();
@@ -100,33 +99,33 @@ public class ReaderHandlerTest {
     }
 
     //@Test
-    public void getAlgOntRelationTest(){
-        Algorithm algorithm = new Algorithm("ename40","euri40",null);
-        ArrayList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation(algorithm);
-        Iterator<AlgorithmOntology> it = ontologies.iterator();
-        while(it.hasNext()){
-            System.out.println(it.next());
-        }
-    }
+//    public void getAlgOntRelationTest() throws YaqpOntException{
+//        Algorithm algorithm = new Algorithm(new AlgorithmMeta("name1"));
+//        ArrayList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation(algorithm);
+//        Iterator<AlgorithmOntology> it = ontologies.iterator();
+//        while(it.hasNext()){
+//            System.out.println(it.next());
+//        }
+//    }
 
 //    @Test
-    public void getOntAlgRelationTest(){
-        AlgorithmOntology ontology = new AlgorithmOntology("name1", "uri1");
-        ArrayList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology);
-        Iterator<Algorithm> it = algorithms.iterator();
-        while(it.hasNext()){
-            System.out.println(it.next());
-        }
-    }
+//    public void getOntAlgRelationTest(){
+//        AlgorithmOntology ontology = new AlgorithmOntology("name1");
+//        ArrayList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology);
+//        Iterator<Algorithm> it = algorithms.iterator();
+//        while(it.hasNext()){
+//            System.out.println(it.next());
+//        }
+//    }
 
     //@Test
-    public void getAlgorithmsTest(){
-        ArrayList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
-        Iterator<Algorithm> it = algorithms.iterator();
-        while(it.hasNext()){
-            System.out.println(it.next());
-        }
-    }
+//    public void getAlgorithmsTest(){
+//        ArrayList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
+//        Iterator<Algorithm> it = algorithms.iterator();
+//        while(it.hasNext()){
+//            System.out.println(it.next());
+//        }
+//    }
 }
 
 

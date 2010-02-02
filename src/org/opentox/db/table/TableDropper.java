@@ -56,10 +56,10 @@ public final class TableDropper extends AbstractTableProcessor{
             YaqpLogger.LOG.log(new Info(TableDropper.class, "The table '" + q.getTableName().toUpperCase() +"' was dropped"));
         } catch (SQLException ex) {
             if (ex.toString().contains("because it does not exist")){
-                YaqpLogger.LOG.log(new Warning(TableDropper.class, "The table '" + q.getTableName().toUpperCase()
+                YaqpLogger.LOG.log(new Warning(TableDropper.class, "WSQ884 - The table '" + q.getTableName().toUpperCase()
                     + "' could not be dropped because it does not exist"));
             }else{
-            YaqpLogger.LOG.log(new ScrewedUp(TableDropper.class, "The table '" + q.getTableName().toUpperCase()
+            YaqpLogger.LOG.log(new ScrewedUp(TableDropper.class, "XSP726 - The table '" + q.getTableName().toUpperCase()
                     + "' could not be dropped :: " + ex));
             }
 

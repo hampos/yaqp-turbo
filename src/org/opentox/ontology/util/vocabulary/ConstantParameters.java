@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of the National Technical University of Athens. Please read README for more
+ * School of National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -32,6 +32,7 @@
 package org.opentox.ontology.util.vocabulary;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import java.util.ArrayList;
 import org.opentox.ontology.util.AlgorithmParameter;
 
 /**
@@ -50,6 +51,35 @@ public class ConstantParameters {
     public static final AlgorithmParameter<Integer> DEGREE = DEGREE((int) 3);
     public static final AlgorithmParameter<Double> TOLERANCE = TOLERANCE(0.0001);
     public static final AlgorithmParameter<Integer> CACHESIZE = CACHESIZE((int) 250007);
+
+    /**
+     * The collection of tuning parameters for the SVC training algorithm as
+     * an <code>ArrayList</code> of <code>AlgorithmParameter</code> objects.
+     * @return Array List of Algorithm Parameters.
+     */
+    public static final ArrayList<AlgorithmParameter> SVC_BUNDLE(){
+        ArrayList<AlgorithmParameter> svm_bundle = new ArrayList<AlgorithmParameter>();
+        svm_bundle.add(CACHESIZE);
+        svm_bundle.add(COEFF0);
+        svm_bundle.add(COST);
+        svm_bundle.add(DEGREE);
+        svm_bundle.add(GAMMA);
+        svm_bundle.add(KERNEL);
+        svm_bundle.add(TARGET);
+        svm_bundle.add(TOLERANCE);
+        return svm_bundle;
+    }
+
+    /**
+     * The collection of tuning parameters for the SVC training algorithm as
+     * an <code>ArrayList</code> of <code>AlgorithmParameter</code> objects.
+     * @return Array List of Algorithm Parameters.
+     */
+    public static final ArrayList<AlgorithmParameter> SVM_BUNDLE(){
+        ArrayList<AlgorithmParameter> svm_bundle = SVC_BUNDLE();
+        svm_bundle.add(EPSILON);
+        return svm_bundle;
+    }
 
     public static final AlgorithmParameter<String> TARGET(String value) {
         return new AlgorithmParameter<String>("prediction_feature",

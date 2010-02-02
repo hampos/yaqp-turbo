@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of the National Technical University of Athens. Please read README for more
+ * School of National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -29,8 +29,6 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.ontology.util;
 
 import java.util.ArrayList;
@@ -48,33 +46,38 @@ import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 public class AlgorithmMeta extends Meta {
 
     /**
-     * Link of the algorithm with some ontology
+     * Link of the algorithm with some ontology. This parameter is declared as transient
+     * because <code>OTAlgorithmType</code> contains references to <code>Resource</code>
+     * which could not be serialized.
      */
-    public OTAlgorithmTypes algorithmType;
+    public transient OTAlgorithmTypes algorithmType;
 
     /**
      * List of parameters for the algorithm
      */
     public ArrayList<AlgorithmParameter> Parameters;
 
+    /**
+     * The name of the algorithm
+     */
+    public String name;
 
-    public AlgorithmMeta(){
+    public AlgorithmMeta() {
         super();
     }
 
-
-    public AlgorithmMeta(String about){
+    public AlgorithmMeta(String about) {
         this();
-        this.identifier=about;
+        this.identifier = about;
     }
-
 
     /**
      * Set the parameters to the algorithm meta data.
      * @param Parameters
      */
     public void setParameters(ArrayList<AlgorithmParameter> Parameters) {
-        this.Parameters=Parameters;
+        this.Parameters = Parameters;
     }
 
+    
 }

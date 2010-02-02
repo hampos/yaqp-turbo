@@ -22,7 +22,7 @@
 package org.opentox.db.processors;
 
 
-import org.opentox.core.exceptions.YaqpException;
+
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.interfaces.JDbProcessor;
 import org.opentox.core.processors.Processor;
@@ -54,7 +54,7 @@ public abstract class AbstractDbProcessor<Query, QueryResult>
 
     public QueryResult process(Query query) throws DbException {
         if (!TheDbConnector.DB.isConnected()) {            
-            throw new DbException("Connection to "+TheDbConnector.DB.getDatabaseName()+" could not be established");
+            throw new DbException("XDB624 - Connection to "+TheDbConnector.DB.getDatabaseName()+" could not be established");
         }
         try {
             return execute(query);

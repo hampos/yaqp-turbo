@@ -1,10 +1,15 @@
 /*
- * YAQP - Yet Another QSAR Project: Machine Learning algorithms designed for
- * the prediction of toxicological features of chemical compounds become
- * available on the Web. Yaqp is developed under OpenTox (http://opentox.org)
- * which is an FP7-funded EU research project.
+ *
+ * YAQP - Yet Another QSAR Project:
+ * Machine Learning algorithms designed for the prediction of toxicological
+ * features of chemical compounds become available on the Web. Yaqp is developed
+ * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
+ * This project was developed at the Automatic Control Lab in the Chemical Engineering
+ * School of National Technical University of Athens. Please read README for more
+ * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,7 +23,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ * Contact:
+ * Pantelis Sopasakis
+ * chvng@mail.ntua.gr
+ * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
+ * tel. +30 210 7723236
  */
+
+
 package org.opentox.core.processors;
 
 import java.util.ArrayList;
@@ -106,7 +118,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
         }
 
         if (data.size() != size()) {
-            throw new YaqpException("sizes of input array list and processors unequal!");
+            throw new YaqpException("XSU145 - Sizes of input array list and processors unequal!");
         }
 
         if (size() == 0) {
@@ -231,7 +243,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
                  */
                 if (ex instanceof YaqpException) {
                     YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
-                            "It seems a computation within this ParallelProcessor died."));
+                            "XI4R2 - It seems a computation within this ParallelProcessor died."));
                 }
                 result.add(null); // If the processor fails, the result should be null.
                 getStatus().increment(STATUS.ERROR);
@@ -252,7 +264,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
         try {
             return (ArrayList<Output>) result;
         } catch (Exception ex) {
-            final String explanation = "Output of parallel processor cannot be cast as the specified type!";
+            final String explanation = "XS5J09 - Output of parallel processor cannot be cast as the specified type!";
             YaqpLogger.LOG.log(new Debug(ParallelProcessor.class, explanation));
             throw new YaqpException(explanation);
         }
@@ -308,7 +320,6 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
                 parallel_executor.shutdownNow();
                 YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
                         ExceptionDetails.time_out_exception.toString()));
-                System.out.println("Waiting for " + timeout + timeUnit);
                 getStatus().setMessage("completed unsuccessfully - timeout");
                 getStatus().completed();
                 firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());

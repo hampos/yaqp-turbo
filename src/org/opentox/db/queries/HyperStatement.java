@@ -33,6 +33,7 @@ import org.opentox.db.processors.DbProcessor;
 import org.opentox.db.util.QueryType;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Debug;
 import org.opentox.util.logging.levels.Warning;
 
 /**
@@ -56,7 +57,8 @@ public class HyperStatement implements JHyperStatement {
             this.preparedStatement = TheDbConnector.DB.getConnection().prepareStatement(sql);
             this.sql = sql;
         } catch (SQLException ex) {
-            throw new DbException("Cannot prepare a statement in the database. Reproducing SQLException :" + ex, ex);
+            YaqpLogger.LOG.log(new Debug(getClass(), "XCD101(a) - The following statement could not be prepared  : " + sql));
+            throw new DbException("XCD101(b) - Cannot prepare a statement in the database. Reproducing SQLException :" + ex, ex);
         }
     }
 
@@ -64,7 +66,8 @@ public class HyperStatement implements JHyperStatement {
         try {
             preparedStatement.setInt(index, value);
         } catch (SQLException ex) {
-            throw new DbException("Cannot set a parameteter with index " + index + " to the integer value : " + value, ex);
+            YaqpLogger.LOG.log(new Debug(getClass(), "XCD102(a) - Trying to set integer value at position "+index+" in SQL prepared statement :"+sql));
+            throw new DbException("XCD102(b) - Cannot set a parameteter with index " + index + " to the integer value : " + value, ex);
         }
     }
 
@@ -72,7 +75,8 @@ public class HyperStatement implements JHyperStatement {
         try {
             preparedStatement.setString(index, value);
         } catch (SQLException ex) {
-            throw new DbException("Cannot set a parameteter with index " + index + " to String value : " + value, ex);
+            YaqpLogger.LOG.log(new Debug(getClass(), "XCD103(a) - Trying to set String value at position "+index+" in SQL prepared statement :"+sql));
+            throw new DbException("XCD103(b) - Cannot set a parameteter with index " + index + " to String value : " + value, ex);
         }
     }
 
@@ -80,7 +84,8 @@ public class HyperStatement implements JHyperStatement {
         try {
             preparedStatement.setDouble(index, value);
         } catch (SQLException ex) {
-            throw new DbException("Cannot set a parameteter with index " + index + " to double value : " + value, ex);
+            YaqpLogger.LOG.log(new Debug(getClass(), "XCD105(a) - Trying to set Double value at position "+index+" in SQL prepared statement :"+sql));
+            throw new DbException("XCD105(b) - Cannot set a parameteter with index " + index + " to double value : " + value, ex);
         }
     }
 
@@ -89,10 +94,11 @@ public class HyperStatement implements JHyperStatement {
             return preparedStatement.executeUpdate();
         } catch (SQLException ex) {
             if (ex.toString().contains("duplicate key")) {
-                YaqpLogger.LOG.log(new Warning(getClass(), "Duplicate Key Exception while executing update"));
+                YaqpLogger.LOG.log(new Warning(getClass(), "XCY835 - Duplicate Key Exception while executing update"));
                 throw new DuplicateKeyException();
             }
-            throw new DbException("Error while executing update... ", ex);
+            YaqpLogger.LOG.log(new Debug(getClass(), "XCY836 - Could not execute update for SQL statement :"+sql));
+            throw new DbException("XCY836 - Error while executing update... ", ex);
         }
     }
 
@@ -118,7 +124,8 @@ public class HyperStatement implements JHyperStatement {
             rs.close();
             return result;
         } catch (SQLException ex) {
-            throw new DbException("Exception while executing a database query through HyperStatement#executeQuery() ", ex);
+            throw new DbException("XCY629 - Exception while executing a database query " +
+                    "through HyperStatement#executeQuery() ", ex);
         }
     }
 
@@ -131,7 +138,7 @@ public class HyperStatement implements JHyperStatement {
         try {
             this.preparedStatement.clearParameters();
         } catch (SQLException ex) {
-            throw new DbException("Cannot clear the parameters from a prepared statements ", ex);
+            throw new DbException("XCM714 - Cannot clear the parameters from a prepared statements ", ex);
         }
     }
 

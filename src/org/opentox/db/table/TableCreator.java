@@ -78,7 +78,7 @@ public final class TableCreator extends AbstractTableProcessor {
                         YaqpLogger.LOG.log(new Warning(getClass(), "The table '" + q.getTableName().toUpperCase()
                                 + "' could not be created because it already exists"));
                     } else {
-                        YaqpLogger.LOG.log(new ScrewedUp(getClass(), "The table '" + q.getTableName().toUpperCase()
+                        YaqpLogger.LOG.log(new ScrewedUp(getClass(), "XTL920 - The table '" + q.getTableName().toUpperCase()
                                 + "' could not be created :: " + ex));
                     }
                 }
@@ -86,11 +86,11 @@ public final class TableCreator extends AbstractTableProcessor {
                 YaqpLogger.LOG.log(new Info(getClass(), "The table '" + q.getTableName() + "' exists"));
             }
         } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Exception :: " + ex));
+            YaqpLogger.LOG.log(new ScrewedUp(getClass(), "XTL921 - Exception :: " + ex));
             YaqpLogger.LOG.log(new Debug(getClass(),
                     !db.isConnected()
-                    ? "There is no connection to the database " + db.getDatabaseName()
-                    : "There is a well-established connection but the following exception was thrown :: " + ex));
+                    ? "XIL10A - There is no connection to the database " + db.getDatabaseName()
+                    : "XIL12B - There is a well-established connection but the following exception was thrown :: " + ex));
         }
 
         return null;

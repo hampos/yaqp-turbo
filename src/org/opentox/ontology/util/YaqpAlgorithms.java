@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of the National Technical University of Athens. Please read README for more
+ * School of National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -31,11 +31,23 @@
  */
 package org.opentox.ontology.util;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import org.codehaus.jackson.JsonEncoding;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonGenerator;
+import org.codehaus.jackson.map.JsonSerializer;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.SerializationConfig;
+import org.codehaus.jackson.map.SerializerFactory;
 import org.opentox.config.Configuration;
+import org.opentox.ontology.components.Algorithm;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.util.vocabulary.Audience;
 import org.opentox.ontology.util.vocabulary.ConstantParameters;
@@ -65,177 +77,145 @@ import org.restlet.data.MediaType;
  */
 public class YaqpAlgorithms {
 
-    /**
-     * Algorithm Meta Data
-     */
-    private AlgorithmMeta meta;
-    /**
-     * Name of the algorithm
-     */
-    private String name;
-    /**
-     * URI of the algorithm
-     */
-    private String uri;
-
-    private YaqpAlgorithms() {
-    }
-
-    protected YaqpAlgorithms(String name) {
-        uri = "http://" + Configuration.getProperties().getProperty("server.domainName") + ":"
-                + Configuration.getProperties().getProperty("server.port") + "/algorithm/" + getName();
-    }
-
-    public AlgorithmMeta getMeta() {
-        return meta;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getUri() {
-        return uri;
+    protected YaqpAlgorithms() {
     }
     /**
      * Multiple Linear Regression Algorithm
      */
-    public static final YaqpAlgorithms MLR = new YaqpAlgorithms("mlr") {
+    public static final Algorithm MLR = new Algorithm(mlr_metadata());
+    public static final Algorithm SVM = new Algorithm(svm_metadata());
+    public static final Algorithm SVC = new Algorithm(svc_metadata());
 
-        @Override
-        public AlgorithmMeta getMeta() {
+    private static AlgorithmMeta mlr_metadata() {
+        String name = "mlr";
+        String uri = "http://" + Configuration.getProperties().getProperty("server.domainName") + ":"
+                + Configuration.getProperties().getProperty("server.port") + "/algorithm/" + name;
 
-            ArrayList<AlgorithmParameter> Parameters = new ArrayList<AlgorithmParameter>();
-            Parameters.add(ConstantParameters.TARGET);
+        ArrayList<AlgorithmParameter> Parameters = new ArrayList<AlgorithmParameter>();
+        Parameters.add(ConstantParameters.TARGET);
 
-            AlgorithmMeta meta = new AlgorithmMeta(getUri());
-            meta.title = "Multiple Linear Regression Training Algorithm";
-            meta.subject = "Regression, Linear, Training, Multiple Linear Regression, Machine Learning, "
-                    + "Single Target, Eager Learning, Weka";
-            meta.description = "Training algorithm for multiple linear regression models. Applies \n"
-                    + "on datasets which contain exclusively numeric data entries. The algorithm is an \n"
-                    + "implementation of LinearRegression of Weka. More information about Linear Regression \n"
-                    + "you will find at http://en.wikipedia.org/wiki/Linear_regression. The weka API \n"
-                    + "for Linear Regression Training is located at \n"
-                    + "http://weka.sourceforge.net/doc/weka/classifiers/functions/LinearRegression.html";
-            meta.format.add(MediaType.APPLICATION_RDF_XML);
-            meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
-            meta.format.add(MediaType.TEXT_RDF_N3);
-            meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
-            meta.format.add(MediaType.APPLICATION_XML);
-            meta.identifier = getUri();
-            meta.type = "http://purl.org/dc/dcmitype/Service";
-            meta.audience.add(Audience.Biologists);
-            meta.audience.add(Audience.Toxicologists);
-            meta.audience.add(Audience.QSARExperts);
-            meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
-            meta.algorithmType = OTAlgorithmTypes.RegressionEagerSingleTarget;
+        AlgorithmMeta meta = new AlgorithmMeta(uri);
+        meta.setParameters(Parameters);
 
-            try {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                meta.date = formatter.parse("2010-01-01");
-            } catch (ParseException ex) {
-                YaqpLogger.LOG.log(new Warning(getClass(), "(MLR) Wrong date : " + ex));
-                meta.date = new Date(System.currentTimeMillis());
-            }
+        meta.name = name;
+        meta.title = "Multiple Linear Regression Training Algorithm";
+        meta.subject = "Regression, Linear, Training, Multiple Linear Regression, Machine Learning, "
+                + "Single Target, Eager Learning, Weka";
+        meta.description = "Training algorithm for multiple linear regression models. Applies "
+                + "on datasets which contain exclusively numeric data entries. The algorithm is an "
+                + "implementation of LinearRegression of Weka. More information about Linear Regression "
+                + "you will find at http://en.wikipedia.org/wiki/Linear_regression. The weka API "
+                + "for Linear Regression Training is located at "
+                + "http://weka.sourceforge.net/doc/weka/classifiers/functions/LinearRegression.html .";
+        meta.format.add(MediaType.APPLICATION_RDF_XML);
+        meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
+        meta.format.add(MediaType.TEXT_RDF_N3);
+        meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
+        meta.format.add(MediaType.APPLICATION_XML);
+        meta.identifier = uri;
+        meta.type = "http://purl.org/dc/dcmitype/Service";
+        meta.audience.add(Audience.AllExpert);
+        meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
+        meta.algorithmType = OTAlgorithmTypes.RegressionEagerSingleTarget;
 
-
-            return meta;
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            meta.date = formatter.parse("2010-01-01");
+        } catch (ParseException ex) {
+            YaqpLogger.LOG.log(new Warning(YaqpAlgorithms.class, "(MLR) Wrong date : " + ex));
+            meta.date = new Date(System.currentTimeMillis());
         }
-    };
-    /**
-     *
-     * Support Vector Machine Regression Algorithm
-     */
-    public static final YaqpAlgorithms SVM = new YaqpAlgorithms("svm") {
 
-        @Override
-        public AlgorithmMeta getMeta() {
+        return meta;
+    }
 
-            ArrayList<AlgorithmParameter> Parameters = new ArrayList<AlgorithmParameter>();
-            Parameters.add(ConstantParameters.CACHESIZE);
-            Parameters.add(ConstantParameters.COEFF0);
-            Parameters.add(ConstantParameters.COST);
-            Parameters.add(ConstantParameters.DEGREE);
-            Parameters.add(ConstantParameters.EPSILON);
-            Parameters.add(ConstantParameters.GAMMA);
-            Parameters.add(ConstantParameters.KERNEL);
-            Parameters.add(ConstantParameters.TARGET);
-            Parameters.add(ConstantParameters.TOLERANCE);
-
-            AlgorithmMeta meta = new AlgorithmMeta(getUri());
-            meta.title = "Support Vector Machine Training Algorithm (Regression)";
-            meta.description = "Algorithm for training regression models using the Support Vector "
-                    + "Machine Learning Model. ";
-            meta.format.add(MediaType.APPLICATION_RDF_XML);
-            meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
-            meta.format.add(MediaType.TEXT_RDF_N3);
-            meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
-            meta.format.add(MediaType.APPLICATION_XML);
-            meta.identifier = getUri();
-            meta.type = "http://purl.org/dc/dcmitype/Service";
-            meta.audience.add(Audience.Biologists);
-            meta.audience.add(Audience.Toxicologists);
-            meta.audience.add(Audience.QSARExperts);
-            meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
-            meta.algorithmType = OTAlgorithmTypes.RegressionEagerSingleTarget;
-
-            try {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                meta.date = formatter.parse("2010-01-01");
-            } catch (ParseException ex) {
-                YaqpLogger.LOG.log(new Warning(getClass(), "(" + getUri() + ") Wrong date : " + ex));
-                meta.date = new Date(System.currentTimeMillis());
-            }
+    private static AlgorithmMeta svm_metadata() {
+        String name = "svm";
+        String uri = "http://" + Configuration.getProperties().getProperty("server.domainName") + ":"
+                + Configuration.getProperties().getProperty("server.port") + "/algorithm/" + name;
+        ArrayList<AlgorithmParameter> Parameters = ConstantParameters.SVM_BUNDLE();
+        AlgorithmMeta meta = new AlgorithmMeta(uri);
+        meta.setParameters(Parameters);
+        meta.name = name;
+        meta.title = "Support Vector Machine Training Algorithm (Regression)";
+        // TODO: Provide a reference for SVM Regression
+        meta.description =
+                "Algorithm for training regression models using the Support Vector "
+                + "Machine Learning Model. The training is based on the Weka implementation of "
+                + "SVM and specifically the class weka.classifiers.functions.SVMreg. A comprehensive introductory text "
+                + "s provided by John Shawe-Taylor & Nello Cristianin in the book 'Support Vector Machines', " +
+                "Cambridge University Press, 2000";
+        meta.subject =
+                "Support Vector Machine, SVM, Regression, Nonlinear, Single Target,"
+                + "Eager Learning, Training Algorithm, Machine Learning, Weka";
+        meta.format.add(MediaType.APPLICATION_RDF_XML);
+        meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
+        meta.format.add(MediaType.TEXT_RDF_N3);
+        meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
+        meta.format.add(MediaType.APPLICATION_XML);
+        meta.identifier = uri;
+        meta.type = "http://purl.org/dc/dcmitype/Service";
+        meta.audience.add(Audience.AllExpert);
+        meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
+        meta.algorithmType = OTAlgorithmTypes.RegressionEagerSingleTarget;
 
 
-            return meta;
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            meta.date = formatter.parse("2010-01-01");
+        } catch (ParseException ex) {
+            YaqpLogger.LOG.log(new Warning(YaqpAlgorithms.class, "(" + uri + ") Wrong date : " + ex));
+            meta.date = new Date(System.currentTimeMillis());
         }
-    };
-    /**
-     *
-     * Support Vector Machine Classification
-     */
-    public static final YaqpAlgorithms SVC = new YaqpAlgorithms("svc") {
 
-        @Override
-        public AlgorithmMeta getMeta() {
+        return meta;
+    }
 
-            ArrayList<AlgorithmParameter> Parameters = new ArrayList<AlgorithmParameter>();
-            Parameters.add(ConstantParameters.CACHESIZE);
-            Parameters.add(ConstantParameters.COEFF0);
-            Parameters.add(ConstantParameters.COST);
-            Parameters.add(ConstantParameters.DEGREE);
-            Parameters.add(ConstantParameters.GAMMA);
-            Parameters.add(ConstantParameters.KERNEL);
-            Parameters.add(ConstantParameters.TARGET);
-            Parameters.add(ConstantParameters.TOLERANCE);
+    private static AlgorithmMeta svc_metadata() {
+        String name = "svc";
+        String uri = "http://" + Configuration.getProperties().getProperty("server.domainName") + ":"
+                + Configuration.getProperties().getProperty("server.port") + "/algorithm/" + name;
+        ArrayList<AlgorithmParameter> Parameters = ConstantParameters.SVM_BUNDLE();
+        AlgorithmMeta meta = new AlgorithmMeta(uri);
+        meta.name = name;
+        meta.setParameters(Parameters);
+        meta.title = "Support Vector Machine Training Algorithm (Regression)";
+        // TODO: Provide a reference for SVM Regression
+        meta.description =
+                "Algorithm for training classification models using the Support Vector "
+                + "Machine Learning Model. The training is based on the Weka implementation of "
+                + "SVM and specifically the class weka.classifiers.functions.SVMreg. A comprehensive introductory text "
+                + "s provided by John Shawe-Taylor & Nello Cristianin in the book 'Support Vector Machines', " +
+                "Cambridge University Press, 2000";
+        meta.subject =
+                "Support Vector Machine, SVM, Classification, Nonlinear, Single Target,"
+                + "Eager Learning, Training Algorithm, Machine Learning, Weka";
+        meta.format.add(MediaType.APPLICATION_RDF_XML);
+        meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
+        meta.format.add(MediaType.TEXT_RDF_N3);
+        meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
+        meta.format.add(MediaType.APPLICATION_XML);
+        meta.identifier = uri;
+        meta.type = "http://purl.org/dc/dcmitype/Service";
+        meta.audience.add(Audience.AllExpert);
+        meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
+        meta.algorithmType = OTAlgorithmTypes.ClassificationEagerSingleTarget;
 
-            AlgorithmMeta meta = new AlgorithmMeta(getUri());
-            meta.title = "";
-            meta.format.add(MediaType.APPLICATION_RDF_XML);
-            meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
-            meta.format.add(MediaType.TEXT_RDF_N3);
-            meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
-            meta.format.add(MediaType.APPLICATION_XML);
-            meta.identifier = getUri();
-            meta.type = "http://purl.org/dc/dcmitype/Service";
-            meta.audience.add(Audience.Biologists);
-            meta.audience.add(Audience.Toxicologists);
-            meta.audience.add(Audience.QSARExperts);
-            meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
-            meta.algorithmType = OTAlgorithmTypes.ClassificationEagerSingleTarget;
-
-            try {
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                meta.date = formatter.parse("2010-01-01");
-            } catch (ParseException ex) {
-                YaqpLogger.LOG.log(new Warning(getClass(), "(" + getUri() + ") Wrong date : " + ex));
-                meta.date = new Date(System.currentTimeMillis());
-            }
-
-
-            return meta;
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            meta.date = formatter.parse("2010-01-01");
+        } catch (ParseException ex) {
+            YaqpLogger.LOG.log(new Warning(YaqpAlgorithms.class, "(" + uri + ") Wrong date : " + ex));
+            meta.date = new Date(System.currentTimeMillis());
         }
-    };
+
+        return meta;
+    }
+
+//    public static void main(String[] args) throws IOException {
+//        Algorithm alg = YaqpAlgorithms.MLR;
+//        ObjectMapper mapper = new ObjectMapper();
+//        mapper.writeValue(new File("/home/chung/Desktop/abc.json"), (Object) alg);
+//    }
+
 }

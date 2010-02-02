@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of the National Technical University of Athens. Please read README for more
+ * School of National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -31,9 +31,7 @@
  */
 package org.opentox.ontology.components;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.ontology.util.AlgorithmMeta;
 
 /**
  *
@@ -42,62 +40,20 @@ import org.opentox.ontology.TurboOntModel;
  */
 public class Algorithm extends YaqpOntComponent {
 
-    public static final long serialVersionUID = -18477218378326540L;
-    private AlgorithmOntology ontology = null;
-    private String name, uri;
+    //private  static final long serialVersionUID = -18477218378326540L;
+    public AlgorithmMeta metadata;
 
-    
+    public Algorithm(){
 
-    public Algorithm() {
-        super();
     }
 
-    public Algorithm(String name, String uri, AlgorithmOntology ontology) {
-        super();
-        setName(name);
-        setUri(uri);
-        setOntology(ontology);
+    public Algorithm(AlgorithmMeta meta){
+        this.metadata = meta;
     }
 
-    public Algorithm(TurboOntModel model) {
-        super(model);
+    public AlgorithmMeta getMeta(){
+        return metadata;
     }
 
 
-
-    public String getName() {
-        return name;
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public AlgorithmOntology getOntology() {
-        return ontology;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public void setOntology(AlgorithmOntology ontology) {
-        this.ontology = ontology;
-    }
-
-    @Override
-    public String toString() {
-        String algorithm = "-- ALGORITHM -- \n";
-        algorithm += "NAME       :" + getName() + "\n";
-        algorithm += "URI        :" + getUri() + "\n";
-        if (ontology != null) {
-        algorithm += "ONTOLOGY   :"+getOntology();
-            
-        }
-        return algorithm;
-    }
 }

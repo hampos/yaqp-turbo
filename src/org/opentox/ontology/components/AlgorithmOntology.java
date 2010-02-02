@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of the National Technical University of Athens. Please read README for more
+ * School of National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -40,6 +40,7 @@ import org.opentox.util.logging.levels.Trace;
 
 /**
  *
+ * An algorithm ontology is itself an ontological entity used in Yaqp.
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
@@ -59,6 +60,14 @@ public class AlgorithmOntology extends YaqpOntComponent {
         setUri(type.getURI());
     }
 
+    /**
+     * Construct a new Instance of <code>AlgorithmOntology</code> given its name.
+     * Note that it is not possible to construct such an instance for any arbitrary
+     * name you want. The name has to correspond to an existing algorithm ontology
+     * registered in {@link OTAlgorithmTypes }.
+     * @param name Name of some existing ontology (case sensitive).
+     * @throws YaqpOntException In case the ontology does not exist (code: XAT982)
+     */
     public AlgorithmOntology(String name) throws YaqpOntException {
         super();
         setName(name);
@@ -105,6 +114,7 @@ public class AlgorithmOntology extends YaqpOntComponent {
         algorithmOntology += "Ont : ( " + getName() + " , " + getUri() + " )";
         return algorithmOntology;
     }
+
 
     public static void main(String[] args) throws YaqpOntException {
         AlgorithmOntology ao = new AlgorithmOntology("Classification");

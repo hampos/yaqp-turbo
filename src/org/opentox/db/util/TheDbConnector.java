@@ -1,10 +1,15 @@
 /*
- * YAQP - Yet Another QSAR Project: Machine Learning algorithms designed for
- * the prediction of toxicological features of chemical compounds become
- * available on the Web. Yaqp is developed under OpenTox (http://opentox.org)
- * which is an FP7-funded EU research project.
+ *
+ * YAQP - Yet Another QSAR Project:
+ * Machine Learning algorithms designed for the prediction of toxicological
+ * features of chemical compounds become available on the Web. Yaqp is developed
+ * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
+ * This project was developed at the Automatic Control Lab in the Chemical Engineering
+ * School of National Technical University of Athens. Please read README for more
+ * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,6 +23,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ * Contact:
+ * Pantelis Sopasakis
+ * chvng@mail.ntua.gr
+ * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
+ * tel. +30 210 7723236
  */
 package org.opentox.db.util;
 
@@ -125,10 +135,10 @@ public class TheDbConnector implements JDbConnector {
             try {
                 instanceOfthis = new TheDbConnector();
             } catch (Throwable e) {
-                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Unable to connect to "
+                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAE317 - Unable to connect to "
                         + DB.database_url + " :: " + e));
             }
-        }        
+        }
         return (TheDbConnector) instanceOfthis;
     }
 
@@ -160,9 +170,9 @@ public class TheDbConnector implements JDbConnector {
                 DB.isInitialized = true;
                 // TODO; Check if the tables were really created!
             } catch (YaqpException ex) {
-                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, ex.toString()));
+                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAE318 - " + ex.toString()));
             }
-        }else{
+        } else {
             YaqpLogger.LOG.log(new Trace(TheDbConnector.class, "Database is Already Initialized"));
         }
 
@@ -187,12 +197,10 @@ public class TheDbConnector implements JDbConnector {
         connect();
     }
 
-    
     public Lock getLock() {
         return lock;
     }
 
-    
     public void connect() {
         if (!isConnected()) {
             try {
@@ -200,7 +208,7 @@ public class TheDbConnector implements JDbConnector {
                 loadDriver();
                 establishConnection();
             } catch (Throwable ex) {
-                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Unable to connect to "
+                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAE319 - Unable to connect to "
                         + DB.database_url + " :: " + ex));
                 throw new RuntimeException(ex);
 
@@ -208,8 +216,6 @@ public class TheDbConnector implements JDbConnector {
         }
     }
 
-
-    
     public void disconnect() {
         if (connection != null) {
             try {
@@ -217,70 +223,62 @@ public class TheDbConnector implements JDbConnector {
                 instanceOfthis = null;
                 isConnected = false;
             } catch (SQLException ex) {
-                YaqpLogger.LOG.log(new ScrewedUp(TheDbConnector.class, "Connection "
+                YaqpLogger.LOG.log(new ScrewedUp(TheDbConnector.class, "XAE320 - Connection "
                         + database_url + " cannot close!"));
             }
         }
 
     }
 
-    
     public String getDatabaseName() {
         return database_name;
     }
 
-   
     public String getDatabaseUrl() {
         return database_url;
     }
 
-   
     public int getDatabasePort() throws YaqpException {
         try {
             return Integer.parseInt(database_port);
         } catch (NumberFormatException nfe) {
-            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Not acceptable port :" + database_port));
-            throw new YaqpException("Wrong port declaration :" + database_port);
+            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAE321 - Not acceptable port :" + database_port));
+            throw new YaqpException("XAE321 - Wrong port declaration :" + database_port);
         }
 
     }
 
-    
     public String getDatabaseDriver() {
         return database_driver;
     }
 
-  
     public boolean isConnected() {
         return isConnected;
     }
 
-    
     public Connection getConnection() {
         return connection;
     }
 
-  
     public String getDatabaseUser() {
         return database_user;
     }
 
-  
     public DatabaseMetaData getMetaData() throws YaqpException {
         if (connection != null && isConnected()) {
             try {
                 return connection.getMetaData();
             } catch (SQLException ex) {
-                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "No connection to the database :" + database_name));
-                throw new DbException("No connection to the database");
+                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAE323 - No connection to the database :" + database_name));
+                throw new DbException("XAE323 - No connection to the database");
             }
         } else {
-            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "No connection to the database :" + database_name));
-            throw new DbException("No connection to the database");
+            String message = "XAE324 - No connection to the database :" + database_name;
+            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, message));
+            throw new DbException(message);
         }
 
     }
-
 
     public ArrayList<String> getTableNames() throws YaqpException {
         if (TABLE_LIST == null) {
@@ -293,7 +291,7 @@ public class TheDbConnector implements JDbConnector {
                     TABLE_LIST.add(rs.getString(3));
                 }
             } catch (SQLException ex) {
-                throw new DbException(ex);
+                throw new DbException("XAE325 - ", ex);
             }
         }
         return TABLE_LIST;
@@ -355,7 +353,7 @@ public class TheDbConnector implements JDbConnector {
                     + " was successfully loaded."));
             assert (myDriver.jdbcCompliant());
         } catch (Exception exc) {
-            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Error while loading the JDBC driver ::" + exc));
+            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAF335 - Error while loading the JDBC driver ::" + exc));
         }
     }
 
@@ -375,11 +373,11 @@ public class TheDbConnector implements JDbConnector {
                 YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Database " + database_url + " was not found -- creating..."));
                 createDataBase();
             } else {
-                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Unexpected condition while connecting to the database :: " + e));
+                YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAG612 - Unexpected condition while connecting to the database :: " + e));
                 throw new RuntimeException(e);
             }
         } catch (Exception e) {
-            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Unable to connect to "
+            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAG703 - Unable to connect to "
                     + DB.database_url + "--" + e));
         }
     }
@@ -398,7 +396,7 @@ public class TheDbConnector implements JDbConnector {
                 isConnected = true;
             }
         } catch (SQLException ex) {
-            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "Encountered an error while trying to "
+            YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAG846 - Encountered an error while trying to "
                     + "create a new database :: " + ex));
         }
     }
