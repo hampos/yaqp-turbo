@@ -23,7 +23,7 @@ package org.opentox.ontology.namespaces;
 
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.OntObject;
 
 /**
  *
@@ -164,7 +164,7 @@ public class OTObjectProperties extends YaqpOntEntity{
             new OTObjectProperties(_model.createObjectProperty(String.format(_NS_OT, "parameters")));
 
     @Override
-    public Property createProperty(TurboOntModel model) {
+    public Property createProperty(OntObject model) {
         Property p = model.getObjectProperty(getURI());
         return p==null?model.createObjectProperty(getURI()):p;
     }

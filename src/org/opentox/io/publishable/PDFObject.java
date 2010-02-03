@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of National Technical University of Athens. Please read README for more
+ * School of the National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -29,58 +29,45 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.ontology.components;
 
-import org.opentox.io.publishable.JSONObject;
-import org.opentox.io.publishable.PDFObject;
-import org.opentox.io.publishable.RDFObject;
-import org.opentox.io.publishable.TurtleObject;
-import org.opentox.ontology.util.AlgorithmMeta;
+
+package org.opentox.io.publishable;
+
+import com.itextpdf.text.Document;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.pdf.PdfWriter;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.opentox.io.interfaces.JPublishable;
+import org.opentox.io.util.YaqpIOStream;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class Algorithm extends YaqpComponent {
+public class PDFObject extends Document implements JPublishable {
 
-    //private  static final long serialVersionUID = -18477218378326540L;
-    public AlgorithmMeta metadata;
-
-    public Algorithm(){
-
+    public PDFObject() throws Exception{
+        super();        
+        open();
+        addAuthor("Sopasakis Pantelis, Charalampos Chomenides");
+        addCreator("iText");
+        addTitle("Auto-Generated PDF");
+        addCreationDate();
+        addProducer();
     }
 
-    public Algorithm(AlgorithmMeta meta){
-        this.metadata = meta;
+    public void publish(YaqpIOStream stream) {
+        try {
+            PdfWriter.getInstance(this, (OutputStream) stream.getStream());
+            close();
+        } catch (DocumentException ex) {
+            Logger.getLogger(PDFObject.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
-
-    public AlgorithmMeta getMeta(){
-        return metadata;
-    }
-
-    @Override
-    public PDFObject getPDF() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public RDFObject getRDF() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public TurtleObject getTurtle() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public JSONObject getJson() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
 
     
-
 
 }

@@ -34,8 +34,11 @@ package org.opentox.ontology.components;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.vocabulary.DC;
-import org.opentox.ontology.ModelFactory;
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.JSONObject;
+import org.opentox.io.publishable.PDFObject;
+import org.opentox.io.publishable.RDFObject;
+import org.opentox.io.publishable.TurtleObject;
+import org.opentox.io.publishable.OntObject;
 import org.opentox.ontology.namespaces.OTClass;
 
 /**
@@ -43,22 +46,13 @@ import org.opentox.ontology.namespaces.OTClass;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class Feature extends YaqpOntComponent {
+public class Feature extends YaqpComponent {
 
     private String uri;
     private int id;
 
     public Feature() {
         super();
-    }
-
-    /**
-     *
-     * Create a new feature component using a TurboOntModel.
-     * @param model an ontological model for a feature.
-     */
-    public Feature(TurboOntModel model) {
-        super(model);
     }
 
     public Feature(String uri) {
@@ -82,22 +76,45 @@ public class Feature extends YaqpOntComponent {
         this.uri = _name;
     }
 
-    public TurboOntModel getModel() {
-        TurboOntModel model = ModelFactory.createTurboOntModel();
-        model.includeOntClass(OTClass.Feature);
-        model.createAnnotationProperty(DC.identifier.getURI());
-
-        Individual feature = model.createIndividual(uri, OTClass.Feature.getOntClass(model));
-        feature.addProperty(DC.identifier, model.createTypedLiteral(uri, XSDDatatype.XSDanyURI));
-        /** The result validates as OWL-DL **/
-        return model;
-    }
-
     @Override
     public String toString() {
         String feature = "";
         feature += "FEATURE ID          : " + getID() + "\n";
         feature += "FEATURE URI         : " + getURI();
         return feature;
+    }
+
+    @Override
+    public PDFObject getPDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public RDFObject getRDF() {
+        RDFObject rdf = new RDFObject();
+        rdf.includeOntClass(OTClass.Feature);
+        rdf.createAnnotationProperty(DC.identifier.getURI());
+
+        Individual feature = rdf.createIndividual(uri, OTClass.Feature.getOntClass(rdf));
+        feature.addProperty(DC.identifier, rdf.createTypedLiteral(uri, XSDDatatype.XSDanyURI));
+        /** The result validates as OWL-DL **/
+        return rdf;
+    }
+
+    @Override
+    public TurtleObject getTurtle() {
+        TurtleObject rdf = new TurtleObject();
+        rdf.includeOntClass(OTClass.Feature);
+        rdf.createAnnotationProperty(DC.identifier.getURI());
+
+        Individual feature = rdf.createIndividual(uri, OTClass.Feature.getOntClass(rdf));
+        feature.addProperty(DC.identifier, rdf.createTypedLiteral(uri, XSDDatatype.XSDanyURI));
+        /** The result validates as OWL-DL **/
+        return rdf;
+    }
+
+    @Override
+    public JSONObject getJson() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

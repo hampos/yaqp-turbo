@@ -29,16 +29,23 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.ontology.components;
+package org.opentox.ontology.data;
 
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.SimpleSelector;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
-import org.opentox.ontology.TurboOntModel;
+import java.net.URI;
+import org.opentox.core.exceptions.YaqpIOException;
+import org.opentox.core.processors.Pipeline;
+import org.opentox.io.processors.InputProcessor;
+import org.opentox.io.publishable.OntObject;
+import org.opentox.io.publishable.RDFObject;
+import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTClass;
+import org.opentox.ontology.processors.InstancesProcessor;
 import weka.core.FastVector;
 import weka.core.Instances;
 
@@ -48,26 +55,27 @@ import weka.core.Instances;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class Dataset extends YaqpOntComponent{
+public class Dataset {
 
-    
-    public Dataset(TurboOntModel model) {
-        super(model);
+    private OntObject oo = null;
+
+    public Dataset(OntObject oo) {
+        this.oo = oo;
     }
+   
 
-    
-    // <editor-fold defaultstate="collapsed" desc="get the Instances from the model">
+        
     public Instances getInstances() throws YaqpOntException{
 
         /*
          *
          * Some initial definitions:
          */
-        Resource _DataEntry = OTClass.DataEntry.getOntClass(yaqpOntModel),
-                _Dataset = OTClass.Dataset.getOntClass(yaqpOntModel),
-                _Feature = OTClass.Feature.getOntClass(yaqpOntModel),
-                _NumericFeature = OTClass.NumericFeature.getOntClass(yaqpOntModel),
-                _NominalFeature = OTClass.NominalFeature.getOntClass(yaqpOntModel);
+        Resource _DataEntry = OTClass.DataEntry.getOntClass(oo),
+                _Dataset = OTClass.Dataset.getOntClass(oo),
+                _Feature = OTClass.Feature.getOntClass(oo),
+                _NumericFeature = OTClass.NumericFeature.getOntClass(oo),
+                _NominalFeature = OTClass.NominalFeature.getOntClass(oo);
 
         FastVector attributes = null;
 
@@ -85,7 +93,7 @@ public class Dataset extends YaqpOntComponent{
          * Iterate over all nodes in the dataset having type 'ot:Dataset'.
          */
         dataSetIterator =
-                yaqpOntModel.listStatements(new SimpleSelector(null, RDF.type, _Dataset));
+                oo.listStatements(new SimpleSelector(null, RDF.type, _Dataset));
 
         if (dataSetIterator.hasNext()) {
             relationName = dataSetIterator.next().getSubject().getURI();
@@ -106,6 +114,23 @@ public class Dataset extends YaqpOntComponent{
          */
         return data;
     }
-    // </editor-fold>
+
+    public static void main(String[] args) throws Exception{
+
+        InputProcessor<OntObject> p1 = new InputProcessor<OntObject>();
+        DatasetBuilder p2 = new DatasetBuilder();
+        InstancesProcessor p3 = new InstancesProcessor();
+        Pipeline pipe = new Pipeline();
+        pipe.add(p1);
+        pipe.add(p2);
+        pipe.add(p3);
+
+        Instances data = (Instances) pipe.process(new URI("http://localhost/1"));
+    }
+
+    public void publish(YaqpIOStream stream) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+    
 
 }

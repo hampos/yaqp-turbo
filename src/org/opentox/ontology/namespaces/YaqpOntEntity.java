@@ -42,8 +42,8 @@ import com.hp.hpl.jena.vocabulary.RDFS;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
-import org.opentox.ontology.ModelFactory;
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.OntObject;
+import org.opentox.io.publishable.RDFObject;
 import org.opentox.ontology.interfaces.JOntEntity;
 
 /**
@@ -62,7 +62,7 @@ public abstract class YaqpOntEntity implements JOntEntity, Serializable  {
     public  static final String NS_OT_core = String.format(_NS_OT, "");
     public  static final String NS_AlgorithmTypes = String.format(_NS_AlgorithmTypes, "");
 
-    protected static TurboOntModel _model = new TurboOntModel();
+    protected static OntObject _model = new RDFObject();
     protected Resource _resource;
 
     public YaqpOntEntity() {
@@ -72,7 +72,7 @@ public abstract class YaqpOntEntity implements JOntEntity, Serializable  {
         this._resource = resource;
     }
 
-    public OntClass createOntClass(TurboOntModel model) {
+    public OntClass createOntClass(OntObject model) {
         return model.createClass(getURI());
     }
 
@@ -80,7 +80,7 @@ public abstract class YaqpOntEntity implements JOntEntity, Serializable  {
         return this._resource;
     }
 
-    public OntClass getOntClass(TurboOntModel model) {
+    public OntClass getOntClass(OntObject model) {
         OntClass cl = model.getOntClass(getURI());
         if (cl==null){
             cl = createOntClass(model);
@@ -92,12 +92,12 @@ public abstract class YaqpOntEntity implements JOntEntity, Serializable  {
         return _resource.getURI();
     }
 
-    public Property createProperty(TurboOntModel model) {
+    public Property createProperty(OntObject model) {
         return _model.createProperty(getURI());
     }
 
     public Set<Resource> getSuperEntities(){
-        TurboOntModel tom = ModelFactory.createTurboOntModel();
+        RDFObject tom = new RDFObject();
         tom.includeOntClass(this);
         StmtIterator stmtit = tom.listStatements(new SimpleSelector(null, RDFS.subClassOf, (RDFNode)null));
         Set<Resource> set = new HashSet<Resource>();

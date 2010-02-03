@@ -19,25 +19,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.opentox.io.engines;
+package org.opentox.io.interfaces;
 
-import org.opentox.io.util.YaqpIOStream;
-import org.opentox.io.publishable.OntObject;
-import org.opentox.io.publishable.RDFObject;
-import org.opentox.ontology.data.Dataset;
+import com.hp.hpl.jena.ontology.OntModel;
+import org.opentox.ontology.namespaces.YaqpOntEntity;
 
 /**
  *
+ * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class RDFEngine<O extends OntObject> extends IOEngine {
+public interface JOntModel extends OntModel, JPublishable {
 
-    public RDFEngine() {
-        super();
-    }
+    void printConsole();
 
-    @Override
-    protected O getYaqpOntModel(YaqpIOStream is) {
-        return (O) new RDFObject(is);
-    }
+    void includeOntClass(YaqpOntEntity ont_entity);
+
+    void includeOntClasses(YaqpOntEntity[] ont_entities);
+
+    void createAnnotationProperties(String[] annotation_uris);
+
+    void createDataTypeProperties(String[] datatype_uris);
+
+    void createObjectProperties(String[] object_uris);
+
+    void createSymmetricProperties(String[] symmetric_uris);
+
+    void createTransitiveProperties(String[] transitive_uris);
 }

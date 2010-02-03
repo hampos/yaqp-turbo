@@ -33,7 +33,8 @@ import org.opentox.core.exceptions.YaqpIOException;
 import org.opentox.io.engines.EngineFactory;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.io.engines.IOEngine;
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.OntObject;
+import org.opentox.ontology.data.Dataset;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.ScrewedUp;
 import org.opentox.util.logging.levels.Warning;
@@ -47,7 +48,7 @@ import org.restlet.data.MediaType;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class InputProcessor extends AbstractIOProcessor<URI, TurboOntModel> {
+public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI, O> {
 
     /**
      * Engine used to convert the remote or local representation into an
@@ -129,11 +130,11 @@ public class InputProcessor extends AbstractIOProcessor<URI, TurboOntModel> {
      * 
      * @param uri URI of the resource which is accepted as input to YAQP through
      * this processor.
-     * @return The resource encapsulated in a {@link TurboOntModel } object.
+     * @return The resource encapsulated in a {@link OntObject } object.
      * @throws YaqpException
      */
-    public TurboOntModel handle(URI uri) throws YaqpIOException {
-        TurboOntModel yaqpOntModel = null;
+    public O handle(URI uri) throws YaqpIOException {
+        O yaqpOntModel = null;
         YaqpIOStream is = null;
         double start = 0, buff_time = 0, parse_time = 0;
         try {
@@ -144,7 +145,7 @@ public class InputProcessor extends AbstractIOProcessor<URI, TurboOntModel> {
             buff_time = System.currentTimeMillis() - start;
             start = System.currentTimeMillis();
             IOEngine engine = EngineFactory.createEngine(media);            
-            yaqpOntModel = engine.getYaqpOntModel(is);
+            yaqpOntModel = (O) engine.ignite(is);
             parse_time = System.currentTimeMillis() - start;
                     System.out.println("Buffer Time : "+buff_time+" +  Reading :"+parse_time+" = "+(buff_time+parse_time));
 

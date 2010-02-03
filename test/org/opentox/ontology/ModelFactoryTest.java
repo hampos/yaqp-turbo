@@ -30,6 +30,7 @@
  */
 package org.opentox.ontology;
 
+import org.opentox.io.publishable.OntObject;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -75,7 +76,7 @@ public class ModelFactoryTest {
      */
     @Test
     public void testMain() {
-         TurboOntModel mm = ModelFactory.createTurboOntModel();
+         OntObject mm = ModelFactory.createTurboOntModel();
 
         /**
          *

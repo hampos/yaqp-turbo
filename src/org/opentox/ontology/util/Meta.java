@@ -84,7 +84,7 @@ public class Meta implements Serializable {
      * file.
      */
     public String source = 
-            "http://"+Configuration.getProperties().getProperty("server.domainName", "opentox.ntua.gr")+
+            "http://"+Configuration.getProperties().getProperty("server.domainName", "opentox.ntua.gr")+":"+
             Configuration.getProperties().getProperty("server.port", "3000");
     /**
      *

@@ -33,14 +33,18 @@
 
 package org.opentox.ontology.components;
 
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.JSONObject;
+import org.opentox.io.publishable.OntObject;
+import org.opentox.io.publishable.PDFObject;
+import org.opentox.io.publishable.RDFObject;
+import org.opentox.io.publishable.TurtleObject;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class User extends YaqpOntComponent {
+public class User extends YaqpComponent {
      private static final long serialVersionUID = 1726532809162869471L;
 
     private String
@@ -62,10 +66,7 @@ public class User extends YaqpOntComponent {
 
     }
 
-    public User(TurboOntModel model) {
-        super(model);
-    }
-
+ 
     public User(
             String userName,
             String userPass,
@@ -213,6 +214,26 @@ public class User extends YaqpOntComponent {
         user += "WEBPAGE URL       : "+getWebpage()+"\n";
         user += "TIMESTAMP         : "+getTimeStamp();
         return user;
+    }
+
+    @Override
+    public PDFObject getPDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public RDFObject getRDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public TurtleObject getTurtle() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public JSONObject getJson() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

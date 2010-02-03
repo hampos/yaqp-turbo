@@ -33,14 +33,18 @@
 
 package org.opentox.ontology.components;
 
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.JSONObject;
+import org.opentox.io.publishable.OntObject;
+import org.opentox.io.publishable.PDFObject;
+import org.opentox.io.publishable.RDFObject;
+import org.opentox.io.publishable.TurtleObject;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class UserGroup extends YaqpOntComponent {
+public class UserGroup extends YaqpComponent {
 
     private String name;
     private int level;
@@ -55,10 +59,7 @@ public class UserGroup extends YaqpOntComponent {
         this.level = level;
     }
 
-    public UserGroup(TurboOntModel model) {
-        super(model);
-    }
-
+   
     public int getLevel() {
         return level;
     }
@@ -79,6 +80,26 @@ public class UserGroup extends YaqpOntComponent {
     
     public void setName(String name) {
         this.name = name;
+    }
+
+    @Override
+    public PDFObject getPDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public RDFObject getRDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public TurtleObject getTurtle() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public JSONObject getJson() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     

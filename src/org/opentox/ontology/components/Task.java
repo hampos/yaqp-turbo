@@ -31,14 +31,19 @@
  */
 package org.opentox.ontology.components;
 
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.JSONObject;
+import org.opentox.io.publishable.OntObject;
+import org.opentox.io.publishable.PDFObject;
+import org.opentox.io.publishable.RDFObject;
+import org.opentox.io.publishable.TurtleObject;
+import org.restlet.data.Status;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class Task extends YaqpOntComponent {
+public class Task extends YaqpComponent {
 
     /**
      * The possible statuses a task can have.
@@ -58,39 +63,82 @@ public class Task extends YaqpOntComponent {
          */
         CANCELLED
     };
-    private String _name, _uri;
-    private STATUS _status;
+    private String name, uri;
+    private STATUS taskStatus;
+    private String result;
+    private int httpStatus;
 
     public Task() {
         setStatus(STATUS.RUNNING);
+        httpStatus = 202;
     }
 
-    public Task(TurboOntModel model) {
-        super(model);
+    public Task(String name, String uri, STATUS taskStatus, String result, int httpStatus) {
+        this.name = name;
+        this.uri = uri;
+        this.taskStatus = taskStatus;
+        this.result = result;
+        this.httpStatus = httpStatus;
+    }
+
+    public int getHttpStatus() {
+        return httpStatus;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setHttpStatus(int httpStatus) {
+        this.httpStatus = httpStatus;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 
     public String getName() {
-        return _name;
+        return name;
     }
 
     public STATUS getStatus() {
-        return _status;
+        return taskStatus;
     }
 
     public String getUri() {
-        return _uri;
+        return uri;
     }
 
     public void setName(String _name) {
-        this._name = _name;
+        this.name = _name;
     }
 
     public void setStatus(STATUS _status) {
-        this._status = _status;
+        this.taskStatus = _status;
     }
 
     public void setUri(String _uri) {
-        this._uri = _uri;
+        this.uri = _uri;
+    }
+
+    @Override
+    public PDFObject getPDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public RDFObject getRDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public TurtleObject getTurtle() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public JSONObject getJson() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override

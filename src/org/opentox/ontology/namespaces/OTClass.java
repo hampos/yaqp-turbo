@@ -35,7 +35,7 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Resource;
 import java.util.Iterator;
 import java.util.Set;
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.OntObject;
 
 /**
  *
@@ -83,7 +83,7 @@ public class OTClass extends YaqpOntEntity {
             new OTClass(_model.createResource(String.format(_NS_OT, "NumericFeature"))) {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Feature.getResource());
                     model.includeOntClass(Feature);
@@ -99,7 +99,7 @@ public class OTClass extends YaqpOntEntity {
             new OTClass(_model.createResource(String.format(_NS_OT, "StringFeature"))) {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Feature.getResource());
                     model.includeOntClass(Feature);
@@ -115,7 +115,7 @@ public class OTClass extends YaqpOntEntity {
             new OTClass(_model.createResource(String.format(_NS_OT, "NominalFeature"))) {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Feature.getResource());
                     model.includeOntClass(Feature);

@@ -26,6 +26,7 @@ package org.opentox.ontology.util;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
+@Deprecated
 public enum SupportedOntTypes {
 
     Instances,

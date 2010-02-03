@@ -119,6 +119,15 @@ public class WriterHandler {
         }
     }
 
+
+    public static void add(YaqpComponent component) throws DbException {
+        if (component instanceof User){
+            WriterHandler.addUser((User)component);
+        } else if (component instanceof UserGroup){
+            WriterHandler.addUserGroup((UserGroup) component);
+        }
+    }
+
     /**
      * Add a new user into the database.
      *

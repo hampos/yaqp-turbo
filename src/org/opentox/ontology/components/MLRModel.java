@@ -31,7 +31,11 @@
  */
 package org.opentox.ontology.components;
 
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.JSONObject;
+import org.opentox.io.publishable.OntObject;
+import org.opentox.io.publishable.PDFObject;
+import org.opentox.io.publishable.RDFObject;
+import org.opentox.io.publishable.TurtleObject;
 
 /**
  *
@@ -39,12 +43,8 @@ import org.opentox.ontology.TurboOntModel;
  * @author Charalampos Chomenides
  */
 public class MLRModel extends QSARModel {
-
+    
     private String dataset;
-
-    public MLRModel(TurboOntModel model) {
-        super(model);
-    }
 
     public MLRModel(int id, String name, String uri,
             Feature predictionFeature, Feature dependentFeature,
@@ -69,6 +69,26 @@ public class MLRModel extends QSARModel {
         mlrModel += "\n---------------------\n";
 
         return mlrModel;
+    }
+
+    @Override
+    public PDFObject getPDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public RDFObject getRDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public TurtleObject getTurtle() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public JSONObject getJson() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
     
 }

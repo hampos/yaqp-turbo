@@ -33,7 +33,7 @@ package org.opentox.ontology.namespaces;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Resource;
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.OntObject;
 
 /**
  *
@@ -68,7 +68,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("Classification") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     // TODO: Move the following line(s) to the 'super' class....
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Learning.getResource());
@@ -84,7 +84,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("ClassificationEagerMultipleTargets") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.addSuperClass(Classification.getResource());
                     cl.addSuperClass(EagerLearning.getResource());
@@ -101,7 +101,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("RegressionEagerMultipleTargets") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.addSuperClass(Regression.getResource());
                     cl.addSuperClass(EagerLearning.getResource());
@@ -118,7 +118,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("RegressionEagerSingleTarget") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.addSuperClass(Regression.getResource());
                     cl.addSuperClass(EagerLearning.getResource());
@@ -135,7 +135,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("ClassificationEagerSingleTarget") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.addSuperClass(Classification.getResource());
                     cl.addSuperClass(EagerLearning.getResource());
@@ -152,7 +152,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("EagerLearning") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Learning.getResource());
                     cl.setDisjointWith(LazyLearning.getResource());
@@ -168,7 +168,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("LazyLearning") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Learning.getResource());
                     model.includeOntClass(Learning);
@@ -183,7 +183,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("Regression") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Learning.getResource());
                     cl.setDisjointWith(Classification.getResource());
@@ -200,7 +200,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("Supervised") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(AlgorithmType.getResource());
                     model.includeOntClass(AlgorithmType);
@@ -215,7 +215,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("Learning") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(MSDMTox.getResource());
                     model.includeOntClass(MSDMTox);
@@ -230,7 +230,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("SingleTarget") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(MSDMTox.getResource());
                     model.includeOntClass(MSDMTox);
@@ -245,7 +245,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("MultipleTargets") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(MSDMTox.getResource());
                     cl.setDisjointWith(SingleTarget.getResource());
@@ -262,7 +262,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("MSDMTox") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(AlgorithmType.getResource());
                     model.includeOntClass(AlgorithmType);
@@ -277,7 +277,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("Preprocessing") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(AlgorithmType.getResource());
                     model.includeOntClass(AlgorithmType);
@@ -292,7 +292,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("DataCleanup") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Preprocessing.getResource());
                     model.includeOntClass(Preprocessing);
@@ -307,7 +307,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("DescriptorCalculation") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(AlgorithmType.getResource());
                     model.includeOntClass(AlgorithmType);
@@ -322,7 +322,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("Normalization") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Preprocessing.getResource());
                     model.includeOntClass(Preprocessing);
@@ -337,7 +337,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("Unsupervised") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(AlgorithmType.getResource());
                     model.includeOntClass(AlgorithmType);
@@ -352,7 +352,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("FeatureSelection") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setSuperClass(Preprocessing.getResource());
                     model.includeOntClass(Preprocessing);
@@ -367,7 +367,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("FeatureSelectionSupervised") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.addSuperClass(FeatureSelection.getResource());
                     cl.addSuperClass(Supervised.getResource());
@@ -384,7 +384,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("FeatureSelectionUnsupervised") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.addSuperClass(FeatureSelection.getResource());
                     cl.addSuperClass(Unsupervised.getResource());
@@ -401,7 +401,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
             new OTAlgorithmTypes("AlgorithmType") {
 
                 @Override
-                public OntClass createOntClass(TurboOntModel model) {
+                public OntClass createOntClass(OntObject model) {
                     OntClass cl = model.createClass(getURI());
                     cl.setVersionInfo("1.1");
                     return cl;

@@ -34,7 +34,7 @@ package org.opentox.ontology.processors;
 
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Processor;
-import org.opentox.ontology.components.YaqpOntComponent;
+import org.opentox.ontology.components.YaqpComponent;
 import org.opentox.ontology.interfaces.JOntProcessor;
 
 /**
@@ -43,7 +43,7 @@ import org.opentox.ontology.interfaces.JOntProcessor;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public abstract class AbstractOntProcessor<Input extends YaqpOntComponent, Output>
+public abstract class AbstractOntProcessor<Input extends YaqpComponent, Output>
         extends Processor<Input, Output>
         implements JOntProcessor<Input, Output> {
 

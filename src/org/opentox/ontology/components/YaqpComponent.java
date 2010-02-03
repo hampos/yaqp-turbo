@@ -29,58 +29,36 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
+
+
 package org.opentox.ontology.components;
 
+import com.itextpdf.text.Document;
+import java.io.Serializable;
 import org.opentox.io.publishable.JSONObject;
+import org.opentox.io.publishable.OntObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
-import org.opentox.ontology.util.AlgorithmMeta;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class Algorithm extends YaqpComponent {
+public abstract class YaqpComponent implements Serializable {
 
-    //private  static final long serialVersionUID = -18477218378326540L;
-    public AlgorithmMeta metadata;
-
-    public Algorithm(){
+    public YaqpComponent(){
 
     }
 
-    public Algorithm(AlgorithmMeta meta){
-        this.metadata = meta;
-    }
 
-    public AlgorithmMeta getMeta(){
-        return metadata;
-    }
-
-    @Override
-    public PDFObject getPDF() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public RDFObject getRDF() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public TurtleObject getTurtle() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public JSONObject getJson() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+    public abstract PDFObject getPDF();
+    public abstract RDFObject getRDF();
+    public abstract TurtleObject getTurtle();
+    public abstract JSONObject getJson();
 
 
-    
 
 
 }

@@ -22,7 +22,8 @@
 package org.opentox.io.engines;
 
 import org.opentox.io.util.YaqpIOStream;
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.OntObject;
+import org.opentox.io.publishable.TurtleObject;
 
 
 /**
@@ -39,8 +40,8 @@ public class TurtleEngine extends IOEngine {
 
 
    @Override
-    public TurboOntModel getYaqpOntModel(YaqpIOStream is) {       
-        return new TurboOntModel(is);
+    protected  OntObject getYaqpOntModel(YaqpIOStream is) {
+        return new TurtleObject(is);
     }
 
 }

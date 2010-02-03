@@ -23,7 +23,7 @@ package org.opentox.io.processors;
 
 import org.opentox.core.exceptions.YaqpIOException;
 import org.opentox.io.engines.IOEngine;
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.OntObject;
 import org.restlet.data.Response;
 
 /**
@@ -34,7 +34,7 @@ import org.restlet.data.Response;
  * @author Charalampos Chomenides
  */
 public class OutputProcessor
-        extends AbstractIOProcessor<TurboOntModel,Response>
+        extends AbstractIOProcessor<OntObject,Response>
 {
 
     private IOEngine engine;
@@ -44,7 +44,7 @@ public class OutputProcessor
        
     }
 
-    public Response handle(TurboOntModel i) throws YaqpIOException {
+    public Response handle(OntObject i) throws YaqpIOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

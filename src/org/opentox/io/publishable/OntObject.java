@@ -30,13 +30,17 @@
  * tel. +30 210 7723236
  */
 
-package org.opentox.ontology;
+package org.opentox.io.publishable;
 
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.impl.OntModelImpl;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
+import java.util.Map;
 import org.opentox.io.util.YaqpIOStream;
-import org.opentox.ontology.interfaces.JOntModel;
+import org.opentox.io.interfaces.JOntModel;
+import org.opentox.ontology.namespaces.OTClass;
 import org.opentox.ontology.namespaces.YaqpOntEntity;
 
 /**
@@ -44,18 +48,21 @@ import org.opentox.ontology.namespaces.YaqpOntEntity;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class TurboOntModel extends OntModelImpl implements JOntModel{
+public abstract class OntObject extends OntModelImpl implements JOntModel{
 
-    
-    public TurboOntModel(){
+    public OntObject(){
         super(OntModelSpec.OWL_DL_MEM);
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("ot", OTClass.NS_OT_core);
+        map.put("ota", OTClass.NS_AlgorithmTypes);
+        this.setNsPrefixes(map);
     }
 
-    public TurboOntModel(OntModelSpec spec){
+    public OntObject(OntModelSpec spec){
         super(spec);
     }
 
-    public TurboOntModel(YaqpIOStream ioStream){
+    public OntObject(YaqpIOStream ioStream){
         super(OntModelSpec.OWL_DL_MEM);
         read( (InputStream)ioStream.getStream(), null);
     }

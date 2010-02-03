@@ -1,4 +1,5 @@
-/*
+/**
+ *
  * YAQP - Yet Another QSAR Project: Machine Learning algorithms designed for
  * the prediction of toxicological features of chemical compounds become
  * available on the Web. Yaqp is developed under OpenTox (http://opentox.org)
@@ -19,29 +20,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.opentox.ontology;
+package org.opentox.io.interfaces;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.opentox.ontology.namespaces.OTClass;
+import org.opentox.io.util.YaqpIOStream;
 
 /**
- * TODO: Place this class in some package...
+ *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class ModelFactory {
+public interface JPublishable {
 
-    
-    public static TurboOntModel createTurboOntModel() {
-        TurboOntModel om = new TurboOntModel();
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("ot", OTClass.NS_OT_core);
-        map.put("ota", OTClass.NS_AlgorithmTypes);
-        om.setNsPrefixes(map);
-        return (TurboOntModel) om;
-    }
-   
-  
+    void publish(YaqpIOStream stream);
+
 }
-

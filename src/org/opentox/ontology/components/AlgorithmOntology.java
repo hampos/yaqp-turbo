@@ -32,7 +32,10 @@
 package org.opentox.ontology.components;
 
 import java.lang.reflect.Field;
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.JSONObject;
+import org.opentox.io.publishable.PDFObject;
+import org.opentox.io.publishable.RDFObject;
+import org.opentox.io.publishable.TurtleObject;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.util.logging.YaqpLogger;
@@ -44,7 +47,7 @@ import org.opentox.util.logging.levels.Trace;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class AlgorithmOntology extends YaqpOntComponent {
+public class AlgorithmOntology extends YaqpComponent {
 
     public static final long serialVersionUID = -18477218374326540L;
     private String name, uri;
@@ -84,10 +87,7 @@ public class AlgorithmOntology extends YaqpOntComponent {
         }
     }
 
-    public AlgorithmOntology(TurboOntModel model) {
-        super(model);
-    }
-
+ 
     public OTAlgorithmTypes getType() {
         return type;
     }
@@ -120,5 +120,25 @@ public class AlgorithmOntology extends YaqpOntComponent {
         AlgorithmOntology ao = new AlgorithmOntology("Classification");
         System.out.println(ao.getName());
         System.out.println(ao.getUri());
+    }
+
+    @Override
+    public PDFObject getPDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public RDFObject getRDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public TurtleObject getTurtle() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public JSONObject getJson() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

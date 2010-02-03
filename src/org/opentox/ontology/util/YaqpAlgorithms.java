@@ -31,21 +31,11 @@
  */
 package org.opentox.ontology.util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import org.codehaus.jackson.JsonEncoding;
-import org.codehaus.jackson.JsonFactory;
-import org.codehaus.jackson.JsonGenerator;
-import org.codehaus.jackson.map.JsonSerializer;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.SerializationConfig;
-import org.codehaus.jackson.map.SerializerFactory;
 import org.opentox.config.Configuration;
 import org.opentox.ontology.components.Algorithm;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
@@ -85,6 +75,26 @@ public class YaqpAlgorithms {
     public static final Algorithm MLR = new Algorithm(mlr_metadata());
     public static final Algorithm SVM = new Algorithm(svm_metadata());
     public static final Algorithm SVC = new Algorithm(svc_metadata());
+
+    /**
+     * Get a complete list of available algorithms on the server.
+     * @return
+     */
+    public static final ArrayList<Algorithm> getAllAlgorithms(){
+        ArrayList<Algorithm> list  = new ArrayList<Algorithm>();
+        YaqpAlgorithms o = new YaqpAlgorithms();
+        Field[] fields =  o.getClass().getFields();
+        for (int i=0;i<fields.length;i++){
+            try {
+                list.add((Algorithm) fields[i].get(o));
+            } catch (IllegalArgumentException ex) {
+                // Not an algorithm! (Take no action)
+            } catch (IllegalAccessException ex) {
+                // Not an algorithm! (Take no action)
+            }
+        }
+        return list;
+    }
 
     private static AlgorithmMeta mlr_metadata() {
         String name = "mlr";
@@ -143,8 +153,8 @@ public class YaqpAlgorithms {
                 "Algorithm for training regression models using the Support Vector "
                 + "Machine Learning Model. The training is based on the Weka implementation of "
                 + "SVM and specifically the class weka.classifiers.functions.SVMreg. A comprehensive introductory text "
-                + "s provided by John Shawe-Taylor & Nello Cristianin in the book 'Support Vector Machines', " +
-                "Cambridge University Press, 2000";
+                + "is provided by John Shawe-Taylor & Nello Cristianin in the book 'Support Vector Machines', "
+                + "Cambridge University Press, 2000";
         meta.subject =
                 "Support Vector Machine, SVM, Regression, Nonlinear, Single Target,"
                 + "Eager Learning, Training Algorithm, Machine Learning, Weka";
@@ -185,8 +195,8 @@ public class YaqpAlgorithms {
                 "Algorithm for training classification models using the Support Vector "
                 + "Machine Learning Model. The training is based on the Weka implementation of "
                 + "SVM and specifically the class weka.classifiers.functions.SVMreg. A comprehensive introductory text "
-                + "s provided by John Shawe-Taylor & Nello Cristianin in the book 'Support Vector Machines', " +
-                "Cambridge University Press, 2000";
+                + "is provided by John Shawe-Taylor & Nello Cristianin in the book 'Support Vector Machines', "
+                + "Cambridge University Press, 2000";
         meta.subject =
                 "Support Vector Machine, SVM, Classification, Nonlinear, Single Target,"
                 + "Eager Learning, Training Algorithm, Machine Learning, Weka";
@@ -211,11 +221,9 @@ public class YaqpAlgorithms {
 
         return meta;
     }
-
 //    public static void main(String[] args) throws IOException {
 //        Algorithm alg = YaqpAlgorithms.MLR;
 //        ObjectMapper mapper = new ObjectMapper();
 //        mapper.writeValue(new File("/home/chung/Desktop/abc.json"), (Object) alg);
 //    }
-
 }

@@ -33,9 +33,10 @@
 package org.opentox.ontology.processors;
 
 import java.net.URI;
+import org.opentox.core.processors.Processor;
 import org.opentox.io.processors.InputProcessor;
-import org.opentox.ontology.TurboOntModel;
-import org.opentox.ontology.components.Dataset;
+import org.opentox.io.publishable.OntObject;
+import org.opentox.ontology.data.Dataset;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import weka.core.Instances;
 
@@ -46,9 +47,7 @@ import weka.core.Instances;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class InstancesProcessor 
-        extends AbstractOntProcessor<Dataset, Instances>
-{
+public class InstancesProcessor extends Processor<Dataset, Instances> {
 
     /**
      *
@@ -58,7 +57,7 @@ public class InstancesProcessor
      * @param dataset The dataset to be converted to Instances
      * @return The dataset as Instances (weka object)
      */
-    public Instances convert(Dataset dataset) throws YaqpOntException{
+    public Instances process(Dataset dataset) throws YaqpOntException{
         return dataset.getInstances();
     }
 
@@ -72,9 +71,9 @@ public class InstancesProcessor
         InputProcessor p = new InputProcessor();
         //URI uri = new URI(ServerList.ambit.getBaseURI()+"/dataset/6");
         URI uri = new URI("http://localhost/7");
-        TurboOntModel tom = p.handle(uri);
+        OntObject tom = p.handle(uri);
         InstancesProcessor ipr = new InstancesProcessor();
         Dataset dataset = new Dataset(tom);
-        ipr.convert(dataset);
+        ipr.process(dataset);
     }
 }

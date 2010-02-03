@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of National Technical University of Athens. Please read README for more
+ * School of the National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -29,35 +29,21 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
+
+
 package org.opentox.ontology.components;
 
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
-import org.opentox.ontology.util.AlgorithmMeta;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class Algorithm extends YaqpComponent {
-
-    //private  static final long serialVersionUID = -18477218378326540L;
-    public AlgorithmMeta metadata;
-
-    public Algorithm(){
-
-    }
-
-    public Algorithm(AlgorithmMeta meta){
-        this.metadata = meta;
-    }
-
-    public AlgorithmMeta getMeta(){
-        return metadata;
-    }
+public class SVMModel extends QSARModel {
 
     @Override
     public PDFObject getPDF() {
@@ -78,9 +64,5 @@ public class Algorithm extends YaqpComponent {
     public JSONObject getJson() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
-
-    
-
 
 }

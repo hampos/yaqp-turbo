@@ -35,7 +35,7 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import java.util.Set;
-import org.opentox.ontology.TurboOntModel;
+import org.opentox.io.publishable.OntObject;
 
 /**
  *
@@ -51,14 +51,14 @@ public interface JOntEntity {
      * @param model The ontological model.
      * @return The generated ontological class.
      */
-    OntClass createOntClass(final TurboOntModel model);
+    OntClass createOntClass(final OntObject model);
 
     /**
      * Generates a property out of a given model.
      * @param model An ontological model.
      * @return The corresponding property.
      */
-    Property createProperty(final TurboOntModel model);
+    Property createProperty(final OntObject model);
 
     /**
      * Returns the corresponding Ontological Class (i.e. an instance of
@@ -66,7 +66,7 @@ public interface JOntEntity {
      * @param model The ontological model
      * @return the ontological class of the model
      */
-    OntClass getOntClass(final TurboOntModel model);
+    OntClass getOntClass(final OntObject model);
 
     /**
      * Returns the Resource of this class
