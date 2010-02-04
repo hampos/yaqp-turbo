@@ -33,6 +33,10 @@ package org.opentox.ontology.namespaces;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Resource;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.io.publishable.OntObject;
 
 /**
@@ -57,7 +61,7 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
         super(resource);
     }
 
-    public OTAlgorithmTypes(String resourceName){
+    public OTAlgorithmTypes(String resourceName) {
         super(_model.createResource(String.format(_NS_AlgorithmTypes, resourceName)));
     }
     /**
@@ -408,7 +412,48 @@ public class OTAlgorithmTypes extends YaqpOntEntity {
                 }
             };
 
+            /**
+             * A list of all <code>OTAlgorithmTypes</code> objects int this class
+             * as an ArrayList. Consider using <code>getAllAlgorithmTypesNames()</code>
+             * to get the names of all Algorithm Ontoogies.
+             * @return ArrayList of Algorithm Ontologies.
+             */
+    public static ArrayList<OTAlgorithmTypes> getAllAlgorithmTypes() {
+        ArrayList<OTAlgorithmTypes> list = new ArrayList<OTAlgorithmTypes>();
+        OTAlgorithmTypes o = new OTAlgorithmTypes();
+        Field[] fields = o.getClass().getDeclaredFields();
+        for (Field f : fields) {
+            try {
+                f.setAccessible(true);
+                list.add((OTAlgorithmTypes) f.get(o));
+            } catch (Exception ex) {
+                Logger.getLogger(OTAlgorithmTypes.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return list;
+    }
 
+
+    /**
+     * The list of names of all algorithm ontologies used in Yaqp.
+     * @return ArrayList of Algorithm Ontology Names.
+     */
+    public static ArrayList<String> getAllAlgorithmTypesNames() {
+        ArrayList<String> list = new ArrayList<String>();
+        OTAlgorithmTypes o = new OTAlgorithmTypes();
+        Field[] fields = o.getClass().getDeclaredFields();
+        for (Field f : fields) {
+            OTAlgorithmTypes jt;
+            try {
+                f.setAccessible(true);
+                jt = (OTAlgorithmTypes) f.get(o);
+                list.add(jt.getResource().getLocalName());
+            } catch (Exception ex) {
+                Logger.getLogger(OTAlgorithmTypes.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return list;
+    }
 
     
 }

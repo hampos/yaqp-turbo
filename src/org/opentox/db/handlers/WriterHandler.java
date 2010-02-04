@@ -31,7 +31,10 @@
  */
 package org.opentox.db.handlers;
 
+import com.hp.hpl.jena.rdf.model.Resource;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Set;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.BatchProcessor;
 import org.opentox.ontology.components.*;
@@ -55,8 +58,7 @@ import org.opentox.util.logging.levels.*;
  */
 public class WriterHandler {
 
-    private static DbPipeline<QueryFood, HyperResult>
-            addUserPipeline = null,
+    private static DbPipeline<QueryFood, HyperResult> addUserPipeline = null,
             addAlgorithmOntologyPipeline = null,
             addUserGroupPipeline = null,
             addAlgorithmPipeline = null,
@@ -119,11 +121,10 @@ public class WriterHandler {
         }
     }
 
-
     public static void add(YaqpComponent component) throws DbException {
-        if (component instanceof User){
-            WriterHandler.addUser((User)component);
-        } else if (component instanceof UserGroup){
+        if (component instanceof User) {
+            WriterHandler.addUser((User) component);
+        } else if (component instanceof UserGroup) {
             WriterHandler.addUserGroup((UserGroup) component);
         }
     }
@@ -170,8 +171,8 @@ public class WriterHandler {
     }
 
     public static void addFeature(Feature feature) throws DbException {
-        if(addFeaturePipeline == null){
-        addFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_FEATURE);
+        if (addFeaturePipeline == null) {
+            addFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_FEATURE);
         }
         QueryFood food = new QueryFood();
         food.add("URI", feature.getURI());
@@ -196,21 +197,22 @@ public class WriterHandler {
         ArrayList<QueryFood> relfood = new ArrayList<QueryFood>();
         AlgorithmOntology ontology = new AlgorithmOntology(algorithm.getMeta().algorithmType);
 
-            QueryFood food = new QueryFood(
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"ALGORITHM", algorithm.getMeta().name},
+                    {"ONTOLOGY", ontology.getName()}
+                });
+        relfood.add(food);
+        Set<Resource> r = algorithm.getMeta().algorithmType.getSuperEntities();
+        Iterator<Resource> it = r.iterator();
+        while (it.hasNext()) {
+            food = new QueryFood(
                     new String[][]{
                         {"ALGORITHM", algorithm.getMeta().name},
-                        {"ONTOLOGY", ontology.getName()}
+                        {"ONTOLOGY", it.next().getLocalName()}
                     });
             relfood.add(food);
-
-
-            /*
-             * TODO: VERY IMPORTANT!!! Add all super-ontologies for algorithm.getOntology()...
-             use algorithm.getMeta().algorithmType.getSuperEntities()
-             */
-
-        
-
+        }
         try {
             addAlgorithmPipeline.process(algfood);
 
@@ -231,7 +233,6 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
     }
-
 //    private void addPredictionModel(){
 //
 //    }

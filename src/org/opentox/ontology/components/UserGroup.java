@@ -83,6 +83,14 @@ public class UserGroup extends YaqpComponent {
 
     // TODO: This was just a test. Implement the method!
     @Override
+    public String toString() {
+        String userGroup = "\n-- USER GROUP --\n";
+        userGroup += "GROUP NAME         : "+getName()+"\n";
+        userGroup += "LEVEL              : "+getLevel()+"\n";
+        return userGroup;
+    }
+
+    @Override
     public PDFObject getPDF() {
         PDFObject pdf = new PDFObject();
         pdf.addElement(new Paragraph("123"));

@@ -67,7 +67,7 @@ public interface JHyperStatement {
      * @throws DbException If the statement is not well-prepared or some
      * database connection/access issue occurs.
      */
-    int executeUpdate() throws DbException;
+    HyperResult executeUpdate() throws DbException;
     /**
      * Execute a database select-type query.
      * @return The result of the query as an instance of <code>HyperResult</code>

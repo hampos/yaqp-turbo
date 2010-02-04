@@ -21,6 +21,8 @@
  */
 package org.opentox.db.handlers;
 
+import java.lang.Object;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.opentox.core.exceptions.YaqpException;
@@ -30,6 +32,8 @@ import org.opentox.db.queries.HyperResult;
 import org.opentox.db.queries.QueryFood;
 import org.opentox.db.util.PrepStmt;
 import org.opentox.ontology.exceptions.YaqpOntException;
+import org.opentox.ontology.util.AlgorithmMeta;
+import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Debug;
 
@@ -41,12 +45,38 @@ import org.opentox.util.logging.levels.Debug;
 public class ReaderHandler {
 
     private static DbPipeline<QueryFood, HyperResult> getUsersPipeline = null,
+            getUserPipeline = null,
             getAlgorithmOntologiesPipeline = null,
             getUserGroupsPipeline = null,
+            getUserGroupPipeline = null,
             getAlgorithmsPipeline = null,
             getAlgOntRelationPipeline = null,
             getOntAlgRelationPipeline = null,
             getFeaturesPipeline = null;
+
+    public static User getUser(String userName) {
+        if (getUserPipeline == null) {
+            getUserPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USER);
+        }
+        HyperResult result = null;
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"USERNAME", userName}
+                });
+        try {
+            result = getUserPipeline.process(food);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "XR51 - Could not get User list from database\n"));
+        }
+
+        if (result.getSize() == 1) {
+            Iterator<String> it = result.getColumnIterator(1);
+            User user = new User(it.next(), it.next(), it.next(), it.next(), it.next(), it.next(), it.next(),
+                    it.next(), it.next(), it.next(), it.next(), getUserGroup(it.next()));
+            return user;
+        }
+        return null;
+    }
 
     public static ArrayList<User> getUsers() {
         if (getUsersPipeline == null) {
@@ -63,10 +93,54 @@ public class ReaderHandler {
             Iterator<String> it = result.getColumnIterator(i);
 
             User user = new User(it.next(), it.next(), it.next(), it.next(), it.next(), it.next(), it.next(),
-                    it.next(), it.next(), it.next(), it.next(), new UserGroup(it.next(),0));
+                    it.next(), it.next(), it.next(), it.next(), getUserGroup(it.next()));
             userList.add(user);
         }
         return userList;
+    }
+
+    public static UserGroup getUserGroup(String groupName) {
+        if (getUserGroupPipeline == null) {
+            getUserGroupPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USER_GROUP);
+        }
+
+        HyperResult result = null;
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"NAME", groupName}
+                });
+        try {
+            result = getUserGroupPipeline.process(food);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get User Group " + groupName + " from database\n"));
+        }
+
+        if (result.getSize() == 1) {
+            Iterator<String> it = result.getColumnIterator(1);
+            UserGroup userGroup = new UserGroup(it.next(), Integer.parseInt(it.next()));
+            return userGroup;
+        }
+        return null;
+    }
+
+    public static ArrayList<UserGroup> getUserGroups() {
+        if (getUserGroupsPipeline == null) {
+            getUserGroupsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USER_GROUPS);
+        }
+
+        HyperResult result = null;
+        try {
+            result = getUserGroupsPipeline.process(null);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get User Groups from database\n"));
+        }
+        ArrayList<UserGroup> userGroupList = new ArrayList<UserGroup>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            UserGroup userGroup = new UserGroup(it.next(), Integer.parseInt(it.next()));
+            userGroupList.add(userGroup);
+        }
+        return userGroupList;
     }
 
     public static ArrayList<AlgorithmOntology> getAlgorithmOntologies() throws YaqpOntException {
@@ -88,26 +162,6 @@ public class ReaderHandler {
             algorithmOntologiesList.add(algont);
         }
         return algorithmOntologiesList;
-    }
-
-    public static ArrayList<UserGroup> getUserGroups() {
-        if (getUserGroupsPipeline == null) {
-            getUserGroupsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USER_GROUPS);
-        }
-
-        HyperResult result = null;
-        try {
-            result = getUserGroupsPipeline.process(null);
-        } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get User Groups from database\n"));
-        }
-        ArrayList<UserGroup> userGroupList = new ArrayList<UserGroup>();
-        for (int i = 1; i < result.getSize() + 1; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-            UserGroup userGroup = new UserGroup(it.next(), Integer.parseInt(it.next()));
-            userGroupList.add(userGroup);
-        }
-        return userGroupList;
     }
 
     /**
@@ -140,52 +194,78 @@ public class ReaderHandler {
     }
 
     // TODO: Fix the following code and then perform tons of tests!
+    public static ArrayList<Algorithm> getOntAlgRelation(AlgorithmOntology ontology) {
+        if (getOntAlgRelationPipeline == null) {
+            getOntAlgRelationPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ONTOLOGY_ALGORITHM_RELATION);
+        }
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"ONTOLOGY", ontology.getName()}
+                });
+        HyperResult result = null;
+        try {
+            result = getOntAlgRelationPipeline.process(food);
+        } catch (YaqpException e) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Ontology-Algorithm Relations from database\n"));
+        }
+        AlgorithmMeta meta = null;
+        ArrayList<Algorithm> algorithmList = new ArrayList<Algorithm>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            String algName = it.next();
+            try {
+                Class<?> c = Class.forName("org.opentox.ontology.util.YaqpAlgorithms");
+                Method[] allMethods = c.getDeclaredMethods();
+                for (Method m : allMethods) {
+                    String mname = m.getName();
+                    if (mname.contains(algName)) {
+                        meta = (AlgorithmMeta) m.invoke(null, (Object[]) null);
+                        Algorithm algorithm = new Algorithm(meta);
+                        algorithmList.add(algorithm);
+                    }
+                }
 
-//    public static ArrayList<Algorithm> getOntAlgRelation(AlgorithmOntology ontology) {
-//        if (getOntAlgRelationPipeline == null) {
-//            getOntAlgRelationPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ONTOLOGY_ALGORITHM_RELATION);
-//        }
-//        QueryFood food = new QueryFood(
-//                new String[][]{
-//                    {"ONTOLOGY", ontology.getName()}
-//                });
-//        HyperResult result = null;
-//        try {
-//            result = getOntAlgRelationPipeline.process(food);
-//        } catch (YaqpException e) {
-//            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Ontology-Algorithm Relations from database\n"));
-//        }
-//        ArrayList<Algorithm> algorithmList = new ArrayList<Algorithm>();
-//        for (int i = 1; i < result.getSize() + 1; i++) {
-//            Iterator<String> it = result.getColumnIterator(i);
-//            Algorithm algorithm = new Algorithm(it.next(), it.next(), null);
-//            ArrayList<AlgorithmOntology> ontologies = getAlgOntRelation(algorithm);
-//            algorithm.setOntologies(ontologies);
-//            algorithmList.add(algorithm);
-//        }
-//        return algorithmList;
-//    }
-//
-//    public static ArrayList<Algorithm> getAlgorithms() {
-//        if (getAlgorithmsPipeline == null) {
-//            getAlgorithmsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALGORITHMS);
-//        }
-//        HyperResult result = null;
-//        try {
-//            result = getAlgorithmsPipeline.process(new QueryFood());
-//        } catch (YaqpException e) {
-//            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Algorithms from database\n"));
-//        }
-//        ArrayList<Algorithm> algorithms = new ArrayList<Algorithm>();
-//        for (int i = 1; i < result.getSize() + 1; i++) {
-//            Iterator<String> it = result.getColumnIterator(i);
-//            Algorithm algorithm = new Algorithm(it.next(), it.next(), null);
-//            ArrayList<AlgorithmOntology> ontologies = getAlgOntRelation(algorithm);
-//            algorithm.setOntologies(ontologies);
-//            algorithms.add(algorithm);
-//        }
-//        return algorithms;
-//    }
+
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+        }
+        return algorithmList;
+    }
+
+    public static ArrayList<Algorithm> getAlgorithms() {
+        if (getAlgorithmsPipeline == null) {
+            getAlgorithmsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALGORITHMS);
+        }
+        HyperResult result = null;
+        try {
+            result = getAlgorithmsPipeline.process(new QueryFood());
+        } catch (YaqpException e) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Algorithms from database\n"));
+        }
+        AlgorithmMeta meta = null;
+        ArrayList<Algorithm> algorithmList = new ArrayList<Algorithm>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            String algName = it.next();
+            try {
+                //Class<?> c = Class.forName("org.opentox.ontology.util.YaqpAlgorithms");
+                Class<?> c = YaqpAlgorithms.class;
+                Method[] allMethods = c.getDeclaredMethods();
+                for (Method m : allMethods) {
+                    String mname = m.getName();
+                    if (mname.contains(algName)) {
+                        meta = (AlgorithmMeta) m.invoke(null, (Object[]) null);
+                        Algorithm algorithm = new Algorithm(meta);
+                        algorithmList.add(algorithm);
+                    }
+                }
+            } catch (Exception e) {
+                System.err.println(e);
+            }
+        }
+        return algorithmList;
+    }
 
     public static ArrayList<Feature> getFeatures() {
         if (getFeaturesPipeline == null) {

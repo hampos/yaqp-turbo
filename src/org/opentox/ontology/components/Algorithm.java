@@ -60,6 +60,14 @@ public class Algorithm extends YaqpComponent {
     }
 
     @Override
+    public String toString(){
+        String algorithm = "";
+        algorithm += "\n--ALGORITHM--\n";
+        algorithm += "NAME          : "+metadata.name+"\n";
+        return algorithm;
+    }
+
+    @Override
     public PDFObject getPDF() {
         throw new UnsupportedOperationException("Not supported yet.");
     }

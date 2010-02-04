@@ -41,6 +41,7 @@ import org.junit.Test;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.vocabulary.DC;
+import org.opentox.io.publishable.RDFObject;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.namespaces.OTClass;
 import org.opentox.ontology.namespaces.OTDataTypeProperties;
@@ -76,7 +77,7 @@ public class ModelFactoryTest {
      */
     @Test
     public void testMain() {
-         OntObject mm = ModelFactory.createTurboOntModel();
+         OntObject mm = new RDFObject();
 
         /**
          *

@@ -190,6 +190,17 @@ public enum PrepStmt implements JPrepStmt {
      * is: <code>SELECT * FROM USERS</code>.
      */
     GET_USERS("SELECT * FROM "+Users().getTableName(), null),
+
+    /**
+     * Get a specific User.
+     */
+    GET_USER("SELECT * FROM "+Users().getTableName()+" WHERE USERNAME=?",
+
+        new QueryParam[]{
+                            new QueryParam("USERNAME",String.class)
+                        }
+    ),
+    
     /**
      *
      * Prepared statement used to retrieve all algorithm ontologies in the database.
@@ -227,6 +238,15 @@ public enum PrepStmt implements JPrepStmt {
      * Retrieve all algorithm-ontology relations.
      */
     GET_ALGORITHM_ONTOLOGY_RELATIONS("SELECT * FROM "+AlgorithmOntolRelation().getTableName(), null),
+
+    /**
+     * Get a specific user group.
+     */
+    GET_USER_GROUP("SELECT * FROM "+UserAuth().getTableName()+" WHERE NAME=?" ,
+     new QueryParam[]{
+                        new QueryParam("NAME",String.class)
+                    }
+    ),
     /**
      *
      * Get all user groups.
