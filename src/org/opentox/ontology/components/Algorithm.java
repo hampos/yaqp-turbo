@@ -31,11 +31,34 @@
  */
 package org.opentox.ontology.components;
 
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.io.util.YaqpIOStream;
+import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.util.AlgorithmMeta;
+import org.opentox.ontology.util.AlgorithmParameter;
+import org.opentox.ontology.util.YaqpAlgorithms;
+import org.opentox.ontology.util.vocabulary.Audience;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Warning;
+import org.restlet.data.MediaType;
 
 /**
  *
@@ -47,29 +70,171 @@ public class Algorithm extends YaqpComponent {
     //private  static final long serialVersionUID = -18477218378326540L;
     public AlgorithmMeta metadata;
 
-    public Algorithm(){
-
+    public Algorithm() {
     }
 
-    public Algorithm(AlgorithmMeta meta){
+    public Algorithm(AlgorithmMeta meta) {
         this.metadata = meta;
     }
 
-    public AlgorithmMeta getMeta(){
+    public AlgorithmMeta getMeta() {
         return metadata;
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         String algorithm = "";
         algorithm += "\n--ALGORITHM--\n";
-        algorithm += "NAME          : "+metadata.name+"\n";
+        algorithm += "NAME          : " + metadata.name + "\n";
         return algorithm;
     }
 
     @Override
     public PDFObject getPDF() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        PDFObject pdf = new PDFObject();
+        pdf.setPdfTitle(getMeta().identifier);
+        pdf.setPdfKeywords(getMeta().subject);
+        Paragraph p1 = new Paragraph(new Chunk(
+                "OpenTox - Algorithm Report\n\n",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)));
+        pdf.addElement(p1);
+        try {
+            PdfPTable table = new PdfPTable(2);
+
+            table.setWidths(new int[]{10, 50});
+
+            PdfPCell cell = new PdfPCell(new Paragraph("Algorithm Presentation - General"));
+            cell.setColspan(2);
+            cell.setBackgroundColor(new BaseColor(0xC0, 0xC0, 0xC0));
+            table.addCell(cell);
+
+            table.addCell("Name");
+            table.addCell(getMeta().name);
+
+            table.addCell("Title");
+            table.addCell(getMeta().title);
+
+            table.addCell("Subject");
+            table.addCell(getMeta().subject);
+
+            table.addCell("Description");
+            table.addCell(getMeta().description);
+
+            table.addCell("Identifier");
+            table.addCell(getMeta().identifier);
+
+            pdf.addElement(table);
+            pdf.addElement(new Paragraph("\n\n\n"));
+
+            table = new PdfPTable(2);
+            table.setWidths(new int[]{10, 50});
+            cell = new PdfPCell(new Paragraph("General Meta Information"));
+            cell.setColspan(2);
+            cell.setBackgroundColor(new BaseColor(0xC0, 0xC0, 0xC0));
+            table.addCell(cell);
+
+            table.addCell("Type");
+            table.addCell(getMeta().type);
+
+            table.addCell("Creator");
+            table.addCell(getMeta().creator);
+
+            table.addCell("Publisher");
+            table.addCell(getMeta().publisher);
+
+            table.addCell("Relation");
+            table.addCell(getMeta().relation);
+
+            table.addCell("Rights");
+            table.addCell(getMeta().rights);
+
+            table.addCell("Source");
+            table.addCell(getMeta().source);
+
+            table.addCell("Provenance");
+            table.addCell(getMeta().provenance);
+
+            table.addCell("Contributor");
+            table.addCell(getMeta().contributor);
+
+            table.addCell("Language");
+            table.addCell(getMeta().language.getDisplayLanguage());
+
+            table.addCell("Created on");
+            table.addCell(getMeta().date.toString());
+
+            table.addCell("Formats");
+            ArrayList<MediaType> listMedia = getMeta().format;
+            String formatTableEntry = "";
+            for (int i = 0; i < listMedia.size(); i++) {
+                formatTableEntry += listMedia.get(i).toString();
+                if (i < listMedia.size() - 1) {
+                    formatTableEntry += "\n";
+                }
+            }
+            table.addCell(formatTableEntry);
+
+            table.addCell("Audience");
+            ArrayList<Audience> audiences = getMeta().audience;
+            String auds = "";
+            for (int i = 0; i < audiences.size(); i++) {
+                auds += audiences.get(i).getName();
+                if (i < audiences.size() - 1) {
+                    auds += ",";
+                }
+            }
+            table.addCell(auds);
+            pdf.addElement(table);
+            pdf.addElement(new Paragraph("\n\n\n"));
+
+            table = new PdfPTable(4);
+            table.setWidths(new int[]{30, 30, 30, 30});
+            cell = new PdfPCell(new Paragraph("Algorithm Parameters"));
+            cell.setColspan(4);
+            cell.setBackgroundColor(new BaseColor(0xC0, 0xC0, 0xC0));
+            table.addCell(cell);
+
+            table.addCell("Parameter Name");
+            table.addCell("XSD DataType");
+            table.addCell("Default Value");
+            table.addCell("Scope");
+
+            ArrayList<AlgorithmParameter> paramList = getMeta().Parameters;
+            for (int i = 0; i < paramList.size(); i++) {
+                table.addCell(paramList.get(i).paramName);
+                table.addCell(paramList.get(i).dataType.getURI());
+                table.addCell(paramList.get(i).paramValue.toString());
+                table.addCell(paramList.get(i).paramScope);
+            }
+
+            pdf.addElement(table);
+
+            pdf.addElement(new Paragraph("\n\n\n"));
+
+            table = new PdfPTable(1);
+            cell = new PdfPCell(new Paragraph("Ontologies"));
+            cell.setBackgroundColor(new BaseColor(0xC0, 0xC0, 0xC0));
+            table.addCell(cell);
+            OTAlgorithmTypes type = getMeta().algorithmType;
+            table.addCell(type.getURI());
+
+            Set<Resource> superOntologies = type.getSuperEntities();
+            Iterator<Resource> it = superOntologies.iterator();
+
+            while (it.hasNext()) {
+                table.addCell(it.next().getURI());
+            }
+
+            pdf.addElement(table);
+        } catch (DocumentException ex) {
+            YaqpLogger.LOG.log(new Warning(getClass(), "XCF316 - Pdf Exception :" + ex.toString()));
+        }
+        return pdf;
+    }
+
+    public static void main(String[] args) throws FileNotFoundException{
+        Algorithm a = YaqpAlgorithms.SVM;
+        a.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/a.pdf")));
     }
 
     @Override
@@ -86,9 +251,4 @@ public class Algorithm extends YaqpComponent {
     public JSONObject getJson() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
-
-    
-
-
 }

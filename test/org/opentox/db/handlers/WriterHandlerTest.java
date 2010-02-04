@@ -134,7 +134,7 @@ public class WriterHandlerTest {
         }
     }
 
-    // @Test
+    @Test
     public void testAddAlgorithm() throws Exception {
 
         WriterHandler.addAlgorithm(YaqpAlgorithms.MLR);

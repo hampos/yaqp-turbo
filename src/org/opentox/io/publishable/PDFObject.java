@@ -38,11 +38,8 @@ import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.io.interfaces.JPublishable;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.util.logging.YaqpLogger;
@@ -60,7 +57,9 @@ public class PDFObject implements JPublishable {
     private String pdfAuthor = "OpenTox NTUA WebServices";
     private String pdfCreator = "OpenTox NTUA Serivces";
     private String pdfTitle = "OpenTox Entity Representation";
+    private String pdfKeywords = "";
     private static final String OpenToxLogoUrl = "http://opentox.org/logo.png";
+
 
     public PDFObject() {
     }
@@ -85,6 +84,10 @@ public class PDFObject implements JPublishable {
         this.pdfTitle = pdfTitle;
     }
 
+    public void setPdfKeywords(String pdfKeywords) {
+        this.pdfKeywords = pdfKeywords;
+    }
+
 
 
     public void publish(YaqpIOStream stream) {
@@ -99,6 +102,8 @@ public class PDFObject implements JPublishable {
             doc.addSubject(subject);
             doc.addCreator(pdfCreator);
             doc.addTitle(pdfTitle);
+            doc.addKeywords(pdfKeywords);
+            doc.addHeader("License", "GNU GPL v3");
             try {
                 Image image = Image.getInstance(new URL(OpenToxLogoUrl));
                 image.scalePercent(40);

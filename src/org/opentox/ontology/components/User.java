@@ -33,11 +33,24 @@
 
 package org.opentox.ontology.components;
 
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.FontFactory;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import org.opentox.db.exceptions.DbException;
+import org.opentox.db.handlers.ReaderHandler;
 import org.opentox.io.publishable.JSONObject;
-import org.opentox.io.publishable.OntObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.io.util.YaqpIOStream;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Warning;
 
 /**
  *
@@ -218,8 +231,82 @@ public class User extends YaqpComponent {
 
     @Override
     public PDFObject getPDF() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        PDFObject pdf = new PDFObject();
+        pdf.setPdfTitle(getUserName());
+        pdf.setPdfKeywords("User, "+getUserName()+", Account");
+        pdf.setSubject("User Account Information for user "+getUserName());
+        Paragraph p1 = new Paragraph(new Chunk(
+                "OpenTox - User Report\n\n",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)));
+        pdf.addElement(p1);
+
+
+        try {
+            PdfPTable table = new PdfPTable(2);
+            table.setWidths(new int[]{30, 50});
+            PdfPCell cell = new PdfPCell(new Paragraph("User Account Information"));
+            cell.setColspan(2);
+            cell.setBackgroundColor(new BaseColor(0xC0, 0xC0, 0xC0));
+            table.addCell(cell);
+
+            table.addCell("UserName");
+            table.addCell(getUserName());
+
+            table.addCell("First Name");
+            table.addCell(getFirstName());
+
+            table.addCell("Last Name");
+            table.addCell(getLastName());
+
+            table.addCell("e-mail");
+            table.addCell(getEmail());
+
+            table.addCell("UserGroup");
+            table.addCell(getUserGroup().getName());
+
+            table.addCell("Authorization Level");
+            table.addCell(Integer.toString(getUserGroup().getLevel()));
+            
+
+            table.addCell("Organization");
+            table.addCell(getOrganization());
+
+
+            table.addCell("Country");
+            table.addCell(getCountry());
+
+
+            table.addCell("City");
+            table.addCell(getCity());
+
+
+            table.addCell("Address");
+            table.addCell(getAddress());
+
+            table.addCell("Web Page");
+            table.addCell(getWebpage());
+
+            table.addCell("Created on");
+            table.addCell(getTimeStamp());
+
+
+            pdf.addElement(table);
+
+        } catch (DocumentException ex) {
+            YaqpLogger.LOG.log(new Warning(getClass(), "XEI909 - Error while generating " +
+                    "PDF representation for User"));
+        }
+
+        return pdf;
     }
+
+
+     public static void main(String args[]) throws FileNotFoundException, DbException {
+        User u = ReaderHandler.getUsers().get(1);
+        u.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/user.pdf")));
+
+    }
+
 
     @Override
     public RDFObject getRDF() {

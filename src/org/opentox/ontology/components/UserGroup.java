@@ -40,8 +40,6 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
@@ -124,7 +122,7 @@ public class UserGroup extends YaqpComponent {
 
         } catch (DocumentException ex) {
             YaqpLogger.LOG.log(new Warning(getClass(), "XPI908 - Error while generating " +
-                    "PDF representation for User Group"));
+                    "PDF representation for User Group "));
         }
 
         return pdf;

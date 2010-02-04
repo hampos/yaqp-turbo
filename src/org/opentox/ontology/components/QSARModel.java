@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- *
+ * TODO: Update QSARModel and its subclasses according to the corresponding db tables
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
