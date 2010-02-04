@@ -31,17 +31,24 @@
  */
 package org.opentox.ontology.components;
 
+import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Chunk;
+import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.opentox.io.publishable.JSONObject;
-import org.opentox.io.publishable.OntObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
 import org.opentox.io.util.YaqpIOStream;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Warning;
 
 /**
  *
@@ -85,20 +92,46 @@ public class UserGroup extends YaqpComponent {
     @Override
     public String toString() {
         String userGroup = "\n-- USER GROUP --\n";
-        userGroup += "GROUP NAME         : "+getName()+"\n";
-        userGroup += "LEVEL              : "+getLevel()+"\n";
+        userGroup += "GROUP NAME         : " + getName() + "\n";
+        userGroup += "LEVEL              : " + getLevel() + "\n";
         return userGroup;
     }
 
     @Override
     public PDFObject getPDF() {
         PDFObject pdf = new PDFObject();
-        pdf.addElement(new Paragraph("123"));
+        Paragraph p1 = new Paragraph(new Chunk(
+                "OpenTox - UserGroup Report\n\n",
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)));
+        pdf.addElement(p1);
+
+
+        try {
+            PdfPTable table = new PdfPTable(2);
+            table.setWidths(new int[]{30, 50});
+            PdfPCell cell = new PdfPCell(new Paragraph("UserGroup General Information"));
+            cell.setColspan(2);
+            cell.setBackgroundColor(new BaseColor(0xC0, 0xC0, 0xC0));
+            table.addCell(cell);
+
+            table.addCell("Name");
+            table.addCell(getName());
+
+            table.addCell("Authorization Level");
+            table.addCell(Integer.toString(getLevel()));
+
+            pdf.addElement(table);
+
+        } catch (DocumentException ex) {
+            YaqpLogger.LOG.log(new Warning(getClass(), "XPI908 - Error while generating " +
+                    "PDF representation for User Group"));
+        }
+
         return pdf;
     }
 
-    public static void main(String[] args) throws FileNotFoundException{
-        UserGroup ug = new UserGroup();
+    public static void main(String args[]) throws FileNotFoundException {
+        UserGroup ug = new UserGroup("Administrator", 100);
         ug.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/a.pdf")));
 
     }

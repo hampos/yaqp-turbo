@@ -35,7 +35,6 @@ package org.opentox.ontology.data;
 
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Processor;
-import org.opentox.io.processors.InputProcessor;
 import org.opentox.io.publishable.OntObject;
 
 /**

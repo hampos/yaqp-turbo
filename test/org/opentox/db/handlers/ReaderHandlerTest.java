@@ -40,8 +40,6 @@ import org.junit.Test;
 import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.ontology.exceptions.YaqpOntException;
-import org.opentox.ontology.util.AlgorithmMeta;
-import org.opentox.ontology.util.YaqpAlgorithms;
 
 /**
  *
@@ -69,13 +67,18 @@ public class ReaderHandlerTest {
     public void tearDown() {
     }
 
-    //@Test
-    public void getUsersTest() {
-        ArrayList<User> users = ReaderHandler.getUsers();
-        Iterator<User> it = users.iterator();
-        while (it.hasNext()) {
-            User user = it.next();
-            System.out.println(user + "\n");
+    @Test
+    public void getUsersTest() throws Throwable {
+        try {
+            ArrayList<User> users = ReaderHandler.getUsers();
+            Iterator<User> it = users.iterator();
+            while (it.hasNext()) {
+                User user = it.next();
+                System.out.println(user + "\n");
+            }
+        } catch (Throwable thr) {
+            System.out.println(thr);
+            throw new Throwable(thr);
         }
     }
 
@@ -90,7 +93,7 @@ public class ReaderHandlerTest {
 
     }
 
-    //@Test
+    @Test
     public void getUserGroupsTest() {
         ArrayList<UserGroup> userGroups = ReaderHandler.getUserGroups();
         Iterator<UserGroup> it = userGroups.iterator();
@@ -99,7 +102,7 @@ public class ReaderHandlerTest {
         }
     }
 
-    @Test
+    //@Test
     public void getAlgOntRelationTest() throws YaqpOntException {
         ArrayList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation("svm");
         Iterator<AlgorithmOntology> it = ontologies.iterator();
@@ -108,7 +111,7 @@ public class ReaderHandlerTest {
         }
     }
 
-    @Test
+    //@Test
     public void getOntAlgRelationTest() throws Exception {
         AlgorithmOntology ontology = new AlgorithmOntology("Classification");
         ArrayList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology);
@@ -118,10 +121,11 @@ public class ReaderHandlerTest {
         }
     }
     //@Test
-    public void getAlgorithmsTest(){
+
+    public void getAlgorithmsTest() {
         ArrayList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
         Iterator<Algorithm> it = algorithms.iterator();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             System.out.println(it.next());
         }
     }

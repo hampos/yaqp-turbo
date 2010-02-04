@@ -38,6 +38,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
 import org.opentox.db.exceptions.BadEmailException;
 import org.opentox.db.exceptions.DuplicateKeyException;
@@ -77,7 +78,7 @@ public class WriterHandlerTest {
     /**
      * Test of addUserGroup method, of class WriterHandler.
      */
-     //@Test
+    //@Test
     public void testAddUserGroup() throws Exception {
         WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60));
         WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 70));
@@ -113,7 +114,7 @@ public class WriterHandlerTest {
      * It seems users are being successfully added in the database.
      * @throws BadEmailException
      */
-    // @Test
+    //@Test
     public void testAddUser() throws BadEmailException {
         try {
             for (int i = 0; i < 100; i++) {
@@ -132,12 +133,18 @@ public class WriterHandlerTest {
         }
     }
 
-    @Test
+    // @Test
     public void testAddAlgorithm() throws Exception {
 
         WriterHandler.addAlgorithm(YaqpAlgorithms.MLR);
         WriterHandler.addAlgorithm(YaqpAlgorithms.SVM);
         WriterHandler.addAlgorithm(YaqpAlgorithms.SVC);
+    }
+
+    @Test
+    public void testAddFeature() throws DbException {
+        Feature feature = new Feature(1, "http://opentox.ntua.gr:3000/feature/12");
+        WriterHandler.addFeature(feature);
 
     }
 }

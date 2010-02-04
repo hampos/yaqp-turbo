@@ -31,16 +31,22 @@
  */
 package org.opentox.io.publishable;
 
+import com.itextpdf.text.Annotation;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.opentox.io.interfaces.JPublishable;
 import org.opentox.io.util.YaqpIOStream;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Warning;
 
 /**
  *
@@ -50,6 +56,11 @@ import org.opentox.io.util.YaqpIOStream;
 public class PDFObject implements JPublishable {
 
     private ArrayList<Element> elements = new ArrayList<Element>();
+    private String subject = "OpenTox Entity Representation";
+    private String pdfAuthor = "OpenTox NTUA WebServices";
+    private String pdfCreator = "OpenTox NTUA Serivces";
+    private String pdfTitle = "OpenTox Entity Representation";
+    private static final String OpenToxLogoUrl = "http://opentox.org/logo.png";
 
     public PDFObject() {
     }
@@ -58,18 +69,50 @@ public class PDFObject implements JPublishable {
         elements.add(element);
     }
 
+    public void setPdfAuthor(final String pdfAuthor) {
+        this.pdfAuthor = pdfAuthor;
+    }
+
+    public void setPdfCreator(final String pdfCreator) {
+        this.pdfCreator = pdfCreator;
+    }
+
+    public void setSubject(final String subject) {
+        this.subject = subject;
+    }
+
+    public void setPdfTitle(final String pdfTitle) {
+        this.pdfTitle = pdfTitle;
+    }
+
+
+
     public void publish(YaqpIOStream stream) {
 
         try {
             Document doc = new Document();
             PdfWriter.getInstance(doc, (OutputStream) stream.getStream());
             doc.open();
+            doc.addAuthor(pdfAuthor);
+            doc.addCreationDate();
+            doc.addProducer();
+            doc.addSubject(subject);
+            doc.addCreator(pdfCreator);
+            doc.addTitle(pdfTitle);
+            try {
+                Image image = Image.getInstance(new URL(OpenToxLogoUrl));
+                image.scalePercent(40);
+                image.setAnnotation(new Annotation(0, 0, 0, 0, "http://opentox.org"));
+                doc.add(image);
+            } catch (Exception ex) {
+                YaqpLogger.LOG.log(new Warning(getClass(), "WCT517 - OpenTox Logo not found at "+OpenToxLogoUrl));
+            }
             for (int i = 0;i < elements.size(); i++){
                 doc.add(elements.get(i));
             }
             doc.close();
         } catch (DocumentException ex) {
-            Logger.getLogger(PDFObject.class.getName()).log(Level.SEVERE, null, ex);
+            YaqpLogger.LOG.log(new Warning(getClass(), "XPD819 - Error while generating PDF representation."));
         }
 
     }
