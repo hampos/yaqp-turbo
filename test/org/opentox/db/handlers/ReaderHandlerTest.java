@@ -67,18 +67,13 @@ public class ReaderHandlerTest {
     public void tearDown() {
     }
 
-    @Test
-    public void getUsersTest() throws Throwable {
-        try {
-            ArrayList<User> users = ReaderHandler.getUsers();
-            Iterator<User> it = users.iterator();
-            while (it.hasNext()) {
-                User user = it.next();
-                System.out.println(user + "\n");
-            }
-        } catch (Throwable thr) {
-            System.out.println(thr);
-            throw new Throwable(thr);
+
+    public void getUsersTest() {
+        ArrayList<User> users = ReaderHandler.getUsers();
+        Iterator<User> it = users.iterator();
+        while (it.hasNext()) {
+            User user = it.next();
+            System.out.println(user + "\n");
         }
     }
 

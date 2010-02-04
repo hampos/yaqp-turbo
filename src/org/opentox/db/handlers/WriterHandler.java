@@ -63,7 +63,9 @@ public class WriterHandler {
             addUserGroupPipeline = null,
             addAlgorithmPipeline = null,
             addAlgOntRelationPipeline = null,
-            addFeaturePipeline = null;
+            addFeaturePipeline = null,
+            addQSARModelPipeline = null,
+            addMLRModelPipeline = null;
 
     /**
      * Add a new UserGroup in the database
@@ -174,8 +176,10 @@ public class WriterHandler {
         if (addFeaturePipeline == null) {
             addFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_FEATURE);
         }
-        QueryFood food = new QueryFood();
-        food.add("URI", feature.getURI());
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"URI", feature.getURI()}
+                });
         addFeaturePipeline.process(food);
     }
 
@@ -233,10 +237,74 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
     }
-//    private void addPredictionModel(){
-//
-//    }
-//    public void addMlrModel(MlrModel mlrModel){
-//
-//    }
+
+    public static int addQSARModel(QSARModel model) throws DuplicateKeyException {
+        System.out.println(model.getName());
+        System.out.println(model.getUri());
+        System.out.println(model.getPredictionFeature().getID());
+        System.out.println(model.getDependentFeature().getID());
+        System.out.println(model.getAlgorithm().getMeta().name);
+        System.out.println(model.getUser().getEmail());
+        if (addQSARModelPipeline == null) {
+            System.out.println("a1");
+            addQSARModelPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_QSAR_MODEL);
+            System.out.println(addQSARModelPipeline == null);
+        }
+        int r = 0;
+        HyperResult result = new HyperResult();
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"NAME", model.getName()},
+                    {"URI", model.getUri()},
+                    {"PREDICTION_FEATURE", Integer.toString(model.getPredictionFeature().getID())},
+                    {"DEPENDENT_FEATURE", Integer.toString(model.getDependentFeature().getID())},
+                    {"ALGORITHM", model.getAlgorithm().getMeta().name},
+                    {"CREATED_BY", model.getUser().getEmail()}
+                });
+        try {
+            System.out.println("before");
+            result = addQSARModelPipeline.process(food);
+            System.out.println(result.getSize());
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "QSarModel added: \n" ));
+        } catch (DbException ex) {
+            if (ex.toString().contains("DuplicateKeyException")) {
+                String message = "XU715 - Cannot add model because URI is already used by some other model.";
+                YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+                throw new DuplicateKeyException(message, ex);
+            }
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU716 - Could not add the following QSAR model :\n" + model));
+        }
+        if (result.getSize() == 1) {
+            Iterator<String> it = result.getColumnIterator(1);
+            r = Integer.parseInt(it.next());
+        }
+        return r;
+    }
+
+    public static void addMLRModel(MLRModel model) throws DuplicateKeyException {
+        int r;
+        if ((r = addQSARModel((QSARModel) model)) == 0) {
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU716 - Could not add the following MLRmodel :\n" + model));
+            return;
+        }
+        if (addMLRModelPipeline == null) {
+            addMLRModelPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_MLR_MODEL);
+        }
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"UID", Integer.toString(r)},
+                    {"DATASET", model.getDataset()},
+                });
+        try {
+            addMLRModelPipeline.process(food);
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "MLRModel added: "+model.getName()));
+        } catch (DbException ex) {
+            if (ex.toString().contains("DuplicateKeyException")) {
+                String message = "XU715 - Cannot add MLRmodel because ID is already used by some other model.";
+                YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+                throw new DuplicateKeyException(message, ex);
+            }
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU716 - Could not add the following MLR model :\n" + model));
+        }
+    }
 }

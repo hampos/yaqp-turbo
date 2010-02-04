@@ -78,7 +78,8 @@ public class WriterHandlerTest {
     /**
      * Test of addUserGroup method, of class WriterHandler.
      */
-    //@Test
+
+     @Test
     public void testAddUserGroup() throws Exception {
         WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60));
         WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 70));
@@ -89,7 +90,7 @@ public class WriterHandlerTest {
     /**
      * Test of addAlgorithmOntology method, of class WriterHandler.
      */
-    //@Test
+    @Test
     public void testAddAlgorithmOntology() throws YaqpOntException {
         try {
 //            OTAlgorithmTypes o ;
@@ -114,7 +115,7 @@ public class WriterHandlerTest {
      * It seems users are being successfully added in the database.
      * @throws BadEmailException
      */
-    //@Test
+     @Test
     public void testAddUser() throws BadEmailException {
         try {
             for (int i = 0; i < 100; i++) {
@@ -141,10 +142,44 @@ public class WriterHandlerTest {
         WriterHandler.addAlgorithm(YaqpAlgorithms.SVC);
     }
 
+        
     @Test
     public void testAddFeature() throws DbException {
-        Feature feature = new Feature(1, "http://opentox.ntua.gr:3000/feature/12");
-        WriterHandler.addFeature(feature);
+        for(int i=1; i<=100; i++){
+            WriterHandler.addFeature(new Feature("url"+i));
+        }
+    }
 
+    @Test
+    public void testAddMLRModel() throws DuplicateKeyException {
+        ArrayList<Feature> features = ReaderHandler.getFeatures();
+        System.err.println(ReaderHandler.getUser("vser_1"));
+        MLRModel model = new MLRModel(0, "asdf", "//asdf",
+                features.get(1), features.get(2), YaqpAlgorithms.MLR, ReaderHandler.getUser("vser_1"), "", "//dataset");
+//                QSARModel qsar = new QSARModel(1,"asdf", "//asdf5",
+//                features.get(1), features.get(2), YaqpAlgorithms.MLR, ReaderHandler.getUser("vser_1"), null) {
+//
+//            @Override
+//            public PDFObject getPDF() {
+//                throw new UnsupportedOperationException("Not supported yet.");
+//            }
+//
+//            @Override
+//            public RDFObject getRDF() {
+//                throw new UnsupportedOperationException("Not supported yet.");
+//            }
+//
+//            @Override
+//            public TurtleObject getTurtle() {
+//                throw new UnsupportedOperationException("Not supported yet.");
+//            }
+//
+//            @Override
+//            public JSONObject getJson() {
+//                throw new UnsupportedOperationException("Not supported yet.");
+//            }
+//        };
+//        System.out.println(WriterHandler.addQSARModel(qsar));
+        WriterHandler.addMLRModel(model);
     }
 }

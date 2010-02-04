@@ -366,7 +366,6 @@ public enum StandardTables {
 
         TableColumn dataset = new TableColumn("DATASET");
         dataset.setColumnType(SQLDataTypes.VarChar(150));
-        dataset.setUnique(true);
         dataset.setNotNull(true);
         table.addColumn(dataset);
 
@@ -538,7 +537,7 @@ public enum StandardTables {
 //         table.addColumn(ontology_uid);
         return table;
     }
-
+//TODO: add dataset col
     public static Table OmegaModels() {
         Table table = new Table("OMEGA");
 
