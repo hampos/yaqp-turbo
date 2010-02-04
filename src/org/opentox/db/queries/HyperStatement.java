@@ -25,6 +25,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.exceptions.DuplicateKeyException;
@@ -54,7 +55,7 @@ public class HyperStatement implements JHyperStatement {
     public HyperStatement(final String sql) throws DbException {
 
         try {
-            this.preparedStatement = TheDbConnector.DB.getConnection().prepareStatement(sql);
+            this.preparedStatement = TheDbConnector.DB.getConnection().prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
             this.sql = sql;
         } catch (SQLException ex) {
             YaqpLogger.LOG.log(new Debug(getClass(), "XCD101(a) - The following statement could not be prepared  : " + sql));
@@ -103,7 +104,7 @@ public class HyperStatement implements JHyperStatement {
             }
             while (rs.next()) {
                 for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
-                    row.add(rs.getString(col_index + 1));
+                    row.add(rs.getString(1));
                 }
                 result.addRow(row);
                 row = new ArrayList<String>();

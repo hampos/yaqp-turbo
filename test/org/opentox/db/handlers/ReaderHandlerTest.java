@@ -69,7 +69,7 @@ public class ReaderHandlerTest {
     public void tearDown() {
     }
 
-    //@Test
+    @Test
     public void getUsersTest() {
         ArrayList<User> users = ReaderHandler.getUsers();
         Iterator<User> it = users.iterator();

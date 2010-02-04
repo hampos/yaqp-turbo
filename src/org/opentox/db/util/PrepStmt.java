@@ -122,7 +122,7 @@ public enum PrepStmt implements JPrepStmt {
     /**
      * Add a new prediction model in the database.
      */
-    ADD_PRED_MODEL("INSERT INTO " + PredictionModels().getTableName()
+    ADD_QSAR_MODEL("INSERT INTO " + PredictionModels().getTableName()
     + " (NAME, URI, PREDICTION_FEATURE, DEPENDENT_FEATURE, ALGORITHM, CREATED_BY ) VALUES (?,?,?,?,?,?)",
     new QueryParam[]{
                         new QueryParam("NAME",String.class),
@@ -138,6 +138,7 @@ public enum PrepStmt implements JPrepStmt {
      */
     ADD_MLR_MODEL("INSERT INTO " + MlrModels().getTableName() + " (UID,DATASET) VALUES (?,?)",
     new QueryParam[]{
+                        new QueryParam("UID", Integer.class),
                         new QueryParam("DATASET", String.class)
                     }
     ),
