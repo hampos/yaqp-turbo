@@ -609,10 +609,26 @@ public enum StandardTables {
         algorithm.setForeignKey(Algorithms().getTableName(), "NAME", true);
         table.addColumn(algorithm);
 
-        TableColumn timestamp = new TableColumn("TMSTMP");
-        timestamp.setColumnType(SQLDataTypes.Timestamp());
-        timestamp.setDefaultValue("CURRENT TIMESTAMP");
-        table.addColumn(timestamp);
+        TableColumn httpStatus = new TableColumn("HTTPSTATUS");
+        httpStatus.setColumnType(SQLDataTypes.Int());
+        httpStatus.setNotNull(true);
+        //httpStatus.setConstraint("HTTPSTATUS_CONSTRAINT", "STATUS IN ('200', '201', '202', '400')");
+        httpStatus.setDefaultValue("201");
+        table.addColumn(httpStatus);
+
+        TableColumn result = new TableColumn("RESULT");
+        result.setColumnType(SQLDataTypes.VarChar(255));
+        table.addColumn(result);
+
+        TableColumn startTimestamp = new TableColumn("STARTSTAMP");
+        startTimestamp.setColumnType(SQLDataTypes.Timestamp());
+        startTimestamp.setDefaultValue("CURRENT TIMESTAMP");
+        table.addColumn(startTimestamp);
+
+        TableColumn endTimestamp = new TableColumn("ENDSTAMP");
+        endTimestamp.setColumnType(SQLDataTypes.Timestamp());
+        endTimestamp.setDefaultValue("CURRENT TIMESTAMP");
+        table.addColumn(endTimestamp);
 
         return table;
     }

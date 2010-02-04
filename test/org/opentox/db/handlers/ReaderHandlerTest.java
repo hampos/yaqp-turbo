@@ -41,6 +41,7 @@ import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.util.AlgorithmMeta;
+import org.opentox.ontology.util.YaqpAlgorithms;
 
 /**
  *
@@ -68,64 +69,62 @@ public class ReaderHandlerTest {
     public void tearDown() {
     }
 
-    @Test
+    //@Test
     public void getUsersTest() {
         ArrayList<User> users = ReaderHandler.getUsers();
         Iterator<User> it = users.iterator();
         while (it.hasNext()) {
             User user = it.next();
-            System.out.println(user+"\n");
+            System.out.println(user + "\n");
         }
     }
 
     //@Test
-    public void getAlgorithmOntologiesTest() throws YaqpOntException{
+    public void getAlgorithmOntologiesTest() throws YaqpOntException {
 
         ArrayList<AlgorithmOntology> algont = ReaderHandler.getAlgorithmOntologies();
         Iterator<AlgorithmOntology> it = algont.iterator();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             System.out.println(it.next());
         }
 
     }
 
     //@Test
-    public void getUserGroupsTest(){
+    public void getUserGroupsTest() {
         ArrayList<UserGroup> userGroups = ReaderHandler.getUserGroups();
         Iterator<UserGroup> it = userGroups.iterator();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             System.out.println(it.next());
         }
     }
 
-    //@Test
-//    public void getAlgOntRelationTest() throws YaqpOntException{
-//        Algorithm algorithm = new Algorithm(new AlgorithmMeta("name1"));
-//        ArrayList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation(algorithm);
-//        Iterator<AlgorithmOntology> it = ontologies.iterator();
-//        while(it.hasNext()){
-//            System.out.println(it.next());
-//        }
-//    }
+    @Test
+    public void getAlgOntRelationTest() throws YaqpOntException {
+        ArrayList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation("svm");
+        Iterator<AlgorithmOntology> it = ontologies.iterator();
+        while (it.hasNext()) {
+            System.out.println(it.next());
+        }
+    }
 
-//    @Test
-//    public void getOntAlgRelationTest(){
-//        AlgorithmOntology ontology = new AlgorithmOntology("name1");
-//        ArrayList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology);
-//        Iterator<Algorithm> it = algorithms.iterator();
-//        while(it.hasNext()){
-//            System.out.println(it.next());
-//        }
-//    }
-
+    @Test
+    public void getOntAlgRelationTest() throws Exception {
+        AlgorithmOntology ontology = new AlgorithmOntology("Classification");
+        ArrayList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology);
+        Iterator<Algorithm> it = algorithms.iterator();
+        while (it.hasNext()) {
+            System.out.println(it.next());
+        }
+    }
     //@Test
-//    public void getAlgorithmsTest(){
-//        ArrayList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
-//        Iterator<Algorithm> it = algorithms.iterator();
-//        while(it.hasNext()){
-//            System.out.println(it.next());
-//        }
-//    }
+    public void getAlgorithmsTest(){
+        ArrayList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
+        Iterator<Algorithm> it = algorithms.iterator();
+        while(it.hasNext()){
+            System.out.println(it.next());
+        }
+    }
 }
 
 

@@ -57,7 +57,7 @@ public class DbProcessor extends AbstractDbProcessor<HyperStatement, HyperResult
         HyperResult result = null;
         try {
             if (q.getType().equals(QueryType.UPDATE)) {
-                q.executeUpdate();
+                result = q.executeUpdate();
             } else if (q.getType().equals(QueryType.SELECT)) {
                 result = q.executeQuery();
             }

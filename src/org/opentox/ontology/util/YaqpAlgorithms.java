@@ -96,7 +96,7 @@ public class YaqpAlgorithms {
         return list;
     }
 
-    private static AlgorithmMeta mlr_metadata() {
+    public static AlgorithmMeta mlr_metadata() {
         String name = "mlr";
         String uri = "http://" + Configuration.getProperties().getProperty("server.domainName") + ":"
                 + Configuration.getProperties().getProperty("server.port") + "/algorithm/" + name;
@@ -139,7 +139,7 @@ public class YaqpAlgorithms {
         return meta;
     }
 
-    private static AlgorithmMeta svm_metadata() {
+    public static AlgorithmMeta svm_metadata() {
         String name = "svm";
         String uri = "http://" + Configuration.getProperties().getProperty("server.domainName") + ":"
                 + Configuration.getProperties().getProperty("server.port") + "/algorithm/" + name;
@@ -181,7 +181,7 @@ public class YaqpAlgorithms {
         return meta;
     }
 
-    private static AlgorithmMeta svc_metadata() {
+    public static AlgorithmMeta svc_metadata() {
         String name = "svc";
         String uri = "http://" + Configuration.getProperties().getProperty("server.domainName") + ":"
                 + Configuration.getProperties().getProperty("server.port") + "/algorithm/" + name;

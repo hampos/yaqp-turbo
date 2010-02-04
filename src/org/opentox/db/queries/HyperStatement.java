@@ -66,7 +66,7 @@ public class HyperStatement implements JHyperStatement {
         try {
             preparedStatement.setInt(index, value);
         } catch (SQLException ex) {
-            YaqpLogger.LOG.log(new Debug(getClass(), "XCD102(a) - Trying to set integer value at position "+index+" in SQL prepared statement :"+sql));
+            YaqpLogger.LOG.log(new Debug(getClass(), "XCD102(a) - Trying to set integer value at position " + index + " in SQL prepared statement :" + sql));
             throw new DbException("XCD102(b) - Cannot set a parameteter with index " + index + " to the integer value : " + value, ex);
         }
     }
@@ -75,7 +75,7 @@ public class HyperStatement implements JHyperStatement {
         try {
             preparedStatement.setString(index, value);
         } catch (SQLException ex) {
-            YaqpLogger.LOG.log(new Debug(getClass(), "XCD103(a) - Trying to set String value at position "+index+" in SQL prepared statement :"+sql));
+            YaqpLogger.LOG.log(new Debug(getClass(), "XCD103(a) - Trying to set String value at position " + index + " in SQL prepared statement :" + sql));
             throw new DbException("XCD103(b) - Cannot set a parameteter with index " + index + " to String value : " + value, ex);
         }
     }
@@ -84,20 +84,38 @@ public class HyperStatement implements JHyperStatement {
         try {
             preparedStatement.setDouble(index, value);
         } catch (SQLException ex) {
-            YaqpLogger.LOG.log(new Debug(getClass(), "XCD105(a) - Trying to set Double value at position "+index+" in SQL prepared statement :"+sql));
+            YaqpLogger.LOG.log(new Debug(getClass(), "XCD105(a) - Trying to set Double value at position " + index + " in SQL prepared statement :" + sql));
             throw new DbException("XCD105(b) - Cannot set a parameteter with index " + index + " to double value : " + value, ex);
         }
     }
 
-    public int executeUpdate() throws DbException {
+    public HyperResult executeUpdate() throws DbException {
+        HyperResult result = new HyperResult();
+
         try {
-            return preparedStatement.executeUpdate();
+            preparedStatement.executeUpdate();
+            ResultSet rs = preparedStatement.getGeneratedKeys();
+            ResultSetMetaData rsmd = rs.getMetaData();
+            ArrayList<String> row = new ArrayList<String>();
+
+            for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
+                result.addColName(rsmd.getColumnName(col_index + 1), col_index + 1);
+            }
+            while (rs.next()) {
+                for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
+                    row.add(rs.getString(col_index + 1));
+                }
+                result.addRow(row);
+                row = new ArrayList<String>();
+            }
+            rs.close();
+            return result;
         } catch (SQLException ex) {
             if (ex.toString().contains("duplicate key")) {
                 YaqpLogger.LOG.log(new Warning(getClass(), "XCY835 - Duplicate Key Exception while executing update"));
                 throw new DuplicateKeyException();
             }
-            YaqpLogger.LOG.log(new Debug(getClass(), "XCY836 - Could not execute update for SQL statement :"+sql));
+            YaqpLogger.LOG.log(new Debug(getClass(), "XCY836 - Could not execute update for SQL statement :" + sql));
             throw new DbException("XCY836 - Error while executing update... ", ex);
         }
     }
@@ -111,7 +129,7 @@ public class HyperStatement implements JHyperStatement {
             ArrayList<String> row = new ArrayList<String>();
 
             for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
-                result.addColName(rsmd.getColumnName(col_index+1), col_index+1);
+                result.addColName(rsmd.getColumnName(col_index + 1), col_index + 1);
             }
             while (rs.next()) {
                 for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
@@ -120,12 +138,12 @@ public class HyperStatement implements JHyperStatement {
                 result.addRow(row);
                 row = new ArrayList<String>();
             }
-            
+
             rs.close();
             return result;
         } catch (SQLException ex) {
-            throw new DbException("XCY629 - Exception while executing a database query " +
-                    "through HyperStatement#executeQuery() ", ex);
+            throw new DbException("XCY629 - Exception while executing a database query "
+                    + "through HyperStatement#executeQuery() ", ex);
         }
     }
 

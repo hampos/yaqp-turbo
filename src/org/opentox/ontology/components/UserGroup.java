@@ -83,6 +83,14 @@ public class UserGroup extends YaqpComponent {
     }
 
     @Override
+    public String toString() {
+        String userGroup = "\n-- USER GROUP --\n";
+        userGroup += "GROUP NAME         : "+getName()+"\n";
+        userGroup += "LEVEL              : "+getLevel()+"\n";
+        return userGroup;
+    }
+
+    @Override
     public PDFObject getPDF() {
         throw new UnsupportedOperationException("Not supported yet.");
     }

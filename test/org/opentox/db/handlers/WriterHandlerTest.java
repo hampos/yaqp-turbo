@@ -30,6 +30,7 @@
  */
 package org.opentox.db.handlers;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -43,6 +44,8 @@ import org.opentox.db.exceptions.DuplicateKeyException;
 import org.opentox.db.util.TheDbConnector;
 import static org.junit.Assert.*;
 import org.opentox.ontology.exceptions.YaqpOntException;
+import org.opentox.ontology.namespaces.OTAlgorithmTypes;
+import org.opentox.ontology.util.YaqpAlgorithms;
 
 /**
  *
@@ -74,7 +77,7 @@ public class WriterHandlerTest {
     /**
      * Test of addUserGroup method, of class WriterHandler.
      */
-    @Test
+     //@Test
     public void testAddUserGroup() throws Exception {
         WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60));
         WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 70));
@@ -88,9 +91,18 @@ public class WriterHandlerTest {
     //@Test
     public void testAddAlgorithmOntology() throws YaqpOntException {
         try {
-            for (int i = 1; i <= 100; i++) {
-                WriterHandler.addAlgorithmOntology(new AlgorithmOntology("name" + i));
+//            OTAlgorithmTypes o ;
+//            [] = o.getClass().getFields();
+            ArrayList<OTAlgorithmTypes> otlist = OTAlgorithmTypes.getAllAlgorithmTypes();
+            for (OTAlgorithmTypes ot : otlist) {
+                WriterHandler.addAlgorithmOntology(new AlgorithmOntology(ot.getResource().getLocalName()));
+
             }
+//            WriterHandler.addAlgorithmOntology(new AlgorithmOntology("Regression"));
+//            WriterHandler.addAlgorithmOntology(new AlgorithmOntology("Classification"));
+//            WriterHandler.addAlgorithmOntology(new AlgorithmOntology("ClassificationEagerMultipleTargets"));
+//            WriterHandler.addAlgorithmOntology(new AlgorithmOntology("RegressionEagerMultipleTargets"));
+//            WriterHandler.addAlgorithmOntology(new AlgorithmOntology("RegressionEagerSingleTarget"));
         } catch (DuplicateKeyException ex) {
             Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
             fail();
@@ -101,37 +113,31 @@ public class WriterHandlerTest {
      * It seems users are being successfully added in the database.
      * @throws BadEmailException
      */
-    @Test
+    // @Test
     public void testAddUser() throws BadEmailException {
         try {
-            for (int i=0;i<100;i++)
-            WriterHandler.addUser(
-                    new User(
-                    "vser_"+i, "patss"+i, "firstname"+i, "lastname"+i,
-                    "makis"+i+"@mailntua.gr", "NTUA", "Greece",
-                    "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new", null, new UserGroup("ADMIN", 0)));
+            for (int i = 0; i < 100; i++) {
+                WriterHandler.addUser(
+                        new User(
+                        "vser_" + i, "patss" + i, "firstname" + i, "lastname" + i,
+                        "makis" + i + "@mailntua.gr", "NTUA", "Greece",
+                        "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new", null, new UserGroup("ADMIN", 0)));
+            }
         } catch (DuplicateKeyException ex) {
             System.out.println(ex);
             Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (Exception ex){
+        } catch (Exception ex) {
             System.out.println(ex);
             fail(ex.toString());
         }
     }
 
-//
-//   // @Test
-//    public void testAddAlgorithm() {
-//        try {
-//            ArrayList<AlgorithmOntology> ontlist = ReaderHandler.getAlgorithmOntologies();
-//
-//            for (int i = 1; i <= 100; i++) {
-//                WriterHandler.addAlgorithm(new Algorithm("ename" + i, "euri" + i, ontlist));
-//            }
-//        } catch (DuplicateKeyException ex) {
-//            Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//
-//    }
+    @Test
+    public void testAddAlgorithm() throws Exception {
 
+        WriterHandler.addAlgorithm(YaqpAlgorithms.MLR);
+        WriterHandler.addAlgorithm(YaqpAlgorithms.SVM);
+        WriterHandler.addAlgorithm(YaqpAlgorithms.SVC);
+
+    }
 }
