@@ -29,15 +29,19 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.ontology.components;
 
+import com.itextpdf.text.Paragraph;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.OntObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.io.util.YaqpIOStream;
 
 /**
  *
@@ -48,10 +52,8 @@ public class UserGroup extends YaqpComponent {
 
     private String name;
     private int level;
-    
 
-    public UserGroup(){
-
+    public UserGroup() {
     }
 
     public UserGroup(String name, int level) {
@@ -59,11 +61,9 @@ public class UserGroup extends YaqpComponent {
         this.level = level;
     }
 
-   
     public int getLevel() {
         return level;
     }
-   
 
     /**
      * The name of the user group as it is registered in the database.
@@ -77,14 +77,22 @@ public class UserGroup extends YaqpComponent {
         this.level = level;
     }
 
-    
     public void setName(String name) {
         this.name = name;
     }
 
+    // TODO: This was just a test. Implement the method!
     @Override
     public PDFObject getPDF() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        PDFObject pdf = new PDFObject();
+        pdf.addElement(new Paragraph("123"));
+        return pdf;
+    }
+
+    public static void main(String[] args) throws FileNotFoundException{
+        UserGroup ug = new UserGroup();
+        ug.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/a.pdf")));
+
     }
 
     @Override
@@ -101,8 +109,4 @@ public class UserGroup extends YaqpComponent {
     public JSONObject getJson() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
-    
-
-
 }

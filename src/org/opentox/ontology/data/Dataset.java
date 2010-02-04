@@ -31,11 +31,20 @@
  */
 package org.opentox.ontology.data;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import com.hp.hpl.jena.rdf.model.Literal;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.SimpleSelector;
+import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 import java.net.URI;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import org.opentox.core.exceptions.YaqpIOException;
 import org.opentox.core.processors.Pipeline;
 import org.opentox.io.processors.InputProcessor;
@@ -45,8 +54,12 @@ import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTClass;
+import org.opentox.ontology.namespaces.OTDataTypeProperties;
+import org.opentox.ontology.namespaces.OTObjectProperties;
 import org.opentox.ontology.processors.InstancesProcessor;
+import weka.core.Attribute;
 import weka.core.FastVector;
+import weka.core.Instance;
 import weka.core.Instances;
 
 /**
@@ -62,10 +75,8 @@ public class Dataset {
     public Dataset(OntObject oo) {
         this.oo = oo;
     }
-   
 
-        
-    public Instances getInstances() throws YaqpOntException{
+    public Instances getInstances() throws YaqpOntException {
 
         /*
          *
@@ -75,7 +86,8 @@ public class Dataset {
                 _Dataset = OTClass.Dataset.getOntClass(oo),
                 _Feature = OTClass.Feature.getOntClass(oo),
                 _NumericFeature = OTClass.NumericFeature.getOntClass(oo),
-                _NominalFeature = OTClass.NominalFeature.getOntClass(oo);
+                _NominalFeature = OTClass.NominalFeature.getOntClass(oo),
+                _StringFeature =  OTClass.StringFeature.getOntClass(oo);
 
         FastVector attributes = null;
 
@@ -109,13 +121,187 @@ public class Dataset {
         System.out.println(relationName);
 
         /**
-         *
-         *
+         * Create a Map<String, String> such that its first entry is a feature in
+         * the dataset and the second is its datatype.
          */
+        Map<Resource, String> featureTypeMap = new HashMap<Resource, String>();
+
+
+        //  A3. Iterate over all Features.
+        featureIterator =
+                oo.listStatements(new SimpleSelector(null, RDF.type, _StringFeature));
+        while (featureIterator.hasNext()) {
+            Statement feature = featureIterator.next();
+
+            // A4. For every single feature in the dataset, pick a "values" node.
+            valuesIterator =
+                    oo.listStatements(new SimpleSelector(null, OTObjectProperties.feature.createProperty(oo), feature.getSubject()));
+            if (valuesIterator.hasNext()) {
+                Statement values = valuesIterator.next();
+
+                // A5. For this values node, get the value
+                StmtIterator valueInValuesIter =
+                        oo.listStatements(new SimpleSelector(values.getSubject(), OTDataTypeProperties.value.createProperty(oo), (Resource) null));
+                if (valueInValuesIter.hasNext()) {
+                    featureTypeMap.put(feature.getSubject(), valueInValuesIter.next().getLiteral().getDatatypeURI());
+                }
+            }
+            valuesIterator.close();
+        }
+        featureIterator.close();
+
+
+        /**
+         * A6. Now update the attributes of the dataset.
+         */
+        attributes = getAttributes(featureTypeMap);
+        data = new Instances(relationName, attributes, 0);
+
+
+
+        /**
+         * B1. Iterate over all dataentries
+         */
+        dataEntryIterator =
+                oo.listStatements(new SimpleSelector(null, RDF.type, _DataEntry));
+        while (dataEntryIterator.hasNext()) {
+            Statement dataEntry = dataEntryIterator.next();
+
+
+
+            /**
+             * B2. For every dataEntry, iterate over all values nodes.
+             */
+            Instance temp = null;
+            valuesIterator =
+                    oo.listStatements(new SimpleSelector(dataEntry.getSubject(), OTObjectProperties.values.createProperty(oo), (Resource) null));
+
+            double[] vals = new double[data.numAttributes()];
+            for (int i = 0; i < data.numAttributes(); i++) {
+                vals[i] = Instance.missingValue();
+            }
+
+            StmtIterator compoundNamesIterator =
+                    oo.listStatements(new SimpleSelector(dataEntry.getSubject(), OTObjectProperties.compound.createProperty(oo), (Resource) null));
+            String compoundName = null;
+            if (compoundNamesIterator.hasNext()) {
+                compoundName = compoundNamesIterator.next().getObject().as(Resource.class).getURI();
+            }
+
+            vals[data.attribute("compound_uri").index()] = data.attribute("compound_uri").addStringValue(compoundName);
+
+            while (valuesIterator.hasNext()) {
+                Statement values = valuesIterator.next();
+
+                /*
+                 * B3. A pair of the form (AttributeName, AttributeValue) is created.
+                 * This will be registered in an Instance-type object which
+                 * is turn will be used to update the dataset.
+                 */
+
+                // atVal is the value of the attribute
+                String atVal = values.getProperty(OTDataTypeProperties.value.createProperty(oo)).getObject().as(Literal.class).getValue().toString();
+                // and atName is the name of the corresponding attribute.
+                String atName = values.getProperty(OTObjectProperties.feature.createProperty(oo)).getObject().as(Resource.class).getURI();
+
+
+
+                if (numericXSDtypes().contains(featureTypeMap.get(oo.createResource(atName)))) {
+                    try {
+                        vals[data.attribute(atName).index()] = Double.parseDouble(atVal);
+                        /**
+                         * The following catch rule, handles cases where some values are declared
+                         * as numeric (double, float etc) but their value cannot be cast as
+                         * double.
+                         */
+                    } catch (NumberFormatException ex) {
+                    }
+                } else if (stringXSDtypes().contains(featureTypeMap.get(oo.createResource(atName)))) {
+                    vals[data.attribute(atName).index()] = data.attribute(atName).addStringValue(atVal);
+                } else if (XSDDatatype.XSDdate.getURI().equals(atName)) {
+                    try {
+                        vals[data.attribute(atName).index()] = data.attribute(atName).parseDate(atVal);
+                    } catch (ParseException ex) {
+                        System.out.println(ex);
+                        //Logger.getLogger(Dataset.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                }
+
+
+
+            }
+            temp = new Instance(1.0, vals);
+
+            // Add the Instance only if its compatible with the dataset!
+            if (data.checkInstance(temp)) {
+                data.add(temp);
+            } else {
+                System.err.println("Warning! The instance " + temp + " is not compatible with the dataset!");
+            }
+
+
+        }
+        dataEntryIterator.close();
+
         return data;
+
     }
 
-    public static void main(String[] args) throws Exception{
+      private FastVector getAttributes(Map<Resource, String> featureTypeMap) {
+        // atts is the FastVector containing all attributes of the dataset:
+        FastVector atts = new FastVector();
+        Iterator<Map.Entry<Resource, String>> mapIterator = featureTypeMap.entrySet().iterator();
+        Map.Entry<Resource, String> entry;
+        // All datasets must have an attribute called 'compound_uri'
+        atts.addElement(new Attribute("compound_uri", (FastVector) null));
+        while (mapIterator.hasNext()) {
+            entry = mapIterator.next();
+            String dataType = entry.getValue();
+            if (numericXSDtypes().contains(dataType)) {
+                atts.addElement(new Attribute(entry.getKey().getURI()));
+            } else if (stringXSDtypes().contains(dataType)) {
+                atts.addElement(new Attribute(entry.getKey().getURI(), (FastVector) null));
+            }
+        }
+
+        return atts;
+    }
+
+    /**
+     * The set of XSD data types that should be cast as numeric.
+     * @return the set of XSD datatypes that should be considered as numeric.
+     */
+    private static Set<String> numericXSDtypes() {
+        Set<String> numericXSDtypes = new HashSet<String>();
+        numericXSDtypes.add(XSDDatatype.XSDdouble.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDfloat.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDint.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDinteger.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDnegativeInteger.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDnonNegativeInteger.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDpositiveInteger.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDnonPositiveInteger.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDlong.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDshort.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDlong.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDunsignedInt.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDunsignedLong.getURI());
+        numericXSDtypes.add(XSDDatatype.XSDunsignedShort.getURI());
+        return numericXSDtypes;
+    }
+
+    /**
+     * The set of XSD data types that should be cast as string.
+     * @return the set of XSD datatypes that should be considered as strings.
+     */
+    private static Set<String> stringXSDtypes() {
+        Set<String> stringXSDtypes = new HashSet<String>();
+        stringXSDtypes.add(XSDDatatype.XSDstring.getURI());
+        stringXSDtypes.add(XSDDatatype.XSDanyURI.getURI());
+        return stringXSDtypes;
+    }
+
+    public static void main(String[] args) throws Exception {
 
         InputProcessor<OntObject> p1 = new InputProcessor<OntObject>();
         DatasetBuilder p2 = new DatasetBuilder();
@@ -125,12 +311,13 @@ public class Dataset {
         pipe.add(p2);
         pipe.add(p3);
 
-        Instances data = (Instances) pipe.process(new URI("http://localhost/1"));
+        Instances data = (Instances) pipe.process(new URI("http://localhost/6"));
+        System.out.println(data);
     }
+
+
 
     public void publish(YaqpIOStream stream) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-    
-
 }

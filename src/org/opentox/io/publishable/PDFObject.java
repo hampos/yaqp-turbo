@@ -29,14 +29,14 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.io.publishable;
 
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.opentox.io.interfaces.JPublishable;
@@ -47,27 +47,30 @@ import org.opentox.io.util.YaqpIOStream;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class PDFObject extends Document implements JPublishable {
+public class PDFObject implements JPublishable {
 
-    public PDFObject() throws Exception{
-        super();        
-        open();
-        addAuthor("Sopasakis Pantelis, Charalampos Chomenides");
-        addCreator("iText");
-        addTitle("Auto-Generated PDF");
-        addCreationDate();
-        addProducer();
+    private ArrayList<Element> elements = new ArrayList<Element>();
+
+    public PDFObject() {
+    }
+
+    public void addElement(Element element) {
+        elements.add(element);
     }
 
     public void publish(YaqpIOStream stream) {
+
         try {
-            PdfWriter.getInstance(this, (OutputStream) stream.getStream());
-            close();
+            Document doc = new Document();
+            PdfWriter.getInstance(doc, (OutputStream) stream.getStream());
+            doc.open();
+            for (int i = 0;i < elements.size(); i++){
+                doc.add(elements.get(i));
+            }
+            doc.close();
         } catch (DocumentException ex) {
             Logger.getLogger(PDFObject.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
-
-    
-
 }
