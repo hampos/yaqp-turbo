@@ -31,7 +31,11 @@
  */
 package org.opentox.ontology.components;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.DC;
+import com.hp.hpl.jena.vocabulary.RDF;
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chunk;
 import com.itextpdf.text.DocumentException;
@@ -44,14 +48,15 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
+import org.opentox.ontology.namespaces.OTClass;
+import org.opentox.ontology.namespaces.OTDataTypeProperties;
+import org.opentox.ontology.namespaces.OTObjectProperties;
 import org.opentox.ontology.util.AlgorithmMeta;
 import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
@@ -232,14 +237,77 @@ public class Algorithm extends YaqpComponent {
         return pdf;
     }
 
-    public static void main(String[] args) throws FileNotFoundException{
-        Algorithm a = YaqpAlgorithms.SVM;
-        a.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/a.pdf")));
+    public static void main(String[] args) throws FileNotFoundException {
+        //YaqpAlgorithms.SVM.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/svm.pdf")));
+        //YaqpAlgorithms.MLR.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/mlr.pdf")));
+        YaqpAlgorithms.MLR.getRDF().write(System.out, "TURTLE");
+
     }
 
     @Override
     public RDFObject getRDF() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        RDFObject rdf = new RDFObject();
+        rdf.includeOntClass(getMeta().algorithmType);
+
+        Individual algorithm = rdf.createIndividual(getMeta().identifier, rdf.createOntResource(getMeta().algorithmType.getURI()));
+
+        // dc:title
+        algorithm.addLiteral(rdf.createAnnotationProperty(DC.title.getURI()),
+                rdf.createTypedLiteral(getMeta().title, XSDDatatype.XSDstring));
+        // dc:creator
+        algorithm.addLiteral(rdf.createAnnotationProperty(DC.creator.getURI()),
+                rdf.createTypedLiteral(getMeta().creator, XSDDatatype.XSDanyURI));
+        // dc:source
+        algorithm.addLiteral(rdf.createAnnotationProperty(DC.source.getURI()),
+                rdf.createTypedLiteral(getMeta().source, XSDDatatype.XSDanyURI));
+        // dc:publisher
+        algorithm.addLiteral(rdf.createAnnotationProperty(DC.publisher.getURI()),
+                rdf.createTypedLiteral(getMeta().publisher, XSDDatatype.XSDanyURI));
+        // dc:contributor
+        algorithm.addLiteral(rdf.createAnnotationProperty(DC.contributor.getURI()),
+                rdf.createTypedLiteral(getMeta().contributor, XSDDatatype.XSDanyURI));
+        // dc:relation
+        algorithm.addLiteral(rdf.createAnnotationProperty(DC.relation.getURI()),
+                rdf.createTypedLiteral(getMeta().relation, XSDDatatype.XSDanyURI));
+        // dc:rights
+        algorithm.addLiteral(rdf.createAnnotationProperty(DC.rights.getURI()),
+                rdf.createTypedLiteral(getMeta().rights, XSDDatatype.XSDanyURI));
+        // dc:date
+        algorithm.addLiteral(rdf.createAnnotationProperty(DC.date.getURI()),
+                rdf.createTypedLiteral(getMeta().date, XSDDatatype.XSDdate));
+        // dc:audience
+        for (int i = 0; i < getMeta().audience.size(); i++) {
+            algorithm.addLiteral(rdf.createAnnotationProperty(DC.NS + "audience"),
+                    rdf.createTypedLiteral(getMeta().audience.get(i).getName(), XSDDatatype.XSDstring));
+        }
+
+        // dc:description
+        algorithm.addLiteral(rdf.createAnnotationProperty(DC.description.getURI()),
+                rdf.createTypedLiteral(getMeta().description, XSDDatatype.XSDanyURI));
+        // dc:identifier
+        algorithm.addLiteral(rdf.createAnnotationProperty(DC.identifier.getURI()),
+                rdf.createTypedLiteral(getMeta().identifier, XSDDatatype.XSDanyURI));
+        // ot:type
+        algorithm.addProperty(rdf.createAnnotationProperty(RDF.type.getURI()),
+                rdf.createOntResource(getMeta().algorithmType.getURI()));
+
+
+        Individual iparam;
+            for (int i = 0; i < getMeta().Parameters.size(); i++) {
+                iparam = rdf.createIndividual(OTClass.Parameter.getOntClass(rdf));
+                iparam.addProperty(rdf.createAnnotationProperty(DC.title.getURI()),
+                        getMeta().Parameters.get(i).paramName);
+                iparam.addLiteral(rdf.createAnnotationProperty(OTDataTypeProperties.paramValue.getURI()),
+                        rdf.createTypedLiteral(
+                        getMeta().Parameters.get(i).paramValue.toString(),
+                        getMeta().Parameters.get(i).dataType));
+                iparam.addLiteral(rdf.createAnnotationProperty(OTDataTypeProperties.paramScope.getURI()),
+                        rdf.createTypedLiteral(getMeta().Parameters.get(i).paramScope,
+                        XSDDatatype.XSDstring));
+                algorithm.addProperty(rdf.createAnnotationProperty(OTObjectProperties.parameters.getURI()), iparam);
+            }
+
+        return rdf;
     }
 
     @Override

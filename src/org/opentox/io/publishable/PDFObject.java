@@ -40,9 +40,11 @@ import com.itextpdf.text.pdf.PdfWriter;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import org.opentox.config.ServerFolders;
 import org.opentox.io.interfaces.JPublishable;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Trace;
 import org.opentox.util.logging.levels.Warning;
 
 /**
@@ -59,6 +61,7 @@ public class PDFObject implements JPublishable {
     private String pdfTitle = "OpenTox Entity Representation";
     private String pdfKeywords = "";
     private static final String OpenToxLogoUrl = "http://opentox.org/logo.png";
+    private static final String alternativeLogoPath = ServerFolders.images+"/logo.png";
 
 
     public PDFObject() {
@@ -104,13 +107,21 @@ public class PDFObject implements JPublishable {
             doc.addTitle(pdfTitle);
             doc.addKeywords(pdfKeywords);
             doc.addHeader("License", "GNU GPL v3");
+            Image image = null;
             try {
-                Image image = Image.getInstance(new URL(OpenToxLogoUrl));
+                image = Image.getInstance(new URL(OpenToxLogoUrl));                
+            } catch (Exception ex) {// OpenTox Logo was not found on the web...
+                try {// use the cached image instead
+                    YaqpLogger.LOG.log(new Trace(getClass(), "WCT517 - OpenTox Logo not found at " + OpenToxLogoUrl));
+                    image = Image.getInstance(alternativeLogoPath);
+                } catch (Exception ex1) {
+                    YaqpLogger.LOG.log(new Warning(getClass(), "WCT518 - OpenTox Logo not found at "+alternativeLogoPath));
+                } 
+            }
+            if (image != null){
                 image.scalePercent(40);
                 image.setAnnotation(new Annotation(0, 0, 0, 0, "http://opentox.org"));
                 doc.add(image);
-            } catch (Exception ex) {
-                YaqpLogger.LOG.log(new Warning(getClass(), "WCT517 - OpenTox Logo not found at "+OpenToxLogoUrl));
             }
             for (int i = 0;i < elements.size(); i++){
                 doc.add(elements.get(i));

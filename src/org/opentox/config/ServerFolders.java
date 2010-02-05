@@ -79,4 +79,17 @@ public class ServerFolders {
      */
     public static final String models_omega =
             models + "/omega";
+    /**
+     * Collection of resources such as images, javascripts and other auxiliary
+     * files etc.
+     */
+    public static final String resources =
+            home + "/resources";
+
+    /**
+     * Folder for storing images
+     */
+    public static final String images =
+            resources + "/images";
+
 }

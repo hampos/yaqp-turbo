@@ -33,8 +33,6 @@ package org.opentox.ontology.namespaces;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Resource;
-import java.util.Iterator;
-import java.util.Set;
 import org.opentox.io.publishable.OntObject;
 
 /**
@@ -152,6 +150,14 @@ public class OTClass extends YaqpOntEntity {
      */
     public static final OTClass Parameter =
             new OTClass(_model.createResource(String.format(_NS_OT, "Parameter")));
-
-    
+    /**
+     * A user of the service.
+     */
+    public static final OTClass User =
+            new OTClass(_model.createResource(String.format(_NS_OT, "User")));
+    /**
+     * A User Group.
+     */
+    public static final OTClass UserGroup =
+            new OTClass(_model.createResource(String.format(_NS_OT, "UserGroup")));
 }

@@ -35,7 +35,6 @@ package org.opentox.io.publishable;
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.impl.OntModelImpl;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import org.opentox.io.util.YaqpIOStream;

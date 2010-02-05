@@ -30,8 +30,11 @@
  */
 package org.opentox.db.handlers;
 
+import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -41,6 +44,8 @@ import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.ontology.exceptions.YaqpOntException;
+import org.opentox.ontology.namespaces.OTClass;
+import org.opentox.ontology.namespaces.YaqpOntEntity;
 import static org.junit.Assert.*;
 
 /**
@@ -69,22 +74,41 @@ public class ReaderHandlerTest {
     public void tearDown() {
     }
 
-
     @Test
     public void getBadUser() {
-        try{
-        User u = ReaderHandler.getUser("chomiole");
-        System.out.println(u);
-        }catch (DbException e){
+        try {
+            User u = ReaderHandler.getUser("chomiole");
+            System.out.println(u);
+        } catch (DbException e) {
             assertTrue(e.toString().contains("XUS452"));
-        }        
+        }
     }
 
     @Test
-    public void getBadUserGroup(){
-        try{
-        UserGroup ug = ReaderHandler.getUserGroup("asdf");
-        } catch(DbException e){
+    public void getNullUser() {
+        try {
+            User u = ReaderHandler.getUser(null);
+            System.out.println(u);
+        } catch (DbException ex) {
+            assertTrue(ex.toString().contains("XUS452"));
+        }
+
+    }
+
+    @Test
+    public void getBadUserGroup() {
+        try {
+            UserGroup ug = ReaderHandler.getUserGroup("asdf");
+        } catch (DbException e) {
+            assertTrue(e.toString().contains("XUG710"));
+        }
+    }
+
+    @Test
+    public void getNullUserGroup() {
+        try {
+            UserGroup ug = ReaderHandler.getUserGroup(null);
+        } catch (DbException e) {
             assertTrue(e.toString().contains("XUG710"));
         }
     }
@@ -93,10 +117,12 @@ public class ReaderHandlerTest {
     public void getUsersTest() throws DbException {
         ArrayList<User> users = ReaderHandler.getUsers();
         Iterator<User> it = users.iterator();
-        while (it.hasNext()) {
-            User user = it.next();
-            System.out.println(user + "\n");
+        UriList ul = new UriList();
+        for (User u: users){
+            ul.add(new Uri("http://opentox.ntua.gr/user/"+u.getUserName(), OTClass.User));
         }
+        ul.getRDF().printConsole();
+        
     }
 
     @Test

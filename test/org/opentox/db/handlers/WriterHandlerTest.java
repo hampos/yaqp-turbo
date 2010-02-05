@@ -151,7 +151,7 @@ public class WriterHandlerTest {
     }
 
     @Test
-    public void testAddMLRModel() throws DuplicateKeyException {
+    public void testAddMLRModel() throws DuplicateKeyException, DbException {
         ArrayList<Feature> features = ReaderHandler.getFeatures();
         System.err.println(ReaderHandler.getUser("vser_1"));
         MLRModel model = new MLRModel(0, "asdf", "//asdf",

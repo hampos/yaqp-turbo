@@ -29,8 +29,17 @@ package org.opentox.io.util;
  */
 public enum ServerList {
 
+    /**
+     * AMBIT Server.
+     */
     ambit("http://ambit.uni-plovdiv.bg:8080/ambit2", true, true, true),
+    /**
+     * TUM OpenTox Server.
+     */
     tum("http://opentox.informatik.tu-muenchen.de:8080/OpenTox", false, true, false),
+    /**
+     * In-Silico Toxicology Server.
+     */
     insilico("http://webservices.in-silico.ch", true, true, true);
 
     private final String uri;
@@ -43,18 +52,34 @@ public enum ServerList {
         this.supportsFeatures = sf;
     }
 
+    /**
+     *
+     * @return The base URI of the remote server.
+     */
     public String getBaseURI(){
         return uri;
     }
 
+    /**
+     *
+     * @return <code>true</code> if the server supports dataset services.
+     */
     public boolean suppDataset(){
         return this.supportsDataset;
     }
 
+    /**
+     * Whether the server supports feature services.
+     * @return <code>true</code> if the server supports feature services.
+     */
     public boolean suppFeatures(){
         return this.supportsFeatures;
     }
 
+    /**
+     * Whether the server supports compound services.
+     * @return <code>true</code> if the server supports compound services.
+     */
     public boolean suppCompounds() {
         return this.supportsCompounds;
     }

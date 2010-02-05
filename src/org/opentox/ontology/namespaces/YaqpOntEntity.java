@@ -55,7 +55,7 @@ import org.opentox.ontology.interfaces.JOntEntity;
  * @author Charalampos Chomenides
  * @see JOntEntity interface for this class
  */
-public abstract class YaqpOntEntity implements JOntEntity, Serializable  {
+public class YaqpOntEntity implements JOntEntity, Serializable  {
 
     protected  static final String _NS_OT = "http://www.opentox.org/api/1.1#%s";
     protected  static final String _NS_AlgorithmTypes = "http://www.opentox.org/algorithmTypes.owl/#%s";
@@ -70,6 +70,14 @@ public abstract class YaqpOntEntity implements JOntEntity, Serializable  {
 
     public YaqpOntEntity(Resource resource) {
         this._resource = resource;
+    }
+
+    /**
+     * TODO: This is not tested yet!
+     * @param resourceUri
+     */
+    public YaqpOntEntity(String resourceUri){
+        this._resource = _model.createResource(resourceUri);
     }
 
     public OntClass createOntClass(OntObject model) {
