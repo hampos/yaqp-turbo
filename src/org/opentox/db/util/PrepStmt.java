@@ -133,6 +133,13 @@ public enum PrepStmt implements JPrepStmt {
                         new QueryParam("CREATED_BY",String.class)
                     }
     ),
+
+    ADD_INDEP_FEATURE_RELATION("INSERT INTO " + IndepFeaturesRelation().getTableName()
+            + " (MODEL_UID, FEATURE_UID) VALUES (?,?)",
+            new QueryParam[]{
+                        new QueryParam("MODEL_UID", Integer.class),
+                        new QueryParam("FEATURE_UID", Integer.class)
+    }),
     /**
      * Add a new MLR model in the database.
      */
@@ -195,10 +202,10 @@ public enum PrepStmt implements JPrepStmt {
     /**
      * Get a specific User.
      */
-    GET_USER("SELECT * FROM "+Users().getTableName()+" WHERE USERNAME=?",
+    GET_USER("SELECT * FROM "+Users().getTableName()+" WHERE EMAIL=?",
 
         new QueryParam[]{
-                            new QueryParam("USERNAME",String.class)
+                            new QueryParam("EMAIL",String.class)
                         }
     ),
     
@@ -262,12 +269,13 @@ public enum PrepStmt implements JPrepStmt {
      *
      * Get all prediction models from the database.
      */
-    GET_PRED_MODELS("SELECT * FROM "+PredictionModels().getTableName(), null),
+    GET_QSAR_MODELS("SELECT * FROM "+PredictionModels().getTableName(), null),
     /**
      *
      * Get all MLR models.
      */
-    GET_MLR_MODELS("SELECT * FROM "+MlrModels().getTableName(), null),
+    GET_MLR_MODELS("SELECT "+PredictionModels().getTableName()+".* , "+MlrModels().getTableName()+".DATASET FROM "+PredictionModels().getTableName()+" INNER JOIN "+MlrModels().getTableName()
+            +" ON "+PredictionModels().getTableName()+".UID="+MlrModels().getTableName()+".UID",null),
     /**
      *
      * Get all SVM models
@@ -279,7 +287,19 @@ public enum PrepStmt implements JPrepStmt {
      */
     GET_SVC_MODELS("SELECT * FROM "+SvcModels().getTableName(), null),
 
-    GET_FEATURES("SELECT * FROM "+Features().getTableName(), null)
+    GET_FEATURES("SELECT * FROM "+Features().getTableName(), null),
+
+    GET_FEATURE("SELECT * FROM "+Features().getTableName()+" WHERE UID=?",
+        new QueryParam[]{
+                        new QueryParam("UID",Integer.class)
+                    }),
+
+    GET_INDEP_FEATURES("SELECT "+Features().getTableName()+".*" +
+            " FROM "+Features().getTableName()+" INNER JOIN "+IndepFeaturesRelation().getTableName()+
+            " ON UID=FEATURE_UID"+" WHERE MODEL_UID=?",
+        new QueryParam[]{
+                        new QueryParam("MODEL_UID",Integer.class)
+                    })
 
             ;
 

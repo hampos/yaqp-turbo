@@ -62,7 +62,7 @@ public class Algorithm extends YaqpComponent {
     @Override
     public String toString(){
         String algorithm = "";
-        algorithm += "\n--ALGORITHM--\n";
+        algorithm += "--ALGORITHM--\n";
         algorithm += "NAME          : "+metadata.name+"\n";
         return algorithm;
     }

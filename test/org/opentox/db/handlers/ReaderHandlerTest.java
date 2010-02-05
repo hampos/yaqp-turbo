@@ -69,7 +69,7 @@ public class ReaderHandlerTest {
     public void tearDown() {
     }
 
-    @Test
+    //@Test
     public void getUsersTest() {
         ArrayList<User> users = ReaderHandler.getUsers();
         Iterator<User> it = users.iterator();
@@ -99,7 +99,7 @@ public class ReaderHandlerTest {
         }
     }
 
-    @Test
+    //@Test
     public void getAlgOntRelationTest() throws YaqpOntException {
         ArrayList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation("svm");
         Iterator<AlgorithmOntology> it = ontologies.iterator();
@@ -108,7 +108,7 @@ public class ReaderHandlerTest {
         }
     }
 
-    @Test
+   // @Test
     public void getOntAlgRelationTest() throws Exception {
         AlgorithmOntology ontology = new AlgorithmOntology("Classification");
         ArrayList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology);
@@ -121,6 +121,15 @@ public class ReaderHandlerTest {
     public void getAlgorithmsTest(){
         ArrayList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
         Iterator<Algorithm> it = algorithms.iterator();
+        while(it.hasNext()){
+            System.out.println(it.next());
+        }
+    }
+
+    @Test
+    public void getMLRModelsTest(){
+        ArrayList<MLRModel> models = ReaderHandler.getMLRModels();
+        Iterator<MLRModel> it = models.iterator();
         while(it.hasNext()){
             System.out.println(it.next());
         }

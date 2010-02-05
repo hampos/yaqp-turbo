@@ -500,7 +500,7 @@ public enum StandardTables {
     }
 
     public static Table IndepFeaturesRelation() {
-        Table table = new Table("INDEPENDENT_FETAURES_RELATION");
+        Table table = new Table("INDEPENDENT_FEATURES_RELATION");
 
         TableColumn model_uid = new TableColumn("MODEL_UID");
         model_uid.setColumnType(SQLDataTypes.Int());

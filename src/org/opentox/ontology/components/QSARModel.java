@@ -152,8 +152,8 @@ public abstract class QSARModel extends YaqpComponent {
         predModel += "NAME        : " + getName() + "\n";
         predModel += "PRED FEATURE: " + "\n" + getPredictionFeature() + "\n";
         predModel += "DEP FEATURE : " + "\n" + getDependentFeature() + "\n";
-        predModel += "ALGORITHM   : " + "\n" + getAlgorithm() + "\n";
-        predModel += "USER        : " + "\n" + getUser() + "\n";
+        predModel += "ALGORITHM   : " + getAlgorithm().getMeta().name + "\n";
+        predModel += "USER        : " + getUser().getEmail() + "\n";
         predModel += "TIMESTAMP   : " + getTimestamp() + "\n";
         predModel += "IND FEATURES: " + getId() + "\n";
         Iterator<Feature> it = independentFeatures.iterator();

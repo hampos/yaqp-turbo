@@ -65,7 +65,8 @@ public class WriterHandler {
             addAlgOntRelationPipeline = null,
             addFeaturePipeline = null,
             addQSARModelPipeline = null,
-            addMLRModelPipeline = null;
+            addMLRModelPipeline = null,
+            addIndepFeaturePipeline = null;
 
     /**
      * Add a new UserGroup in the database
@@ -239,17 +240,13 @@ public class WriterHandler {
     }
 
     public static int addQSARModel(QSARModel model) throws DuplicateKeyException {
-        System.out.println(model.getName());
-        System.out.println(model.getUri());
-        System.out.println(model.getPredictionFeature().getID());
-        System.out.println(model.getDependentFeature().getID());
-        System.out.println(model.getAlgorithm().getMeta().name);
-        System.out.println(model.getUser().getEmail());
         if (addQSARModelPipeline == null) {
-            System.out.println("a1");
             addQSARModelPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_QSAR_MODEL);
-            System.out.println(addQSARModelPipeline == null);
         }
+        if (addIndepFeaturePipeline == null) {
+            addIndepFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_INDEP_FEATURE_RELATION);
+        }
+        BatchProcessor bp = new BatchProcessor(addIndepFeaturePipeline);
         int r = 0;
         HyperResult result = new HyperResult();
         QueryFood food = new QueryFood(
@@ -262,9 +259,7 @@ public class WriterHandler {
                     {"CREATED_BY", model.getUser().getEmail()}
                 });
         try {
-            System.out.println("before");
             result = addQSARModelPipeline.process(food);
-            System.out.println(result.getSize());
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "QSarModel added: \n" ));
         } catch (DbException ex) {
             if (ex.toString().contains("DuplicateKeyException")) {
@@ -277,6 +272,22 @@ public class WriterHandler {
         if (result.getSize() == 1) {
             Iterator<String> it = result.getColumnIterator(1);
             r = Integer.parseInt(it.next());
+        }
+        ArrayList<QueryFood> foodlist = new ArrayList<QueryFood>();
+        for(Feature feature : model.getIndependentFeatures()){
+            QueryFood f = new QueryFood(
+                    new String[][]{
+                        {"MODEL_UID", Integer.toString(r)},
+                        {"FEATURE_UID", Integer.toString(feature.getID())}
+            });
+            foodlist.add(f);
+        }
+        try {
+            bp.process(foodlist);
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Independent feature relations batch added for model: "+model.getName()));
+        } catch (Exception ex) {
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "Could not batch add Independent feature relations for model :" + model.getName()));
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
         return r;
     }
