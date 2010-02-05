@@ -63,22 +63,93 @@ public class Task extends YaqpComponent {
          */
         CANCELLED
     };
+//
+//    public static enum TYPE {
+//
+//        TRAINING,
+//        PREDICTION,
+//    };
     private String name, uri;
     private STATUS taskStatus;
-    private String result;
-    private int httpStatus;
+    private String result, startStamp, endStamp;
+    private int id, httpStatus;
+    private User user;
+    private Algorithm algorithm;
 
     public Task() {
         setStatus(STATUS.RUNNING);
         httpStatus = 202;
     }
 
-    public Task(String name, String uri, STATUS taskStatus, String result, int httpStatus) {
+    public Task(int id, String name, String uri, STATUS taskStatus, User user, Algorithm algorithm, int httpStatus,
+            String result, String startStamp, String endStamp) {
+        this.id = id;
         this.name = name;
         this.uri = uri;
         this.taskStatus = taskStatus;
-        this.result = result;
+        this.user = user;
+        this.algorithm = algorithm;
         this.httpStatus = httpStatus;
+        this.result = result;
+        this.startStamp = startStamp;
+        this.endStamp = endStamp;
+    }
+
+    public Task(String name, String uri, User user, Algorithm algorithm){
+        this.name = name;
+        this.uri = uri;
+        this.user = user;
+        this.algorithm = algorithm;
+        this.httpStatus = 202;
+        setStatus(STATUS.RUNNING);
+    }
+
+    public Algorithm getAlgorithm() {
+        return algorithm;
+    }
+
+    public void setAlgorithm(Algorithm algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    public String getEndStamp() {
+        return endStamp;
+    }
+
+    public void setEndStamp(String endStamp) {
+        this.endStamp = endStamp;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getStartStamp() {
+        return startStamp;
+    }
+
+    public void setStartStamp(String startStamp) {
+        this.startStamp = startStamp;
+    }
+
+    public STATUS getTaskStatus() {
+        return taskStatus;
+    }
+
+    public void setTaskStatus(STATUS taskStatus) {
+        this.taskStatus = taskStatus;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public int getHttpStatus() {
@@ -109,16 +180,16 @@ public class Task extends YaqpComponent {
         return uri;
     }
 
-    public void setName(String _name) {
-        this.name = _name;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setStatus(STATUS _status) {
-        this.taskStatus = _status;
+    public void setStatus(STATUS status) {
+        this.taskStatus = status;
     }
 
-    public void setUri(String _uri) {
-        this.uri = _uri;
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     @Override
@@ -143,6 +214,17 @@ public class Task extends YaqpComponent {
 
     @Override
     public String toString() {
-        return super.toString();
+        String task = "-- Task --\n";
+        task += "ID                : "+getId()+"\n";
+        task += "NAME              : "+getName()+"\n";
+        task += "URI               : "+getUri()+"\n";
+        task += "STATUS            : "+getStatus()+"\n";
+        task += "USER              : "+getUser().getEmail()+"\n";
+        task += "ALGORITHM         : "+getAlgorithm().getMeta().name+"\n";
+        task += "HTTP STATUS       : "+getHttpStatus()+"\n";
+        task += "RESULT            : "+getResult()+"\n";
+        task += "START TIME        : "+getStartStamp()+"\n";
+        task += "END TIME          : "+getEndStamp();
+        return task;
     }
 }

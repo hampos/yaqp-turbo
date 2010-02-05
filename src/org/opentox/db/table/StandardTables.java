@@ -612,7 +612,7 @@ public enum StandardTables {
         httpStatus.setColumnType(SQLDataTypes.Int());
         httpStatus.setNotNull(true);
         //httpStatus.setConstraint("HTTPSTATUS_CONSTRAINT", "STATUS IN ('200', '201', '202', '400')");
-        httpStatus.setDefaultValue("201");
+        httpStatus.setDefaultValue("202");
         table.addColumn(httpStatus);
 
         TableColumn result = new TableColumn("RESULT");

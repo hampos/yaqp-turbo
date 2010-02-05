@@ -44,7 +44,7 @@ import org.opentox.io.publishable.TurtleObject;
  * @author Charalampos Chomenides
  */
 public class SVMModel extends QSARModel {
-
+//TODO: Populate SVMModel
     @Override
     public PDFObject getPDF() {
         throw new UnsupportedOperationException("Not supported yet.");

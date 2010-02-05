@@ -66,7 +66,9 @@ public class WriterHandler {
             addFeaturePipeline = null,
             addQSARModelPipeline = null,
             addMLRModelPipeline = null,
-            addIndepFeaturePipeline = null;
+            addSVMModelPipeline = null,
+            addIndepFeaturePipeline = null,
+            addTaskPipeline = null;
 
     /**
      * Add a new UserGroup in the database
@@ -181,7 +183,17 @@ public class WriterHandler {
                 new String[][]{
                     {"URI", feature.getURI()}
                 });
-        addFeaturePipeline.process(food);
+        try {
+            addFeaturePipeline.process(food);
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Feature added: \n" + feature));
+        } catch (DbException ex){
+            if (ex.toString().contains("DuplicateKeyException")) {
+                String message = "XU719 - Cannot add feature because it already exists: " + feature;
+                YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+                throw new DuplicateKeyException(message, ex);
+            }
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU719 - Could not add the following feature :\n" + feature));
+        }
     }
 
     public static void addAlgorithm(Algorithm algorithm) throws DuplicateKeyException {
@@ -318,4 +330,53 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU716 - Could not add the following MLR model :\n" + model));
         }
     }
+
+    public static void addSVMModel(SVMModel model) throws DuplicateKeyException {
+        int r;
+        if ((r = addQSARModel((QSARModel) model)) == 0) {
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU717 - Could not add the following SVMmodel :\n" + model));
+            return;
+        }
+        if (addSVMModelPipeline == null) {
+            addSVMModelPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_SVM_MODEL);
+        }
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"UID", Integer.toString(r)},
+                    {"DATASET", ""}, //TODO:add more food when SVMModel is populated
+                });
+        try {
+            addSVMModelPipeline.process(food);
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "MLRModel added: "+model.getName()));
+        } catch (DbException ex) {
+            if (ex.toString().contains("DuplicateKeyException")) {
+                String message = "XU716 - Cannot add SVMmodel because ID is already used by some other model.";
+                YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+                throw new DuplicateKeyException(message, ex);
+            }
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU717 - Could not add the following SVM model :\n" + model));
+        }
+    }
+
+    public static void addTask(Task task){
+        if (addTaskPipeline == null) {
+            addTaskPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_TASK);
+        }
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"NAME", task.getName()},
+                    {"URI", task.getUri()},
+                    {"STATUS", task.getStatus().toString()},
+                    {"CREATED_BY", task.getUser().getEmail()},
+                    {"ALGORITHM", task.getAlgorithm().getMeta().name},
+                    {"HTTPSTATUS", Integer.toString(task.getHttpStatus())}
+                });
+        try {
+            addTaskPipeline.process(food);
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Task added: \n" + task));
+        } catch (DbException ex){
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU718 - Could not add the following Task :\n" + task));
+        }
+    }
+    
 }

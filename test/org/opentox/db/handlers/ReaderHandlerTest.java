@@ -70,7 +70,7 @@ public class ReaderHandlerTest {
     }
 
 
-    @Test
+  //  @Test
     public void getBadUser() {
         try{
         User u = ReaderHandler.getUser("chomiole");
@@ -80,7 +80,7 @@ public class ReaderHandlerTest {
         }        
     }
 
-    @Test
+  //  @Test
     public void getBadUserGroup(){
         try{
         UserGroup ug = ReaderHandler.getUserGroup("asdf");
@@ -89,7 +89,7 @@ public class ReaderHandlerTest {
         }
     }
 
-    @Test
+   // @Test
     public void getUsersTest() throws DbException {
         ArrayList<User> users = ReaderHandler.getUsers();
         Iterator<User> it = users.iterator();
@@ -99,7 +99,7 @@ public class ReaderHandlerTest {
         }
     }
 
-    @Test
+   // @Test
     public void getAlgorithmOntologiesTest() throws YaqpOntException, DbException {
 
         ArrayList<AlgorithmOntology> algont = ReaderHandler.getAlgorithmOntologies();
@@ -110,7 +110,7 @@ public class ReaderHandlerTest {
 
     }
 
-    @Test
+  //  @Test
     public void getUserGroupsTest() throws DbException {
         ArrayList<UserGroup> userGroups = ReaderHandler.getUserGroups();
         Iterator<UserGroup> it = userGroups.iterator();
@@ -120,7 +120,7 @@ public class ReaderHandlerTest {
     }
 
 
-    @Test
+   // @Test
     public void getAlgOntRelationTest() throws YaqpOntException, DbException {
         ArrayList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation("svm");
         Iterator<AlgorithmOntology> it = ontologies.iterator();
@@ -139,7 +139,7 @@ public class ReaderHandlerTest {
         }
     }
 
-    @Test
+   // @Test
     public void getAlgorithmsTest() {
         ArrayList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
         Iterator<Algorithm> it = algorithms.iterator();
@@ -148,10 +148,19 @@ public class ReaderHandlerTest {
         }
     }
 
-    @Test
+   // @Test
     public void getMLRModelsTest() throws DbException{
         ArrayList<MLRModel> models = ReaderHandler.getMLRModels();
         Iterator<MLRModel> it = models.iterator();
+        while(it.hasNext()){
+            System.out.println(it.next());
+        }
+    }
+
+    @Test
+    public void getTasksTest() throws DbException{
+        ArrayList<Task> tasks = ReaderHandler.getTasks();
+        Iterator<Task> it = tasks.iterator();
         while(it.hasNext()){
             System.out.println(it.next());
         }

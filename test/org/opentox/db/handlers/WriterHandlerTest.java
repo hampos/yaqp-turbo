@@ -154,4 +154,9 @@ public class WriterHandlerTest {
         model.setIndependentFeatures(features);
         WriterHandler.addMLRModel(model);
     }
+
+    @Test
+    public void testaddTask() throws DbException {
+        WriterHandler.addTask(new Task("hamptask","//hampt",ReaderHandler.getUser("makis1@mailntua.gr"),YaqpAlgorithms.MLR));
+    }
 }

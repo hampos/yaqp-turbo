@@ -68,7 +68,8 @@ public class ReaderHandler {
             getFeaturePipeline = null,
             getIndepFeaturesPipeline = null,
             getQSARModelsPipeline = null,
-            getMLRModelsPipeline = null;
+            getMLRModelsPipeline = null,
+            getTasksPipeline = null;
 
 
     /**
@@ -413,12 +414,31 @@ public class ReaderHandler {
             MLRModel model = new MLRModel(Integer.parseInt(it.next()), it.next(), it.next(), 
                     getFeature(Integer.parseInt(it.next())), getFeature(Integer.parseInt(it.next())),
                     getAlgorithm(it.next()), getUser(it.next()), it.next(), it.next());
-//            it.next();
-//            model.setDataset(it.next());
             model.setIndependentFeatures(getIndepFeatures(model));
             models.add(model);
         }
         return models;
+    }
+
+    public static ArrayList<Task> getTasks() throws DbException {
+        if (getTasksPipeline == null) {
+            getTasksPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_TASKS);
+        }
+        HyperResult result = null;
+        try {
+            result = getTasksPipeline.process(null);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Tasks from database"));
+        }
+        ArrayList<Task> tasks = new ArrayList<Task>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            Task task = new Task(Integer.parseInt(it.next()), it.next(), it.next(),
+                   Task.STATUS.valueOf(it.next()) , getUser(it.next()), getAlgorithm(it.next()), Integer.parseInt(it.next()),
+                    it.next(), it.next(), it.next());
+            tasks.add(task);
+        }
+        return tasks;
     }
 
 }

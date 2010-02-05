@@ -153,8 +153,9 @@ public enum PrepStmt implements JPrepStmt {
      *
      */
     ADD_SVM_MODEL("INSERT INTO "+SvmModels().getTableName()+
-            " (DATASET, GAMMA, EPSILON, COST, BIAS, TOLERANCE, CACHE, KERNEL, DEGREE ) VALUES (?,?,?,?,?,?,?,?,?)",
+            " (UID, DATASET, GAMMA, EPSILON, COST, BIAS, TOLERANCE, CACHE, KERNEL, DEGREE ) VALUES (?,?,?,?,?,?,?,?,?,?)",
     new QueryParam[]{
+                        new QueryParam("UID", Integer.class),
                         new QueryParam("DATASET", String.class),
                         new QueryParam("GAMMA", Double.class),
                         new QueryParam("EPSILON", Double.class),
@@ -190,6 +191,18 @@ public enum PrepStmt implements JPrepStmt {
     ADD_FEATURE("INSERT INTO " + Features().getTableName() + " (URI) VALUES (?)",
     new QueryParam[]{
             new QueryParam("URI", String.class)
+                    }
+    ),
+
+    ADD_TASK("INSERT INTO "+Tasks().getTableName()+
+            " (NAME, URI, STATUS, CREATED_BY, ALGORITHM, HTTPSTATUS ) VALUES (?,?,?,?,?,?)",
+    new QueryParam[]{
+                        new QueryParam("NAME", String.class),
+                        new QueryParam("URI", String.class),
+                        new QueryParam("STATUS", String.class),
+                        new QueryParam("CREATED_BY", String.class),
+                        new QueryParam("ALGORITHM", String.class),
+                        new QueryParam("HTTPSTATUS", Integer.class)
                     }
     ),
     /**
@@ -299,7 +312,10 @@ public enum PrepStmt implements JPrepStmt {
             " ON UID=FEATURE_UID"+" WHERE MODEL_UID=?",
         new QueryParam[]{
                         new QueryParam("MODEL_UID",Integer.class)
-                    })
+                    }),
+
+
+    GET_TASKS("SELECT * FROM "+Tasks().getTableName(), null)
 
             ;
 
