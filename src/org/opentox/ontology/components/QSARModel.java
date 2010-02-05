@@ -33,13 +33,9 @@ package org.opentox.ontology.components;
 
 import java.util.ArrayList;
 import java.util.Iterator;
-import org.opentox.io.publishable.JSONObject;
-import org.opentox.io.publishable.PDFObject;
-import org.opentox.io.publishable.RDFObject;
-import org.opentox.io.publishable.TurtleObject;
 
 /**
- *
+ * TODO: Update QSARModel and its subclasses according to the corresponding db tables
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */

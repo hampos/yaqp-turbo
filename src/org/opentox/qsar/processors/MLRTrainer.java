@@ -44,15 +44,23 @@ import weka.core.Instances;
  */
 public class MLRTrainer extends WekaTrainer{
 
-    @Override
-    boolean isSuccessful() {
-        return successful;
+
+    public MLRTrainer(){
+        super();
     }
 
+    public MLRTrainer(String prediction_feature){
+
+    }
 
     public String train(Instances training_data) throws QSARException {
         
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    boolean isSuccessful() {
+        return successful;
     }
 
 

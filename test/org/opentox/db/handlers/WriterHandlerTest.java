@@ -39,10 +39,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opentox.db.exceptions.DbException;
-import org.opentox.io.publishable.JSONObject;
-import org.opentox.io.publishable.PDFObject;
-import org.opentox.io.publishable.RDFObject;
-import org.opentox.io.publishable.TurtleObject;
 import org.opentox.ontology.components.*;
 import org.opentox.db.exceptions.BadEmailException;
 import org.opentox.db.exceptions.DuplicateKeyException;
@@ -82,6 +78,7 @@ public class WriterHandlerTest {
     /**
      * Test of addUserGroup method, of class WriterHandler.
      */
+
      @Test
     public void testAddUserGroup() throws Exception {
         WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60));
@@ -136,9 +133,9 @@ public class WriterHandlerTest {
         WriterHandler.addAlgorithm(YaqpAlgorithms.MLR);
         WriterHandler.addAlgorithm(YaqpAlgorithms.SVM);
         WriterHandler.addAlgorithm(YaqpAlgorithms.SVC);
-
     }
-    
+
+        
     @Test
     public void testAddFeature() throws DbException {
         for(int i=1; i<=100; i++){
@@ -147,7 +144,7 @@ public class WriterHandlerTest {
     }
 
     @Test
-    public void testAddMLRModel() throws DuplicateKeyException {
+    public void testAddMLRModel() throws DuplicateKeyException, DbException {
         ArrayList<Feature> features = ReaderHandler.getFeatures();
         MLRModel model = new MLRModel(0, "asdf", "//asdf",
                 features.get(1), features.get(2), YaqpAlgorithms.MLR, ReaderHandler.getUser("makis1@mailntua.gr"), "", "//dataset");

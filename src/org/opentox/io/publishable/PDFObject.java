@@ -29,45 +29,96 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.io.publishable;
 
+import com.itextpdf.text.Annotation;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.OutputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.net.URL;
+import java.util.ArrayList;
 import org.opentox.io.interfaces.JPublishable;
 import org.opentox.io.util.YaqpIOStream;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Warning;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class PDFObject extends Document implements JPublishable {
+public class PDFObject implements JPublishable {
 
-    public PDFObject() throws Exception{
-        super();        
-        open();
-        addAuthor("Sopasakis Pantelis, Charalampos Chomenides");
-        addCreator("iText");
-        addTitle("Auto-Generated PDF");
-        addCreationDate();
-        addProducer();
+    private ArrayList<Element> elements = new ArrayList<Element>();
+    private String subject = "OpenTox Entity Representation";
+    private String pdfAuthor = "OpenTox NTUA WebServices";
+    private String pdfCreator = "OpenTox NTUA Serivces";
+    private String pdfTitle = "OpenTox Entity Representation";
+    private String pdfKeywords = "";
+    private static final String OpenToxLogoUrl = "http://opentox.org/logo.png";
+
+
+    public PDFObject() {
     }
+
+    public void addElement(Element element) {
+        elements.add(element);
+    }
+
+    public void setPdfAuthor(final String pdfAuthor) {
+        this.pdfAuthor = pdfAuthor;
+    }
+
+    public void setPdfCreator(final String pdfCreator) {
+        this.pdfCreator = pdfCreator;
+    }
+
+    public void setSubject(final String subject) {
+        this.subject = subject;
+    }
+
+    public void setPdfTitle(final String pdfTitle) {
+        this.pdfTitle = pdfTitle;
+    }
+
+    public void setPdfKeywords(String pdfKeywords) {
+        this.pdfKeywords = pdfKeywords;
+    }
+
+
 
     public void publish(YaqpIOStream stream) {
+
         try {
-            PdfWriter.getInstance(this, (OutputStream) stream.getStream());
-            close();
+            Document doc = new Document();
+            PdfWriter.getInstance(doc, (OutputStream) stream.getStream());
+            doc.open();
+            doc.addAuthor(pdfAuthor);
+            doc.addCreationDate();
+            doc.addProducer();
+            doc.addSubject(subject);
+            doc.addCreator(pdfCreator);
+            doc.addTitle(pdfTitle);
+            doc.addKeywords(pdfKeywords);
+            doc.addHeader("License", "GNU GPL v3");
+            try {
+                Image image = Image.getInstance(new URL(OpenToxLogoUrl));
+                image.scalePercent(40);
+                image.setAnnotation(new Annotation(0, 0, 0, 0, "http://opentox.org"));
+                doc.add(image);
+            } catch (Exception ex) {
+                YaqpLogger.LOG.log(new Warning(getClass(), "WCT517 - OpenTox Logo not found at "+OpenToxLogoUrl));
+            }
+            for (int i = 0;i < elements.size(); i++){
+                doc.add(elements.get(i));
+            }
+            doc.close();
         } catch (DocumentException ex) {
-            Logger.getLogger(PDFObject.class.getName()).log(Level.SEVERE, null, ex);
+            YaqpLogger.LOG.log(new Warning(getClass(), "XPD819 - Error while generating PDF representation."));
         }
+
     }
-
-    
-
 }

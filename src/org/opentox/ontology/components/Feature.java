@@ -38,7 +38,6 @@ import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
-import org.opentox.io.publishable.OntObject;
 import org.opentox.ontology.namespaces.OTClass;
 
 /**

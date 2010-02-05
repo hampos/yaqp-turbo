@@ -1,10 +1,15 @@
 /*
- * YAQP - Yet Another QSAR Project: Machine Learning algorithms designed for
- * the prediction of toxicological features of chemical compounds become
- * available on the Web. Yaqp is developed under OpenTox (http://opentox.org)
- * which is an FP7-funded EU research project.
+ *
+ * YAQP - Yet Another QSAR Project:
+ * Machine Learning algorithms designed for the prediction of toxicological
+ * features of chemical compounds become available on the Web. Yaqp is developed
+ * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
+ * This project was developed at the Automatic Control Lab in the Chemical Engineering
+ * School of the National Technical University of Athens. Please read README for more
+ * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,6 +23,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ * Contact:
+ * Pantelis Sopasakis
+ * chvng@mail.ntua.gr
+ * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
+ * tel. +30 210 7723236
  */
 package org.opentox.db.handlers;
 
@@ -37,6 +47,7 @@ import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Debug;
 import org.opentox.util.logging.levels.Trace;
+import org.opentox.util.logging.levels.Warning;
 
 /**
  *
@@ -59,7 +70,15 @@ public class ReaderHandler {
             getQSARModelsPipeline = null,
             getMLRModelsPipeline = null;
 
-    public static User getUser(String email) {
+
+    /**
+     * Retrieve all information about a user given its username (case sensitive).
+     * The result is returned as an instance of <code>User</code>. The database operation
+     * is based on a prepared statemnet for increased security and performance.
+     * @param userName The username for a YAQP user.
+     * @return User information as an instance of {@link User }.
+     */
+    public static User getUser(String email) throws DbException {
         if (getUserPipeline == null) {
             getUserPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USER);
         }
@@ -71,7 +90,9 @@ public class ReaderHandler {
         try {
             result = getUserPipeline.process(food);
         } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "XR51 - Could not get User list from database\n"));
+            String message = "XR51 - Could not get User list from database";
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
+            throw new DbException(message, ex);
         }
 
         if (result.getSize() == 1) {
@@ -80,11 +101,10 @@ public class ReaderHandler {
                     it.next(), it.next(), it.next(), it.next(), getUserGroup(it.next()));
             return user;
         }
-        YaqpLogger.LOG.log(new Trace(WriterHandler.class, "No such User exists in Database: "+email));
-        return null;
+        throw new DbException("XUS452 - No such user :" + email);
     }
 
-    public static ArrayList<User> getUsers() {
+    public static ArrayList<User> getUsers() throws DbException {
         if (getUsersPipeline == null) {
             getUsersPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USERS);
         }
@@ -97,7 +117,6 @@ public class ReaderHandler {
         ArrayList<User> userList = new ArrayList<User>();
         for (int i = 1; i < result.getSize() + 1; i++) {
             Iterator<String> it = result.getColumnIterator(i);
-
             User user = new User(it.next(), it.next(), it.next(), it.next(), it.next(), it.next(), it.next(),
                     it.next(), it.next(), it.next(), it.next(), getUserGroup(it.next()));
             userList.add(user);
@@ -105,7 +124,7 @@ public class ReaderHandler {
         return userList;
     }
 
-    public static UserGroup getUserGroup(String groupName) {
+    public static UserGroup getUserGroup(String groupName) throws DbException {
         if (getUserGroupPipeline == null) {
             getUserGroupPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USER_GROUP);
         }
@@ -118,7 +137,9 @@ public class ReaderHandler {
         try {
             result = getUserGroupPipeline.process(food);
         } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get User Group " + groupName + " from database\n"));
+            String message = "Could not get User Group " + groupName + " from database";
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
+            throw new DbException(message, ex);
         }
 
         if (result.getSize() == 1) {
@@ -126,10 +147,10 @@ public class ReaderHandler {
             UserGroup userGroup = new UserGroup(it.next(), Integer.parseInt(it.next()));
             return userGroup;
         }
-        return null;
+        throw new DbException("XUG710 - No such user group :" + groupName);
     }
 
-    public static ArrayList<UserGroup> getUserGroups() {
+    public static ArrayList<UserGroup> getUserGroups() throws DbException {
         if (getUserGroupsPipeline == null) {
             getUserGroupsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USER_GROUPS);
         }
@@ -138,7 +159,9 @@ public class ReaderHandler {
         try {
             result = getUserGroupsPipeline.process(null);
         } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get User Groups from database\n"));
+            String message = "XUG973 - Could not get User Groups from database";
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
+            throw new DbException(message, ex);
         }
         ArrayList<UserGroup> userGroupList = new ArrayList<UserGroup>();
         for (int i = 1; i < result.getSize() + 1; i++) {
@@ -149,7 +172,7 @@ public class ReaderHandler {
         return userGroupList;
     }
 
-    public static ArrayList<AlgorithmOntology> getAlgorithmOntologies() throws YaqpOntException {
+    public static ArrayList<AlgorithmOntology> getAlgorithmOntologies() throws YaqpOntException, DbException {
         if (getAlgorithmOntologiesPipeline == null) {
             getAlgorithmOntologiesPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALGORITHM_ONTOLOGIES);
         }
@@ -158,7 +181,9 @@ public class ReaderHandler {
         try {
             result = getAlgorithmOntologiesPipeline.process(null);
         } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "XR52 - Could not get Algorithm Ontologies from database\n"));
+            String message = "XR52 - Could not get Algorithm Ontologies from database";
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
+            throw new DbException(message, ex);
         }
         ArrayList<AlgorithmOntology> algorithmOntologiesList = new ArrayList<AlgorithmOntology>();
         for (int i = 1; i < result.getSize() + 1; i++) {
@@ -176,7 +201,7 @@ public class ReaderHandler {
      * @return
      * @throws YaqpOntException
      */
-    public static ArrayList<AlgorithmOntology> getAlgOntRelation(String algorithmName) throws YaqpOntException {
+    public static ArrayList<AlgorithmOntology> getAlgOntRelation(String algorithmName) throws YaqpOntException, DbException {
         if (getAlgOntRelationPipeline == null) {
             getAlgOntRelationPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALGORITHM_ONTOLOGY_RELATION);
         }
@@ -188,7 +213,9 @@ public class ReaderHandler {
         try {
             result = getAlgOntRelationPipeline.process(food);
         } catch (YaqpException e) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Algorithm-Ontology Relations from database\n"));
+            String message = "XAD312 - Could not get Algorithm-Ontology Relations from database";
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
+            throw new DbException(message, e);
         }
         ArrayList<AlgorithmOntology> algorithmOntologiesList = new ArrayList<AlgorithmOntology>();
         for (int i = 1; i < result.getSize() + 1; i++) {
@@ -200,7 +227,7 @@ public class ReaderHandler {
     }
 
     // TODO: Fix the following code and then perform tons of tests!
-    public static ArrayList<Algorithm> getOntAlgRelation(AlgorithmOntology ontology) {
+    public static ArrayList<Algorithm> getOntAlgRelation(AlgorithmOntology ontology) throws DbException {
         if (getOntAlgRelationPipeline == null) {
             getOntAlgRelationPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ONTOLOGY_ALGORITHM_RELATION);
         }
@@ -212,7 +239,9 @@ public class ReaderHandler {
         try {
             result = getOntAlgRelationPipeline.process(food);
         } catch (YaqpException e) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Ontology-Algorithm Relations from database\n"));
+            String message = "Could not get Ontology-Algorithm Relations from database\n";
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
+            throw new DbException(message, e);
         }
         AlgorithmMeta meta = null;
         ArrayList<Algorithm> algorithmList = new ArrayList<Algorithm>();
@@ -231,7 +260,7 @@ public class ReaderHandler {
                     }
                 }
             } catch (Exception e) {
-                System.err.println(e);
+                YaqpLogger.LOG.log(new Warning(ReaderHandler.class, "XX101 - Xeption : "+e.toString()));
             }
         }
         return algorithmList;
@@ -264,13 +293,13 @@ public class ReaderHandler {
                     }
                 }
             } catch (Exception e) {
-                System.err.println(e);
+                YaqpLogger.LOG.log(new Debug(ReaderHandler.class, e.toString()));
             }
         }
         return algorithmList;
     }
 
-    public static Algorithm getAlgorithm(String name){
+    public static Algorithm getAlgorithm(String name) throws DbException{
         AlgorithmMeta meta = null;
         Algorithm algorithm = null;
         try {
@@ -281,12 +310,13 @@ public class ReaderHandler {
                     if (mname.contains(name)) {
                         meta = (AlgorithmMeta) m.invoke(null, (Object[]) null);
                         algorithm = new Algorithm(meta);
+                        return algorithm;
                     }
                 }
             } catch (Exception e) {
-                System.err.println(e);
+                YaqpLogger.LOG.log(new Debug(ReaderHandler.class, e.toString()));
             }
-        return algorithm;
+        throw new DbException("XUS484 - No such Algorithm :" + name);
     }
 
     public static ArrayList<Feature> getFeatures() {
@@ -308,7 +338,7 @@ public class ReaderHandler {
         }
         return featureList;
     }
-    public static Feature getFeature(int uid) {
+    public static Feature getFeature(int uid) throws DbException {
         if (getFeaturePipeline == null) {
             getFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_FEATURE);
         }
@@ -327,8 +357,7 @@ public class ReaderHandler {
             Feature feature = new Feature(Integer.parseInt(it.next()),it.next());
             return feature;
         }
-        YaqpLogger.LOG.log(new Trace(WriterHandler.class, "No such Feature exists in Database: "+uid));
-        return null;
+        throw new DbException("XUS587 - No such Feature :" + uid);
     }
 
     public static ArrayList<Feature> getIndepFeatures(QSARModel model){
@@ -368,7 +397,7 @@ public class ReaderHandler {
         return null;
     }
 
-    public static ArrayList<MLRModel> getMLRModels(){
+    public static ArrayList<MLRModel> getMLRModels() throws DbException{
         if (getMLRModelsPipeline == null) {
             getMLRModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_MLR_MODELS);
         }

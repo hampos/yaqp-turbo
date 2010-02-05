@@ -37,11 +37,11 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.ontology.exceptions.YaqpOntException;
-import org.opentox.ontology.util.AlgorithmMeta;
-import org.opentox.ontology.util.YaqpAlgorithms;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -69,8 +69,28 @@ public class ReaderHandlerTest {
     public void tearDown() {
     }
 
-    //@Test
-    public void getUsersTest() {
+
+    @Test
+    public void getBadUser() {
+        try{
+        User u = ReaderHandler.getUser("chomiole");
+        System.out.println(u);
+        }catch (DbException e){
+            assertTrue(e.toString().contains("XUS452"));
+        }        
+    }
+
+    @Test
+    public void getBadUserGroup(){
+        try{
+        UserGroup ug = ReaderHandler.getUserGroup("asdf");
+        } catch(DbException e){
+            assertTrue(e.toString().contains("XUG710"));
+        }
+    }
+
+    @Test
+    public void getUsersTest() throws DbException {
         ArrayList<User> users = ReaderHandler.getUsers();
         Iterator<User> it = users.iterator();
         while (it.hasNext()) {
@@ -79,8 +99,8 @@ public class ReaderHandlerTest {
         }
     }
 
-    //@Test
-    public void getAlgorithmOntologiesTest() throws YaqpOntException {
+    @Test
+    public void getAlgorithmOntologiesTest() throws YaqpOntException, DbException {
 
         ArrayList<AlgorithmOntology> algont = ReaderHandler.getAlgorithmOntologies();
         Iterator<AlgorithmOntology> it = algont.iterator();
@@ -90,8 +110,8 @@ public class ReaderHandlerTest {
 
     }
 
-    //@Test
-    public void getUserGroupsTest() {
+    @Test
+    public void getUserGroupsTest() throws DbException {
         ArrayList<UserGroup> userGroups = ReaderHandler.getUserGroups();
         Iterator<UserGroup> it = userGroups.iterator();
         while (it.hasNext()) {
@@ -99,8 +119,9 @@ public class ReaderHandlerTest {
         }
     }
 
-    //@Test
-    public void getAlgOntRelationTest() throws YaqpOntException {
+
+    @Test
+    public void getAlgOntRelationTest() throws YaqpOntException, DbException {
         ArrayList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation("svm");
         Iterator<AlgorithmOntology> it = ontologies.iterator();
         while (it.hasNext()) {
@@ -117,17 +138,18 @@ public class ReaderHandlerTest {
             System.out.println(it.next());
         }
     }
-    //@Test
-    public void getAlgorithmsTest(){
+
+    @Test
+    public void getAlgorithmsTest() {
         ArrayList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
         Iterator<Algorithm> it = algorithms.iterator();
-        while(it.hasNext()){
+        while (it.hasNext()) {
             System.out.println(it.next());
         }
     }
 
     @Test
-    public void getMLRModelsTest(){
+    public void getMLRModelsTest() throws DbException{
         ArrayList<MLRModel> models = ReaderHandler.getMLRModels();
         Iterator<MLRModel> it = models.iterator();
         while(it.hasNext()){
