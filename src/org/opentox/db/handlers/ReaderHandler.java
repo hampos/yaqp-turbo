@@ -46,6 +46,7 @@ import org.opentox.ontology.util.AlgorithmMeta;
 import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Debug;
+import org.opentox.util.logging.levels.Trace;
 import org.opentox.util.logging.levels.Warning;
 
 /**
@@ -63,7 +64,13 @@ public class ReaderHandler {
             getAlgorithmsPipeline = null,
             getAlgOntRelationPipeline = null,
             getOntAlgRelationPipeline = null,
-            getFeaturesPipeline = null;
+            getFeaturesPipeline = null,
+            getFeaturePipeline = null,
+            getIndepFeaturesPipeline = null,
+            getQSARModelsPipeline = null,
+            getMLRModelsPipeline = null,
+            getTasksPipeline = null;
+
 
     /**
      * Retrieve all information about a user given its username (case sensitive).
@@ -72,14 +79,14 @@ public class ReaderHandler {
      * @param userName The username for a YAQP user.
      * @return User information as an instance of {@link User }.
      */
-    public static User getUser(String userName) throws DbException {
+    public static User getUser(String email) throws DbException {
         if (getUserPipeline == null) {
             getUserPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USER);
         }
         HyperResult result = null;
         QueryFood food = new QueryFood(
                 new String[][]{
-                    {"USERNAME", userName}
+                    {"EMAIL", email}
                 });
         try {
             result = getUserPipeline.process(food);
@@ -95,7 +102,7 @@ public class ReaderHandler {
                     it.next(), it.next(), it.next(), it.next(), getUserGroup(it.next()));
             return user;
         }
-        throw new DbException("XUS452 - No such user :" + userName);
+        throw new DbException("XUS452 - No such user :" + email);
     }
 
     public static ArrayList<User> getUsers() throws DbException {
@@ -243,7 +250,7 @@ public class ReaderHandler {
             Iterator<String> it = result.getColumnIterator(i);
             String algName = it.next();
             try {
-                Class<?> c = Class.forName("org.opentox.ontology.util.YaqpAlgorithms");
+                Class<?> c = YaqpAlgorithms.class;
                 Method[] allMethods = c.getDeclaredMethods();
                 for (Method m : allMethods) {
                     String mname = m.getName();
@@ -276,7 +283,6 @@ public class ReaderHandler {
             Iterator<String> it = result.getColumnIterator(i);
             String algName = it.next();
             try {
-                //Class<?> c = Class.forName("org.opentox.ontology.util.YaqpAlgorithms");
                 Class<?> c = YaqpAlgorithms.class;
                 Method[] allMethods = c.getDeclaredMethods();
                 for (Method m : allMethods) {
@@ -288,10 +294,30 @@ public class ReaderHandler {
                     }
                 }
             } catch (Exception e) {
-                System.err.println(e);
+                YaqpLogger.LOG.log(new Debug(ReaderHandler.class, e.toString()));
             }
         }
         return algorithmList;
+    }
+
+    public static Algorithm getAlgorithm(String name) throws DbException{
+        AlgorithmMeta meta = null;
+        Algorithm algorithm = null;
+        try {
+                Class<?> c = YaqpAlgorithms.class;
+                Method[] allMethods = c.getDeclaredMethods();
+                for (Method m : allMethods) {
+                    String mname = m.getName();
+                    if (mname.contains(name)) {
+                        meta = (AlgorithmMeta) m.invoke(null, (Object[]) null);
+                        algorithm = new Algorithm(meta);
+                        return algorithm;
+                    }
+                }
+            } catch (Exception e) {
+                YaqpLogger.LOG.log(new Debug(ReaderHandler.class, e.toString()));
+            }
+        throw new DbException("XUS484 - No such Algorithm :" + name);
     }
 
     public static ArrayList<Feature> getFeatures() {
@@ -313,4 +339,106 @@ public class ReaderHandler {
         }
         return featureList;
     }
+    public static Feature getFeature(int uid) throws DbException {
+        if (getFeaturePipeline == null) {
+            getFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_FEATURE);
+        }
+        HyperResult result = null;
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"UID", Integer.toString(uid)}
+                });
+        try {
+            result = getFeaturePipeline.process(food);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Features from database\n"));
+        }
+        if (result.getSize() == 1) {
+            Iterator<String> it = result.getColumnIterator(1);
+            Feature feature = new Feature(Integer.parseInt(it.next()),it.next());
+            return feature;
+        }
+        throw new DbException("XUS587 - No such Feature :" + uid);
+    }
+
+    public static ArrayList<Feature> getIndepFeatures(QSARModel model){
+         if (getIndepFeaturesPipeline == null) {
+            getIndepFeaturesPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_INDEP_FEATURES);
+        }
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"MODEL_UID", Integer.toString(model.getId())}
+                });
+        HyperResult result = null;
+        try {
+            result = getIndepFeaturesPipeline.process(food);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Independent Features from database for model: "+model.getName()));
+        }
+        ArrayList<Feature> featureList = new ArrayList<Feature>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
+            featureList.add(feature);
+        }
+        return featureList;
+    }
+
+    public static ArrayList<QSARModel> getQSARModels(){
+        if (getQSARModelsPipeline == null) {
+            getQSARModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_QSAR_MODELS);
+        }
+        HyperResult result = null;
+        try {
+            result = getQSARModelsPipeline.process(null);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get QSARModels from database"));
+        }
+
+        return null;
+    }
+
+    public static ArrayList<MLRModel> getMLRModels() throws DbException{
+        if (getMLRModelsPipeline == null) {
+            getMLRModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_MLR_MODELS);
+        }
+        HyperResult result = null;
+        try {
+            result = getMLRModelsPipeline.process(null);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get MLRModels from database"));
+        }
+        ArrayList<MLRModel> models = new ArrayList<MLRModel>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            MLRModel model = new MLRModel(Integer.parseInt(it.next()), it.next(), it.next(), 
+                    getFeature(Integer.parseInt(it.next())), getFeature(Integer.parseInt(it.next())),
+                    getAlgorithm(it.next()), getUser(it.next()), it.next(), it.next());
+            model.setIndependentFeatures(getIndepFeatures(model));
+            models.add(model);
+        }
+        return models;
+    }
+
+    public static ArrayList<Task> getTasks() throws DbException {
+        if (getTasksPipeline == null) {
+            getTasksPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_TASKS);
+        }
+        HyperResult result = null;
+        try {
+            result = getTasksPipeline.process(null);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Tasks from database"));
+        }
+        ArrayList<Task> tasks = new ArrayList<Task>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            Task task = new Task(Integer.parseInt(it.next()), it.next(), it.next(),
+                   Task.STATUS.valueOf(it.next()) , getUser(it.next()), getAlgorithm(it.next()), Integer.parseInt(it.next()),
+                    it.next(), it.next(), it.next());
+            tasks.add(task);
+        }
+        return tasks;
+    }
+
 }

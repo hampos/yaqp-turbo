@@ -500,7 +500,7 @@ public enum StandardTables {
     }
 
     public static Table IndepFeaturesRelation() {
-        Table table = new Table("INDEPENDENT_FETAURES_RELATION");
+        Table table = new Table("INDEPENDENT_FEATURES_RELATION");
 
         TableColumn model_uid = new TableColumn("MODEL_UID");
         model_uid.setColumnType(SQLDataTypes.Int());
@@ -612,7 +612,7 @@ public enum StandardTables {
         httpStatus.setColumnType(SQLDataTypes.Int());
         httpStatus.setNotNull(true);
         //httpStatus.setConstraint("HTTPSTATUS_CONSTRAINT", "STATUS IN ('200', '201', '202', '400')");
-        httpStatus.setDefaultValue("201");
+        httpStatus.setDefaultValue("202");
         table.addColumn(httpStatus);
 
         TableColumn result = new TableColumn("RESULT");

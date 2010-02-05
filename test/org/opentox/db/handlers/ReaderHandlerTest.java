@@ -30,11 +30,8 @@
  */
 package org.opentox.db.handlers;
 
-import com.hp.hpl.jena.rdf.model.impl.ResourceImpl;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,8 +41,6 @@ import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.ontology.exceptions.YaqpOntException;
-import org.opentox.ontology.namespaces.OTClass;
-import org.opentox.ontology.namespaces.YaqpOntEntity;
 import static org.junit.Assert.*;
 
 /**
@@ -74,58 +69,37 @@ public class ReaderHandlerTest {
     public void tearDown() {
     }
 
-    @Test
+
+  //  @Test
     public void getBadUser() {
-        try {
-            User u = ReaderHandler.getUser("chomiole");
-            System.out.println(u);
-        } catch (DbException e) {
+        try{
+        User u = ReaderHandler.getUser("chomiole");
+        System.out.println(u);
+        }catch (DbException e){
             assertTrue(e.toString().contains("XUS452"));
         }
     }
 
-    @Test
-    public void getNullUser() {
-        try {
-            User u = ReaderHandler.getUser(null);
-            System.out.println(u);
-        } catch (DbException ex) {
-            assertTrue(ex.toString().contains("XUS452"));
-        }
-
-    }
-
-    @Test
-    public void getBadUserGroup() {
-        try {
-            UserGroup ug = ReaderHandler.getUserGroup("asdf");
-        } catch (DbException e) {
+  //  @Test
+    public void getBadUserGroup(){
+        try{
+        UserGroup ug = ReaderHandler.getUserGroup("asdf");
+        } catch(DbException e){
             assertTrue(e.toString().contains("XUG710"));
         }
     }
 
-    @Test
-    public void getNullUserGroup() {
-        try {
-            UserGroup ug = ReaderHandler.getUserGroup(null);
-        } catch (DbException e) {
-            assertTrue(e.toString().contains("XUG710"));
-        }
-    }
-
-    @Test
+   // @Test
     public void getUsersTest() throws DbException {
         ArrayList<User> users = ReaderHandler.getUsers();
         Iterator<User> it = users.iterator();
-        UriList ul = new UriList();
-        for (User u: users){
-            ul.add(new Uri("http://opentox.ntua.gr/user/"+u.getUserName(), OTClass.User));
+        while (it.hasNext()) {
+            User user = it.next();
+            System.out.println(user + "\n");
         }
-        ul.getRDF().printConsole();
-        
     }
 
-    @Test
+   // @Test
     public void getAlgorithmOntologiesTest() throws YaqpOntException, DbException {
 
         ArrayList<AlgorithmOntology> algont = ReaderHandler.getAlgorithmOntologies();
@@ -136,7 +110,7 @@ public class ReaderHandlerTest {
 
     }
 
-    @Test
+  //  @Test
     public void getUserGroupsTest() throws DbException {
         ArrayList<UserGroup> userGroups = ReaderHandler.getUserGroups();
         Iterator<UserGroup> it = userGroups.iterator();
@@ -145,7 +119,8 @@ public class ReaderHandlerTest {
         }
     }
 
-    @Test
+
+   // @Test
     public void getAlgOntRelationTest() throws YaqpOntException, DbException {
         ArrayList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation("svm");
         Iterator<AlgorithmOntology> it = ontologies.iterator();
@@ -154,7 +129,7 @@ public class ReaderHandlerTest {
         }
     }
 
-    @Test
+   // @Test
     public void getOntAlgRelationTest() throws Exception {
         AlgorithmOntology ontology = new AlgorithmOntology("Classification");
         ArrayList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology);
@@ -164,11 +139,29 @@ public class ReaderHandlerTest {
         }
     }
 
-    @Test
+   // @Test
     public void getAlgorithmsTest() {
         ArrayList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
         Iterator<Algorithm> it = algorithms.iterator();
         while (it.hasNext()) {
+            System.out.println(it.next());
+        }
+    }
+
+   // @Test
+    public void getMLRModelsTest() throws DbException{
+        ArrayList<MLRModel> models = ReaderHandler.getMLRModels();
+        Iterator<MLRModel> it = models.iterator();
+        while(it.hasNext()){
+            System.out.println(it.next());
+        }
+    }
+
+    @Test
+    public void getTasksTest() throws DbException{
+        ArrayList<Task> tasks = ReaderHandler.getTasks();
+        Iterator<Task> it = tasks.iterator();
+        while(it.hasNext()){
             System.out.println(it.next());
         }
     }
