@@ -26,6 +26,7 @@ package org.opentox.core.exceptions;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
+@Deprecated
 public enum ExceptionDetails {
 
     /**

@@ -32,7 +32,10 @@
 package org.opentox.ontology.util.vocabulary;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.ontology.util.AlgorithmParameter;
 
 /**
@@ -43,7 +46,7 @@ import org.opentox.ontology.util.AlgorithmParameter;
 public class ConstantParameters {
 
     public static final AlgorithmParameter<String> TARGET = TARGET("http://someserver.com/feature/100");
-    public static final AlgorithmParameter<String> KERNEL = KERNEL("rbf");
+    public static final AlgorithmParameter<String> KERNEL = KERNEL("RBF");
     public static final AlgorithmParameter<Double> COST = COST(10.0);
     public static final AlgorithmParameter<Double> EPSILON = EPSILON(0.10);
     public static final AlgorithmParameter<Double> GAMMA = GAMMA(1.0);
@@ -51,13 +54,39 @@ public class ConstantParameters {
     public static final AlgorithmParameter<Integer> DEGREE = DEGREE((int) 3);
     public static final AlgorithmParameter<Double> TOLERANCE = TOLERANCE(0.0001);
     public static final AlgorithmParameter<Integer> CACHESIZE = CACHESIZE((int) 250007);
+    public static final ArrayList<AlgorithmParameter> DEFAULTS = getDefaults();
+
+    public static void main(String args[]) {
+        ArrayList<AlgorithmParameter> list = DEFAULTS;
+        for (AlgorithmParameter ap : list) {
+            System.out.println(ap.paramName);
+        }
+    }
+
+    private static final ArrayList<AlgorithmParameter> getDefaults() {
+        ArrayList<AlgorithmParameter> list = new ArrayList<AlgorithmParameter>();
+        AlgorithmParameter o = null;
+        Class<?> c = ConstantParameters.class;
+        Field[] fields = c.getFields();
+        for (Field f : fields) {
+            try {
+                if (f.get(o) != null) {
+                    f.setAccessible(true);
+                    list.add((AlgorithmParameter) f.get(o));
+                }
+            } catch (Exception ex) {
+                //   Do nothing
+            }
+        }
+        return list;
+    }
 
     /**
      * The collection of tuning parameters for the SVC training algorithm as
      * an <code>ArrayList</code> of <code>AlgorithmParameter</code> objects.
      * @return Array List of Algorithm Parameters.
      */
-    public static final ArrayList<AlgorithmParameter> SVC_BUNDLE(){
+    public static final ArrayList<AlgorithmParameter> SVC_BUNDLE() {
         ArrayList<AlgorithmParameter> svm_bundle = new ArrayList<AlgorithmParameter>();
         svm_bundle.add(CACHESIZE);
         svm_bundle.add(COEFF0);
@@ -75,7 +104,7 @@ public class ConstantParameters {
      * an <code>ArrayList</code> of <code>AlgorithmParameter</code> objects.
      * @return Array List of Algorithm Parameters.
      */
-    public static final ArrayList<AlgorithmParameter> SVM_BUNDLE(){
+    public static final ArrayList<AlgorithmParameter> SVM_BUNDLE() {
         ArrayList<AlgorithmParameter> svm_bundle = SVC_BUNDLE();
         svm_bundle.add(EPSILON);
         return svm_bundle;
@@ -88,7 +117,7 @@ public class ConstantParameters {
 
     public static final AlgorithmParameter<String> KERNEL(String value) {
         return new AlgorithmParameter<String>("kernel",
-                XSDDatatype.XSDstring, value, "optional");
+                XSDDatatype.XSDstring, value.toUpperCase(), "optional");
     }
 
     public static final AlgorithmParameter<Double> COST(double value) {

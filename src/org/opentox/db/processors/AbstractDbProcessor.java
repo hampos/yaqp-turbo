@@ -54,12 +54,12 @@ public abstract class AbstractDbProcessor<Query, QueryResult>
 
     public QueryResult process(Query query) throws DbException {
         if (!TheDbConnector.DB.isConnected()) {            
-            throw new DbException("XDB624 - Connection to "+TheDbConnector.DB.getDatabaseName()+" could not be established");
+            throw new DbException("XDB624","Connection to "+TheDbConnector.DB.getDatabaseName()+" could not be established");
         }
         try {
             return execute(query);
         } catch (Exception x) {
-            throw new DbException(x);
+            throw new DbException("XDB3",x);
         }
     }
 

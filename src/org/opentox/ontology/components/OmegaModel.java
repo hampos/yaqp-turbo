@@ -33,17 +33,19 @@
 
 package org.opentox.ontology.components;
 
+import java.util.ArrayList;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.ontology.util.AlgorithmParameter;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class OmegaModel extends QSARModel {
+public class OmegaModel extends AbstractQSARModel {
 
     @Override
     public PDFObject getPDF() {
@@ -63,6 +65,11 @@ public class OmegaModel extends QSARModel {
     @Override
     public JSONObject getJson() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public ArrayList<AlgorithmParameter> getTuningParams() {
+        return new ArrayList<AlgorithmParameter>();
     }
 
 }

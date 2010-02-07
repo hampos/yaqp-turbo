@@ -34,7 +34,6 @@ import org.opentox.io.engines.EngineFactory;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.io.engines.IOEngine;
 import org.opentox.io.publishable.OntObject;
-import org.opentox.ontology.data.Dataset;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.ScrewedUp;
 import org.opentox.util.logging.levels.Warning;
@@ -151,7 +150,7 @@ public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI
 
         } catch (Exception ex) {
             YaqpLogger.LOG.log(new Warning(getClass(), ex.toString()));
-            throw new YaqpIOException(ex);
+            throw new YaqpIOException("XDZ19",ex);
         }
         return yaqpOntModel;
     }

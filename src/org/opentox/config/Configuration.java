@@ -71,7 +71,9 @@ public class Configuration {
             if (properties != null) {
                 return properties;
             } else {
-                throw new YaqpException(ExceptionDetails.could_not_load_properties);
+                String message = "Could not load the standard properties hence could not use the standard "
+        + "logger - Using the console instead!";
+                throw new YaqpException("XAA12", message);
             }
         }
     }
@@ -90,7 +92,9 @@ public class Configuration {
         if (properties != null) {
             return properties;
         } else {
-            throw new YaqpException(ExceptionDetails.could_not_load_properties);
+            String message = "Could not load the standard properties hence could not use the standard "
+        + "logger - Using the console instead";
+            throw new YaqpException("XAA13", message);
         }
 
     }
@@ -101,7 +105,9 @@ public class Configuration {
         if (properties != null) {
             Configuration.properties = properties;
         } else {
-            throw new YaqpException(ExceptionDetails.could_not_load_properties);
+            String message = "Could not load the standard properties hence could not use the standard "
+        + "logger - Using the console instead";
+            throw new YaqpException("XAA5", message);
         }
     }
     // </editor-fold>

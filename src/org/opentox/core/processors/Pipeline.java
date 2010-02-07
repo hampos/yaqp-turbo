@@ -29,8 +29,6 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.core.processors;
 
 import org.opentox.core.exceptions.ExceptionDetails;
@@ -40,7 +38,6 @@ import org.opentox.core.interfaces.JMultiProcessorStatus.STATUS;
 import org.opentox.core.interfaces.JProcessor;
 import org.opentox.util.logging.levels.*;
 import org.opentox.util.logging.YaqpLogger;
-
 
 /**
  * A set of jobs to be executed through a pipeline of processors
@@ -55,9 +52,7 @@ import org.opentox.util.logging.YaqpLogger;
  * @author Charalampos Chomenides
  */
 public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
-        extends AbstractMultiProcessor<Input, Output, P>{
-
-            
+         extends AbstractMultiProcessor<Input, Output, P> {
 
     private String PROPERTY_PIPELINE_STATUS = getStatus().getClass().getName();
 
@@ -70,10 +65,6 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
         setfailSensitive(true);
     }
 
-    
-
-   
-    
     /**
      *
      *
@@ -95,22 +86,21 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
                 if (get(i).isEnabled()) {
                     start_time = System.currentTimeMillis();
                     getStatus().increment(STATUS.INITIALIZED);
-                    o = get(i).process((Input)o); // --> this might throw a YaqpException
+                    o = get(i).process((Input) o); // --> this might throw a YaqpException
                     Output o1 = (Output) o;
                     getStatus().increment(STATUS.PROCESSED);
                     getStatus().incrementElapsedTime(STATUS.PROCESSED, System.currentTimeMillis() - start_time);
                     firePropertyChange(PROPERTY_PIPELINE_STATUS, null, getStatus());
                 }
-            } catch (Exception exc) {
-                if (isfailSensitive()) {
-                    YaqpLogger.LOG.log(new Debug(Pipeline.class,
-                            "XGEN100 - Processor " + i + " is in error state :: "+exc));
-                    throw new ProcessorException(exc);
+            } catch (Exception ex) {
+                String message = "Processor " + i + " is in error state";
+                if (isfailSensitive()) {                    
+                    YaqpLogger.LOG.log(new Debug(getClass(), message + " :: " + ex));
+                    throw new ProcessorException("XCI108", message, ex);
                 }
                 getStatus().increment(STATUS.ERROR);
                 getStatus().incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - start_time);
-                YaqpLogger.LOG.log(new Trace(Pipeline.class,
-                        "XGEN101 - Processor " + i + " is in error state :: "+exc));
+                YaqpLogger.LOG.log(new Trace(getClass(), message +" :: "+ ex));
             }
         }
         getStatus().setMessage("Pipeline completed the job.");
@@ -119,15 +109,10 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
         // Try to cast the result as 'Output'
         try {
             return (Output) o;
-        } catch (Exception exc) {
-            YaqpLogger.LOG.log(new ScrewedUp( Pipeline.class,
-                    ExceptionDetails.pipeline_output_typecasting.toString()));
-            throw new YaqpException(ExceptionDetails.pipeline_output_typecasting);
+        } catch (Exception ex) {
+            String message = "pipeline output typecasting error";
+            YaqpLogger.LOG.log(new ScrewedUp(getClass(), message));
+            throw new YaqpException("XBR", message, ex);
         }
     }
-
-
-
-   
-   
 }

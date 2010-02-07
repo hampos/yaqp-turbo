@@ -115,14 +115,14 @@ public class PrepSwimmingPool {
             }
         }
         if (hp_prepStmt == null) {
-            throw new DbException("XPP502 - The HyperStatement you provided does " +
+            throw new DbException("XPP502","The HyperStatement you provided does " +
                     "not correspond to a registered prepared statement :"+hp_prepStmt.getSql());
         }
         try {
             hp.flush();
             BlockingQueues.get(hp_prepStmt).put(hp);
         } catch (InterruptedException ex) {
-            throw new DbException(ex);
+            throw new DbException("XGQ28",ex);
         }
 
     }

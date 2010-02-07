@@ -114,15 +114,15 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
     public ArrayList<Output> process(final ArrayList<Input> data) throws YaqpException {
 
         if (data == null) {
-            throw new YaqpException(ExceptionDetails.null_input_to_parallel_processor);
+            throw new YaqpException("XSU144", "Null input to parallel processor");
         }
 
         if (data.size() != size()) {
-            throw new YaqpException("XSU145 - Sizes of input array list and processors unequal!");
+            throw new YaqpException("XSU145","Sizes of input array list and processors unequal!");
         }
 
         if (size() == 0) {
-            throw new YaqpException(ExceptionDetails.no_processors_found);
+            throw new YaqpException("XSU146", "No processors participate in this parallel structure");
         }
 
 
@@ -194,7 +194,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
             getStatus().setMessage("interrupted - not running");
             getStatus().completed();
             firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-            throw new YaqpException(ExceptionDetails.processor_interruption);
+            throw new YaqpException("XSU149", "Interruption", ex);
         }
 
 
@@ -220,7 +220,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
                 getStatus().setMessage("completed unexpectedly");
                 getStatus().completed();
                 firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-                throw new YaqpException(ExceptionDetails.unknown_cause);
+                throw new YaqpException("XSU150", "Interruption, unknown cause", ex);
             } catch (Exception ex) {
 
                 /**
@@ -264,9 +264,9 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
         try {
             return (ArrayList<Output>) result;
         } catch (Exception ex) {
-            final String explanation = "XS5J09 - Output of parallel processor cannot be cast as the specified type!";
+            final String explanation = "Output of parallel processor cannot be cast as the specified type!";
             YaqpLogger.LOG.log(new Debug(ParallelProcessor.class, explanation));
-            throw new YaqpException(explanation);
+            throw new YaqpException("XS5J09",explanation,ex);
         }
 
     }
@@ -318,14 +318,14 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
         if (!parallel_executor.isTerminated()) {
             if (isfailSensitive()) {
                 parallel_executor.shutdownNow();
-                YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
-                        ExceptionDetails.time_out_exception.toString()));
+                YaqpLogger.LOG.log(new ScrewedUp(getClass(),
+                        "Timeout of parallel processor"));
                 getStatus().setMessage("completed unsuccessfully - timeout");
                 getStatus().completed();
                 firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-                throw new YaqpException(ExceptionDetails.time_out_exception);
+                throw new YaqpException("XJJ211", "Timeout of parallel processor");
             } else {
-                YaqpLogger.LOG.log(new Debug(ParallelProcessor.class,
+                YaqpLogger.LOG.log(new Trace(ParallelProcessor.class,
                         "Some processes in a parallel processor took very long "
                         + "to complete but the parallel is not fail-sensitive so "
                         + "no exception is thrown"));

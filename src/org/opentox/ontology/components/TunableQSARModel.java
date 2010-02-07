@@ -33,36 +33,57 @@
 
 package org.opentox.ontology.components;
 
-import org.opentox.io.publishable.JSONObject;
-import org.opentox.io.publishable.PDFObject;
-import org.opentox.io.publishable.RDFObject;
-import org.opentox.io.publishable.TurtleObject;
+import java.util.ArrayList;
+import org.opentox.ontology.util.AlgorithmParameter;
 
 /**
+ * A QSAR Model which accepts one or more tuning parameters. An example of non-tunable
+ * models are those produced by <code>MLR</code> unlike SVM models which have parameters
+ * like <code>gamma</code> or <code>kernel type</code>.
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class SVMModel extends QSARModel {
-//TODO: Populate SVMModel
-    @Override
-    public PDFObject getPDF() {
-        throw new UnsupportedOperationException("Not supported yet.");
+public class TunableQSARModel extends QSARModel{
+
+    private ArrayList<AlgorithmParameter> tuningParams;
+    private ModelType modelType;
+
+    public static enum ModelType{
+        supportVector;
+        // other tunable models are listed here...
     }
 
-    @Override
-    public RDFObject getRDF() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public TunableQSARModel(
+            String code,
+            Feature predictionFeature,
+            Feature dependentFeature,
+            ArrayList<Feature> independentFeatures,
+            Algorithm algorithm,
+            User user,
+            String timestamp,
+            String dataset
+            ) {
+        super(code, predictionFeature, dependentFeature, independentFeatures, algorithm, user, timestamp, dataset);
+        tuningParams = new ArrayList<AlgorithmParameter>();
     }
 
-    @Override
-    public TurtleObject getTurtle() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public ModelType getModelType() {
+        return modelType;
     }
 
-    @Override
-    public JSONObject getJson() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public void setModelType(ModelType modelType) {
+        this.modelType = modelType;
     }
 
+
+    @Override
+    public ArrayList<AlgorithmParameter> getTuningParams() {
+        return tuningParams;
+    }
+
+    public void setTuningParams(ArrayList<AlgorithmParameter> tuningParams) {
+        this.tuningParams = tuningParams;
+    }
+   
 }

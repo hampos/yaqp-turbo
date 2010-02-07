@@ -160,4 +160,9 @@ public class OTClass extends YaqpOntEntity {
      */
     public static final OTClass UserGroup =
             new OTClass(_model.createResource(String.format(_NS_OT, "UserGroup")));
+    /**
+     * A Task.
+     */
+    public static final OTClass Task =
+            new OTClass(_model.createResource(String.format(_NS_OT, "Task")));
 }

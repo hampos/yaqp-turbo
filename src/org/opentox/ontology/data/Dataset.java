@@ -48,7 +48,6 @@ import java.util.Set;
 import org.opentox.core.processors.Pipeline;
 import org.opentox.io.processors.InputProcessor;
 import org.opentox.io.publishable.OntObject;
-import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTClass;
@@ -62,7 +61,7 @@ import weka.core.Instances;
 
 /**
  *
- * 
+ * A set of data which can be used for training or testing a model.
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
@@ -70,10 +69,33 @@ public class Dataset {
 
     private OntObject oo = null;
 
+    /**
+     * A dataset is instantiated providing an OntObject, which is an ontological model.
+     * The class {@link OntObject } is in fact an extension of <code>OntModelImpl</code>
+     * of jena. Such an object (OntObject) can be retrieved from a remote dataset server,
+     * or from a local resource (e.g. file) using the <code>InputProcessor</code>.
+     * @param oo An ontological object holding a representation of a dataset. If an improper
+     * ontological entity is provided to construct the Dataset, methods like
+     * {@link Dataset#getInstances() getInstances()} are not likely to work, so you have to
+     * chack that the resource you provided is a dataset resource.
+     * @see DatasetBuilder
+     */
     public Dataset(OntObject oo) {
         this.oo = oo;
     }
 
+    /**
+     * The dataset as <code>Instances</code>. These objects are used by weka as
+     * input/output object to most algorithms (training, data preprocessing etc).
+     * The Instances equivalent of the dataset may contain three different types of
+     * <code>attributes</code>: numeric, nominal and/or string ones. The first attribute
+     * is always a string one corresponding to the compound of the dataentry while  
+     * acting as an identifier for it. The name of this attribute is <code>compound_uri</code>
+     * and is unique among all data entries. 
+     * @return Instances object for the dataset.
+     * @throws YaqpOntException In case something goes wrong with the provided
+     * representation (e.g. it does not correspond to a valid dataset).
+     */
     public Instances getInstances() throws YaqpOntException {
 
         /*
@@ -108,11 +130,11 @@ public class Dataset {
         if (dataSetIterator.hasNext()) {
             relationName = dataSetIterator.next().getSubject().getURI();
             if (dataSetIterator.hasNext()) {
-                throw new YaqpOntException("XN311 - More than one datasets found");
+                throw new YaqpOntException("XN311","More than one datasets found");
             }
         } else {
             // this is not a dataset model
-            throw new ImproperEntityException("XN312 - Not a dataset");
+            throw new ImproperEntityException("XN312","Not a dataset");
         }
         dataSetIterator.close();
 
@@ -127,13 +149,15 @@ public class Dataset {
 
         //  A3. Iterate over all Features.
         featureIterator =
-                oo.listStatements(new SimpleSelector(null, RDF.type, _StringFeature));
+                oo.listStatements(new SimpleSelector(null, RDF.type, _NominalFeature));
         while (featureIterator.hasNext()) {
             Statement feature = featureIterator.next();
 
             // A4. For every single feature in the dataset, pick a "values" node.
             valuesIterator =
-                    oo.listStatements(new SimpleSelector(null, OTObjectProperties.feature.createProperty(oo), feature.getSubject()));
+                    oo.listStatements(
+                     new SimpleSelector(null, OTObjectProperties.feature.createProperty(oo),
+                      feature.getSubject())  );
             if (valuesIterator.hasNext()) {
                 Statement values = valuesIterator.next();
 
@@ -315,7 +339,4 @@ public class Dataset {
 
 
 
-    public void publish(YaqpIOStream stream) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 }

@@ -32,26 +32,21 @@ import org.opentox.core.exceptions.YaqpException;
  */
 public class YaqpOntException extends YaqpException {
 
-    /**
-     * Creates a new instance of <code>YaqpOntException</code> without detail message.
-     */
+    public YaqpOntException(String id, String message, Throwable throwable) {
+        super(id, message, throwable);
+    }
+
+    public YaqpOntException(String id, Throwable throwable) {
+        super(id, throwable);
+    }
+
+    public YaqpOntException(String id, String msg) {
+        super(id, msg);
+    }
+
     public YaqpOntException() {
     }
 
+    
 
-    /**
-     * Constructs an instance of <code>YaqpOntException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public YaqpOntException(String msg) {
-        super(msg);
-    }
-
-    public YaqpOntException(Throwable throwable){
-        super(throwable);
-    }
-
-    public YaqpOntException(String message, Throwable throwable){
-        super(message, throwable);
-    }
 }

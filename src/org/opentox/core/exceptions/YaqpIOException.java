@@ -28,22 +28,19 @@ package org.opentox.core.exceptions;
  */
 public class YaqpIOException extends YaqpException {
 
-    /**
-     * Creates a new instance of <code>YaqpIOException</code> without detail message.
-     */
+    public YaqpIOException(String id, String message, Throwable throwable) {
+        super(id, message, throwable);
+    }
+
+    public YaqpIOException(String id, Throwable throwable) {
+        super(id, throwable);
+    }
+
+    public YaqpIOException(String id, String msg) {
+        super(id, msg);
+    }
+
     public YaqpIOException() {
     }
 
-    public YaqpIOException(Throwable thr){
-        super(thr);
-    }
-
-
-    /**
-     * Constructs an instance of <code>YaqpIOException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public YaqpIOException(String msg) {
-        super(msg);
-    }
 }

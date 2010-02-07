@@ -78,8 +78,8 @@ public class Feature extends YaqpComponent {
     @Override
     public String toString() {
         String feature = "";
-        feature += "FEATURE ID        : " + getID();
-        feature += "\tFEATURE URI       : " + getURI()+"\n";
+        feature += "FEATURE ID        : " + getID()+"\n";
+        feature += "FEATURE URI       : " + getURI();
         return feature;
     }
 

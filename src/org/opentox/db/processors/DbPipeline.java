@@ -63,7 +63,7 @@ public class DbPipeline<QF extends QueryFood, HR extends HyperResult> extends Ab
         try {
             result = (HR) pipeline.process(q);
         } catch (YaqpException ex) {
-            throw new DbException(ex);
+            throw new DbException("XDB4",ex);
         }
         return result;
     }

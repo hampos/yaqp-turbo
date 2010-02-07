@@ -33,6 +33,7 @@ package org.opentox.ontology.util.vocabulary;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 
 /**
  * A collection of audiences that might be interested in YAQP services.
@@ -57,7 +58,6 @@ public class Audience implements Serializable {
     public String getName() {
         return name;
     }
-
     /**
      *
      * The general public includes anyone who can interfere with the services
@@ -97,25 +97,28 @@ public class Audience implements Serializable {
      *
      * All expert users (All categories except for the General Public).
      */
-    public static final Audience AllExpert = getAllExceptGeneralPublic();
+    public static final ArrayList<Audience> AllExpert = getAllExceptGeneralPublic();
 
-    private static Audience getAllExceptGeneralPublic() {
+    private static ArrayList<Audience> getAllExceptGeneralPublic() {
+        ArrayList<Audience> list = new ArrayList<Audience>();
         try {
             Audience o = new Audience();
-            String all = "";
             Field[] fields = o.getClass().getFields();
-            for (int i = 0; i < fields.length - 1; i++) {
+            //System.out.println(fields.length);
+            for (int i = 0; i < fields.length - 1 ; i++) {
                 Audience au = (Audience) fields[i].get(o);
-                if (!au.getName().equals(Audience.GeneralPublic.getName()) && au != null) all += au.getName();                
-                if (i != fields.length - 2 && !au.getName().equals(Audience.GeneralPublic.getName())) all += ",";
+                if (!au.getName().equals(Audience.GeneralPublic.getName()) && au != null) {
+                    list.add(au);
+                }                
             }
-            return new Audience(all);
+            return list;
         } catch (Exception ex) {
             return null;
         }
     }
 
 //    public static void main(String[] a) {
-//        System.out.println(Audience.AllExpert.getName());
+//
 //    }
+
 }

@@ -61,18 +61,18 @@ public class User extends YaqpComponent {
      private static final long serialVersionUID = 1726532809162869471L;
 
     private String
-            userName,
-            userPass,
-            firstName,
-            lastName,
-            email,
-            organization,
-            country,
-            city,
-            address,
-            webpage,
-            timeStamp;
-    private UserGroup userGroup;
+            userName = null,
+            userPass = null,
+            firstName = null,
+            lastName = null,
+            email = null,
+            organization = null,
+            country = null,
+            city = null,
+            address = null,
+            webpage = null,
+            timeStamp = null;
+    private UserGroup userGroup = null;
 
 
     public User(){
@@ -213,10 +213,17 @@ public class User extends YaqpComponent {
     
     @Override
     public String toString() {
+        String groupName = null;
+        int level = -1;
+        if (getUserGroup()!=null){
+            groupName = getUserGroup().getName();
+            level = getUserGroup().getLevel();
+        }
         String user = "-- USER --\n";
         user += "USERNAME          : "+getUserName()+"\n";
         user += "PASSWORD DIGEST   : "+getUserPass()+"\n";
-        user += "USER GROUP        : "+getUserGroup()+"\n";
+        user += "USER GROUP NAME   : "+groupName+"\n";
+        user += "LEVEL             : "+level+"\n";
         user += "FIRST NAME        : "+getFirstName()+"\n";
         user += "LAST NAME         : "+getLastName()+"\n";
         user += "e-MAIL            : "+getEmail()+"\n";
@@ -302,7 +309,7 @@ public class User extends YaqpComponent {
 
 
      public static void main(String args[]) throws FileNotFoundException, DbException {
-        User u = ReaderHandler.getUsers().get(1);
+        User u = ReaderHandler.getUser(new User()).get(1);
         u.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/user.pdf")));
 
     }

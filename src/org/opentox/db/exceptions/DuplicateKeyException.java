@@ -31,26 +31,19 @@ package org.opentox.db.exceptions;
  */
 public class DuplicateKeyException extends DbException {
 
-    /**
-     * Creates a new instance of <code>DuplicateKeyException</code> without detail message.
-     */
     public DuplicateKeyException() {
     }
 
-
-    /**
-     * Constructs an instance of <code>DuplicateKeyException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public DuplicateKeyException(String msg) {
-        super(msg);
+    public DuplicateKeyException(String id, String msg) {
+        super(id, msg);
     }
 
-    public DuplicateKeyException(String msg, Throwable throwable){
-        super(msg, throwable);
+    public DuplicateKeyException(String id, Throwable throwable) {
+        super(id, throwable);
     }
 
-    public DuplicateKeyException(Throwable throwable){
-        super(throwable);
+    public DuplicateKeyException(String id, String message, Throwable throwable) {
+        super(id, message, throwable);
     }
+
 }

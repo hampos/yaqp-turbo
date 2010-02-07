@@ -21,7 +21,6 @@
  */
 package org.opentox.core.exceptions;
 
-import org.opentox.core.interfaces.JProcessor;
 
 /**
  *
@@ -30,35 +29,20 @@ import org.opentox.core.interfaces.JProcessor;
  */
 public class ProcessorException extends YaqpException {
 
+    public ProcessorException(String id, String message, Throwable throwable) {
+        super(id, message, throwable);
+    }
 
-    /**
-     * Creates a new instance of <code>ProcessorException</code> without detail message.
-     */
+    public ProcessorException(String id, Throwable throwable) {
+        super(id, throwable);
+    }
+
+    public ProcessorException(String id, String msg) {
+        super(id, msg);
+    }
+
     public ProcessorException() {
     }
 
-    public ProcessorException(JProcessor processor, Throwable throwable){
-        
-    }
 
-    
-
-
-
-
-    /**
-     * Constructs an instance of <code>ProcessorException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public ProcessorException(String msg) {
-        super(msg);
-    }
-
-    public ProcessorException(ExceptionDetails exceptionDetails) {
-        super(exceptionDetails);
-    }
-
-    public ProcessorException(Throwable exc) {
-        super(exc);
-    }
 }

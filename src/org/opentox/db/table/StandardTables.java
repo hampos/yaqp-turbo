@@ -79,19 +79,11 @@ public enum StandardTables {
      * its prediction and dependent feature, the corresponding algorithm that was
      * used to produced the model and the user that triggered the model creation.
      */
-    PREDICTION_MODELS(PredictionModels(), true),
+    QSAR_MODELS(QSARModels(), true),
     /**
-     * Table of all MLR models - child of {@link StandardTables#PREDICTION_MODELS Prediction Models }
+     * Table of all SVM models - child of {@link StandardTables#QSAR_MODELS Prediction QSARModels }
      */
-    MLR_MODELS(MlrModels(), true),
-    /**
-     * Table of all SVM models - child of {@link StandardTables#PREDICTION_MODELS Prediction Models }
-     */
-    SVM_MODELS(SvmModels(), true),
-    /**
-     * Table of all SVC models - child of {@link StandardTables#PREDICTION_MODELS Prediction Models }
-     */
-    SVC_MODELS(SvcModels(), true),
+    SUPPORT_VECTOR(SupportVector(), true),
     /**
      * Relation between independent features and models. This is a many-to-many relation
      * in the sense that one model has lots of independent features and in turn some
@@ -148,52 +140,81 @@ public enum StandardTables {
     }
 
     /**
-     * "UID INT NOT NULL PRIMARY KEY GENERATED ALWAYS AS IDENTITY, "
-    + "NAME VARCHAR(40) NOT NULL, "
-    + "URI VARCHAR(200) UNIQUE NOT NULL",
+     * Table for <code>Algorithm Ontologies</code> named <code>ALGORITHM_ONTOLOGIES</code>.
      * @return The Table for Algorithm Ontologies
      */
     public static Table AlgorithmOntologies() {
-        Table alg_ont_table = new Table("ALGORITHM_ONTOLOGIES");
-
-//        TableColumn uid = new TableColumn("UID");
-//            uid.setColumnType(SQLDataTypes.Int());
-//            uid.setNotNull(true);
-//            uid.setPrimaryKey(true, true);
+        Table table = new Table("ALGORITHM_ONTOLOGIES");
 
         TableColumn name = new TableColumn("NAME");
         name.setColumnType(SQLDataTypes.VarChar(40));
         name.setNotNull(true);
         name.setPrimaryKey(true, false);
+        table.addColumn(name);
 
         TableColumn uri = new TableColumn("URI");
         uri.setColumnType(SQLDataTypes.VarChar(200));
         uri.setUnique(true);
+        table.addColumn(uri);
 
-        //   alg_ont_table.addColumn(uid);
-        alg_ont_table.addColumn(name);
-        alg_ont_table.addColumn(uri);
-
-
-        return alg_ont_table;
+        return table;
     }
 
+    /**
+     * Authorization is specified by a four-character array. The first
+     * character corresponds to the ability of a user to perform GET (<code>A</code>
+     * stands for no, <code>B</code> stands for yes but limited to resoruces belonging
+     * to the user, <code>C</code> is yes but limited to users of the same group of of
+     * a group with smaller level and <code>D</code> is always yes. <code>E</code>,
+     * <code>F</code> and <code>G</code> are reserved for special cases). The second, third
+     * and fourth character are related to POST, PUT and DELETE METHODS.
+     * @return
+     */
     public static Table UserAuth() {
-        Table user_auth_table = new Table("USER_AUTH");
+        Table table = new Table("USER_AUTH");
 
         TableColumn name = new TableColumn("NAME");
         name.setPrimaryKey(true, false);
         name.setColumnType(SQLDataTypes.VarChar(40));
         name.setNotNull(true);
+        table.addColumn(name);
 
         TableColumn user_level = new TableColumn("USER_LEVEL");
         user_level.setColumnType(SQLDataTypes.Int());
         user_level.setDefaultValue("0");
+        table.addColumn(user_level);
 
+        TableColumn mod_auth = new TableColumn("MODEL_AUTH");
+        mod_auth.setColumnType(SQLDataTypes.VarChar(5));
+        mod_auth.setNotNull(true);
+        mod_auth.setDefaultValue("'CCAB'");
+        table.addColumn(mod_auth);
 
-        user_auth_table.addColumn(name);
-        user_auth_table.addColumn(user_level);
-        return user_auth_table;
+        TableColumn user_auth = new TableColumn("USER_AUTH");
+        user_auth.setColumnType(SQLDataTypes.VarChar(5));
+        user_auth.setNotNull(true);
+        user_auth.setDefaultValue("'BCAA'");
+        table.addColumn(user_auth);
+
+        TableColumn alg = new TableColumn("ALGORITHM_AUTH");
+        alg.setColumnType(SQLDataTypes.VarChar(5));
+        alg.setNotNull(true);
+        alg.setDefaultValue("'CCAA'");
+        table.addColumn(alg);
+
+        TableColumn user_group_auth = new TableColumn("USER_GROUP_AUTH");
+        user_group_auth.setColumnType(SQLDataTypes.VarChar(5));
+        user_group_auth.setNotNull(true);
+        user_group_auth.setDefaultValue("'AAAA'");
+        table.addColumn(user_group_auth);
+
+        TableColumn max_models = new TableColumn("MAX_MODELS");
+        max_models.setColumnType(SQLDataTypes.Int());
+        max_models.setNotNull(true);
+        max_models.setDefaultValue("2000");
+        table.addColumn(max_models);
+
+        return table;
     }
 
     public static Table Users() {
@@ -262,24 +283,12 @@ public enum StandardTables {
 
     public static Table Algorithms() {
         Table table = new Table("ALGORITHMS");
-//
-//        TableColumn uid = new TableColumn("UID");
-//          uid.setColumnType(SQLDataTypes.Int());
-//          uid.setNotNull(true);
-//          uid.setPrimaryKey(true, true);
-//         table.addColumn(uid);
 
         TableColumn name = new TableColumn("NAME");
         name.setColumnType(SQLDataTypes.VarChar(40));
         name.setNotNull(true);
         name.setPrimaryKey(true, false);
         table.addColumn(name);
-
-        TableColumn uri = new TableColumn("URI");
-        uri.setColumnType(SQLDataTypes.VarChar(150));
-        uri.setUnique(true);
-        uri.setNotNull(true);
-        table.addColumn(uri);
 
         return table;
     }
@@ -294,7 +303,7 @@ public enum StandardTables {
         table.addColumn(uid);
 
         TableColumn uri = new TableColumn("URI");
-        uri.setColumnType(SQLDataTypes.VarChar(150));
+        uri.setColumnType(SQLDataTypes.VarChar(255));
         uri.setUnique(true);
         uri.setNotNull(true);
         table.addColumn(uri);
@@ -302,69 +311,50 @@ public enum StandardTables {
         return table;
     }
 
-    public static Table PredictionModels() {
-        Table PredictioModels_table = new Table("PREDICTION_MODELS");
+    public static Table QSARModels() {
+        Table table = new Table("QSAR_MODELS");
 
         TableColumn uid = new TableColumn("UID");
         uid.setColumnType(SQLDataTypes.Int());
         uid.setNotNull(true);
         uid.setPrimaryKey(true, true);
-        PredictioModels_table.addColumn(uid);
+        table.addColumn(uid);
 
-        TableColumn name = new TableColumn("NAME");
-        name.setColumnType(SQLDataTypes.VarChar(40));
-        name.setNotNull(true);
-        PredictioModels_table.addColumn(name);
-
-        TableColumn uri = new TableColumn("URI");
-        uri.setColumnType(SQLDataTypes.VarChar(150));
-        uri.setUnique(true);
-        uri.setNotNull(true);
-        PredictioModels_table.addColumn(uri);
+        TableColumn code = new TableColumn("CODE");
+        code.setColumnType(SQLDataTypes.VarChar(255));
+        code.setNotNull(true);
+        table.addColumn(code);
 
         TableColumn prediction_feature = new TableColumn("PREDICTION_FEATURE");
         prediction_feature.setColumnType(SQLDataTypes.Int());
         prediction_feature.setNotNull(true);
         prediction_feature.setForeignKey(Features().getTableName(), "UID", true);
-        PredictioModels_table.addColumn(prediction_feature);
+        table.addColumn(prediction_feature);
 
         TableColumn dependent_feature = new TableColumn("DEPENDENT_FEATURE");
         dependent_feature.setColumnType(SQLDataTypes.Int());
         dependent_feature.setNotNull(true);
         dependent_feature.setForeignKey(Features().getTableName(), "UID", true);
-        PredictioModels_table.addColumn(dependent_feature);
+        table.addColumn(dependent_feature);
 
         TableColumn algorithm = new TableColumn("ALGORITHM");
         algorithm.setColumnType(SQLDataTypes.VarChar(40));
         algorithm.setNotNull(true);
         algorithm.setForeignKey(Algorithms().getTableName(), "NAME", true);
-        PredictioModels_table.addColumn(algorithm);
+        table.addColumn(algorithm);
 
         TableColumn createdBy = new TableColumn("CREATED_BY");
         createdBy.setColumnType(SQLDataTypes.VarChar(50));
         createdBy.setNotNull(true);
         createdBy.setForeignKey(Users().getTableName(), "EMAIL", true);
-        PredictioModels_table.addColumn(createdBy);
+        table.addColumn(createdBy);
 
         TableColumn timestamp = new TableColumn("TMSTMP");
         timestamp.setColumnType(SQLDataTypes.Timestamp());
         timestamp.setDefaultValue("CURRENT TIMESTAMP");
-        PredictioModels_table.addColumn(timestamp);
+        table.addColumn(timestamp);
 
-        return PredictioModels_table;
-    }
-
-    public static Table MlrModels() {
-        Table table = new Table("MLR_MODELS");
-
-        TableColumn uid = new TableColumn("UID");
-        uid.setColumnType(SQLDataTypes.Int());
-        uid.setNotNull(true);
-        uid.setPrimaryKey(true, false);
-        uid.setForeignKey(PredictionModels().getTableName(), "UID", true);
-        table.addColumn(uid);
-
-        TableColumn dataset = new TableColumn("DATASET");
+        TableColumn dataset = new TableColumn("DATASET_URI");
         dataset.setColumnType(SQLDataTypes.VarChar(150));
         dataset.setNotNull(true);
         table.addColumn(dataset);
@@ -372,21 +362,15 @@ public enum StandardTables {
         return table;
     }
 
-    public static Table SvmModels() {
+    public static Table SupportVector() {
         Table table = new Table("SVM_MODELS");
 
         TableColumn uid = new TableColumn("UID");
         uid.setColumnType(SQLDataTypes.Int());
         uid.setNotNull(true);
         uid.setPrimaryKey(true, false);
-        uid.setForeignKey(PredictionModels().getTableName(), "UID", true);
+        uid.setForeignKey(QSARModels().getTableName(), "UID", true);
         table.addColumn(uid);
-
-        TableColumn dataset = new TableColumn("DATASET");
-        dataset.setColumnType(SQLDataTypes.VarChar(150));
-        dataset.setUnique(true);
-        dataset.setNotNull(true);
-        table.addColumn(dataset);
 
         TableColumn gamma = new TableColumn("GAMMA");
         gamma.setColumnType(SQLDataTypes.Float());
@@ -407,10 +391,10 @@ public enum StandardTables {
         table.addColumn(cost);
 
 
-        TableColumn bias = new TableColumn("BIAS");
-        bias.setColumnType(SQLDataTypes.Float());
-        bias.setDefaultValue("0");
-        table.addColumn(bias);
+        TableColumn coeff0 = new TableColumn("COEFF0");
+        coeff0.setColumnType(SQLDataTypes.Float());
+        coeff0.setDefaultValue("0");
+        table.addColumn(coeff0);
 
         TableColumn tolerance = new TableColumn("TOLERANCE");
         tolerance.setColumnType(SQLDataTypes.Float());
@@ -418,7 +402,7 @@ public enum StandardTables {
         tolerance.setConstraint("TOLERANCE_CONSTRAINT", tolerance.getColumnName() + " > 0");
         table.addColumn(tolerance);
 
-        TableColumn cache = new TableColumn("CACHE");
+        TableColumn cache = new TableColumn("CACHESIZE");
         cache.setColumnType(SQLDataTypes.Int());
         cache.setDefaultValue("50000");
         cache.setConstraint("CACHE_CONSTRAINT", cache.getColumnName() + " < 5000000");
@@ -439,72 +423,12 @@ public enum StandardTables {
         return table;
     }
 
-    public static Table SvcModels() {
-        Table table = new Table("SVC_MODELS");
-
-        TableColumn uid = new TableColumn("UID");
-        uid.setColumnType(SQLDataTypes.Int());
-        uid.setNotNull(true);
-        uid.setPrimaryKey(true, false);
-        uid.setForeignKey(PredictionModels().getTableName(), "UID", true);
-        table.addColumn(uid);
-
-        TableColumn dataset = new TableColumn("DATASET");
-        dataset.setColumnType(SQLDataTypes.VarChar(150));
-        dataset.setUnique(true);
-        dataset.setNotNull(true);
-        table.addColumn(dataset);
-
-        TableColumn gamma = new TableColumn("GAMMA");
-        gamma.setColumnType(SQLDataTypes.Float());
-        gamma.setDefaultValue("1.50");
-        gamma.setConstraint("GAMMA_C", gamma.getColumnName() + " >=0");
-        table.addColumn(gamma);
-
-        TableColumn cost = new TableColumn("COST");
-        cost.setColumnType(SQLDataTypes.Float());
-        cost.setDefaultValue("100");
-        cost.setConstraint("COST_C", cost.getColumnName() + " > 0.0");
-        table.addColumn(cost);
-
-        TableColumn bias = new TableColumn("BIAS");
-        bias.setColumnType(SQLDataTypes.Float());
-        bias.setDefaultValue("0");
-        table.addColumn(bias);
-
-        TableColumn tolerance = new TableColumn("TOLERANCE");
-        tolerance.setColumnType(SQLDataTypes.Float());
-        tolerance.setDefaultValue("0.0001");
-        tolerance.setConstraint("TOLERANCE_C", tolerance.getColumnName() + " > 0");
-        table.addColumn(tolerance);
-
-        TableColumn cache = new TableColumn("CACHE");
-        cache.setColumnType(SQLDataTypes.Int());
-        cache.setDefaultValue("50000");
-        cache.setConstraint("CACHE_C", cache.getColumnName() + " < 5000000");
-        table.addColumn(cache);
-
-        TableColumn kernel = new TableColumn("KERNEL");
-        kernel.setColumnType(SQLDataTypes.VarChar(10));
-        kernel.setDefaultValue("'RBF'");
-        kernel.setConstraint("KERNEL_C", kernel.getColumnName() + " IN ('RBF', 'LINEAR', 'POLYNOMIAL', 'SIGMOID')");
-        table.addColumn(kernel);
-
-        TableColumn degree = new TableColumn("DEGREE");
-        degree.setColumnType(SQLDataTypes.Int());
-        degree.setDefaultValue("3");
-        degree.setConstraint("DEGREE_C", degree.getColumnName() + " > 0");
-        table.addColumn(degree);
-
-        return table;
-    }
-
     public static Table IndepFeaturesRelation() {
         Table table = new Table("INDEPENDENT_FEATURES_RELATION");
 
         TableColumn model_uid = new TableColumn("MODEL_UID");
         model_uid.setColumnType(SQLDataTypes.Int());
-        model_uid.setForeignKey(PredictionModels().getTableName(), "UID", true);
+        model_uid.setForeignKey(QSARModels().getTableName(), "UID", true);
         table.addColumn(model_uid);
 
         TableColumn feature_uid = new TableColumn("FEATURE_UID");
@@ -517,11 +441,6 @@ public enum StandardTables {
     public static Table AlgorithmOntolRelation() {
         Table table = new Table("ALG_ONT_RELATION");
 
-//        TableColumn algorithm_uid = new TableColumn("ALGORITHM_UID");
-//          algorithm_uid.setColumnType(SQLDataTypes.Int());
-//          algorithm_uid.setForeignKey(Algorithms().getTableName(), "UID", true);
-//         table.addColumn(algorithm_uid);
-
         TableColumn algorithm_name = new TableColumn("ALGORITHM");
         algorithm_name.setColumnType(SQLDataTypes.VarChar(40));
         algorithm_name.setForeignKey(Algorithms().getTableName(), "NAME", true);
@@ -531,26 +450,23 @@ public enum StandardTables {
         ontology_name.setColumnType(SQLDataTypes.VarChar(40));
         ontology_name.setForeignKey(AlgorithmOntologies().getTableName(), "NAME", true);
         table.addColumn(ontology_name);
-//        TableColumn ontology_uid = new TableColumn("ONTOLOGY_UID");
-//          ontology_uid.setColumnType(SQLDataTypes.Int());
-//          ontology_uid.setForeignKey(AlgorithmOntologies().getTableName(), "UID", true);
-//         table.addColumn(ontology_uid);
+
         return table;
     }
-//TODO: add dataset col
+
     public static Table OmegaModels() {
         Table table = new Table("OMEGA");
 
-        TableColumn name = new TableColumn("NAME");
-        name.setColumnType(SQLDataTypes.VarChar(40));
-        name.setNotNull(true);
-        name.setPrimaryKey(true, false);
-        table.addColumn(name);
+        TableColumn uid = new TableColumn("UID");
+        uid.setColumnType(SQLDataTypes.Int());
+        uid.setNotNull(true);
+        uid.setPrimaryKey(true, true);
+        table.addColumn(uid);
 
-        TableColumn uri = new TableColumn("URI");
-        uri.setColumnType(SQLDataTypes.VarChar(200));
-        uri.setUnique(true);
-        table.addColumn(uri);
+        TableColumn code = new TableColumn("CODE");
+        code.setColumnType(SQLDataTypes.VarChar(255));
+        code.setNotNull(true);
+        table.addColumn(code);
 
         TableColumn createdBy = new TableColumn("CREATED_BY");
         createdBy.setColumnType(SQLDataTypes.VarChar(50));
@@ -558,12 +474,15 @@ public enum StandardTables {
         createdBy.setForeignKey(Users().getTableName(), "EMAIL", true);
         table.addColumn(createdBy);
 
+        TableColumn dataset = new TableColumn("DATASET_URI");
+        dataset.setColumnType(SQLDataTypes.VarChar(150));
+        dataset.setNotNull(true);
+        table.addColumn(dataset);
+
         TableColumn timestamp = new TableColumn("TMSTMP");
         timestamp.setColumnType(SQLDataTypes.Timestamp());
         timestamp.setDefaultValue("CURRENT TIMESTAMP");
         table.addColumn(timestamp);
-
-
 
         return table;
     }
@@ -572,24 +491,13 @@ public enum StandardTables {
     public static Table Tasks() {
         Table table = new Table("TASKS");
 
-        TableColumn uid = new TableColumn("UID");
-        uid.setColumnType(SQLDataTypes.Int());
-        uid.setNotNull(true);
-        uid.setPrimaryKey(true, true);
-        table.addColumn(uid);
-
         TableColumn name = new TableColumn("NAME");
-        name.setColumnType(SQLDataTypes.VarChar(40));
-        name.setNotNull(true);
+        name.setColumnType(SQLDataTypes.VarChar(255));
+        name.setPrimaryKey(true, false);
         table.addColumn(name);
 
-        TableColumn uri = new TableColumn("URI");
-        uri.setColumnType(SQLDataTypes.VarChar(200));
-        uri.setUnique(true);
-        table.addColumn(uri);
-
         TableColumn status = new TableColumn("STATUS");
-        status.setColumnType(SQLDataTypes.VarChar(80));
+        status.setColumnType(SQLDataTypes.VarChar(15));
         status.setNotNull(true);
         status.setDefaultValue("'RUNNING'");
         status.setConstraint("STATUS_CONSTRAINT", "STATUS IN ('RUNNING', 'COMPLETED', 'CANCELLED')");
@@ -611,7 +519,6 @@ public enum StandardTables {
         TableColumn httpStatus = new TableColumn("HTTPSTATUS");
         httpStatus.setColumnType(SQLDataTypes.Int());
         httpStatus.setNotNull(true);
-        //httpStatus.setConstraint("HTTPSTATUS_CONSTRAINT", "STATUS IN ('200', '201', '202', '400')");
         httpStatus.setDefaultValue("202");
         table.addColumn(httpStatus);
 
@@ -626,10 +533,10 @@ public enum StandardTables {
 
         TableColumn endTimestamp = new TableColumn("ENDSTAMP");
         endTimestamp.setColumnType(SQLDataTypes.Timestamp());
-        endTimestamp.setDefaultValue("CURRENT TIMESTAMP");
         table.addColumn(endTimestamp);
 
         return table;
     }
+
 }
 

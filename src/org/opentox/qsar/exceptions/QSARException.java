@@ -41,18 +41,20 @@ import org.opentox.core.exceptions.YaqpException;
  */
 public class QSARException extends YaqpException {
 
-    /**
-     * Creates a new instance of <code>QSARException</code> without detail message.
-     */
+    public QSARException(String id, String message, Throwable throwable) {
+        super(id, message, throwable);
+    }
+
+    public QSARException(String id, Throwable throwable) {
+        super(id, throwable);
+    }
+
+    public QSARException(String id, String msg) {
+        super(id, msg);
+    }
+
     public QSARException() {
     }
 
-
-    /**
-     * Constructs an instance of <code>QSARException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public QSARException(String msg) {
-        super(msg);
-    }
+    
 }

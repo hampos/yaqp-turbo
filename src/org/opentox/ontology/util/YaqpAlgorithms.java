@@ -124,7 +124,7 @@ public class YaqpAlgorithms {
         meta.format.add(MediaType.APPLICATION_XML);
         meta.identifier = uri;
         meta.type = "http://purl.org/dc/dcmitype/Service";
-        meta.audience.add(Audience.AllExpert);
+        meta.audience.addAll(Audience.AllExpert);
         meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
         meta.algorithmType = OTAlgorithmTypes.RegressionEagerSingleTarget;
 
@@ -165,7 +165,7 @@ public class YaqpAlgorithms {
         meta.format.add(MediaType.APPLICATION_XML);
         meta.identifier = uri;
         meta.type = "http://purl.org/dc/dcmitype/Service";
-        meta.audience.add(Audience.AllExpert);
+        meta.audience.addAll(Audience.AllExpert);
         meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
         meta.algorithmType = OTAlgorithmTypes.RegressionEagerSingleTarget;
 
@@ -207,7 +207,7 @@ public class YaqpAlgorithms {
         meta.format.add(MediaType.APPLICATION_XML);
         meta.identifier = uri;
         meta.type = "http://purl.org/dc/dcmitype/Service";
-        meta.audience.add(Audience.AllExpert);
+        meta.audience.addAll(Audience.AllExpert);
         meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
         meta.algorithmType = OTAlgorithmTypes.ClassificationEagerSingleTarget;
 

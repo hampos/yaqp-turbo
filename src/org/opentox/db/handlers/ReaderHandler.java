@@ -34,6 +34,7 @@ package org.opentox.db.handlers;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
+import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
@@ -42,12 +43,11 @@ import org.opentox.db.queries.HyperResult;
 import org.opentox.db.queries.QueryFood;
 import org.opentox.db.util.PrepStmt;
 import org.opentox.ontology.exceptions.YaqpOntException;
+import org.opentox.ontology.namespaces.OTClass;
 import org.opentox.ontology.util.AlgorithmMeta;
 import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.util.logging.YaqpLogger;
-import org.opentox.util.logging.levels.Debug;
-import org.opentox.util.logging.levels.Trace;
-import org.opentox.util.logging.levels.Warning;
+import org.opentox.util.logging.levels.*;
 
 /**
  *
@@ -70,24 +70,86 @@ public class ReaderHandler {
             getQSARModelsPipeline = null,
             getMLRModelsPipeline = null,
             getTasksPipeline = null;
-
+    private static final String baseURI =
+            "http://" + Configuration.getProperties().getProperty("server.domainName")
+            + ":" + Configuration.getProperties().getProperty("server.port");
 
     /**
-     * Retrieve all information about a user given its username (case sensitive).
-     * The result is returned as an instance of <code>User</code>. The database operation
-     * is based on a prepared statemnet for increased security and performance.
-     * @param userName The username for a YAQP user.
-     * @return User information as an instance of {@link User }.
+     *
+     * An amazing method for searching for users having certain characteristics.
+     * The provided argument is a <code>user</code> which defined the search criteria.
+     * This user includes information that consist search criteria while you can set
+     * to <code>null</code>, user information you're not interested in. For example,
+     * if the prototype is <code>new User()</code>, the search will return all users. If
+     * the prototype is a user with username <code>clown</code>, the search will return
+     * all users with this name. If you need all users with email containing the character
+     * sequence <code>'yahoo.com'</code>, you have to use the escape character <code>'%'</code>,
+     * that is you have to create a user like this:
+     * <pre>
+     * User u = new User();
+     * u.setEmail("%yahoo.com");
+     * ArrayList&lt;User&gt; search_results = ReaderHandler.getUser(u);
+     * </pre>
+     * Now, if you need all users with email from yahoo, use % twice, like this:
+     * <pre>
+     * User u = new User();
+     * u.setEmail("%yahoo.%");
+     * </pre>
+     * If in the search prototype you specify a user group for the search, then the
+     * <code>level</code> of the group is optional. If you provide a usergroup with
+     * given name, the search will be performed over all users belonging to this group.
+     * For example, if you want all users in the group <code>Guest</code>, here is an
+     * example of how to do this:
+     * <pre>
+     * User u = new User();
+     * u.setUserGroup(new UserGroup("Guest", -1));
+     * ArrayList&lt;User&gt; search_results = ReaderHandler.getUser(u);
+     * </pre>
+     * So if you set the level to a non-positive value (e.g. -1) the search takes place over
+     * the groups with name <code>Guest</code> and some level. If you need all users belonging
+     * to a group with a certain level, set groupName to <code>null</code> and specify the
+     * desired level like this:
+     * <pre>
+     * User u = new User();
+     * u.setUserGroup(new UserGroup(null, 10));
+     * </pre>
+     * This will return a list of users belonging to a group with level=10.
+     * @param search_prototype The prototype for the search.
+     * @return List of users meeting the specifications of the search criteria or
+     * an empty list if no such user was found.
+     * @throws DbException In case the search cannot be performed.
      */
-    public static User getUser(String email) throws DbException {
+    public static ArrayList<User> getUser(User search_prototype) throws DbException {
+        ArrayList<User> searchResult = new ArrayList<User>();
         if (getUserPipeline == null) {
-            getUserPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USER);
+            getUserPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_USER);
         }
         HyperResult result = null;
+        String groupName = null;
+        long authLevel = -1, auth_min = 0, auth_max = Integer.MAX_VALUE;
+        if (search_prototype.getUserGroup() != null) {
+            groupName = search_prototype.getUserGroup().getName();
+            authLevel = search_prototype.getUserGroup().getLevel();
+            if (authLevel > 0) {
+                auth_min = authLevel;
+                auth_max = authLevel;
+            }
+        }
+
         QueryFood food = new QueryFood(
                 new String[][]{
-                    {"EMAIL", email}
-                });
+                    {"USER_LEVEL_MIN", Long.toString(auth_min)},
+                    {"USER_LEVEL_MAX", Long.toString(auth_max)},
+                    {"EMAIL", fixNull(search_prototype.getEmail())},
+                    {"USERNAME", fixNull(search_prototype.getUserName())},
+                    {"FIRSTNAME", fixNull(search_prototype.getFirstName())},
+                    {"LASTNAME", fixNull(search_prototype.getLastName())},
+                    {"COUNTRY", fixNull(search_prototype.getCountry())},
+                    {"CITY", fixNull(search_prototype.getCity())},
+                    {"ADDRESS", fixNull(search_prototype.getAddress())},
+                    {"ORGANIZATION", fixNull(search_prototype.getOrganization())},
+                    {"WEBPAGE", fixNull(search_prototype.getWebpage())},
+                    {"ROLE", fixNull(groupName)},});
         try {
             result = getUserPipeline.process(food);
         } catch (YaqpException ex) {
@@ -96,18 +158,34 @@ public class ReaderHandler {
             throw new DbException(message, ex);
         }
 
-        if (result.getSize() == 1) {
-            Iterator<String> it = result.getColumnIterator(1);
-            User user = new User(it.next(), it.next(), it.next(), it.next(), it.next(), it.next(), it.next(),
-                    it.next(), it.next(), it.next(), it.next(), getUserGroup(it.next()));
-            return user;
+        if (result.getSize() > 0) {
+            for (int i = 1; i <= result.getSize(); i++) {
+                Iterator<String> it = result.getColumnIterator(i);
+                User user = new User(it.next(), it.next(), it.next(), it.next(), it.next(), it.next(), it.next(),
+                        it.next(), it.next(), it.next(), it.next(), getUserGroup(it.next()));
+                searchResult.add(user);
+            }
         }
-        throw new DbException("XUS452 - No such user :" + email);
+        return searchResult;
     }
 
-    public static ArrayList<User> getUsers() throws DbException {
+    /**
+     * Auxiliary method.
+     * @param in some string
+     * @return returns <code>in</code> (the input string) if it is not null, or
+     * <code>%%</code> otherwise.
+     */
+    private static String fixNull(String in) {
+        if (in == null) {
+            return "%%";
+        }
+        return in;
+    }
+
+    public static UriList getUsers() throws DbException {
+        UriList userList = new UriList();
         if (getUsersPipeline == null) {
-            getUsersPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USERS);
+            getUsersPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALL_USERS);
         }
         HyperResult result = null;
         try {
@@ -115,12 +193,10 @@ public class ReaderHandler {
         } catch (YaqpException ex) {
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "XR51 - Could not get User list from database\n"));
         }
-        ArrayList<User> userList = new ArrayList<User>();
+
         for (int i = 1; i < result.getSize() + 1; i++) {
             Iterator<String> it = result.getColumnIterator(i);
-            User user = new User(it.next(), it.next(), it.next(), it.next(), it.next(), it.next(), it.next(),
-                    it.next(), it.next(), it.next(), it.next(), getUserGroup(it.next()));
-            userList.add(user);
+            userList.add(new Uri(baseURI+"/user/"+it.next(), OTClass.User));
         }
         return userList;
     }
@@ -140,7 +216,7 @@ public class ReaderHandler {
         } catch (YaqpException ex) {
             String message = "Could not get User Group " + groupName + " from database";
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException(message, ex);
+            throw new DbException("XRT73", message, ex);
         }
 
         if (result.getSize() == 1) {
@@ -148,7 +224,7 @@ public class ReaderHandler {
             UserGroup userGroup = new UserGroup(it.next(), Integer.parseInt(it.next()));
             return userGroup;
         }
-        throw new DbException("XUG710 - No such user group :" + groupName);
+        throw new DbException("XUG710", "No such user group :" + groupName);
     }
 
     public static ArrayList<UserGroup> getUserGroups() throws DbException {
@@ -261,7 +337,7 @@ public class ReaderHandler {
                     }
                 }
             } catch (Exception e) {
-                YaqpLogger.LOG.log(new Warning(ReaderHandler.class, "XX101 - Xeption : "+e.toString()));
+                YaqpLogger.LOG.log(new Warning(ReaderHandler.class, "XX101 - Xeption : " + e.toString()));
             }
         }
         return algorithmList;
@@ -300,24 +376,24 @@ public class ReaderHandler {
         return algorithmList;
     }
 
-    public static Algorithm getAlgorithm(String name) throws DbException{
+    public static Algorithm getAlgorithm(String name) throws DbException {
         AlgorithmMeta meta = null;
         Algorithm algorithm = null;
         try {
-                Class<?> c = YaqpAlgorithms.class;
-                Method[] allMethods = c.getDeclaredMethods();
-                for (Method m : allMethods) {
-                    String mname = m.getName();
-                    if (mname.contains(name)) {
-                        meta = (AlgorithmMeta) m.invoke(null, (Object[]) null);
-                        algorithm = new Algorithm(meta);
-                        return algorithm;
-                    }
+            Class<?> c = YaqpAlgorithms.class;
+            Method[] allMethods = c.getDeclaredMethods();
+            for (Method m : allMethods) {
+                String mname = m.getName();
+                if (mname.contains(name)) {
+                    meta = (AlgorithmMeta) m.invoke(null, (Object[]) null);
+                    algorithm = new Algorithm(meta);
+                    return algorithm;
                 }
-            } catch (Exception e) {
-                YaqpLogger.LOG.log(new Debug(ReaderHandler.class, e.toString()));
             }
-        throw new DbException("XUS484 - No such Algorithm :" + name);
+        } catch (Exception e) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, e.toString()));
+        }
+        throw new DbException("XUS484", "No such Algorithm :" + name);
     }
 
     public static ArrayList<Feature> getFeatures() {
@@ -339,6 +415,7 @@ public class ReaderHandler {
         }
         return featureList;
     }
+
     public static Feature getFeature(int uid) throws DbException {
         if (getFeaturePipeline == null) {
             getFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_FEATURE);
@@ -355,36 +432,35 @@ public class ReaderHandler {
         }
         if (result.getSize() == 1) {
             Iterator<String> it = result.getColumnIterator(1);
-            Feature feature = new Feature(Integer.parseInt(it.next()),it.next());
+            Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
             return feature;
         }
-        throw new DbException("XUS587 - No such Feature :" + uid);
+        throw new DbException("XUS587", "No such Feature :" + uid);
     }
 
-    public static ArrayList<Feature> getIndepFeatures(QSARModel model){
-         if (getIndepFeaturesPipeline == null) {
-            getIndepFeaturesPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_INDEP_FEATURES);
-        }
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"MODEL_UID", Integer.toString(model.getId())}
-                });
-        HyperResult result = null;
-        try {
-            result = getIndepFeaturesPipeline.process(food);
-        } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Independent Features from database for model: "+model.getName()));
-        }
-        ArrayList<Feature> featureList = new ArrayList<Feature>();
-        for (int i = 1; i < result.getSize() + 1; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-            Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
-            featureList.add(feature);
-        }
-        return featureList;
-    }
-
-    public static ArrayList<QSARModel> getQSARModels(){
+//    public static ArrayList<Feature> getIndepFeatures(QSARModel model){
+//         if (getIndepFeaturesPipeline == null) {
+//            getIndepFeaturesPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_INDEP_FEATURES);
+//        }
+//        QueryFood food = new QueryFood(
+//                new String[][]{
+//                    {"MODEL_UID", Integer.toString(model.getId())}
+//                });
+//        HyperResult result = null;
+//        try {
+//            result = getIndepFeaturesPipeline.process(food);
+//        } catch (YaqpException ex) {
+//            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Independent Features from database for model: "+model.getName()));
+//        }
+//        ArrayList<Feature> featureList = new ArrayList<Feature>();
+//        for (int i = 1; i < result.getSize() + 1; i++) {
+//            Iterator<String> it = result.getColumnIterator(i);
+//            Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
+//            featureList.add(feature);
+//        }
+//        return featureList;
+//    }
+    public static ArrayList<QSARModel> getQSARModels() {
         if (getQSARModelsPipeline == null) {
             getQSARModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_QSAR_MODELS);
         }
@@ -397,48 +473,45 @@ public class ReaderHandler {
 
         return null;
     }
-
-    public static ArrayList<MLRModel> getMLRModels() throws DbException{
-        if (getMLRModelsPipeline == null) {
-            getMLRModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_MLR_MODELS);
-        }
-        HyperResult result = null;
-        try {
-            result = getMLRModelsPipeline.process(null);
-        } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get MLRModels from database"));
-        }
-        ArrayList<MLRModel> models = new ArrayList<MLRModel>();
-        for (int i = 1; i < result.getSize() + 1; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-            MLRModel model = new MLRModel(Integer.parseInt(it.next()), it.next(), it.next(), 
-                    getFeature(Integer.parseInt(it.next())), getFeature(Integer.parseInt(it.next())),
-                    getAlgorithm(it.next()), getUser(it.next()), it.next(), it.next());
-            model.setIndependentFeatures(getIndepFeatures(model));
-            models.add(model);
-        }
-        return models;
-    }
-
-    public static ArrayList<Task> getTasks() throws DbException {
-        if (getTasksPipeline == null) {
-            getTasksPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_TASKS);
-        }
-        HyperResult result = null;
-        try {
-            result = getTasksPipeline.process(null);
-        } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Tasks from database"));
-        }
-        ArrayList<Task> tasks = new ArrayList<Task>();
-        for (int i = 1; i < result.getSize() + 1; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-            Task task = new Task(Integer.parseInt(it.next()), it.next(), it.next(),
-                   Task.STATUS.valueOf(it.next()) , getUser(it.next()), getAlgorithm(it.next()), Integer.parseInt(it.next()),
-                    it.next(), it.next(), it.next());
-            tasks.add(task);
-        }
-        return tasks;
-    }
-
+//    public static ArrayList<MLRModel> getMLRModels() throws DbException{
+//        if (getMLRModelsPipeline == null) {
+//            getMLRModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_MLR_MODELS);
+//        }
+//        HyperResult result = null;
+//        try {
+//            result = getMLRModelsPipeline.process(null);
+//        } catch (YaqpException ex) {
+//            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get MLRModels from database"));
+//        }
+//        ArrayList<MLRModel> models = new ArrayList<MLRModel>();
+//        for (int i = 1; i < result.getSize() + 1; i++) {
+//            Iterator<String> it = result.getColumnIterator(i);
+//            MLRModel model = new MLRModel(Integer.parseInt(it.next()), it.next(), it.next(),
+//                    getFeature(Integer.parseInt(it.next())), getFeature(Integer.parseInt(it.next())),
+//                    getAlgorithm(it.next()), getUser(it.next()), it.next(), it.next());
+//            model.setIndependentFeatures(getIndepFeatures(model));
+//            models.add(model);
+//        }
+//        return models;
+//    }
+//    public static ArrayList<Task> getTasks() throws DbException {
+//        if (getTasksPipeline == null) {
+//            getTasksPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_TASKS);
+//        }
+//        HyperResult result = null;
+//        try {
+//            result = getTasksPipeline.process(null);
+//        } catch (YaqpException ex) {
+//            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Tasks from database"));
+//        }
+//        ArrayList<Task> tasks = new ArrayList<Task>();
+//        for (int i = 1; i < result.getSize() + 1; i++) {
+//            Iterator<String> it = result.getColumnIterator(i);
+//            Task task = new Task(Integer.parseInt(it.next()), it.next(), it.next(),
+//                    Task.STATUS.valueOf(it.next()), getUser(it.next()), getAlgorithm(it.next()), Integer.parseInt(it.next()),
+//                    it.next(), it.next(), it.next());
+//            tasks.add(task);
+//        }
+//        return tasks;
+//    }
 }

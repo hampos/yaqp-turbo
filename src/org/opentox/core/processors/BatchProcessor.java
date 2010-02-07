@@ -104,15 +104,15 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
     public ArrayList<Output> process(ArrayList<Input> data) throws YaqpException {
 
         if (data == null) {
-            throw new ProcessorException(ExceptionDetails.null_input_to_parallel_processor);
+            throw new ProcessorException("XPR96","No input to parallel processor");
         }
 
         if (data.size() != data.size()) {
-            throw new ProcessorException("sizes of input array list and processors unequal!");
+            throw new ProcessorException("XPR97","Sizes of input array list and processors unequal");
         }
 
         if (data.size() == 0) {
-            throw new ProcessorException("No batch!");
+            throw new ProcessorException("XPR98","No batch!");
         }
 
         /**
@@ -160,7 +160,7 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
             getStatus().setMessage("interrupted - not running");
             getStatus().completed();
             firePropertyChange(PROPERTY, null, getStatus());
-            throw new ProcessorException(ExceptionDetails.processor_interruption);
+            throw new ProcessorException("XPR62","A processor was brutally interrupted while performing an operation");
         }
 
         for (int i = 0; i < data.size(); i++) {
@@ -184,7 +184,7 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
                 getStatus().setMessage("completed unexpectedly");
                 getStatus().completed();
                 firePropertyChange(PROPERTY, null, getStatus());
-                throw new ProcessorException(ExceptionDetails.unknown_cause);
+                throw new ProcessorException("XPR11","Unknown cause of exception (Interruption)");
             } catch (Exception ex) {
 
                 /**
@@ -198,7 +198,7 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
                     getStatus().setMessage("completed unsuccessfully");
                     getStatus().completed();
                     firePropertyChange(PROPERTY, null, getStatus());
-                    throw new ProcessorException("The batch Processor is fail-sensitive");
+                    throw new ProcessorException("XPR99","The batch Processor is fail-sensitive");
                 }
 
                 /**
@@ -249,12 +249,12 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
             if (isfailSensitive()) {
                 parallel_executor.shutdownNow();
                 YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
-                        ExceptionDetails.time_out_exception.toString()));
+                        "Timeout"));
                 System.out.println("Waiting for " + timeout + timeUnit);
                 getStatus().setMessage("completed unsuccessfully - timeout");
                 getStatus().completed();
                 firePropertyChange(PROPERTY, null, getStatus());
-                throw new ProcessorException(ExceptionDetails.time_out_exception);
+                throw new ProcessorException("XPR80","Timeout");
             } else {
                 YaqpLogger.LOG.log(new Debug(ParallelProcessor.class,
                         "Some processes in a parallel processor took very long "

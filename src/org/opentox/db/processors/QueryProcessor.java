@@ -68,8 +68,8 @@ public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatemen
             for (int i = 0; prepStmt.getParameters() != null && i < prepStmt.getParameters().length; i++) {
 
                 if (!food.containsName(prepStmt.getParameters()[i].getName())) {
-                    String message = "XDR162 - The parameter " + prepStmt.getParameters()[i].getName() + " is not set";
-                    throw new DbException(message);
+                    String message = "The parameter " + prepStmt.getParameters()[i].getName() + " is not set";
+                    throw new DbException("XDR162",message);
                 }
                 value = food.getValue(prepStmt.getParameters()[i].getName());
                 if (prepStmt.getParameters()[i].getType().equals(String.class)) {

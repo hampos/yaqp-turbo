@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of National Technical University of Athens. Please read README for more
+ * School of the National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -29,135 +29,36 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
+
+
 package org.opentox.ontology.components;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import org.opentox.ontology.util.AlgorithmParameter;
 
 /**
- * TODO: Update QSARModel and its subclasses according to the corresponding db tables
+ *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public abstract class QSARModel extends YaqpComponent {
+public class QSARModel extends AbstractQSARModel {
+    
 
-    private int id;
-    private String name;
-    private String uri;
-    private Feature predictionFeature;
-    private Feature dependentFeature;
-    private Algorithm algorithm;
-    private User user;
-    private String timestamp;
-    private ArrayList<Feature> independentFeatures;
-
-    public QSARModel() {
-        super();
+    public QSARModel(String code,
+            Feature predictionFeature,
+            Feature dependentFeature,
+            ArrayList<Feature> independentFeatures,
+            Algorithm algorithm,
+            User user,
+            String timestamp,
+            String dataset) {
+        super(code, predictionFeature, dependentFeature, independentFeatures, algorithm, user, timestamp, dataset);
     }
-
-     public QSARModel(int id, String name, String uri,
-            Feature predictionFeature, Feature dependentFeature,
-            Algorithm algorithm, User user, String timestamp) {
-        this.id = id;
-        this.name = name;
-        this.uri = uri;
-        this.predictionFeature = predictionFeature;
-        this.dependentFeature = dependentFeature;
-        this.algorithm = algorithm;
-        this.user = user;
-        this.timestamp = timestamp;
-    }
-
-    public Algorithm getAlgorithm() {
-        return algorithm;
-    }
-
-    public void setAlgorithm(Algorithm algorithm) {
-        this.algorithm = algorithm;
-    }
-
-    public Feature getDependentFeature() {
-        return dependentFeature;
-    }
-
-    public void setDependentFeature(Feature dependentFeature) {
-        this.dependentFeature = dependentFeature;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public ArrayList<Feature> getIndependentFeatures() {
-        return independentFeatures;
-    }
-
-    public void setIndependentFeatures(ArrayList<Feature> independentFeatures) {
-        this.independentFeatures = independentFeatures;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Feature getPredictionFeature() {
-        return predictionFeature;
-    }
-
-    public void setPredictionFeature(Feature predictionFeature) {
-        this.predictionFeature = predictionFeature;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
+  
+    
     @Override
-    public String toString() {
-        String predModel = "-- PREDICTION MODEL --\n";
-        predModel += "ID          : " + getId() + "\n";
-        predModel += "URI         : " + getUri() + "\n";
-        predModel += "NAME        : " + getName() + "\n";
-        predModel += "PRED FEATURE: " + "\n" + getPredictionFeature() + "\n";
-        predModel += "DEP FEATURE : " + "\n" + getDependentFeature() + "\n";
-        predModel += "ALGORITHM   : " + getAlgorithm().getMeta().name + "\n";
-        predModel += "USER        : " + getUser().getEmail() + "\n";
-        predModel += "TIMESTAMP   : " + getTimestamp() + "\n";
-        predModel += "IND FEATURES: " + getId() + "\n";
-        Iterator<Feature> it = independentFeatures.iterator();
-        while (it.hasNext()) {
-            predModel += it.next();
-        }
-        return predModel;
-
+    public ArrayList<AlgorithmParameter> getTuningParams() {
+        return new ArrayList<AlgorithmParameter>();
     }
 
 }

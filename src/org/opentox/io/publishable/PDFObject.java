@@ -32,10 +32,13 @@
 package org.opentox.io.publishable;
 
 import com.itextpdf.text.Annotation;
+import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.OutputStream;
 import java.net.URL;
@@ -62,6 +65,8 @@ public class PDFObject implements JPublishable {
     private String pdfKeywords = "";
     private static final String OpenToxLogoUrl = "http://opentox.org/logo.png";
     private static final String alternativeLogoPath = ServerFolders.images+"/logo.png";
+    private static final String kinkyDesignLogo = ServerFolders.images+"/kd_logo.png";
+    private static final String yaqpLogo = ServerFolders.images+"/yaqp_logo.png";
 
 
     public PDFObject() {
@@ -106,8 +111,8 @@ public class PDFObject implements JPublishable {
             doc.addCreator(pdfCreator);
             doc.addTitle(pdfTitle);
             doc.addKeywords(pdfKeywords);
-            doc.addHeader("License", "GNU GPL v3");
-            Image image = null;
+            doc.addHeader("License", "GNU GPL v3");            
+            Image image = null;            
             try {
                 image = Image.getInstance(new URL(OpenToxLogoUrl));                
             } catch (Exception ex) {// OpenTox Logo was not found on the web...
@@ -115,14 +120,26 @@ public class PDFObject implements JPublishable {
                     YaqpLogger.LOG.log(new Trace(getClass(), "WCT517 - OpenTox Logo not found at " + OpenToxLogoUrl));
                     image = Image.getInstance(alternativeLogoPath);
                 } catch (Exception ex1) {
-                    YaqpLogger.LOG.log(new Warning(getClass(), "WCT518 - OpenTox Logo not found at "+alternativeLogoPath));
+                    YaqpLogger.LOG.log(new Warning(getClass(), "WCT518 - OpenTox Logo not found at "+alternativeLogoPath+" :: "+ex1));
                 } 
             }
             if (image != null){
                 image.scalePercent(40);
                 image.setAnnotation(new Annotation(0, 0, 0, 0, "http://opentox.org"));
-                doc.add(image);
+                Chunk ck_ot = new Chunk(image, -5, -30);
+                doc.add(ck_ot);
             }
+            try {
+                Image yaqp = Image.getInstance(yaqpLogo);
+                yaqp.scalePercent(30);
+                yaqp.setAnnotation(new Annotation(0, 0, 0, 0, "https://opentox.ntua.gr"));
+                yaqp.setAlt("YAQP(R), yet another QSAR Project");
+                Chunk ck_yaqp = new Chunk(yaqp,15,-30);
+                doc.add(ck_yaqp);
+            } catch (Exception ex) {
+                YaqpLogger.LOG.log(new Warning(getClass(), "WCT519 - Kinky Design Logo not found at "+kinkyDesignLogo+" :: "+ex));
+            }
+            doc.add(new Paragraph("\n\n\n"));
             for (int i = 0;i < elements.size(); i++){
                 doc.add(elements.get(i));
             }

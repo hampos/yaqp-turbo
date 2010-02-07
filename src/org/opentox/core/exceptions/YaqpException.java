@@ -1,10 +1,15 @@
 /*
- * YAQP - Yet Another QSAR Project: Machine Learning algorithms designed for
- * the prediction of toxicological features of chemical compounds become
- * available on the Web. Yaqp is developed under OpenTox (http://opentox.org)
- * which is an FP7-funded EU research project.
+ *
+ * YAQP - Yet Another QSAR Project:
+ * Machine Learning algorithms designed for the prediction of toxicological
+ * features of chemical compounds become available on the Web. Yaqp is developed
+ * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
+ * This project was developed at the Automatic Control Lab in the Chemical Engineering
+ * School of National Technical University of Athens. Please read README for more
+ * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,6 +23,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ * Contact:
+ * Pantelis Sopasakis
+ * chvng@mail.ntua.gr
+ * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
+ * tel. +30 210 7723236
  */
 package org.opentox.core.exceptions;
 
@@ -28,12 +38,12 @@ package org.opentox.core.exceptions;
  */
 public class YaqpException extends Exception {
 
-    private int id;
-    private ExceptionDetails ExceptionDetails;
-    private String message;
+    private String ID = "XUU101";
+    private String explanation = "Unknown Cause of Exception";
 
-
-
+    public String getID() {
+        return ID;
+    }
 
     /**
      * Creates a new instance of <code>YaqpException</code> without detail message.
@@ -42,29 +52,24 @@ public class YaqpException extends Exception {
         super();
     }
 
-    public YaqpException(ExceptionDetails exceptionDetails) {
-        super(exceptionDetails.toString());
-    }
-
-    public YaqpException(ExceptionDetails exceptionDetails, String msg) {
-        super(msg);
-    }
-
     /**
      * Constructs an instance of <code>YaqpException</code> with the specified detail message.
      * @param msg the detail message.
      */
-    public YaqpException(String msg) {
-        super(msg);
+    public YaqpException(String id, String msg) {
+        super(id + " - " + msg);
+        this.ID = id;
+        this.explanation = msg;
     }
-    
-    public YaqpException(Throwable throwable){
+
+    public YaqpException(String id, Throwable throwable) {
         super(throwable);
+        this.ID = id;
     }
 
-    public YaqpException(String message, Throwable throwable){
-        super(message, throwable);
+    public YaqpException(String id, String message, Throwable throwable) {
+        super(id + " - " + message, throwable);
+        this.ID = id;
+        this.explanation = message;
     }
-
-
 }

@@ -32,11 +32,10 @@
 package org.opentox.ontology.components;
 
 import org.opentox.io.publishable.JSONObject;
-import org.opentox.io.publishable.OntObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
-import org.restlet.data.Status;
+import org.opentox.ontology.namespaces.OTClass;
 
 /**
  *
@@ -63,12 +62,7 @@ public class Task extends YaqpComponent {
          */
         CANCELLED
     };
-//
-//    public static enum TYPE {
-//
-//        TRAINING,
-//        PREDICTION,
-//    };
+
     private String name, uri;
     private STATUS taskStatus;
     private String result, startStamp, endStamp;
@@ -95,7 +89,7 @@ public class Task extends YaqpComponent {
         this.endStamp = endStamp;
     }
 
-    public Task(String name, String uri, User user, Algorithm algorithm){
+    public Task(String name, String uri, User user, Algorithm algorithm) {
         this.name = name;
         this.uri = uri;
         this.user = user;
@@ -104,6 +98,10 @@ public class Task extends YaqpComponent {
         setStatus(STATUS.RUNNING);
     }
 
+    /**
+     * The algorithm running on the background and generated this task.
+     * @return An Algorithm.
+     */
     public Algorithm getAlgorithm() {
         return algorithm;
     }
@@ -156,6 +154,14 @@ public class Task extends YaqpComponent {
         return httpStatus;
     }
 
+    /**
+     * The result from a completed task. If the status of the task is yet
+     * <code>'RUNNING'</code> the result is null, while if the task status is
+     * <code>'COMPLETED'</code> the result is what should be returned to the client.
+     * Normally this field is a <code>URI</code> of a created resource (e.g. a
+     * new model), but in case of error this becomes an error message.
+     * @return Result to be returned to the client.
+     */
     public String getResult() {
         return result;
     }
@@ -199,6 +205,9 @@ public class Task extends YaqpComponent {
 
     @Override
     public RDFObject getRDF() {
+        RDFObject rdf = new RDFObject();
+        rdf.includeOntClass(OTClass.Task);
+
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -215,16 +224,16 @@ public class Task extends YaqpComponent {
     @Override
     public String toString() {
         String task = "-- Task --\n";
-        task += "ID                : "+getId()+"\n";
-        task += "NAME              : "+getName()+"\n";
-        task += "URI               : "+getUri()+"\n";
-        task += "STATUS            : "+getStatus()+"\n";
-        task += "USER              : "+getUser().getEmail()+"\n";
-        task += "ALGORITHM         : "+getAlgorithm().getMeta().name+"\n";
-        task += "HTTP STATUS       : "+getHttpStatus()+"\n";
-        task += "RESULT            : "+getResult()+"\n";
-        task += "START TIME        : "+getStartStamp()+"\n";
-        task += "END TIME          : "+getEndStamp();
+        task += "ID                : " + getId() + "\n";
+        task += "NAME              : " + getName() + "\n";
+        task += "URI               : " + getUri() + "\n";
+        task += "STATUS            : " + getStatus() + "\n";
+        task += "USER              : " + getUser().getEmail() + "\n";
+        task += "ALGORITHM         : " + getAlgorithm().getMeta().name + "\n";
+        task += "HTTP STATUS       : " + getHttpStatus() + "\n";
+        task += "RESULT            : " + getResult() + "\n";
+        task += "START TIME        : " + getStartStamp() + "\n";
+        task += "END TIME          : " + getEndStamp();
         return task;
     }
 }

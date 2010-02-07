@@ -41,7 +41,7 @@ public abstract class AbstractIOProcessor<Input, Output>
         try {
             return handle(data);
         } catch (Exception x) {
-            throw new YaqpIOException(x);
+            throw new YaqpIOException("XVV31",x);
         }
     }
 

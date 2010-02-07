@@ -243,7 +243,7 @@ public class TheDbConnector implements JDbConnector {
             return Integer.parseInt(database_port);
         } catch (NumberFormatException nfe) {
             YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAE321 - Not acceptable port :" + database_port));
-            throw new YaqpException("XAE321 - Wrong port declaration :" + database_port);
+            throw new YaqpException("XAE321","Wrong port declaration :" + database_port, nfe);
         }
 
     }
@@ -270,12 +270,12 @@ public class TheDbConnector implements JDbConnector {
                 return connection.getMetaData();
             } catch (SQLException ex) {
                 YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAE323 - No connection to the database :" + database_name));
-                throw new DbException("XAE323 - No connection to the database");
+                throw new DbException("XAE323","No connection to the database", ex);
             }
         } else {
-            String message = "XAE324 - No connection to the database :" + database_name;
+            String message = "No connection to the database :" + database_name;
             YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, message));
-            throw new DbException(message);
+            throw new DbException("XAE324",message);
         }
 
     }

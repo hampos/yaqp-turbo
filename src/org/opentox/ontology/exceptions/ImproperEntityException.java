@@ -1,10 +1,15 @@
 /*
- * YAQP - Yet Another QSAR Project: Machine Learning algorithms designed for
- * the prediction of toxicological features of chemical compounds become
- * available on the Web. Yaqp is developed under OpenTox (http://opentox.org)
- * which is an FP7-funded EU research project.
+ *
+ * YAQP - Yet Another QSAR Project:
+ * Machine Learning algorithms designed for the prediction of toxicological
+ * features of chemical compounds become available on the Web. Yaqp is developed
+ * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
+ * This project was developed at the Automatic Control Lab in the Chemical Engineering
+ * School of National Technical University of Athens. Please read README for more
+ * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,6 +23,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ * Contact:
+ * Pantelis Sopasakis
+ * chvng@mail.ntua.gr
+ * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
+ * tel. +30 210 7723236
  */
 package org.opentox.ontology.exceptions;
 
@@ -32,18 +42,19 @@ package org.opentox.ontology.exceptions;
  */
 public class ImproperEntityException extends YaqpOntException {
 
-    /**
-     * Creates a new instance of <code>ImproperEntityException</code> without detail message.
-     */
     public ImproperEntityException() {
     }
 
-
-    /**
-     * Constructs an instance of <code>ImproperEntityException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public ImproperEntityException(String msg) {
-        super(msg);
+    public ImproperEntityException(String id, String msg) {
+        super(id, msg);
     }
+
+    public ImproperEntityException(String id, Throwable throwable) {
+        super(id, throwable);
+    }
+
+    public ImproperEntityException(String id, String message, Throwable throwable) {
+        super(id, message, throwable);
+    }
+    
 }

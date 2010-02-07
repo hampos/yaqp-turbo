@@ -30,6 +30,8 @@
  */
 package org.opentox.db.handlers;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import org.junit.After;
@@ -40,6 +42,7 @@ import org.junit.Test;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
+import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import static org.junit.Assert.*;
 
@@ -71,14 +74,14 @@ public class ReaderHandlerTest {
 
 
   //  @Test
-    public void getBadUser() {
-        try{
-        User u = ReaderHandler.getUser("chomiole");
-        System.out.println(u);
-        }catch (DbException e){
-            assertTrue(e.toString().contains("XUS452"));
-        }
-    }
+//    public void getBadUser() {
+//        try{
+//        User u = ReaderHandler.getUser("chomiole");
+//        System.out.println(u);
+//        }catch (DbException e){
+//            assertTrue(e.toString().contains("XUS452"));
+//        }
+//    }
 
   //  @Test
     public void getBadUserGroup(){
@@ -89,13 +92,22 @@ public class ReaderHandlerTest {
         }
     }
 
-   // @Test
-    public void getUsersTest() throws DbException {
-        ArrayList<User> users = ReaderHandler.getUsers();
-        Iterator<User> it = users.iterator();
-        while (it.hasNext()) {
-            User user = it.next();
-            System.out.println(user + "\n");
+   //@Test
+    public void getUsersTest() throws Exception {
+        UriList users = ReaderHandler.getUsers();
+        users.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/wow.pdf")));
+    }
+
+
+    @Test
+    public void searchForUser() throws DbException{
+        User u = new User();
+        
+//        u.setEmail("%.gr%");
+        u.setUserGroup(new UserGroup("AD%", -1));
+        ArrayList<User> list = ReaderHandler.getUser(u);
+        for (User user : list){
+            System.out.println(user);
         }
     }
 
@@ -148,23 +160,23 @@ public class ReaderHandlerTest {
         }
     }
 
-   // @Test
-    public void getMLRModelsTest() throws DbException{
-        ArrayList<MLRModel> models = ReaderHandler.getMLRModels();
-        Iterator<MLRModel> it = models.iterator();
-        while(it.hasNext()){
-            System.out.println(it.next());
-        }
-    }
+//   @Test
+//    public void getMLRModelsTest() throws DbException{
+//        ArrayList<MLRModel> models = ReaderHandler.getMLRModels();
+//        Iterator<MLRModel> it = models.iterator();
+//        while(it.hasNext()){
+//            System.out.println(it.next());
+//        }
+//    }
 
-    @Test
-    public void getTasksTest() throws DbException{
-        ArrayList<Task> tasks = ReaderHandler.getTasks();
-        Iterator<Task> it = tasks.iterator();
-        while(it.hasNext()){
-            System.out.println(it.next());
-        }
-    }
+   // @Test
+//    public void getTasksTest() throws DbException{
+//        ArrayList<Task> tasks = ReaderHandler.getTasks();
+//        Iterator<Task> it = tasks.iterator();
+//        while(it.hasNext()){
+//            System.out.println(it.next());
+//        }
+//    }
 }
 
 

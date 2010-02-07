@@ -44,9 +44,12 @@ import org.opentox.db.exceptions.BadEmailException;
 import org.opentox.db.exceptions.DuplicateKeyException;
 import org.opentox.db.util.TheDbConnector;
 import static org.junit.Assert.*;
+import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
+import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
+import org.opentox.ontology.util.vocabulary.ConstantParameters;
 
 /**
  *
@@ -79,19 +82,19 @@ public class WriterHandlerTest {
      * Test of addUserGroup method, of class WriterHandler.
      */
 
-     @Test
+   //@Test
     public void testAddUserGroup() throws Exception {
         WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60));
         WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 70));
-        WriterHandler.addUserGroup(new UserGroup("MYGROUP10", 80));
+        WriterHandler.addUserGroup(new UserGroup("GUEST", 80));
         WriterHandler.addUserGroup(new UserGroup("ADMIN", 10));
     }
 
     /**
      * Test of addAlgorithmOntology method, of class WriterHandler.
      */
-    @Test
-    public void testAddAlgorithmOntology() throws YaqpOntException {
+    //@Test
+    public void testAddAlgorithmOntology() throws YaqpOntException, DbException {
         try {
             ArrayList<OTAlgorithmTypes> otlist = OTAlgorithmTypes.getAllAlgorithmTypes();
             for (OTAlgorithmTypes ot : otlist) {
@@ -108,15 +111,15 @@ public class WriterHandlerTest {
      * It seems users are being successfully added in the database.
      * @throws BadEmailException
      */
-     @Test
+    //@Test
     public void testAddUser() throws BadEmailException {
         try {
             for (int i = 0; i < 100; i++) {
-                WriterHandler.addUser(
+                WriterHandler.add(
                         new User(
-                        "vser_" + i, "patss" + i, "firstname" + i, "lastname" + i,
-                        "makis" + i + "@mailntua.gr", "NTUA", "Greece",
-                        "Athens", "Al. Papan. 50", "https://opentox.ntua.gr/new", null, new UserGroup("ADMIN", 0)));
+                        "ann" + i, java.util.UUID.randomUUID().toString(), "john" + i, "smith" + i,
+                        "ann" + i + "@foo.goo.gr", "UNDEFINED", "Italy",
+                        "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
             }
         } catch (DuplicateKeyException ex) {
             System.out.println(ex);
@@ -127,36 +130,51 @@ public class WriterHandlerTest {
         }
     }
 
-    @Test
-    public void testAddAlgorithm() throws Exception {
+    //@Test
+    public void testAddAlgorithm() throws DbException, ImproperEntityException  {
 
-        WriterHandler.addAlgorithm(YaqpAlgorithms.MLR);
-        WriterHandler.addAlgorithm(YaqpAlgorithms.SVM);
-        WriterHandler.addAlgorithm(YaqpAlgorithms.SVC);
+        WriterHandler.add(YaqpAlgorithms.MLR);
+        WriterHandler.add(YaqpAlgorithms.SVM);
+        WriterHandler.add(YaqpAlgorithms.SVC);
     }
 
 
-    @Test
-    public void testAddFeature() throws DbException {
+    //@Test
+    public void testAddFeature() throws DbException, ImproperEntityException {
         for(int i=1; i<=100; i++){
-            WriterHandler.addFeature(new Feature("url"+i));
+            WriterHandler.add(new Feature("http://sth.com/feature/"+i));
         }
     }
 
     @Test
-    public void testAddMLRModel() throws DuplicateKeyException, DbException {
-        ArrayList<Feature> features = ReaderHandler.getFeatures();
-        MLRModel model = new MLRModel(0, "asdf", "//asdf",
-                features.get(1), features.get(2), YaqpAlgorithms.MLR, ReaderHandler.getUser("makis1@mailntua.gr"), "", "//dataset");
-
-        features.remove(features.get(1));
-        features.remove(features.get(1));
-        model.setIndependentFeatures(features);
-        WriterHandler.addMLRModel(model);
+    public void addQSARModel() throws DuplicateKeyException, DbException{
+        User u = ReaderHandler.getUser(new User()).get(7);
+        u.setEmail("ann11@foo.goo.gr");
+        Feature f = ReaderHandler.getFeature(1);
+        ArrayList<Feature> lf = new ArrayList<Feature>();
+        lf.add(f);
+        QSARModel m= new QSARModel(java.util.UUID.randomUUID().toString(), f,f, lf, YaqpAlgorithms.SVM, u, null, "dataset1");
+        System.out.println(WriterHandler.addQSARModel(m));
     }
 
     @Test
-    public void testaddTask() throws DbException {
-        WriterHandler.addTask(new Task("hamptask","//hampt",ReaderHandler.getUser("makis1@mailntua.gr"),YaqpAlgorithms.MLR));
+    public void addsvmModel() throws DbException{
+        User u = ReaderHandler.getUser(new User()).get(7);
+        u.setEmail("ann10@foo.goo.gr");
+        Feature f = ReaderHandler.getFeature(1);
+        ArrayList<Feature> lf = new ArrayList<Feature>();
+        lf.add(f);
+        TunableQSARModel m = new TunableQSARModel(java.util.UUID.randomUUID().toString(), f,f, lf, YaqpAlgorithms.SVC, u, null, "dataset1");
+        m.setModelType(TunableQSARModel.ModelType.supportVector);
+        ArrayList<AlgorithmParameter> tps = new ArrayList<AlgorithmParameter>();
+        tps.addAll(ConstantParameters.DEFAULTS);
+        m.setTuningParams(tps);
+        WriterHandler.addTunableModel(m);
     }
+
+
+    //@Test
+//    public void testaddTask() throws DbException, ImproperEntityException {
+//        WriterHandler.add(new Task("hamptask","//hampt",ReaderHandler.getUser("makis1@mailntua.gr"),YaqpAlgorithms.MLR));
+//    }
 }

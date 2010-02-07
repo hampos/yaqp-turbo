@@ -185,7 +185,7 @@ public class Algorithm extends YaqpComponent {
             for (int i = 0; i < audiences.size(); i++) {
                 auds += audiences.get(i).getName();
                 if (i < audiences.size() - 1) {
-                    auds += ",";
+                    auds += "\n";
                 }
             }
             table.addCell(auds);
@@ -229,7 +229,6 @@ public class Algorithm extends YaqpComponent {
             while (it.hasNext()) {
                 table.addCell(it.next().getURI());
             }
-
             pdf.addElement(table);
         } catch (DocumentException ex) {
             YaqpLogger.LOG.log(new Warning(getClass(), "XCF316 - Pdf Exception :" + ex.toString()));
@@ -238,9 +237,9 @@ public class Algorithm extends YaqpComponent {
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        //YaqpAlgorithms.SVM.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/svm.pdf")));
+        YaqpAlgorithms.SVM.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/svm.pdf")));
         //YaqpAlgorithms.MLR.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/mlr.pdf")));
-        YaqpAlgorithms.MLR.getRDF().write(System.out, "TURTLE");
+        //YaqpAlgorithms.SVM.getRDF().write(System.out, "TURTLE");
 
     }
 

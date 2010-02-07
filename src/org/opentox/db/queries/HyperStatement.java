@@ -117,7 +117,7 @@ public class HyperStatement implements JHyperStatement {
                 throw new DuplicateKeyException();
             }
             YaqpLogger.LOG.log(new Debug(getClass(), "XCY836 - Could not execute update for SQL statement :" + sql));
-            throw new DbException("XCY836 - Error while executing update... ", ex);
+            throw new DbException("XCY836 - Error while executing update :: "+ex, ex);
         }
     }
 

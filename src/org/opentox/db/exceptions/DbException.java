@@ -31,26 +31,19 @@ import org.opentox.core.exceptions.YaqpException;
  */
 public class DbException extends YaqpException {
 
-    /**
-     * Creates a new instance of <code>DbException</code> without detail message.
-     */
+    public DbException(String id, String message, Throwable throwable) {
+        super(id, message, throwable);
+    }
+
+    public DbException(String id, Throwable throwable) {
+        super(id, throwable);
+    }
+
+    public DbException(String id, String msg) {
+        super(id, msg);
+    }
+
     public DbException() {
     }
 
-    public DbException(Throwable thr){
-        super(thr);
-    }
-
-
-    /**
-     * Constructs an instance of <code>DbException</code> with the specified detail message.
-     * @param msg the detail message.
-     */
-    public DbException(String msg) {
-        super(msg);
-    }
-
-    public DbException(String msg, Throwable throwable){
-        super(msg, throwable);
-    }
 }

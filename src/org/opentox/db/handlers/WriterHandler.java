@@ -32,6 +32,8 @@
 package org.opentox.db.handlers;
 
 import com.hp.hpl.jena.rdf.model.Resource;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
@@ -44,14 +46,21 @@ import org.opentox.db.exceptions.DuplicateKeyException;
 import org.opentox.db.processors.DbPipeline;
 import org.opentox.db.queries.HyperResult;
 import org.opentox.db.queries.QueryFood;
+import org.opentox.db.table.StandardTables;
 import org.opentox.db.util.EmailSupervisor;
 import org.opentox.db.util.PrepStmt;
+import org.opentox.db.util.TheDbConnector;
+import org.opentox.ontology.exceptions.ImproperEntityException;
+import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.*;
 
 /**
  * Handles write operations in the database. Provides a collection of static methods
- * which can be used to write data in the database.
+ * which can be used to write data and entities like {@link User }, {@link UserGroup },
+ * {@link QSARModel } etc. Each method throws a {@link DbException } in case the entity
+ * could not be registered in the DB. Other more specific exceptions like {@link
+ * BadEmailException
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
@@ -65,18 +74,64 @@ public class WriterHandler {
             addAlgOntRelationPipeline = null,
             addFeaturePipeline = null,
             addQSARModelPipeline = null,
-            addMLRModelPipeline = null,
-            addSVMModelPipeline = null,
+            addSupportVectorPipeline = null,
             addIndepFeaturePipeline = null,
             addTaskPipeline = null;
 
     /**
-     * Add a new UserGroup in the database
-     * @param userGroup a user group
+     *
+     * <p>Add an arbitrary entity in the database. The registration will take place
+     * according to the type of the component you submit. For example
+     * <code>WriterHandler.add(new UserGroup(...));</code> will add a new user group
+     * while <code>WriterHandler.add(new Feature(..));</code> will add a new feature
+     * in the corresponding table of the database. So, there is no need to know
+     * anything about the structure of the database or even what you're adding.</p>
+     * @param component A YAQP component such as a {@link User }, a {@link UserGroup Group},
+     * of users, a {@link QSARModel QSAR Model}, an Algorithm {@link AlgorithmOntology Ontology} etc.
+     * @throws DbException In case the component could not be added in the database either
+     * because it is already registered, or because the submitted entity is unacceptable, e.g.
+     * a user with email <code>asdf.qwerty</code> (which is not valid). This method is void, so
+     * there is no result expected from it, e.g. if you register a QSAR Model in the database using
+     * this method you won't be able to know its UID. This being the case, you should
+     * use other methods like {@link WriterHandler#addQSARModel(org.opentox.ontology.components.QSARModel)
+     * addQSARModel(QSARModel model)}.
+     * @see WriterHandler#addAlgorithm(org.opentox.ontology.components.Algorithm) add algorithm
+     * @see WriterHandler#addFeature(org.opentox.ontology.components.Feature) add feature
+     */
+    public static void add(YaqpComponent component) throws DbException, ImproperEntityException {
+        if (component instanceof User) {// add user
+            WriterHandler.addUser((User) component);
+        } else if (component instanceof UserGroup) { // add user group
+            WriterHandler.addUserGroup((UserGroup) component);
+        } else if (component instanceof Algorithm) {// add algorithm
+            WriterHandler.addAlgorithm((Algorithm) component);
+        } else if (component instanceof AlgorithmOntology) {
+            WriterHandler.addAlgorithmOntology((AlgorithmOntology) component);
+        } else if (component instanceof Feature) {// add a feature
+            WriterHandler.addFeature((Feature) component);
+        } else if (component instanceof QSARModel) {// add QSAR model
+            WriterHandler.addQSARModel((QSARModel) component);
+        } else if (component instanceof TunableQSARModel) {// add a tunable model.
+            WriterHandler.addTunableModel((TunableQSARModel) component);
+        } else if (component instanceof Task) {
+            WriterHandler.addTask((Task) component);
+        } else {// This component cannot be added in the database
+            String message = "This component cannot be added in the "
+                    + "database because it cannot be cast to any of the recognizable "
+                    + "datatypes ";
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+            throw new ImproperEntityException("XKK7",message);
+        }
+    }
+
+    /**
+     * Add a new UserGroup in the database. The name and the user_level of the group
+     * have to specified.
+     * @param userGroup a user group with specified name and authorization level.
      * @throws NumberFormatException in case the provided user authorization level is not
      * an integer number
      */
-    public static void addUserGroup(UserGroup userGroup) throws NumberFormatException {
+    protected static void addUserGroup(UserGroup userGroup) throws NumberFormatException {
         if (addUserGroupPipeline == null) {
             addUserGroupPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER_GROUP);
         }
@@ -93,17 +148,20 @@ public class WriterHandler {
         } catch (NumberFormatException nfe) {
             throw new NumberFormatException("XNF981 - Authorization Level must be an integer");
         } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XUG512 - Could not add the following UserGroup : \n" + userGroup));
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XUG512 - Could not add "
+                    + "the following UserGroup : \n" + userGroup + " :: " + ex));
         }
     }
 
     /**
      * Add a new algorithm ontology in the database.
-     * @param ontology algorithm ontology to be added in the database.
-     * @throws DuplicateKeyException If the algorithm ontology is already registered
-     * in the database.
+     * @param ontology algorithm ontology to be added in the database with specified
+     * name and uri.
+     * @throws DbException If the algorithm ontology is already registered
+     * in the database (instance of {@link DuplicateKeyException }) or if the provided
+     * algorithm ontology is <code>null</code> or its name or URI is not specified/missing.
      */
-    public static void addAlgorithmOntology(AlgorithmOntology ontology) throws DuplicateKeyException {
+    protected static void addAlgorithmOntology(AlgorithmOntology ontology) throws DbException {
         if (addAlgorithmOntologyPipeline == null) {
             addAlgorithmOntologyPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM_ONTOLOGY);
         }
@@ -119,32 +177,36 @@ public class WriterHandler {
         } catch (DbException ex) {
             if (ex.toString().contains("DuplicateKeyException")) {
                 String message = "XA981 -Algorithm Ontology Already Registered in the Database!";
-                YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+                YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
+                YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
                 throw new DuplicateKeyException(message, ex);
             }
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "Could not add the following Algorithm Ontology : \n" + ontology));
-        }
-    }
-
-    public static void add(YaqpComponent component) throws DbException {
-        if (component instanceof User) {
-            WriterHandler.addUser((User) component);
-        } else if (component instanceof UserGroup) {
-            WriterHandler.addUserGroup((UserGroup) component);
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class,
+                    "Could not add the following Algorithm Ontology : \n" + ontology));
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
+            throw new DbException("XFE12",ex);
         }
     }
 
     /**
-     * Add a new user into the database.
-     *
-     * @param user the user to be added.
-     * @throws DuplicateKeyException If the user is already registered or the mail
-     * or/and username are used by some other user.
+     * Add a new user in the database with specified username, email and other personal
+     * information. For security reasons the password should be provided as a digest
+     * (e.g. SHA-512). The information that should be privided are the username, the password,
+     * first and last name of the user and the email. All other information like <code>
+     * organization</code> are optional. For more information take a look at the class
+     * {@link User } and documentation therein.
+     * @param user The user to be added in the database
+     * @throws DuplicateKeyException If the user is already registered.
+     * @throws BadEmailException If the provided email is not acceptable.
+     * @throws DbException If the provided user could not be added in the database. This is
+     * the case when one tries to register a user like <code>User u = new User()</code>, i.e.
+     * without specified the mandatory fields.
      */
-    public static void addUser(User user) throws DuplicateKeyException, BadEmailException {
+    protected static void addUser(User user) throws DuplicateKeyException, BadEmailException, DbException {
         if (!EmailSupervisor.checkMail(user.getEmail())) {
-            throw new BadEmailException("XE449 - Bad user email");
+            throw new BadEmailException("XE449","Bad user email");
         }
+
         if (addUserPipeline == null) {
             addUserPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER);
         }
@@ -169,13 +231,24 @@ public class WriterHandler {
             if (ex.toString().contains("DuplicateKeyException")) {
                 String message = "XU715 - Cannot add user because email or username are already used by some other user.";
                 YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+                YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
                 throw new DuplicateKeyException(message, ex);
             }
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU716 - Could not add the following user :\n" + user));
+            String message = "XU716 - Could not add the following user :\n" + user;
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
     }
 
-    public static void addFeature(Feature feature) throws DbException {
+    /**
+     * Add a new feature in the database. The URI of the feature has to be specified.
+     * @param feature a feature to be added in the database.
+     * @throws DbException In case the feature cannot be added in the database. This
+     * is the case when the feature already exists ({@link DuplicateKeyException }), when
+     * the URI of the feature is not set or if you try to add a <code>null</code>
+     * feature.
+     */
+    protected static void addFeature(Feature feature) throws DbException {
         if (addFeaturePipeline == null) {
             addFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_FEATURE);
         }
@@ -186,17 +259,23 @@ public class WriterHandler {
         try {
             addFeaturePipeline.process(food);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Feature added: \n" + feature));
-        } catch (DbException ex){
+        } catch (DbException ex) {
             if (ex.toString().contains("DuplicateKeyException")) {
                 String message = "XU719 - Cannot add feature because it already exists: " + feature;
-                YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+                YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
+                YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
                 throw new DuplicateKeyException(message, ex);
             }
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU719 - Could not add the following feature :\n" + feature));
         }
     }
 
-    public static void addAlgorithm(Algorithm algorithm) throws DuplicateKeyException {
+    /**
+     * Add an algorithm in the database. You only have to provide the Name of the algorithm.
+     * @param algorithm the algorithm to be added in the database.
+     * @throws DuplicateKeyException In case the algorithm already exists.
+     */
+    protected static void addAlgorithm(Algorithm algorithm) throws DuplicateKeyException {
         if (addAlgorithmPipeline == null) {
             addAlgorithmPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM);
         }
@@ -207,8 +286,7 @@ public class WriterHandler {
 
         QueryFood algfood = new QueryFood(
                 new String[][]{
-                    {"NAME", algorithm.getMeta().name},
-                    {"URI", algorithm.getMeta().identifier}
+                    {"NAME", algorithm.getMeta().name}
                 });
 
         ArrayList<QueryFood> relfood = new ArrayList<QueryFood>();
@@ -232,26 +310,44 @@ public class WriterHandler {
         }
         try {
             addAlgorithmPipeline.process(algfood);
-
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Algorithm added: \n" + algorithm));
         } catch (DbException ex) {
             if (ex.toString().contains("DuplicateKeyException")) {
                 String message = "Cannot add algorithm because it already exists.";
-                YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+                YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
+                YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
                 throw new DuplicateKeyException(message, ex);
             }
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "Could not add the following algorithm :\n" + algorithm));
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Could not add the following algorithm :\n" + algorithm));
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
         try {
             bp.process(relfood);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Algorithm-Ontology relations batch added"));
         } catch (Exception ex) {
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "Could not batch add Algorithm-Ontology relations :\n" + algorithm));
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Could not batch add Algorithm-Ontology relations :\n" + algorithm));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
     }
 
-    public static int addQSARModel(QSARModel model) throws DuplicateKeyException {
+    /**
+     * Register a QSAR model in the database for a certain user. QSAR Models include
+     * <code>MLR</code> ones and all models that do not possess any tuning parameters.
+     * <code>Tunable</code> models are registered in the database using the method
+     * {@link WriterHandler#addTunableModel(org.opentox.ontology.components.TunableQSARModel)
+     * addTunableModel() }.
+     * @param model The model to be added in the database.
+     * @return the unique id (UID) of the registered QSAR model.
+     * @throws DbException In case the model cannot be added. This is the case when
+     * you attempt to add a QSARModel providing incomplete information, i.e. when you
+     * ommit the <code>prediction_feature</code>, or the <code>Algorithm</code> or
+     * the <code>dataset_uri</code> and so on. Alse a {@link DbException } is thrown
+     * if you atempt to add a <code>null</code> model or you somehow violate some
+     * Foreign Key Constraint.
+     * @see WriterHandler#addTunableModel(org.opentox.ontology.components.TunableQSARModel) add svm/svc models
+     */
+    public static int addQSARModel(QSARModel model) throws DbException {
+
         if (addQSARModelPipeline == null) {
             addQSARModelPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_QSAR_MODEL);
         }
@@ -263,102 +359,110 @@ public class WriterHandler {
         HyperResult result = new HyperResult();
         QueryFood food = new QueryFood(
                 new String[][]{
-                    {"NAME", model.getName()},
-                    {"URI", model.getUri()},
+                    {"CODE", model.getCode()},
                     {"PREDICTION_FEATURE", Integer.toString(model.getPredictionFeature().getID())},
                     {"DEPENDENT_FEATURE", Integer.toString(model.getDependentFeature().getID())},
                     {"ALGORITHM", model.getAlgorithm().getMeta().name},
-                    {"CREATED_BY", model.getUser().getEmail()}
+                    {"CREATED_BY", model.getUser().getEmail()},
+                    {"DATASET_URI", model.getDataset()}
                 });
         try {
             result = addQSARModelPipeline.process(food);
-            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "QSarModel added: \n" ));
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "QSarModel added"));
         } catch (DbException ex) {
             if (ex.toString().contains("DuplicateKeyException")) {
                 String message = "XU715 - Cannot add model because URI is already used by some other model.";
-                YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+                YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
+                YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
                 throw new DuplicateKeyException(message, ex);
             }
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU716 - Could not add the following QSAR model :\n" + model));
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "XU716 - Could not add the following QSAR model :\n" + model));
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
+            throw new DbException("XU716",ex);
         }
         if (result.getSize() == 1) {
             Iterator<String> it = result.getColumnIterator(1);
             r = Integer.parseInt(it.next());
-        }
+        }// TODO: Otherwise what?
+
         ArrayList<QueryFood> foodlist = new ArrayList<QueryFood>();
-        for(Feature feature : model.getIndependentFeatures()){
+        for (Feature feature : model.getIndependentFeatures()) {
             QueryFood f = new QueryFood(
                     new String[][]{
                         {"MODEL_UID", Integer.toString(r)},
                         {"FEATURE_UID", Integer.toString(feature.getID())}
-            });
+                    });
             foodlist.add(f);
         }
         try {
             bp.process(foodlist);
-            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Independent feature relations batch added for model: "+model.getName()));
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "EDD444 - Independent feature "
+                    + "relations batch added for model: " + model.getId()));
         } catch (Exception ex) {
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "Could not batch add Independent feature relations for model :" + model.getName()));
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "XDD445 - Could not batch "
+                    + "add Independent feature relations for model :" + model.getId()));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
+        }
+
+        return r;
+    }
+
+    /**
+     * Add a model in the database along with its tuning parameters. SVM and SVC models
+     * are added using this method.
+     * @param model A model with some tuning parameters to be added in the models' table
+     * in the database.
+     * @return the ID of the model.
+     * @throws DbException In case the model could not be added. This is a very usual
+     * case when you don't submit all the needed parameters. For example, if you want
+     * to add an SVM model and forget to provide the parameter <code>tolerance</code>,
+     * this exception will be throws. Consider using {@link ConstantParameters#DEFAULTS the
+     * defaults} for SVM models if you need to do so.
+     */
+    public static int addTunableModel(TunableQSARModel model) throws DbException {
+        if (model.getModelType().equals(TunableQSARModel.ModelType.supportVector)) {
+            return addSuppVectModel(model);
+        } else {
+            return 0;
+        }
+    }
+
+    private static int addSuppVectModel(TunableQSARModel model) throws DbException {
+        int r = 0;
+        try {
+            r = WriterHandler.addQSARModel((QSARModel) model);
+        } catch (DbException ex) {
+            // Could not add the model to the parent table
+            // Reproduce the exception!
+            throw new DbException("XKW9","Support Vector Could not be added in the database",ex);
+        }
+        if (addSupportVectorPipeline == null) {
+            addSupportVectorPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_SUPPORT_VECTOR);
+        }
+        QueryFood food = new QueryFood();
+        ArrayList<AlgorithmParameter> listParam = model.getTuningParams();
+        food.add("UID", Integer.toString(r));
+        for (AlgorithmParameter ap : listParam) {
+            System.out.println(ap.paramName + "--" + ap.paramValue.toString());
+            food.add(ap.paramName.toUpperCase(), ap.paramValue.toString());
+        }
+        try {
+            addSupportVectorPipeline.process(food);
+        } catch (DbException ex) {
+            try {
+                // First delete the model from the parent table!
+                Statement delete = TheDbConnector.DB.getConnection().createStatement();
+                delete.executeUpdate("DELETE FROM "+StandardTables.QSARModels().getTableName()+" WHERE UID ="+r);
+            } catch (SQLException ex1) {
+                throw new DbException("XDL4","Could not delete the QSAR model with uid : "+r, ex1);
+            }
+
         }
         return r;
     }
 
-    public static void addMLRModel(MLRModel model) throws DuplicateKeyException {
-        int r;
-        if ((r = addQSARModel((QSARModel) model)) == 0) {
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU716 - Could not add the following MLRmodel :\n" + model));
-            return;
-        }
-        if (addMLRModelPipeline == null) {
-            addMLRModelPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_MLR_MODEL);
-        }
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"UID", Integer.toString(r)},
-                    {"DATASET", model.getDataset()},
-                });
-        try {
-            addMLRModelPipeline.process(food);
-            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "MLRModel added: "+model.getName()));
-        } catch (DbException ex) {
-            if (ex.toString().contains("DuplicateKeyException")) {
-                String message = "XU715 - Cannot add MLRmodel because ID is already used by some other model.";
-                YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
-                throw new DuplicateKeyException(message, ex);
-            }
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU716 - Could not add the following MLR model :\n" + model));
-        }
-    }
 
-    public static void addSVMModel(SVMModel model) throws DuplicateKeyException {
-        int r;
-        if ((r = addQSARModel((QSARModel) model)) == 0) {
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU717 - Could not add the following SVMmodel :\n" + model));
-            return;
-        }
-        if (addSVMModelPipeline == null) {
-            addSVMModelPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_SVM_MODEL);
-        }
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"UID", Integer.toString(r)},
-                    {"DATASET", ""}, //TODO:add more food when SVMModel is populated
-                });
-        try {
-            addSVMModelPipeline.process(food);
-            YaqpLogger.LOG.log(new Trace(WriterHandler.class, "MLRModel added: "+model.getName()));
-        } catch (DbException ex) {
-            if (ex.toString().contains("DuplicateKeyException")) {
-                String message = "XU716 - Cannot add SVMmodel because ID is already used by some other model.";
-                YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
-                throw new DuplicateKeyException(message, ex);
-            }
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU717 - Could not add the following SVM model :\n" + model));
-        }
-    }
-
-    public static void addTask(Task task){
+    protected static void addTask(Task task) throws DbException {
         if (addTaskPipeline == null) {
             addTaskPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_TASK);
         }
@@ -374,9 +478,10 @@ public class WriterHandler {
         try {
             addTaskPipeline.process(food);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Task added: \n" + task));
-        } catch (DbException ex){
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU718 - Could not add the following Task :\n" + task));
+        } catch (DbException ex) {
+            String message = "XU718 - Could not add the following Task :\n" + task;
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+            throw new DbException(message, ex);
         }
     }
-    
 }
