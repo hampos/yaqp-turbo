@@ -57,6 +57,10 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
         this.setNsPrefixes(map);
     }
 
+    public OntObject(OntObject other){
+        super(OntModelSpec.OWL_DL_MEM, other);
+    }
+
     public OntObject(OntModelSpec spec){
         super(spec);
     }

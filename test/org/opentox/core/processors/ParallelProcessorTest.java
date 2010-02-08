@@ -56,7 +56,7 @@ public class ParallelProcessorTest {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException ex) {
-                throw new YaqpException();
+                throw new YaqpException("XPT72",ex);
             }
             return data + " <-- p1";
         }

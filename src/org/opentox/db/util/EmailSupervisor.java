@@ -21,19 +21,30 @@
  */
 package org.opentox.db.util;
 
-
 /**
  *
  * <p>Checks the integrity of a provided email address. Checks if the email address
  * is non-empty, contains special characters, complies with the general structure
  * <code>username@mailserver.ext</code> or <code>username@mailserver.subdomain.ext</code>,
- * and checks whether the given email ends with a dot. Other tests might be also added
+ * and checks whether the given email ends with a non-acceptable character.
+ * Other tests might be also added in the future for better email-checking.
  * in the future.</p>
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
 public class EmailSupervisor {
+
+    /**
+     * Inacceptable characters in an email address
+     */
+    private static String[] inacceptable = new String[]{
+        "~", "`", "!", "#", "$", "%",
+        "^", "&", "*", "(", ")", "-",
+        "+", "=", "{", "[", "]", "}",
+        "|", "\\", "\"", "\'", ";", ":",
+        ",", "?", "/"
+    };
 
     /**
      * <p>Static methods to check the integrity of a given email address.</p>
@@ -49,48 +60,31 @@ public class EmailSupervisor {
      * otherwise.
      * @see EmailSupervisor
      */
-    public static boolean checkMail(String email){
+    public static boolean checkMail(String email) {
 
-        if (
-                   email.contains("[")
-                || email.contains("]")
-                || email.contains("#")
-                || email.contains("!")
-                || email.contains("$")
-                ||  email.contains("%")
-                ||  email.contains("&")
-                ||  email.contains("*")
-                ||  email.contains("(")
-                ||  email.contains(")")
-                ||  email.contains("+")
-                ||  email.contains("=")
-                ||  email.contains("{")
-                ||  email.contains("}")
-                ||  email.contains("'")
-                ||  email.contains("\"")
-                ||  email.contains("?")
-                ||  email.contains("<")
-                ||  email.contains(">")
-                ||  email.contains(",")
-                ||  email.contains("~")
-                ||  email.contains("`")
-                ||  email.contains("|")
-                ||  email.contains("\\")
-                ||  email.contains(":")
-                ) return false;
+        for (int i = 0; i < inacceptable.length; i++) {
+            if (email.contains(inacceptable[i])) {
+                return false;
+            }
+        }
 
         String[] parts = email.split("@");
-        if (parts.length!=2) return false;
-        else{
-            if (!parts[1].contains(".")) return false;
-            
-            if (parts[1].endsWith(".")) return false;
-            
-            if (parts[0].equalsIgnoreCase("") || parts[0]==null)  return false;
-            
-        }       
+        if (parts.length != 2) {
+            return false;
+        } else {
+            if (!parts[1].contains(".")) {
+                return false;
+            }
+
+            if (parts[1].endsWith(".")||parts[1].endsWith("_")) {
+                return false;
+            }
+
+            if (parts[0].equalsIgnoreCase("") || parts[0] == null) {
+                return false;
+            }
+
+        }
         return true;
     }
-
-
 }

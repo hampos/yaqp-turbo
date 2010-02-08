@@ -37,8 +37,7 @@ import com.hp.hpl.jena.vocabulary.OWL;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
-import org.opentox.io.publishable.TurtleObject;
-import org.opentox.ontology.namespaces.OTAlgorithmTypes;
+import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.namespaces.YaqpOntEntity;
 
 /**
@@ -112,13 +111,9 @@ public class Uri extends YaqpComponent {
     }
 
     public static void main(String args[]){
-        new Uri("http://sth.com/1", new YaqpOntEntity(OWL.Nothing)).getRDF().printConsole();
-    }
-
-    @Override
-    public TurtleObject getTurtle() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+        new Uri("http://sth.com/1", new YaqpOntEntity(OWL.Nothing)).
+                getTurtle().publish(new YaqpIOStream(System.out));
+    }   
 
     @Override
     public JSONObject getJson() {

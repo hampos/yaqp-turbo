@@ -29,8 +29,6 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.ontology.components;
 
 import com.itextpdf.text.Document;
@@ -48,17 +46,37 @@ import org.opentox.io.publishable.TurtleObject;
  */
 public abstract class YaqpComponent implements Serializable {
 
-    public YaqpComponent(){
-
+    public YaqpComponent() {
     }
 
-
+    /**
+     * Returns a publishable version of the component in pdf format.
+     * @return PDFObject for the component.
+     */
     public abstract PDFObject getPDF();
+    /**
+     * A publishable version of the component in RDF format (application/rdf+xml).
+     * @return RDFObject for the component
+     */
     public abstract RDFObject getRDF();
-    public abstract TurtleObject getTurtle();
+    /**
+     * A publishable version of the component in JSON format (as an instance of
+     * <code>JSONObject</code>)
+     * @return JSONObject for the component.
+     */
     public abstract JSONObject getJson();
 
+    /**
+     * A publishable version of the component in TURTLE (TTL) format as an
+     * instance of {@link TurtleObject }. The implementation is based on the
+     * implementation of the abstract method {@link YaqpComponent#getRDF() getRDF()} from
+     * the subclasses of {@link YaqpComponent } like {@link Algorithm }.
+     * @return TurtleObject for the component.
+     */
+    public TurtleObject getTurtle() {
+        TurtleObject o = new TurtleObject(getRDF());
+        return (TurtleObject) o;
+    }
 
-
-
+    
 }

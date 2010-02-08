@@ -30,7 +30,6 @@
  */
 package org.opentox.db.handlers;
 
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -70,6 +69,11 @@ public class ReaderHandlerTest {
 
     @After
     public void tearDown() {
+    }
+
+    @Test
+    public void getQSARMods(){
+        //ReaderHandler.getQSARModels(new QSARModel());
     }
 
 

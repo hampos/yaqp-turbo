@@ -31,6 +31,7 @@
  */
 package org.opentox.ontology.components;
 
+import org.opentox.db.handlers.WriterHandler;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
@@ -63,23 +64,23 @@ public class Task extends YaqpComponent {
         CANCELLED
     };
 
-    private String name, uri;
+    private String name;
     private STATUS taskStatus;
     private String result, startStamp, endStamp;
     private int id, httpStatus;
     private User user;
     private Algorithm algorithm;
+    private int duration_sec;
 
     public Task() {
         setStatus(STATUS.RUNNING);
         httpStatus = 202;
     }
 
-    public Task(int id, String name, String uri, STATUS taskStatus, User user, Algorithm algorithm, int httpStatus,
-            String result, String startStamp, String endStamp) {
+    public Task(int id, String name, STATUS taskStatus, User user, Algorithm algorithm, int httpStatus,
+            String result, String startStamp, String endStamp, int duration_sec) {
         this.id = id;
         this.name = name;
-        this.uri = uri;
         this.taskStatus = taskStatus;
         this.user = user;
         this.algorithm = algorithm;
@@ -89,12 +90,12 @@ public class Task extends YaqpComponent {
         this.endStamp = endStamp;
     }
 
-    public Task(String name, String uri, User user, Algorithm algorithm) {
+    public Task(String name, User user, Algorithm algorithm, int duration_sec) {
         this.name = name;
-        this.uri = uri;
         this.user = user;
         this.algorithm = algorithm;
         this.httpStatus = 202;
+        this.duration_sec = duration_sec;
         setStatus(STATUS.RUNNING);
     }
 
@@ -180,11 +181,7 @@ public class Task extends YaqpComponent {
 
     public STATUS getStatus() {
         return taskStatus;
-    }
-
-    public String getUri() {
-        return uri;
-    }
+    }   
 
     public void setName(String name) {
         this.name = name;
@@ -194,9 +191,6 @@ public class Task extends YaqpComponent {
         this.taskStatus = status;
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
 
     @Override
     public PDFObject getPDF() {
@@ -221,12 +215,21 @@ public class Task extends YaqpComponent {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    public int getDuration_sec() {
+        return duration_sec;
+    }
+
+    public void setDuration_sec(int duration_sec) {
+        this.duration_sec = duration_sec;
+    }
+
+
+
     @Override
     public String toString() {
         String task = "-- Task --\n";
         task += "ID                : " + getId() + "\n";
         task += "NAME              : " + getName() + "\n";
-        task += "URI               : " + getUri() + "\n";
         task += "STATUS            : " + getStatus() + "\n";
         task += "USER              : " + getUser().getEmail() + "\n";
         task += "ALGORITHM         : " + getAlgorithm().getMeta().name + "\n";

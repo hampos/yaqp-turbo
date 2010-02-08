@@ -81,9 +81,9 @@ public class AlgorithmOntology extends YaqpComponent {
             type = (OTAlgorithmTypes) tp.get(o);
             setUri(type.getURI());
         } catch (Exception ex) {
-            String message = "XAT982 - No such algorithm ontology : " + name;
+            String message = "No such algorithm ontology : " + name;
             YaqpLogger.LOG.log(new Trace(getClass(), message));
-            throw new YaqpOntException(message, ex);
+            throw new YaqpOntException("XAT982",message, ex);
         }
     }
 

@@ -62,9 +62,9 @@ public class DbProcessor extends AbstractDbProcessor<HyperStatement, HyperResult
                 result = q.executeQuery();
             }
         } catch (Exception e) {
-            String message = "XD701 - Error while executing query :"+q.toString()+". Reproducing SQL Exception ::: "+e.toString();
+            String message = "Error while executing query :"+q.toString()+". Reproducing SQL Exception ::: "+e.toString();
             YaqpLogger.LOG.log(new Warning(getClass(), message));
-            throw new DbException(message, e);
+            throw new DbException("XD701",message, e);
         } finally {
             PrepSwimmingPool.POOL.recycle(q);
         }

@@ -291,7 +291,7 @@ public class TheDbConnector implements JDbConnector {
                     TABLE_LIST.add(rs.getString(3));
                 }
             } catch (SQLException ex) {
-                throw new DbException("XAE325 - ", ex);
+                throw new DbException("XAE325", ex);
             }
         }
         return TABLE_LIST;

@@ -47,7 +47,11 @@ public class TurtleObject extends OntObject {
         super();
     }
 
-      public TurtleObject(YaqpIOStream ioStream){
+    public TurtleObject(OntObject other) {
+        super(other);
+    }
+
+    public TurtleObject(YaqpIOStream ioStream){
         super(ioStream);
     }
 

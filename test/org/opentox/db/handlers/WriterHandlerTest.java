@@ -81,8 +81,7 @@ public class WriterHandlerTest {
     /**
      * Test of addUserGroup method, of class WriterHandler.
      */
-
-   //@Test
+    //@Test
     public void testAddUserGroup() throws Exception {
         WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60));
         WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 70));
@@ -114,7 +113,7 @@ public class WriterHandlerTest {
     //@Test
     public void testAddUser() throws BadEmailException {
         try {
-            for (int i = 0; i < 100; i++) {
+            for (int i = 0; i < 1000; i++) {
                 WriterHandler.add(
                         new User(
                         "ann" + i, java.util.UUID.randomUUID().toString(), "john" + i, "smith" + i,
@@ -131,50 +130,63 @@ public class WriterHandlerTest {
     }
 
     //@Test
-    public void testAddAlgorithm() throws DbException, ImproperEntityException  {
+    public void testAddAlgorithm() throws DbException, ImproperEntityException {
 
         WriterHandler.add(YaqpAlgorithms.MLR);
         WriterHandler.add(YaqpAlgorithms.SVM);
         WriterHandler.add(YaqpAlgorithms.SVC);
     }
 
-
     //@Test
     public void testAddFeature() throws DbException, ImproperEntityException {
-        for(int i=1; i<=100; i++){
-            WriterHandler.add(new Feature("http://sth.com/feature/"+i));
+        for (int i = 1; i <= 3000; i++) {
+            WriterHandler.add(new Feature("http://sth.com/feature/" + i));
         }
     }
 
-    @Test
-    public void addQSARModel() throws DuplicateKeyException, DbException{
+    //@Test
+    public void addQSARModel() throws DuplicateKeyException, DbException {
         User u = ReaderHandler.getUser(new User()).get(7);
         u.setEmail("ann11@foo.goo.gr");
         Feature f = ReaderHandler.getFeature(1);
         ArrayList<Feature> lf = new ArrayList<Feature>();
         lf.add(f);
-        QSARModel m= new QSARModel(java.util.UUID.randomUUID().toString(), f,f, lf, YaqpAlgorithms.SVM, u, null, "dataset1");
+        QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "dataset1");
         System.out.println(WriterHandler.addQSARModel(m));
     }
 
-    @Test
-    public void addsvmModel() throws DbException{
+    //@Test
+    public void addsvmModel() throws DbException {
         User u = ReaderHandler.getUser(new User()).get(7);
         u.setEmail("ann10@foo.goo.gr");
         Feature f = ReaderHandler.getFeature(1);
         ArrayList<Feature> lf = new ArrayList<Feature>();
         lf.add(f);
-        TunableQSARModel m = new TunableQSARModel(java.util.UUID.randomUUID().toString(), f,f, lf, YaqpAlgorithms.SVC, u, null, "dataset1");
-        m.setModelType(TunableQSARModel.ModelType.supportVector);
+        TunableQSARModel m = new TunableQSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVC, u, null, "dataset1");
         ArrayList<AlgorithmParameter> tps = new ArrayList<AlgorithmParameter>();
         tps.addAll(ConstantParameters.DEFAULTS);
         m.setTuningParams(tps);
         WriterHandler.addTunableModel(m);
     }
 
-
     //@Test
-//    public void testaddTask() throws DbException, ImproperEntityException {
-//        WriterHandler.add(new Task("hamptask","//hampt",ReaderHandler.getUser("makis1@mailntua.gr"),YaqpAlgorithms.MLR));
-//    }
+    public void testaddTask() throws DbException, ImproperEntityException {
+        User prot = new User();
+        prot.setEmail("ann11%");
+        User u = ReaderHandler.getUser(prot).get(1);
+        for (int i=0;i<1000;i++){
+        Task t = new Task(java.util.UUID.randomUUID().toString()+java.util.UUID.randomUUID().toString(),
+                u, YaqpAlgorithms.SVC, 1000);
+        WriterHandler.addTask(t);}        
+    }
+
+    @Test
+    public void addOmega() throws DbException{
+        User prot = new User();
+        prot.setEmail("ann12%");
+        User u = ReaderHandler.getUser(prot).get(1);
+        OmegaModel om = new OmegaModel("dset50", java.util.UUID.randomUUID().toString(), u);
+        System.out.println(WriterHandler.addOmega(om));
+
+    }
 }

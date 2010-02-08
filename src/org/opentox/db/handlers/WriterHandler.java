@@ -37,7 +37,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
-import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.BatchProcessor;
 import org.opentox.ontology.components.*;
 import org.opentox.db.exceptions.BadEmailException;
@@ -52,6 +51,7 @@ import org.opentox.db.util.PrepStmt;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.util.AlgorithmParameter;
+import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.*;
 
@@ -67,7 +67,8 @@ import org.opentox.util.logging.levels.*;
  */
 public class WriterHandler {
 
-    private static DbPipeline<QueryFood, HyperResult> addUserPipeline = null,
+    private static DbPipeline<QueryFood, HyperResult>
+            addUserPipeline = null,
             addAlgorithmOntologyPipeline = null,
             addUserGroupPipeline = null,
             addAlgorithmPipeline = null,
@@ -76,7 +77,8 @@ public class WriterHandler {
             addQSARModelPipeline = null,
             addSupportVectorPipeline = null,
             addIndepFeaturePipeline = null,
-            addTaskPipeline = null;
+            addTaskPipeline = null,
+            addOmegaPipeline = null;
 
     /**
      *
@@ -97,30 +99,35 @@ public class WriterHandler {
      * addQSARModel(QSARModel model)}.
      * @see WriterHandler#addAlgorithm(org.opentox.ontology.components.Algorithm) add algorithm
      * @see WriterHandler#addFeature(org.opentox.ontology.components.Feature) add feature
+     * @see WriterHandler#addUser(org.opentox.ontology.components.User) add user
+     * @see WriterHandler#addUserGroup(org.opentox.ontology.components.UserGroup)  add user group
+     * @see WriterHandler#addTask(org.opentox.ontology.components.Task) add task
      */
     public static void add(YaqpComponent component) throws DbException, ImproperEntityException {
         if (component instanceof User) {// add user
-            WriterHandler.addUser((User) component);
+            addUser((User) component);
         } else if (component instanceof UserGroup) { // add user group
-            WriterHandler.addUserGroup((UserGroup) component);
+            addUserGroup((UserGroup) component);
         } else if (component instanceof Algorithm) {// add algorithm
-            WriterHandler.addAlgorithm((Algorithm) component);
+            addAlgorithm((Algorithm) component);
         } else if (component instanceof AlgorithmOntology) {
-            WriterHandler.addAlgorithmOntology((AlgorithmOntology) component);
+            addAlgorithmOntology((AlgorithmOntology) component);
         } else if (component instanceof Feature) {// add a feature
-            WriterHandler.addFeature((Feature) component);
+            addFeature((Feature) component);
         } else if (component instanceof QSARModel) {// add QSAR model
-            WriterHandler.addQSARModel((QSARModel) component);
+            addQSARModel((QSARModel) component);
         } else if (component instanceof TunableQSARModel) {// add a tunable model.
-            WriterHandler.addTunableModel((TunableQSARModel) component);
+            addTunableModel((TunableQSARModel) component);
         } else if (component instanceof Task) {
-            WriterHandler.addTask((Task) component);
-        } else {// This component cannot be added in the database
+            addTask((Task) component);
+        } else if (component instanceof OmegaModel) {
+            addOmega((OmegaModel) component);
+        }else {// This component cannot be added in the database
             String message = "This component cannot be added in the "
                     + "database because it cannot be cast to any of the recognizable "
                     + "datatypes ";
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
-            throw new ImproperEntityException("XKK7",message);
+            throw new ImproperEntityException("XKK7A", message);
         }
     }
 
@@ -131,7 +138,7 @@ public class WriterHandler {
      * @throws NumberFormatException in case the provided user authorization level is not
      * an integer number
      */
-    protected static void addUserGroup(UserGroup userGroup) throws NumberFormatException {
+    protected static void addUserGroup(UserGroup userGroup) throws DbException {
         if (addUserGroupPipeline == null) {
             addUserGroupPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER_GROUP);
         }
@@ -145,15 +152,15 @@ public class WriterHandler {
             addUserGroupPipeline.process(food);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Added new user group '" + userGroup.getName()
                     + "' with authorization level :" + userGroup.getLevel()));
-        } catch (NumberFormatException nfe) {
-            throw new NumberFormatException("XNF981 - Authorization Level must be an integer");
-        } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XUG512 - Could not add "
-                    + "the following UserGroup : \n" + userGroup + " :: " + ex));
+        } catch (DbException ex) {
+            String message = "UserGroup could not be added";
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+            throw new DbException("XUG512", message, ex);
         }
     }
 
     /**
+     *
      * Add a new algorithm ontology in the database.
      * @param ontology algorithm ontology to be added in the database with specified
      * name and uri.
@@ -176,15 +183,15 @@ public class WriterHandler {
                     + "' with uri :" + ontology.getUri()));
         } catch (DbException ex) {
             if (ex.toString().contains("DuplicateKeyException")) {
-                String message = "XA981 -Algorithm Ontology Already Registered in the Database!";
+                String message = "Algorithm Ontology Already Registered in the Database!";
                 YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
                 YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-                throw new DuplicateKeyException(message, ex);
+                throw new DuplicateKeyException("XQW8Y", message, ex);
             }
             YaqpLogger.LOG.log(new Trace(WriterHandler.class,
                     "Could not add the following Algorithm Ontology : \n" + ontology));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-            throw new DbException("XFE12",ex);
+            throw new DbException("XFE12", ex);
         }
     }
 
@@ -201,10 +208,12 @@ public class WriterHandler {
      * @throws DbException If the provided user could not be added in the database. This is
      * the case when one tries to register a user like <code>User u = new User()</code>, i.e.
      * without specified the mandatory fields.
+     * @see ReaderHandler#getUser(org.opentox.ontology.components.User) search for user
+     * @see EmailSupervisor
      */
     protected static void addUser(User user) throws DuplicateKeyException, BadEmailException, DbException {
         if (!EmailSupervisor.checkMail(user.getEmail())) {
-            throw new BadEmailException("XE449","Bad user email");
+            throw new BadEmailException("XE449", "Bad user email");
         }
 
         if (addUserPipeline == null) {
@@ -229,10 +238,10 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "User added: \n" + user));
         } catch (DbException ex) {
             if (ex.toString().contains("DuplicateKeyException")) {
-                String message = "XU715 - Cannot add user because email or username are already used by some other user.";
+                String message = "Cannot add user because email or username are already used by some other user.";
                 YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
                 YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-                throw new DuplicateKeyException(message, ex);
+                throw new DuplicateKeyException("XU715", message, ex);
             }
             String message = "XU716 - Could not add the following user :\n" + user;
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
@@ -261,18 +270,21 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Feature added: \n" + feature));
         } catch (DbException ex) {
             if (ex.toString().contains("DuplicateKeyException")) {
-                String message = "XU719 - Cannot add feature because it already exists: " + feature;
+                String message = "Cannot add feature because it already exists: " + feature;
                 YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
                 YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-                throw new DuplicateKeyException(message, ex);
+                throw new DuplicateKeyException("XU719", message, ex);
             }
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU719 - Could not add the following feature :\n" + feature));
         }
     }
 
     /**
-     * Add an algorithm in the database. You only have to provide the Name of the algorithm.
-     * @param algorithm the algorithm to be added in the database.
+     * Add an algorithm in the database. You only have to provide the Name of the algorithm
+     * in the algorithm object you provide and the algorithm types of the provided entity.
+     * @param algorithm the algorithm to be added in the database. The algorithm is registered
+     * in the database along with a set of algorithm-ontology-relation entries which facilitate
+     * search for algorithms.
      * @throws DuplicateKeyException In case the algorithm already exists.
      */
     protected static void addAlgorithm(Algorithm algorithm) throws DuplicateKeyException {
@@ -316,7 +328,7 @@ public class WriterHandler {
                 String message = "Cannot add algorithm because it already exists.";
                 YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
                 YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-                throw new DuplicateKeyException(message, ex);
+                throw new DuplicateKeyException("XE4B", message, ex);
             }
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Could not add the following algorithm :\n" + algorithm));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
@@ -378,7 +390,7 @@ public class WriterHandler {
             }
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "XU716 - Could not add the following QSAR model :\n" + model));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-            throw new DbException("XU716",ex);
+            throw new DbException("XU716", ex);
         }
         if (result.getSize() == 1) {
             Iterator<String> it = result.getColumnIterator(1);
@@ -403,7 +415,6 @@ public class WriterHandler {
                     + "add Independent feature relations for model :" + model.getId()));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
-
         return r;
     }
 
@@ -420,11 +431,12 @@ public class WriterHandler {
      * defaults} for SVM models if you need to do so.
      */
     public static int addTunableModel(TunableQSARModel model) throws DbException {
-        if (model.getModelType().equals(TunableQSARModel.ModelType.supportVector)) {
+        String algorithmName = model.getAlgorithm().getMeta().name;
+        if (algorithmName.equals(YaqpAlgorithms.SVM.getMeta().name)
+                || algorithmName.equals(YaqpAlgorithms.SVC.getMeta().name)) {
             return addSuppVectModel(model);
-        } else {
-            return 0;
         }
+        return 0;
     }
 
     private static int addSuppVectModel(TunableQSARModel model) throws DbException {
@@ -434,7 +446,7 @@ public class WriterHandler {
         } catch (DbException ex) {
             // Could not add the model to the parent table
             // Reproduce the exception!
-            throw new DbException("XKW9","Support Vector Could not be added in the database",ex);
+            throw new DbException("XKW9", "Support Vector Could not be added in the database", ex);
         }
         if (addSupportVectorPipeline == null) {
             addSupportVectorPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_SUPPORT_VECTOR);
@@ -452,16 +464,33 @@ public class WriterHandler {
             try {
                 // First delete the model from the parent table!
                 Statement delete = TheDbConnector.DB.getConnection().createStatement();
-                delete.executeUpdate("DELETE FROM "+StandardTables.QSARModels().getTableName()+" WHERE UID ="+r);
+                delete.executeUpdate("DELETE FROM " + StandardTables.QSARModels().getTableName() + " WHERE UID =" + r);
             } catch (SQLException ex1) {
-                throw new DbException("XDL4","Could not delete the QSAR model with uid : "+r, ex1);
+                throw new DbException("XDL4", "Could not delete the QSAR model with uid : " + r, ex1);
             }
 
         }
         return r;
     }
 
-
+    /**
+     * Add a task in the database. Tasks are added upon creation where te following
+     * parameters are specified: <code>name, status</code> (Always set to <code>RUNNING</code>
+     * when the task is created), <code>user</code> that created the task, the <code>algorithm
+     * </code> and the <code>estimated duarion</code> in seconds.
+     * Note that the <code>STATUS</code> of the Task is always set to <code>RUNNING</code>
+     * irrespective of the specified status of the provided task and the corresponding
+     * <code>HTTP STATUS</code> is always set to <code>202</code>. These values are updated
+     * when the task is completed, cancelled or deleted.
+     * @param task A task to be registered in the database, which corresponds to a
+     * running task which just started running.
+     * @throws DbException In case the task cannot be added in the database. This is the
+     * case if the specified <code>user</code> does not correspond to some existing user of the
+     * provided <code>name</code> is not valid, the provided task is <code>null</code> or some
+     * other issue occurs (e.g. DB connectivity).
+     * @see WriterHandler#add(org.opentox.ontology.components.YaqpComponent) add an arbitrary
+     * component
+     */
     protected static void addTask(Task task) throws DbException {
         if (addTaskPipeline == null) {
             addTaskPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_TASK);
@@ -469,19 +498,51 @@ public class WriterHandler {
         QueryFood food = new QueryFood(
                 new String[][]{
                     {"NAME", task.getName()},
-                    {"URI", task.getUri()},
-                    {"STATUS", task.getStatus().toString()},
                     {"CREATED_BY", task.getUser().getEmail()},
                     {"ALGORITHM", task.getAlgorithm().getMeta().name},
-                    {"HTTPSTATUS", Integer.toString(task.getHttpStatus())}
+                    {"DURATION", Integer.toString(task.getDuration_sec())}
                 });
         try {
             addTaskPipeline.process(food);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Task added: \n" + task));
         } catch (DbException ex) {
-            String message = "XU718 - Could not add the following Task :\n" + task;
+            String message = "Could not add the following Task :\n" + task;
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
-            throw new DbException(message, ex);
+            throw new DbException("XU718", message, ex);
         }
     }
+
+    /**
+     * Add a new Omega model in the database.
+     * @param model
+     * @return
+     * @throws DbException
+     */
+    protected static int addOmega(OmegaModel model) throws DbException {
+        int r = 0;
+        if (addOmegaPipeline == null) {
+            addOmegaPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_OMEGA_MODEL);
+        }
+
+        User u = model.getUser();
+        if (u==null){
+            throw new DbException("XVW981","You did not provide the user that created the DoA model");
+        }
+        String userEmail = u.getEmail();
+        if (userEmail==null){
+            throw new DbException("XVW982","Unknown user because the provided email is null");
+        }
+        QueryFood food = new QueryFood();
+        food.add("CODE", model.getCode());
+        food.add("CREATED_BY", userEmail);
+        food.add("DATASET_URI", model.getDataset());
+        HyperResult result = addOmegaPipeline.process(food);
+        if (result.getSize() == 1) {
+            Iterator<String> it = result.getColumnIterator(1);
+            r = Integer.parseInt(it.next());
+        }// TODO: Otherwise what?
+        return r;
+    }
+
+
 }

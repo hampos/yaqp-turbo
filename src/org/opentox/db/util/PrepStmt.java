@@ -160,13 +160,21 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("URI", String.class)
     }),
     ADD_TASK("INSERT INTO " + Tasks().getTableName()
-    + " (NAME, STATUS, CREATED_BY, ALGORITHM, HTTPSTATUS ) VALUES (?,?,?,?,?)",
+    + " (NAME, CREATED_BY, ALGORITHM, DURATION ) VALUES (?,?,?,?)",
     new QueryParam[]{
         new QueryParam("NAME", String.class),
-        new QueryParam("STATUS", String.class),
         new QueryParam("CREATED_BY", String.class),
         new QueryParam("ALGORITHM", String.class),
-        new QueryParam("HTTPSTATUS", Integer.class)
+        new QueryParam("DURATION", Integer.class)
+    }),
+    /**
+     *
+     */
+    ADD_OMEGA_MODEL("INSERT INTO "+OmegaModels().getTableName()+" (CODE, CREATED_BY, DATASET_URI) VALUES (?,?,?)",
+    new QueryParam[]{
+        new QueryParam("CODE", String.class),
+        new QueryParam("CREATED_BY", String.class),
+        new QueryParam("DATASET_URI", String.class)
     }),
     /**
      *
@@ -175,7 +183,7 @@ public enum PrepStmt implements JPrepStmt {
      */
     GET_ALL_USERS("SELECT USERNAME FROM " + Users().getTableName(), null),
     /**
-     * Get a specific User.
+     * Get a set of users for a given search criterion.
      */
     SEARCH_USER("SELECT " + Users().getTableName() + ".* FROM " + Users().getTableName() + " "
     + "INNER JOIN " + UserAuth().getTableName() + " "
@@ -259,7 +267,19 @@ public enum PrepStmt implements JPrepStmt {
      *
      * Get all prediction models from the database.
      */
-    GET_QSAR_MODELS("SELECT * FROM " + QSARModels().getTableName(), null),
+    SEARCH_QSAR_MODELS("SELECT * FROM " + QSARModels().getTableName()+" "+
+            "WHERE PREDICTION_FEATURE = ? " +
+            "AND DEPENDENT_FEATURE = ? " +
+            "AND ALGORITHM LIKE ? " +
+            "AND CREATED_BY LIKE ? " +
+            "AND DATASET_URI LIKE ? ",
+            new QueryParam[]{
+                new QueryParam("PREDICTION_FEATURE", String.class),
+                new QueryParam("DEPENDENT_FEATURE", String.class),
+                new QueryParam("ALGORITHM", String.class),
+                new QueryParam("CREATED_BY", String.class),
+                new QueryParam("DATASET_URI", String.class),
+            }),
     /**
      *
      * Get all MLR models.

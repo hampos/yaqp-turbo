@@ -33,19 +33,65 @@
 
 package org.opentox.ontology.components;
 
-import java.util.ArrayList;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
-import org.opentox.ontology.util.AlgorithmParameter;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class OmegaModel extends AbstractQSARModel {
+public class OmegaModel extends YaqpComponent {
+
+    private String dataset_uri;
+    private String code;
+    private User user;
+    private int id = 0;
+
+    public OmegaModel(){
+        super();
+    }
+
+    public OmegaModel(String dataset_uri, String code, User user) {
+        super();
+        this.dataset_uri = dataset_uri;
+        this.code = code;
+        this.user = user;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getDataset() {
+        return dataset_uri;
+    }
+
+    public void setDataset(String dataset_uri) {
+        this.dataset_uri = dataset_uri;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 
     @Override
     public PDFObject getPDF() {
@@ -67,9 +113,6 @@ public class OmegaModel extends AbstractQSARModel {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    public ArrayList<AlgorithmParameter> getTuningParams() {
-        return new ArrayList<AlgorithmParameter>();
-    }
+    
 
 }

@@ -46,13 +46,7 @@ import org.opentox.ontology.util.AlgorithmParameter;
  */
 public class TunableQSARModel extends QSARModel{
 
-    private ArrayList<AlgorithmParameter> tuningParams;
-    private ModelType modelType;
-
-    public static enum ModelType{
-        supportVector;
-        // other tunable models are listed here...
-    }
+    private ArrayList<AlgorithmParameter> tuningParams;    
 
     public TunableQSARModel(
             String code,
@@ -67,15 +61,6 @@ public class TunableQSARModel extends QSARModel{
         super(code, predictionFeature, dependentFeature, independentFeatures, algorithm, user, timestamp, dataset);
         tuningParams = new ArrayList<AlgorithmParameter>();
     }
-
-    public ModelType getModelType() {
-        return modelType;
-    }
-
-    public void setModelType(ModelType modelType) {
-        this.modelType = modelType;
-    }
-
 
     @Override
     public ArrayList<AlgorithmParameter> getTuningParams() {

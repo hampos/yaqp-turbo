@@ -153,9 +153,9 @@ public class ReaderHandler {
         try {
             result = getUserPipeline.process(food);
         } catch (YaqpException ex) {
-            String message = "XR51 - Could not get User list from database";
+            String message = "Could not get User list from database";
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException(message, ex);
+            throw new DbException("XR51", message, ex);
         }
 
         if (result.getSize() > 0) {
@@ -182,6 +182,17 @@ public class ReaderHandler {
         return in;
     }
 
+    /**
+     * Get a list of URIs of all users in the database. This in fact will return an
+     * instance of {@link UriList } but no other data about every user. If you need
+     * a more detailed representation as a list consider using
+     * {@link ReaderHandler#getUser(org.opentox.ontology.components.User) } which
+     * returns all users that meet a certain criterion as an <code>ArrayList&lt;User&gt;
+     * </code>.
+     * @return The list of all users as a {@link UriList }
+     * @throws DbException In case the list could not be retrieved from the database
+     * due to connection problems or other database access issues.
+     */
     public static UriList getUsers() throws DbException {
         UriList userList = new UriList();
         if (getUsersPipeline == null) {
@@ -196,9 +207,43 @@ public class ReaderHandler {
 
         for (int i = 1; i < result.getSize() + 1; i++) {
             Iterator<String> it = result.getColumnIterator(i);
-            userList.add(new Uri(baseURI+"/user/"+it.next(), OTClass.User));
+            userList.add(new Uri(baseURI + "/user/" + it.next(), OTClass.User));
         }
         return userList;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public static ArrayList<QSARModel> getQSARModels(QSARModel prototype) {
+        ArrayList<QSARModel> searchResult = new ArrayList<QSARModel>();
+        if (getQSARModelsPipeline == null) {
+            getQSARModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODELS);
+        }
+        QueryFood food = new QueryFood();
+        food.add("PREDICTION_FEATURE", fixNull(prototype.getPredictionFeature().getURI()));
+        food.add("DEPENDENT_FEATURE", fixNull(prototype.getAlgorithm().getMeta().name));
+        food.add("CREATED_BY", fixNull(prototype.getUser().getEmail()));
+        food.add("DATASET_URI", fixNull(prototype.getDataset()));
+        HyperResult result = null;
+        try {
+            result = getQSARModelsPipeline.process(food);
+            if (result.getSize() > 0) {
+                for (int i = 1; i <= result.getSize(); i++) {
+                    Iterator<String> it = result.getColumnIterator(i);
+                    String code = it.next();
+                    QSARModel model = new QSARModel();
+                    searchResult.add(model);
+                }
+            }
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get QSARModels from database"));
+        }
+
+
+
+        return null;
     }
 
     public static UserGroup getUserGroup(String groupName) throws DbException {
@@ -236,9 +281,9 @@ public class ReaderHandler {
         try {
             result = getUserGroupsPipeline.process(null);
         } catch (YaqpException ex) {
-            String message = "XUG973 - Could not get User Groups from database";
+            String message = "Could not get User Groups from database";
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException(message, ex);
+            throw new DbException("XUG973", message, ex);
         }
         ArrayList<UserGroup> userGroupList = new ArrayList<UserGroup>();
         for (int i = 1; i < result.getSize() + 1; i++) {
@@ -258,9 +303,9 @@ public class ReaderHandler {
         try {
             result = getAlgorithmOntologiesPipeline.process(null);
         } catch (YaqpException ex) {
-            String message = "XR52 - Could not get Algorithm Ontologies from database";
+            String message = "Could not get Algorithm Ontologies from database";
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException(message, ex);
+            throw new DbException("XR52", message, ex);
         }
         ArrayList<AlgorithmOntology> algorithmOntologiesList = new ArrayList<AlgorithmOntology>();
         for (int i = 1; i < result.getSize() + 1; i++) {
@@ -290,9 +335,9 @@ public class ReaderHandler {
         try {
             result = getAlgOntRelationPipeline.process(food);
         } catch (YaqpException e) {
-            String message = "XAD312 - Could not get Algorithm-Ontology Relations from database";
+            String message = "Could not get Algorithm-Ontology Relations from database";
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException(message, e);
+            throw new DbException("XAD312", message, e);
         }
         ArrayList<AlgorithmOntology> algorithmOntologiesList = new ArrayList<AlgorithmOntology>();
         for (int i = 1; i < result.getSize() + 1; i++) {
@@ -318,7 +363,7 @@ public class ReaderHandler {
         } catch (YaqpException e) {
             String message = "Could not get Ontology-Algorithm Relations from database\n";
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException(message, e);
+            throw new DbException("XW10A", message, e);
         }
         AlgorithmMeta meta = null;
         ArrayList<Algorithm> algorithmList = new ArrayList<Algorithm>();
@@ -437,7 +482,6 @@ public class ReaderHandler {
         }
         throw new DbException("XUS587", "No such Feature :" + uid);
     }
-
 //    public static ArrayList<Feature> getIndepFeatures(QSARModel model){
 //         if (getIndepFeaturesPipeline == null) {
 //            getIndepFeaturesPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_INDEP_FEATURES);
@@ -460,19 +504,6 @@ public class ReaderHandler {
 //        }
 //        return featureList;
 //    }
-    public static ArrayList<QSARModel> getQSARModels() {
-        if (getQSARModelsPipeline == null) {
-            getQSARModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_QSAR_MODELS);
-        }
-        HyperResult result = null;
-        try {
-            result = getQSARModelsPipeline.process(null);
-        } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get QSARModels from database"));
-        }
-
-        return null;
-    }
 //    public static ArrayList<MLRModel> getMLRModels() throws DbException{
 //        if (getMLRModelsPipeline == null) {
 //            getMLRModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_MLR_MODELS);

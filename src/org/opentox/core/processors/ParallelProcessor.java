@@ -234,7 +234,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
                     getStatus().setMessage("completed unsuccessfully");
                     getStatus().completed();
                     firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-                    throw new YaqpException();
+                    throw new YaqpException("XPT77","Fail-sensitive proessor died");
                 }
 
                 /**

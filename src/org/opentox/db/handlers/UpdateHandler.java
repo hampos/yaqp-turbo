@@ -29,39 +29,25 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
+package org.opentox.db.handlers;
 
-
-package org.opentox.ontology.components;
-
-import java.util.ArrayList;
-import org.opentox.ontology.util.AlgorithmParameter;
+import org.opentox.ontology.components.Task;
+import org.opentox.ontology.components.YaqpComponent;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class QSARModel extends AbstractQSARModel {
+public class UpdateHandler {
 
-    public QSARModel() {
-        super();
+    public static void update(YaqpComponent before, YaqpComponent after) {
+        if (before instanceof Task && after instanceof Task) {
+            updateTask((Task) before, (Task) after);
+        }
     }
 
-    public QSARModel(String code,
-            Feature predictionFeature,
-            Feature dependentFeature,
-            ArrayList<Feature> independentFeatures,
-            Algorithm algorithm,
-            User user,
-            String timestamp,
-            String dataset) {
-        super(code, predictionFeature, dependentFeature, independentFeatures, algorithm, user, timestamp, dataset);
+    protected static void updateTask(Task before, Task after) {
+        
     }
-  
-    
-    @Override
-    public ArrayList<AlgorithmParameter> getTuningParams() {
-        return new ArrayList<AlgorithmParameter>();
-    }
-
 }

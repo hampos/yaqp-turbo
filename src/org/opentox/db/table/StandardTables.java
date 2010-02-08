@@ -485,7 +485,7 @@ public enum StandardTables {
         table.addColumn(timestamp);
 
         return table;
-    }
+    }   
 
     // TODO: Add new columns: httpStatus(INT) and result(varchar 255)
     public static Table Tasks() {
@@ -534,6 +534,10 @@ public enum StandardTables {
         TableColumn endTimestamp = new TableColumn("ENDSTAMP");
         endTimestamp.setColumnType(SQLDataTypes.Timestamp());
         table.addColumn(endTimestamp);
+
+        TableColumn duration = new TableColumn("DURATION");
+        duration.setColumnType(SQLDataTypes.Int());
+        table.addColumn(duration);
 
         return table;
     }
