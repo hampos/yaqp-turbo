@@ -29,8 +29,6 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.ontology.components;
 
 import com.hp.hpl.jena.vocabulary.OWL;
@@ -46,7 +44,7 @@ import org.opentox.ontology.namespaces.YaqpOntEntity;
  * @author Charalampos Chomenides
  */
 public class Uri extends YaqpComponent {
-    
+
     private String uri;
     private YaqpOntEntity ontology;
 
@@ -54,7 +52,7 @@ public class Uri extends YaqpComponent {
      * Constructs a void URI. Includes an invokation to the constructor of
      * the Class <code>YaqpComponent</code>
      */
-    public Uri(){
+    public Uri() {
         super();
     }
 
@@ -63,7 +61,7 @@ public class Uri extends YaqpComponent {
      * <code>http://www.w3.org/2002/07/owl#Thing</code>
      * @param uri URI
      */
-    public Uri(String uri){
+    public Uri(String uri) {
         this.uri = uri;
         this.ontology = new YaqpOntEntity(OWL.Thing);
     }
@@ -74,7 +72,7 @@ public class Uri extends YaqpComponent {
      * @param uri URI
      * @param ontology Ontology of the URI
      */
-    public Uri(String uri, YaqpOntEntity ontology){
+    public Uri(String uri, YaqpOntEntity ontology) {
         this(uri);
         this.ontology = ontology;
     }
@@ -83,8 +81,17 @@ public class Uri extends YaqpComponent {
      * The URI as a string.
      * @return URI String.
      */
-    public String getUri(){
+    @Override
+    public String toString(){
         return this.uri;
+    }
+
+    public void setOntology(YaqpOntEntity ontology) {
+        this.ontology = ontology;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
     }
 
     /**
@@ -95,7 +102,6 @@ public class Uri extends YaqpComponent {
     public YaqpOntEntity getOntology() {
         return ontology;
     }
-
 
     @Override
     public PDFObject getPDF() {
@@ -110,14 +116,17 @@ public class Uri extends YaqpComponent {
         return rdf;
     }
 
-    public static void main(String args[]){
-        new Uri("http://sth.com/1", new YaqpOntEntity(OWL.Nothing)).
-                getTurtle().publish(new YaqpIOStream(System.out));
-    }   
+    public static void main(String args[]) {
+        new Uri("http://sth.com/1", new YaqpOntEntity(OWL.Nothing)).getTurtle().publish(new YaqpIOStream(System.out));
+    }
 
     @Override
     public JSONObject getJson() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    protected String getTag() {
+        return null;
+    }
 }

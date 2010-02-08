@@ -38,6 +38,7 @@ import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.namespaces.OTClass;
 
 /**
@@ -115,5 +116,16 @@ public class Feature extends YaqpComponent {
     @Override
     public JSONObject getJson() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Uri uri() throws ImproperEntityException {
+        return new Uri(getURI(), OTClass.Feature);
+    }
+
+
+    @Override
+    protected String getTag() {
+        return "feature";
     }
 }

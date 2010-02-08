@@ -31,11 +31,12 @@
  */
 package org.opentox.ontology.components;
 
-import org.opentox.db.handlers.WriterHandler;
+
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.namespaces.OTClass;
 
 /**
@@ -44,6 +45,21 @@ import org.opentox.ontology.namespaces.OTClass;
  * @author Charalampos Chomenides
  */
 public class Task extends YaqpComponent {
+
+    @Override
+    protected String getTag() {
+        return "task";
+    }
+
+    @Override
+    public Uri uri() throws ImproperEntityException {
+        Uri u = super.uri();
+        u.setUri(u.toString()+"/"+getName());
+        u.setOntology(OTClass.Task);
+        return u;
+    }
+
+
 
     /**
      * The possible statuses a task can have.

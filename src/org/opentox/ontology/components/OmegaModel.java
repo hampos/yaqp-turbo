@@ -37,6 +37,8 @@ import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.ontology.exceptions.ImproperEntityException;
+import org.opentox.ontology.namespaces.OTClass;
 
 /**
  *
@@ -112,6 +114,21 @@ public class OmegaModel extends YaqpComponent {
     public JSONObject getJson() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    protected String getTag() {
+        return new QSARModel().getTag();
+    }
+
+    @Override
+    public Uri uri() throws ImproperEntityException {
+        Uri u = super.uri();
+        u.setUri(u.toString()+"/"+getId());
+        u.setOntology(OTClass.Model);
+        return u;
+    }
+
+
 
     
 

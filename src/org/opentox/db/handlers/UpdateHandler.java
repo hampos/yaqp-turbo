@@ -48,6 +48,6 @@ public class UpdateHandler {
     }
 
     protected static void updateTask(Task before, Task after) {
-        
+
     }
 }

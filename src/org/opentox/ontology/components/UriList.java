@@ -104,7 +104,7 @@ public class UriList extends YaqpComponent implements Iterable<Uri> {
             rdf.includeOntClass(y);
         }
         for (Uri u : uriList) {
-            rdf.createIndividual(u.getUri(), rdf.createOntResource(u.getOntology().getURI()));
+            rdf.createIndividual(u.toString(), rdf.createOntResource(u.getOntology().getURI()));
         }
 
         return rdf;
@@ -126,5 +126,10 @@ public class UriList extends YaqpComponent implements Iterable<Uri> {
     @Override
     public JSONObject getJson() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    protected String getTag() {
+        return null;
     }
 }

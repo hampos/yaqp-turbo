@@ -48,11 +48,13 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Set;
+import org.opentox.config.Configuration;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
 import org.opentox.io.util.YaqpIOStream;
+import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.namespaces.OTClass;
 import org.opentox.ontology.namespaces.OTDataTypeProperties;
@@ -317,5 +319,17 @@ public class Algorithm extends YaqpComponent {
     @Override
     public JSONObject getJson() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public Uri uri() throws ImproperEntityException {
+        Uri uri = super.uri();
+        uri.setUri(uri.toString()+"/"+getMeta().name);
+        uri.setOntology(OTClass.Algorithm);
+        return null;
+    }
+
+    protected String getTag(){
+        return "algorithm";
     }
 }

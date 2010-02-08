@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
+import org.opentox.ontology.exceptions.ImproperEntityException;
+import org.opentox.ontology.namespaces.OTClass;
 import org.opentox.ontology.util.AlgorithmParameter;
 
 /**
@@ -55,6 +57,21 @@ public class QSARModel extends YaqpComponent {
     private String timestamp = null;
     private String dataset = null;
     private ModelStatus modelStatus = ModelStatus.UNDER_DEVELOPMENT;
+
+    @Override
+    protected String getTag() {
+        return "model";
+    }
+
+    @Override
+    public Uri uri() throws ImproperEntityException {
+        Uri u = super.uri();
+        u.setUri(u.toString()+"/"+getId());
+        u.setOntology(OTClass.Model);
+        return u;
+    }
+
+
 
     public enum ModelStatus {
 

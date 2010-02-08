@@ -141,4 +141,9 @@ public class AlgorithmOntology extends YaqpComponent {
     public JSONObject getJson() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    protected String getTag() {
+        return "ontology";
+    }
 }

@@ -31,13 +31,18 @@
  */
 package org.opentox.ontology.components;
 
+import com.hp.hpl.jena.vocabulary.OWL;
 import com.itextpdf.text.Document;
 import java.io.Serializable;
+import org.opentox.config.Configuration;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.OntObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.ontology.exceptions.ImproperEntityException;
+import org.opentox.ontology.namespaces.OTClass;
+import org.opentox.ontology.namespaces.YaqpOntEntity;
 
 /**
  *
@@ -77,6 +82,12 @@ public abstract class YaqpComponent implements Serializable {
         TurtleObject o = new TurtleObject(getRDF());
         return (TurtleObject) o;
     }
+
+    public Uri uri() throws ImproperEntityException{
+     return new Uri(Configuration.baseUri+"/"+getTag(), new YaqpOntEntity(OWL.Thing));
+    }
+
+    protected abstract String getTag();
 
     
 }

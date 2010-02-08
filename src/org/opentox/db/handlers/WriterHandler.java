@@ -66,6 +66,7 @@ import org.opentox.util.logging.levels.*;
  * @author Charalampos Chomenides
  */
 public class WriterHandler {
+    
 
     private static DbPipeline<QueryFood, HyperResult> addUserPipeline = null,
             addAlgorithmOntologyPipeline = null,
@@ -102,23 +103,23 @@ public class WriterHandler {
      * @see WriterHandler#addUserGroup(org.opentox.ontology.components.UserGroup)  add user group
      * @see WriterHandler#addTask(org.opentox.ontology.components.Task) add task
      */
-    public static void add(YaqpComponent component) throws DbException, ImproperEntityException {
+    public static Uri add(YaqpComponent component) throws DbException, ImproperEntityException {
         if (component instanceof User) {// add user
-            addUser((User) component);
+            return addUser((User) component);
         } else if (component instanceof UserGroup) { // add user group
-            addUserGroup((UserGroup) component);
+            return addUserGroup((UserGroup) component);
         } else if (component instanceof Algorithm) {// add algorithm
-            addAlgorithm((Algorithm) component);
+            return addAlgorithm((Algorithm) component);
         } else if (component instanceof AlgorithmOntology) {
-            addAlgorithmOntology((AlgorithmOntology) component);
+            return addAlgorithmOntology((AlgorithmOntology) component);
         } else if (component instanceof Feature) {// add a feature
-            addFeature((Feature) component);
+            return addFeature((Feature) component);
         } else if (component instanceof QSARModel) {// add QSAR model
-            addQSARModel((QSARModel) component);
+            return addPredictiveModel((QSARModel) component);
         } else if (component instanceof Task) {
-            addTask((Task) component);
+            return addTask((Task) component);
         } else if (component instanceof OmegaModel) {
-            addOmega((OmegaModel) component);
+            return addOmega((OmegaModel) component);
         } else {// This component cannot be added in the database
             String message = "This component cannot be added in the "
                     + "database because it cannot be cast to any of the recognizable "
@@ -135,7 +136,7 @@ public class WriterHandler {
      * @throws NumberFormatException in case the provided user authorization level is not
      * an integer number
      */
-    protected static void addUserGroup(UserGroup userGroup) throws DbException {
+    protected static Uri addUserGroup(UserGroup userGroup) throws DbException, ImproperEntityException {
         if (addUserGroupPipeline == null) {
             addUserGroupPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER_GROUP);
         }
@@ -154,6 +155,7 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
             throw new DbException("XUG512", message, ex);
         }
+        return userGroup.uri();
     }
 
     /**
@@ -165,7 +167,7 @@ public class WriterHandler {
      * in the database (instance of {@link DuplicateKeyException }) or if the provided
      * algorithm ontology is <code>null</code> or its name or URI is not specified/missing.
      */
-    protected static void addAlgorithmOntology(AlgorithmOntology ontology) throws DbException {
+    protected static Uri addAlgorithmOntology(AlgorithmOntology ontology) throws DbException, ImproperEntityException {
         if (addAlgorithmOntologyPipeline == null) {
             addAlgorithmOntologyPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM_ONTOLOGY);
         }
@@ -190,6 +192,7 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
             throw new DbException("XFE12", ex);
         }
+        return ontology.uri();
     }
 
     /**
@@ -208,7 +211,7 @@ public class WriterHandler {
      * @see ReaderHandler#getUser(org.opentox.ontology.components.User) search for user
      * @see EmailSupervisor
      */
-    protected static void addUser(User user) throws DuplicateKeyException, BadEmailException, DbException {
+    protected static Uri addUser(User user) throws DuplicateKeyException, BadEmailException, DbException, ImproperEntityException {
         if (!EmailSupervisor.checkMail(user.getEmail())) {
             throw new BadEmailException("XE449", "Bad user email");
         }
@@ -244,6 +247,7 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
+        return user.uri();
     }
 
     /**
@@ -254,7 +258,7 @@ public class WriterHandler {
      * the URI of the feature is not set or if you try to add a <code>null</code>
      * feature.
      */
-    protected static void addFeature(Feature feature) throws DbException {
+    protected static Uri addFeature(Feature feature) throws DbException, ImproperEntityException {
         if (addFeaturePipeline == null) {
             addFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_FEATURE);
         }
@@ -274,6 +278,7 @@ public class WriterHandler {
             }
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU719 - Could not add the following feature :\n" + feature));
         }
+        return feature.uri();
     }
 
     /**
@@ -284,7 +289,7 @@ public class WriterHandler {
      * search for algorithms.
      * @throws DuplicateKeyException In case the algorithm already exists.
      */
-    protected static void addAlgorithm(Algorithm algorithm) throws DuplicateKeyException {
+    protected static Uri addAlgorithm(Algorithm algorithm) throws DuplicateKeyException, ImproperEntityException {
         if (addAlgorithmPipeline == null) {
             addAlgorithmPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM);
         }
@@ -337,14 +342,15 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Could not batch add Algorithm-Ontology relations :\n" + algorithm));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
+        return algorithm.uri();
     }
 
     /**
      * Register a QSAR model in the database for a certain user. QSAR Models include
      * <code>MLR</code> ones and all models that do not possess any tuning parameters.
      * <code>Tunable</code> models are registered in the database using the method
-     * {@link WriterHandler#addTunableModel(org.opentox.ontology.components.TunableQSARModel)
-     * addTunableModel() }.
+     * {@link WriterHandler#addPredictiveModel(org.opentox.ontology.components.TunableQSARModel)
+     * addPredictiveModel() }.
      * @param model The model to be added in the database.
      * @return the unique id (UID) of the registered QSAR model.
      * @throws DbException In case the model cannot be added. This is the case when
@@ -353,9 +359,9 @@ public class WriterHandler {
      * the <code>dataset_uri</code> and so on. Alse a {@link DbException } is thrown
      * if you atempt to add a <code>null</code> model or you somehow violate some
      * Foreign Key Constraint.
-     * @see WriterHandler#addTunableModel(org.opentox.ontology.components.TunableQSARModel) add svm/svc models
+     * @see WriterHandler#addPredictiveModel(org.opentox.ontology.components.TunableQSARModel) add svm/svc models
      */
-    public static int addQSARModel(QSARModel model) throws DbException {
+    protected static int addQSARModel(QSARModel model) throws DbException {
 
         if (addQSARModelPipeline == null) {
             addQSARModelPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_QSAR_MODEL);
@@ -432,16 +438,22 @@ public class WriterHandler {
      * this exception will be throws. Consider using {@link ConstantParameters#DEFAULTS the
      * defaults} for SVM models if you need to do so.
      */
-    public static int addTunableModel(QSARModel model) throws DbException {
+    protected static Uri addPredictiveModel(QSARModel model) throws DbException, ImproperEntityException {
         String algorithmName = model.getAlgorithm().getMeta().name;
+
         if (algorithmName.equals(YaqpAlgorithms.SVM.getMeta().name)
                 || algorithmName.equals(YaqpAlgorithms.SVC.getMeta().name)) {
             return addSuppVectModel(model);
+        }else if (algorithmName.equals(YaqpAlgorithms.MLR.getMeta().name)){
+            int new_id = addQSARModel(model);
+            System.err.println(new_id);
+            model.setId(new_id);
+            return model.uri();
         }
-        return 0;
+        return null;
     }
 
-    private static int addSuppVectModel(QSARModel model) throws DbException {
+    private static Uri addSuppVectModel(QSARModel model) throws DbException, ImproperEntityException {
         int r = 0;
         try {
             r = WriterHandler.addQSARModel((QSARModel) model);
@@ -472,7 +484,8 @@ public class WriterHandler {
             }
 
         }
-        return r;
+        model.setId(r);
+        return model.uri();
     }
 
     /**
@@ -493,7 +506,7 @@ public class WriterHandler {
      * @see WriterHandler#add(org.opentox.ontology.components.YaqpComponent) add an arbitrary
      * component
      */
-    protected static void addTask(Task task) throws DbException {
+    protected static Uri addTask(Task task) throws DbException, ImproperEntityException {
         if (addTaskPipeline == null) {
             addTaskPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_TASK);
         }
@@ -512,6 +525,7 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
             throw new DbException("XU718", message, ex);
         }
+        return task.uri();
     }
 
     /**
@@ -520,7 +534,7 @@ public class WriterHandler {
      * @return
      * @throws DbException
      */
-    protected static int addOmega(OmegaModel model) throws DbException {
+    protected static Uri addOmega(OmegaModel model) throws DbException, ImproperEntityException {
         int r = 0;
         if (addOmegaPipeline == null) {
             addOmegaPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_OMEGA_MODEL);
@@ -543,6 +557,7 @@ public class WriterHandler {
             Iterator<String> it = result.getColumnIterator(1);
             r = Integer.parseInt(it.next());
         }// TODO: Otherwise what?
-        return r;
+        model.setId(r);
+        return model.uri();
     }
 }
