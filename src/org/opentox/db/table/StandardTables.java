@@ -359,6 +359,13 @@ public enum StandardTables {
         dataset.setNotNull(true);
         table.addColumn(dataset);
 
+        TableColumn status = new TableColumn("STATUS");
+        status.setColumnType(SQLDataTypes.VarChar(50));
+        status.setDefaultValue("'UNDER DEVELOPMENT'");
+        status.setConstraint("MOD_STATUS_CONSTRAINT",
+        status.getColumnName()+" IN ('UNDER DEVELOPMENT','APPROVED')");
+        table.addColumn(status);
+
         return table;
     }
 

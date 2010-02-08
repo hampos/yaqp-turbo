@@ -118,14 +118,15 @@ public enum PrepStmt implements JPrepStmt {
      * Add a new prediction model in the database.
      */
     ADD_QSAR_MODEL("INSERT INTO " + QSARModels().getTableName()
-    + " (CODE, PREDICTION_FEATURE, DEPENDENT_FEATURE, ALGORITHM, CREATED_BY, DATASET_URI ) VALUES (?,?,?,?,?,?)",
+    + " (CODE, PREDICTION_FEATURE, DEPENDENT_FEATURE, ALGORITHM, CREATED_BY, DATASET_URI, STATUS ) VALUES (?,?,?,?,?,?,?)",
     new QueryParam[]{
         new QueryParam("CODE", String.class),
         new QueryParam("PREDICTION_FEATURE", Integer.class),
         new QueryParam("DEPENDENT_FEATURE", Integer.class),
         new QueryParam("ALGORITHM", String.class),
         new QueryParam("CREATED_BY", String.class),
-        new QueryParam("DATASET_URI", String.class)
+        new QueryParam("DATASET_URI", String.class),
+        new QueryParam("STATUS", String.class)
 }),
     ADD_INDEP_FEATURE_RELATION("INSERT INTO " + IndepFeaturesRelation().getTableName()
     + " (MODEL_UID, FEATURE_UID) VALUES (?,?)",

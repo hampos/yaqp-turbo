@@ -32,7 +32,6 @@ package org.opentox.config;
 
 import java.io.FileInputStream;
 import java.util.Properties;
-import org.opentox.core.exceptions.ExceptionDetails;
 import org.opentox.core.exceptions.YaqpException;
 
 /**

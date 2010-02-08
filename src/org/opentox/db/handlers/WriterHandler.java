@@ -67,8 +67,7 @@ import org.opentox.util.logging.levels.*;
  */
 public class WriterHandler {
 
-    private static DbPipeline<QueryFood, HyperResult>
-            addUserPipeline = null,
+    private static DbPipeline<QueryFood, HyperResult> addUserPipeline = null,
             addAlgorithmOntologyPipeline = null,
             addUserGroupPipeline = null,
             addAlgorithmPipeline = null,
@@ -116,13 +115,11 @@ public class WriterHandler {
             addFeature((Feature) component);
         } else if (component instanceof QSARModel) {// add QSAR model
             addQSARModel((QSARModel) component);
-        } else if (component instanceof TunableQSARModel) {// add a tunable model.
-            addTunableModel((TunableQSARModel) component);
         } else if (component instanceof Task) {
             addTask((Task) component);
         } else if (component instanceof OmegaModel) {
             addOmega((OmegaModel) component);
-        }else {// This component cannot be added in the database
+        } else {// This component cannot be added in the database
             String message = "This component cannot be added in the "
                     + "database because it cannot be cast to any of the recognizable "
                     + "datatypes ";
@@ -366,6 +363,10 @@ public class WriterHandler {
         if (addIndepFeaturePipeline == null) {
             addIndepFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_INDEP_FEATURE_RELATION);
         }
+        QSARModel.ModelStatus modelStatus = model.getModelStatus();
+        if (model.getModelStatus() == null) {
+            modelStatus = QSARModel.ModelStatus.UNDER_DEVELOPMENT;
+        }
         BatchProcessor bp = new BatchProcessor(addIndepFeaturePipeline);
         int r = 0;
         HyperResult result = new HyperResult();
@@ -376,7 +377,8 @@ public class WriterHandler {
                     {"DEPENDENT_FEATURE", Integer.toString(model.getDependentFeature().getID())},
                     {"ALGORITHM", model.getAlgorithm().getMeta().name},
                     {"CREATED_BY", model.getUser().getEmail()},
-                    {"DATASET_URI", model.getDataset()}
+                    {"DATASET_URI", model.getDataset()},
+                    {"STATUS", modelStatus.toString()}
                 });
         try {
             result = addQSARModelPipeline.process(food);
@@ -430,7 +432,7 @@ public class WriterHandler {
      * this exception will be throws. Consider using {@link ConstantParameters#DEFAULTS the
      * defaults} for SVM models if you need to do so.
      */
-    public static int addTunableModel(TunableQSARModel model) throws DbException {
+    public static int addTunableModel(QSARModel model) throws DbException {
         String algorithmName = model.getAlgorithm().getMeta().name;
         if (algorithmName.equals(YaqpAlgorithms.SVM.getMeta().name)
                 || algorithmName.equals(YaqpAlgorithms.SVC.getMeta().name)) {
@@ -439,7 +441,7 @@ public class WriterHandler {
         return 0;
     }
 
-    private static int addSuppVectModel(TunableQSARModel model) throws DbException {
+    private static int addSuppVectModel(QSARModel model) throws DbException {
         int r = 0;
         try {
             r = WriterHandler.addQSARModel((QSARModel) model);
@@ -525,12 +527,12 @@ public class WriterHandler {
         }
 
         User u = model.getUser();
-        if (u==null){
-            throw new DbException("XVW981","You did not provide the user that created the DoA model");
+        if (u == null) {
+            throw new DbException("XVW981", "You did not provide the user that created the DoA model");
         }
         String userEmail = u.getEmail();
-        if (userEmail==null){
-            throw new DbException("XVW982","Unknown user because the provided email is null");
+        if (userEmail == null) {
+            throw new DbException("XVW982", "Unknown user because the provided email is null");
         }
         QueryFood food = new QueryFood();
         food.add("CODE", model.getCode());
@@ -543,6 +545,4 @@ public class WriterHandler {
         }// TODO: Otherwise what?
         return r;
     }
-
-
 }

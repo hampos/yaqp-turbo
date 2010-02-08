@@ -149,7 +149,7 @@ public class Dataset {
 
         //  A3. Iterate over all Features.
         featureIterator =
-                oo.listStatements(new SimpleSelector(null, RDF.type, _NominalFeature));
+                oo.listStatements(new SimpleSelector(null, RDF.type, _StringFeature));
         while (featureIterator.hasNext()) {
             Statement feature = featureIterator.next();
 

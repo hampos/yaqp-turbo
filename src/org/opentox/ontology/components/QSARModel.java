@@ -29,11 +29,12 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.ontology.components;
 
 import java.util.ArrayList;
+import org.opentox.io.publishable.JSONObject;
+import org.opentox.io.publishable.PDFObject;
+import org.opentox.io.publishable.RDFObject;
 import org.opentox.ontology.util.AlgorithmParameter;
 
 /**
@@ -41,27 +42,187 @@ import org.opentox.ontology.util.AlgorithmParameter;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class QSARModel extends AbstractQSARModel {
+public class QSARModel extends YaqpComponent {
+
+    private ArrayList<AlgorithmParameter> tuningParams = new ArrayList<AlgorithmParameter>();
+    private int id = 0;
+    private String code = null;
+    private Feature predictionFeature = null;
+    private Feature dependentFeature = null;
+    private ArrayList<Feature> independentFeatures = new ArrayList<Feature>();
+    private Algorithm algorithm = null;
+    private User user = null;
+    private String timestamp = null;
+    private String dataset = null;
+    private ModelStatus modelStatus = ModelStatus.UNDER_DEVELOPMENT;
+
+    public enum ModelStatus {
+
+        APPROVED {
+
+            @Override
+            public String toString() {
+                return "APPROVED";
+            }
+
+            ;
+        },
+        UNDER_DEVELOPMENT {
+
+            @Override
+            public String toString() {
+                return "UNDER DEVELOPMENT";
+            }
+
+            ;
+        }
+    }
 
     public QSARModel() {
         super();
     }
 
-    public QSARModel(String code,
+    public QSARModel(
+            String code,
             Feature predictionFeature,
             Feature dependentFeature,
             ArrayList<Feature> independentFeatures,
             Algorithm algorithm,
             User user,
             String timestamp,
-            String dataset) {
-        super(code, predictionFeature, dependentFeature, independentFeatures, algorithm, user, timestamp, dataset);
-    }
-  
-    
-    @Override
-    public ArrayList<AlgorithmParameter> getTuningParams() {
-        return new ArrayList<AlgorithmParameter>();
+            String dataset,
+            ModelStatus modelStatus) {
+        this();
+        this.code = code;
+        this.predictionFeature = predictionFeature;
+        this.dependentFeature = dependentFeature;
+        this.independentFeatures = independentFeatures;
+        this.algorithm = algorithm;
+        this.user = user;
+        this.timestamp = timestamp;
+        this.dataset = dataset;
+        this.modelStatus = modelStatus;
     }
 
+
+    public QSARModel(
+            int id,
+            String code,
+            Feature predictionFeature,
+            Feature dependentFeature,
+            ArrayList<Feature> independentFeatures,
+            Algorithm algorithm,
+            User user,
+            String timestamp,
+            String dataset,
+            ModelStatus modelStatus,
+            ArrayList<AlgorithmParameter> tuningParams) {
+        this(code, predictionFeature, dependentFeature, independentFeatures, algorithm, user, timestamp, dataset, modelStatus);
+        this.id = id;
+        this.tuningParams = tuningParams;
+    }
+
+
+    public Algorithm getAlgorithm() {
+        return algorithm;
+    }
+
+    public void setAlgorithm(Algorithm algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getDataset() {
+        return dataset;
+    }
+
+    public void setDataset(String dataset) {
+        this.dataset = dataset;
+    }
+
+    public Feature getDependentFeature() {
+        return dependentFeature;
+    }
+
+    public void setDependentFeature(Feature dependentFeature) {
+        this.dependentFeature = dependentFeature;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public ArrayList<Feature> getIndependentFeatures() {
+        return independentFeatures;
+    }
+
+    public void setIndependentFeatures(ArrayList<Feature> independentFeatures) {
+        this.independentFeatures = independentFeatures;
+    }
+
+    public ModelStatus getModelStatus() {
+        return modelStatus;
+    }
+
+    public void setModelStatus(ModelStatus modelStatus) {
+        this.modelStatus = modelStatus;
+    }
+
+    public Feature getPredictionFeature() {
+        return predictionFeature;
+    }
+
+    public void setPredictionFeature(Feature predictionFeature) {
+        this.predictionFeature = predictionFeature;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public ArrayList<AlgorithmParameter> getTuningParams() {
+        return tuningParams;
+    }
+
+    public void setTuningParams(ArrayList<AlgorithmParameter> tuningParams) {
+        this.tuningParams = tuningParams;
+    }
+
+    @Override
+    public PDFObject getPDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public RDFObject getRDF() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public JSONObject getJson() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
