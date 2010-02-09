@@ -34,7 +34,12 @@ package org.opentox.ontology.components;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.itextpdf.text.Document;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.config.Configuration;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.OntObject;
 import org.opentox.io.publishable.PDFObject;
@@ -83,8 +88,13 @@ public abstract class YaqpComponent implements Serializable {
         return (TurtleObject) o;
     }
 
-    public Uri uri() throws ImproperEntityException{
-     return new Uri(Configuration.baseUri+"/"+getTag(), new YaqpOntEntity(OWL.Thing));
+
+    public URI uri() throws YaqpException{
+        try {
+            return new URI(Configuration.baseUri + "/" + getTag());
+        } catch (URISyntaxException ex) {
+            throw new YaqpException("XJJ815", "Invalid URI", ex);
+        }
     }
 
     protected abstract String getTag();

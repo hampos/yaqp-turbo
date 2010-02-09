@@ -34,6 +34,11 @@ package org.opentox.ontology.components;
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.vocabulary.DC;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
@@ -119,8 +124,12 @@ public class Feature extends YaqpComponent {
     }
 
     @Override
-    public Uri uri() throws ImproperEntityException {
-        return new Uri(getURI(), OTClass.Feature);
+    public URI uri() throws YaqpException {
+        try {
+            return new URI(getURI());
+        } catch (URISyntaxException ex) {
+            throw new YaqpException("XLI9", "Improper URI", ex);
+        }
     }
 
 

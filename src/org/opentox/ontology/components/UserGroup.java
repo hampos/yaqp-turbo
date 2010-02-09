@@ -40,6 +40,9 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
@@ -156,11 +159,13 @@ public class UserGroup extends YaqpComponent {
         return "usergroup";
     }
 
-     @Override
-    public Uri uri() throws ImproperEntityException {
-        Uri u = super.uri();
-        u.setUri(u.toString()+"/"+getName());
-        u.setOntology(OTClass.UserGroup);
-        return u;
+@Override
+    public URI uri() throws YaqpException {
+        String superUri = super.uri().toString();
+        try{
+        return new URI(superUri+"/"+getName());
+        } catch (URISyntaxException ex){
+            throw new YaqpException("XGL77", "Improper URI", ex);
+        }
     }
 }

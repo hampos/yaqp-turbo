@@ -32,11 +32,13 @@
 package org.opentox.ontology.components;
 
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
-import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.namespaces.OTClass;
 
 /**
@@ -52,11 +54,13 @@ public class Task extends YaqpComponent {
     }
 
     @Override
-    public Uri uri() throws ImproperEntityException {
-        Uri u = super.uri();
-        u.setUri(u.toString()+"/"+getName());
-        u.setOntology(OTClass.Task);
-        return u;
+    public URI uri() throws YaqpException {
+        String superUri = super.uri().toString();
+        try{
+        return new URI(superUri+"/"+getName());
+        } catch (URISyntaxException ex){
+            throw new YaqpException("XGL82", "Improper URI", ex);
+        }
     }
 
 

@@ -31,9 +31,12 @@
  */
 package org.opentox.ontology.components;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
@@ -246,10 +249,12 @@ public class QSARModel extends YaqpComponent {
     }
 
     @Override
-    public Uri uri() throws ImproperEntityException {
-        Uri u = super.uri();
-        u.setUri(u.toString() + "/" + getId());
-        u.setOntology(OTClass.Model);
-        return u;
+    public URI uri() throws YaqpException {
+        String superUri = super.uri().toString();
+        try{
+        return new URI(superUri+"/"+getId());
+        } catch (URISyntaxException ex){
+            throw new YaqpException("XGL80", "Improper URI", ex);
+        }
     }
 }

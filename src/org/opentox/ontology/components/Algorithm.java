@@ -45,12 +45,15 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.opentox.config.Configuration;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
@@ -332,11 +335,13 @@ public class Algorithm extends YaqpComponent {
     }
 
     @Override
-    public Uri uri() throws ImproperEntityException {
-        Uri uri = super.uri();
-        uri.setUri(uri.toString()+"/"+getMeta().getName());
-        uri.setOntology(OTClass.Algorithm);
-        return null;
+    public URI uri() throws YaqpException {
+        String superUri = super.uri().toString();
+        try{
+        return new URI(superUri+"/"+getMeta().getName());
+        } catch (URISyntaxException ex){
+            throw new YaqpException("XGL82", "Improper URI", ex);
+        }
     }
 
     protected String getTag(){

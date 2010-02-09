@@ -42,6 +42,9 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.handlers.ReaderHandler;
 import org.opentox.io.publishable.JSONObject;
@@ -311,7 +314,7 @@ public class User extends YaqpComponent {
 
 
      public static void main(String args[]) throws FileNotFoundException, DbException {
-        User u = ReaderHandler.getUser(new User()).get(1);
+        User u = ReaderHandler.searchUsers(new User()).get(1);
         u.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/user.pdf")));
 
     }
@@ -338,11 +341,13 @@ public class User extends YaqpComponent {
     }
 
     @Override
-    public Uri uri() throws ImproperEntityException {
-        Uri u = super.uri();
-        u.setUri(u.toString()+"/"+getUserName());
-        u.setOntology(OTClass.User);
-        return u;
+    public URI uri() throws YaqpException {
+        String superUri = super.uri().toString();
+        try{
+        return new URI(superUri+"/"+getUserName());
+        } catch (URISyntaxException ex){
+            throw new YaqpException("XGL79", "Improper URI", ex);
+        }
     }
 
 

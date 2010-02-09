@@ -34,6 +34,8 @@
 package org.opentox.qsar.processors;
 
 
+import java.util.Map;
+import org.opentox.ontology.util.AlgorithmParameter;
 import weka.core.Instances;
 
 /**
@@ -42,10 +44,18 @@ import weka.core.Instances;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public abstract class WekaTrainer extends AbstractTrainer<Instances, String>{
+public abstract class WekaTrainer extends AbstractTrainer<Instances>{
 
-    protected boolean successful = false;
+    public WekaTrainer(){
+        super();
+    }
+
+    public WekaTrainer(Map<String, AlgorithmParameter> parameters) {
+        super(parameters);
+    }
 
     
+
+
 
 }

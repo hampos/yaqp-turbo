@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of National Technical University of Athens. Please read README for more
+ * School of the National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -29,42 +29,34 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.qsar.processors;
 
-import java.util.Map;
-import org.opentox.core.exceptions.YaqpException;
-import org.opentox.core.processors.Processor;
-import org.opentox.ontology.components.QSARModel;
-import org.opentox.ontology.util.AlgorithmParameter;
-import org.opentox.qsar.interfaces.JTrainer;
+
+package org.opentox.io.publishable;
+
+import java.net.URI;
+import java.util.ArrayList;
+import org.opentox.io.interfaces.JPublishable;
+import org.opentox.io.util.YaqpIOStream;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public abstract class AbstractTrainer<Input> extends Processor<Input, QSARModel> implements JTrainer<Input, QSARModel> {
+public class UriListObject implements JPublishable{
 
-    private Map<String, AlgorithmParameter> parameters;
+    private ArrayList<URI> uriList;
 
-    public AbstractTrainer() {
-        super();
+    public UriListObject(){
+
     }
 
-    public AbstractTrainer(Map<String, AlgorithmParameter> parameters) {
-        this.parameters = parameters;
-    }
-    
-
-    public Map<String, AlgorithmParameter> getParameters() {
-        return parameters;
+    public UriListObject(ArrayList<URI> list){
+        this.uriList = list;
     }
 
-    public void setParameters(Map<String, AlgorithmParameter> parameters) {
-        this.parameters = parameters;
+    public void publish(YaqpIOStream stream) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public QSARModel process(Input data) throws YaqpException {
-        return train(data);
-    }
 }

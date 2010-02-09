@@ -40,6 +40,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
 import org.opentox.db.exceptions.BadEmailException;
@@ -96,7 +97,7 @@ public class WriterHandlerTest {
      * Test of addAlgorithmOntology method, of class WriterHandler.
      */
 //    @Test
-    public void testAddAlgorithmOntology() throws YaqpOntException, DbException {
+    public void testAddAlgorithmOntology() throws YaqpOntException, DbException, YaqpException {
         try {
             ArrayList<OTAlgorithmTypes> otlist = OTAlgorithmTypes.getAllAlgorithmTypes();
             for (OTAlgorithmTypes ot : otlist) {
@@ -121,7 +122,7 @@ public class WriterHandlerTest {
                         new User(
                         "ann" + i, java.util.UUID.randomUUID().toString(), "john" + i, "smith" + i,
                         "ann" + i + "@foo.goo.gr", "UNDEFINED", "Italy",
-                        "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0))).getRDF().printConsole();
+                        "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
             }
         } catch (DuplicateKeyException ex) {
             System.out.println(ex);
@@ -133,7 +134,7 @@ public class WriterHandlerTest {
     }
 
    // @Test
-    public void testAddAlgorithm() throws DbException, ImproperEntityException {
+    public void testAddAlgorithm() throws DbException, ImproperEntityException, YaqpException {
 
         WriterHandler.add(YaqpAlgorithms.MLR);
         WriterHandler.add(YaqpAlgorithms.SVM);
@@ -141,26 +142,26 @@ public class WriterHandlerTest {
     }
 
     //@Test
-    public void testAddFeature() throws DbException, ImproperEntityException {
+    public void testAddFeature() throws DbException, ImproperEntityException, YaqpException {
         for (int i = 3001; i <= 3002; i++) {
-            WriterHandler.add(new Feature("http://sth.com/feature/" + i)).getRDF().printConsole();
+            WriterHandler.add(new Feature("http://sth.com/feature/" + i));
         }
     }
 
     //@Test
-    public void addQSARModel() throws DuplicateKeyException, DbException, ImproperEntityException {
-        User u = ReaderHandler.getUser(new User()).get(7);
+    public void addQSARModel() throws DuplicateKeyException, DbException, ImproperEntityException, YaqpException {
+        User u = ReaderHandler.searchUsers(new User()).get(7);
         u.setEmail("ann11@foo.goo.gr");
         Feature f = ReaderHandler.getFeature(1);
         ArrayList<Feature> lf = new ArrayList<Feature>();
         lf.add(f);
         QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "dataset1", null);
-        WriterHandler.add(m).getTurtle().publish(new YaqpIOStream(System.out));
+        WriterHandler.add(m);
     }
 
     @Test
-    public void addsvmModel() throws DbException, ImproperEntityException {
-        User u = ReaderHandler.getUser(new User()).get(7);
+    public void addsvmModel() throws Exception {
+        User u = ReaderHandler.searchUsers(new User()).get(7);
         u.setEmail("ann10@foo.goo.gr");
         Feature f = ReaderHandler.getFeature(1);
         ArrayList<Feature> lf = new ArrayList<Feature>();
@@ -169,12 +170,12 @@ public class WriterHandlerTest {
         Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
         params.putAll(ConstantParameters.SVMParams());
         m.setParams(params);
-        WriterHandler.add(m).getRDF().printConsole();
+        WriterHandler.add(m);
     }
 
     //@Test
-    public void addmlrModel() throws DbException, ImproperEntityException {
-        User u = ReaderHandler.getUser(new User()).get(7);
+    public void addmlrModel() throws DbException, ImproperEntityException, YaqpException {
+        User u = ReaderHandler.searchUsers(new User()).get(7);
         u.setEmail("ann10@foo.goo.gr");
         Feature f = ReaderHandler.getFeature(1);
         ArrayList<Feature> lf = new ArrayList<Feature>();
@@ -185,22 +186,22 @@ public class WriterHandlerTest {
     }
 
     //@Test
-    public void testaddTask() throws DbException, ImproperEntityException {
+    public void testaddTask() throws DbException, ImproperEntityException, YaqpException {
         User prot = new User();
         prot.setEmail("ann11%");
-        User u = ReaderHandler.getUser(prot).get(1);
+        User u = ReaderHandler.searchUsers(prot).get(1);
         for (int i = 0; i < 1000; i++) {
             Task t = new Task(java.util.UUID.randomUUID().toString() + java.util.UUID.randomUUID().toString(),
                     u, YaqpAlgorithms.SVC, 1000);
-            WriterHandler.addTask(t).getRDF().printConsole();
+            WriterHandler.addTask(t);
         }
     }
 
     //@Test
-    public void addOmega() throws DbException, ImproperEntityException {
+    public void addOmega() throws DbException, ImproperEntityException, YaqpException {
         User prot = new User();
         prot.setEmail("ann12%");
-        User u = ReaderHandler.getUser(prot).get(1);
+        User u = ReaderHandler.searchUsers(prot).get(1);
         OmegaModel om = new OmegaModel("dset50", java.util.UUID.randomUUID().toString(), u);
         System.out.println(WriterHandler.addOmega(om));
 

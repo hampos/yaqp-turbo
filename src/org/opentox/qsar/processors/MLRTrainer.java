@@ -34,6 +34,9 @@
 package org.opentox.qsar.processors;
 
 
+import java.util.Map;
+import org.opentox.ontology.components.QSARModel;
+import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.qsar.exceptions.QSARException;
 import weka.core.Instances;
 
@@ -44,17 +47,19 @@ import weka.core.Instances;
  */
 public class MLRTrainer extends WekaTrainer{
 
+    private String predictionFeature;
 
-    public MLRTrainer(){
-        super();
+
+    public MLRTrainer(Map<String, AlgorithmParameter> parameters) {
+        super(parameters);
+        predictionFeature = getParameters().get("prediction_feature").toString();
     }
 
-    public MLRTrainer(String prediction_feature){
-
+    public MLRTrainer() {
     }
+       
 
-    public String train(Instances training_data) throws QSARException {
-        
+    public QSARModel train(Instances training_data) throws QSARException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

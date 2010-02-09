@@ -29,10 +29,11 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.ontology.components;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
@@ -52,7 +53,7 @@ public class OmegaModel extends YaqpComponent {
     private User user;
     private int id = 0;
 
-    public OmegaModel(){
+    public OmegaModel() {
         super();
     }
 
@@ -121,15 +122,12 @@ public class OmegaModel extends YaqpComponent {
     }
 
     @Override
-    public Uri uri() throws ImproperEntityException {
-        Uri u = super.uri();
-        u.setUri(u.toString()+"/"+getId());
-        u.setOntology(OTClass.Model);
-        return u;
+    public URI uri() throws YaqpException {
+        String superUri = super.uri().toString();
+        try {
+            return new URI(superUri + "/" + getId());
+        } catch (URISyntaxException ex) {
+            throw new YaqpException("XGL82", "Improper URI", ex);
+        }
     }
-
-
-
-    
-
 }

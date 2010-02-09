@@ -88,7 +88,7 @@ public class ReaderHandler {
      * <pre>
      * User u = new User();
      * u.setEmail("%yahoo.com");
-     * ArrayList&lt;User&gt; search_results = ReaderHandler.getUser(u);
+     * ArrayList&lt;User&gt; search_results = ReaderHandler.searchUsers(u);
      * </pre>
      * Now, if you need all users with email from yahoo, use % twice, like this:
      * <pre>
@@ -103,7 +103,7 @@ public class ReaderHandler {
      * <pre>
      * User u = new User();
      * u.setUserGroup(new UserGroup("Guest", -1));
-     * ArrayList&lt;User&gt; search_results = ReaderHandler.getUser(u);
+     * ArrayList&lt;User&gt; search_results = ReaderHandler.searchUsers(u);
      * </pre>
      * So if you set the level to a non-positive value (e.g. -1) the search takes place over
      * the groups with name <code>Guest</code> and some level. If you need all users belonging
@@ -119,7 +119,9 @@ public class ReaderHandler {
      * an empty list if no such user was found.
      * @throws DbException In case the search cannot be performed.
      */
-    public static ArrayList<User> getUser(User search_prototype) throws DbException {
+
+    // TODO: Change array list to Component list
+    public static ArrayList<User> searchUsers(User search_prototype) throws DbException {
         ArrayList<User> searchResult = new ArrayList<User>();
         if (getUserPipeline == null) {
             getUserPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_USER);
@@ -186,15 +188,15 @@ public class ReaderHandler {
      * Get a list of URIs of all users in the database. This in fact will return an
      * instance of {@link UriList } but no other data about every user. If you need
      * a more detailed representation as a list consider using
-     * {@link ReaderHandler#getUser(org.opentox.ontology.components.User) } which
+     * {@link ReaderHandler#searchUsers(org.opentox.ontology.components.User) } which
      * returns all users that meet a certain criterion as an <code>ArrayList&lt;User&gt;
      * </code>.
      * @return The list of all users as a {@link UriList }
      * @throws DbException In case the list could not be retrieved from the database
      * due to connection problems or other database access issues.
      */
-    public static UriList getUsers() throws DbException {
-        UriList userList = new UriList();
+    public static ComponentList<User> getUsers() throws DbException {
+        ComponentList<User > list = new ComponentList<User>();
         if (getUsersPipeline == null) {
             getUsersPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALL_USERS);
         }
@@ -205,11 +207,13 @@ public class ReaderHandler {
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "XR51 - Could not get User list from database\n"));
         }
 
-        for (int i = 1; i < result.getSize() + 1; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-            userList.add(new Uri(baseURI + "/user/" + it.next(), OTClass.User));
-        }
-        return userList;
+//        for (int i = 1; i < result.getSize() + 1; i++) {
+//            Iterator<String> it = result.getColumnIterator(i);
+//            list.add(new Uri(baseURI + "/user/" + it.next(), OTClass.User));
+//        }
+
+        //TODO: Complete the implementation of this method
+        return null;
     }
 
     /**
@@ -519,7 +523,7 @@ public class ReaderHandler {
 //            Iterator<String> it = result.getColumnIterator(i);
 //            MLRModel model = new MLRModel(Integer.parseInt(it.next()), it.next(), it.next(),
 //                    getFeature(Integer.parseInt(it.next())), getFeature(Integer.parseInt(it.next())),
-//                    getAlgorithm(it.next()), getUser(it.next()), it.next(), it.next());
+//                    getAlgorithm(it.next()), searchUsers(it.next()), it.next(), it.next());
 //            model.setIndependentFeatures(getIndepFeatures(model));
 //            models.add(model);
 //        }
@@ -539,7 +543,7 @@ public class ReaderHandler {
 //        for (int i = 1; i < result.getSize() + 1; i++) {
 //            Iterator<String> it = result.getColumnIterator(i);
 //            Task task = new Task(Integer.parseInt(it.next()), it.next(), it.next(),
-//                    Task.STATUS.valueOf(it.next()), getUser(it.next()), getAlgorithm(it.next()), Integer.parseInt(it.next()),
+//                    Task.STATUS.valueOf(it.next()), searchUsers(it.next()), getAlgorithm(it.next()), Integer.parseInt(it.next()),
 //                    it.next(), it.next(), it.next());
 //            tasks.add(task);
 //        }

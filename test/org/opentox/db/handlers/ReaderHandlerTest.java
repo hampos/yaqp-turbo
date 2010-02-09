@@ -83,7 +83,7 @@ public class ReaderHandlerTest {
   //  @Test
 //    public void getBadUser() {
 //        try{
-//        User u = ReaderHandler.getUser("chomiole");
+//        User u = ReaderHandler.searchUsers("chomiole");
 //        System.out.println(u);
 //        }catch (DbException e){
 //            assertTrue(e.toString().contains("XUS452"));
@@ -114,7 +114,7 @@ public class ReaderHandlerTest {
 //        u.setEmail("%.gr%");
         prototype.setFirstName("%9");
         prototype.setUserGroup(new UserGroup(null, 80));
-        ArrayList<User> list = ReaderHandler.getUser(prototype);
+        ArrayList<User> list = ReaderHandler.searchUsers(prototype);
         for (User user : list){
             System.out.println(user);
         }

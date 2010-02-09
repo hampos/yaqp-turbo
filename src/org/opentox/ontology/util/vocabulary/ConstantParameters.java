@@ -43,22 +43,33 @@ import org.opentox.ontology.util.AlgorithmParameter;
  */
 public class ConstantParameters {
 
+    public static final String
+            kernel = "kernel",
+            degree = "degree",
+            cost = "cost",
+            gamma = "gamma",
+            coeff0 = "coeff0",
+            tolerance = "tolerance",
+            cacheSize = "cacheSize",
+            epsilon = "epsilon";
+
+
     public static Map<String, AlgorithmParameter> SVCParams() {
         Map<String, AlgorithmParameter> map = new HashMap<String, AlgorithmParameter>();
-        map.put("kernel", new AlgorithmParameter<String>(XSDDatatype.XSDstring, "RBF", AlgorithmParameter.SCOPE.optional));
-        map.put("kernel", new AlgorithmParameter<Integer>(XSDDatatype.XSDpositiveInteger, 3, AlgorithmParameter.SCOPE.optional));
-        map.put("cost", new AlgorithmParameter<Double>(XSDDatatype.XSDdouble, 100.0, AlgorithmParameter.SCOPE.optional));
-        map.put("gamma", new AlgorithmParameter<Double>(XSDDatatype.XSDdouble, 1.50, AlgorithmParameter.SCOPE.optional));
-        map.put("coeff0", new AlgorithmParameter<Double>(XSDDatatype.XSDdouble, 0.0, AlgorithmParameter.SCOPE.optional));
-        map.put("tolerance", new AlgorithmParameter<Double>(XSDDatatype.XSDdouble, 0.0001, AlgorithmParameter.SCOPE.optional));
-        map.put("cacheSize", new AlgorithmParameter<Integer>(XSDDatatype.XSDpositiveInteger, 250007, AlgorithmParameter.SCOPE.optional));
+        map.put(kernel, new AlgorithmParameter<String>(XSDDatatype.XSDstring, "RBF", AlgorithmParameter.SCOPE.optional));
+        map.put(degree, new AlgorithmParameter<Integer>(XSDDatatype.XSDpositiveInteger, 3, AlgorithmParameter.SCOPE.optional));
+        map.put(cost, new AlgorithmParameter<Double>(XSDDatatype.XSDdouble, 100.0, AlgorithmParameter.SCOPE.optional));
+        map.put(gamma, new AlgorithmParameter<Double>(XSDDatatype.XSDdouble, 1.50, AlgorithmParameter.SCOPE.optional));
+        map.put(coeff0, new AlgorithmParameter<Double>(XSDDatatype.XSDdouble, 0.0, AlgorithmParameter.SCOPE.optional));
+        map.put(tolerance, new AlgorithmParameter<Double>(XSDDatatype.XSDdouble, 0.0001, AlgorithmParameter.SCOPE.optional));
+        map.put(cacheSize, new AlgorithmParameter<Integer>(XSDDatatype.XSDpositiveInteger, 250007, AlgorithmParameter.SCOPE.optional));
         return map;
     }
 
     public static Map<String, AlgorithmParameter> SVMParams() {
         Map<String, AlgorithmParameter> map = new HashMap<String, AlgorithmParameter>();
         map.putAll(SVCParams());
-        map.put("epsilon", new AlgorithmParameter<Double>(XSDDatatype.XSDdouble, 0.100, AlgorithmParameter.SCOPE.optional));
+        map.put(epsilon, new AlgorithmParameter<Double>(XSDDatatype.XSDdouble, 0.100, AlgorithmParameter.SCOPE.optional));
         return map;
     }
 }

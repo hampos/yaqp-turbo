@@ -29,68 +29,49 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
+
+
 package org.opentox.ontology.components;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
-import org.opentox.io.publishable.TurtleObject;
-import org.opentox.ontology.namespaces.OTClass;
-import org.opentox.ontology.namespaces.YaqpOntEntity;
+import org.opentox.io.publishable.UriListObject;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class UriList extends YaqpComponent implements Iterable<Uri> {
+public class ComponentList<H extends YaqpComponent> extends YaqpComponent {
 
-    private ArrayList<Uri> uriList;
-    private Set<YaqpOntEntity> ontolSet;
+    private ArrayList<H> componentList;
 
-    public UriList() {
-        super();
-        uriList = new ArrayList<Uri>();
-        ontolSet = new HashSet<YaqpOntEntity>();
+    public void add(H component){
+        componentList.add(component);
     }
 
-    public void add(Uri uri) {
-        if (uri != null) {
-            uriList.add(uri);
-            ontolSet.add(uri.getOntology());
-        } else {
-            //TODO: Decide what to do when a null Uri is submitted
-        }
-
+    public void addAll(Collection<H> componentList){
+        componentList.addAll(componentList);
     }
 
-    public void addBatch(Collection<Uri> uriCollection) {
-        uriList.addAll(uriList);
-        for (Uri u : uriCollection) {
-            ontolSet.add(u.getOntology());
-        }
+    public void clearList(){
+        componentList.clear();
     }
 
-    public void clearList() {
-        uriList.clear();
+    public ArrayList<H> getComponentList() {
+        return componentList;
     }
 
-    public boolean containsUri(Uri uri) {
-        return uriList.contains(uri);
+    public void setComponentList(ArrayList<H> componentList) {
+        this.componentList = componentList;
     }
 
-    /**
-     * Returns an iterator over all Uri elements contained in this Uri List.
-     * @return An Iterator; instance of <code>java.util.Iterator&lt;Uri&gt;
-     */
-    public Iterator<Uri> iterator() {
-        return uriList.iterator();
-    }
+    
 
     @Override
     public PDFObject getPDF() {
@@ -99,27 +80,6 @@ public class UriList extends YaqpComponent implements Iterable<Uri> {
 
     @Override
     public RDFObject getRDF() {
-        RDFObject rdf = new RDFObject();
-        for (YaqpOntEntity y : ontolSet) {
-            rdf.includeOntClass(y);
-        }
-        for (Uri u : uriList) {
-            rdf.createIndividual(u.toString(), rdf.createOntResource(u.getOntology().getURI()));
-        }
-
-        return rdf;
-    }
-
-    public static void main(String args[]) {
-        UriList ul = new UriList();
-        ul.add(null);
-        ul.add(new Uri("http://chomok/2"));
-        ul.add(new Uri("http://chomok/3", OTClass.Compound));
-        ul.getRDF().printConsole();
-    }
-
-    @Override
-    public TurtleObject getTurtle() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
@@ -130,6 +90,15 @@ public class UriList extends YaqpComponent implements Iterable<Uri> {
 
     @Override
     protected String getTag() {
-        return null;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    public UriListObject getUriList() throws YaqpException{
+        ArrayList<URI> uriList = new ArrayList<URI>();
+        for (H component : componentList){
+            uriList.add(component.uri());
+        }
+        return new UriListObject(uriList);
+    }
+
 }
