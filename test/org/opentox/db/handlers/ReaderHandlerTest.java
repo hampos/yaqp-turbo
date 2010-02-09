@@ -73,7 +73,10 @@ public class ReaderHandlerTest {
 
     @Test
     public void getQSARMods(){
-        //ReaderHandler.getQSARModels(new QSARModel());
+        ArrayList<QSARModel> list = ReaderHandler.getQSARModels(new QSARModel());
+        for (QSARModel q : list){
+            q.getRDF().printConsole();
+        }
     }
 
 
@@ -103,13 +106,15 @@ public class ReaderHandlerTest {
     }
 
 
-    @Test
+    //@Test
     public void searchForUser() throws DbException{
-        User u = new User();
-        
+        User prototype = new User();
+        //prototype.setEmail("%foo%");
+        //prototype.setCountry("%ADM%");
 //        u.setEmail("%.gr%");
-        u.setUserGroup(new UserGroup("AD%", -1));
-        ArrayList<User> list = ReaderHandler.getUser(u);
+        prototype.setFirstName("%9");
+        prototype.setUserGroup(new UserGroup(null, 80));
+        ArrayList<User> list = ReaderHandler.getUser(prototype);
         for (User user : list){
             System.out.println(user);
         }

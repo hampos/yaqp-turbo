@@ -223,7 +223,7 @@ public class ReaderHandler {
         }
         QueryFood food = new QueryFood();
         food.add("PREDICTION_FEATURE", fixNull(prototype.getPredictionFeature().getURI()));
-        food.add("DEPENDENT_FEATURE", fixNull(prototype.getAlgorithm().getMeta().name));
+        food.add("DEPENDENT_FEATURE", fixNull(prototype.getAlgorithm().getMeta().getName()));
         food.add("CREATED_BY", fixNull(prototype.getUser().getEmail()));
         food.add("DATASET_URI", fixNull(prototype.getDataset()));
         HyperResult result = null;

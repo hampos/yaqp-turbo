@@ -47,45 +47,13 @@ import org.opentox.qsar.interfaces.JTrainer;
  */
 public abstract class AbstractTrainer<Input, String>  extends Processor<Input, String> implements JTrainer<Input, String> {
 
-    /**
-     * The training parameters as an ArrayList.
-     */
-    private ArrayList<AlgorithmParameter> parameters;
+
 
     public AbstractTrainer() {
         super();
     }
 
-    /**
-     * Constructor for the initialization of a new Trainer with specified parameters.
-     * For prediction algorithms like MLR and SVM, the target (prediction_feature), has
-     * to be specified.
-     * @param parameters set of parameters for the training algorithm.
-     */
-    public AbstractTrainer(ArrayList<AlgorithmParameter> parameters) {
-        this();
-        this.parameters = parameters;
-    }
-
-    public void add(AlgorithmParameter parameter){
-        this.parameters.add(parameter);
-    }
-
-    public ArrayList<AlgorithmParameter> getParameters() {
-        return parameters;
-    }
-
-    public void setParameters(ArrayList<AlgorithmParameter> parameters) {
-        this.parameters = parameters;
-    }
-
-    public void addAll(Collection<? extends AlgorithmParameter> parameters){
-        this.parameters.addAll(parameters);
-    }
-
-    public void clearParameters(){
-        this.parameters.clear();
-    }
+   
     
     public String process(Input data) throws YaqpException {
         return train(data);

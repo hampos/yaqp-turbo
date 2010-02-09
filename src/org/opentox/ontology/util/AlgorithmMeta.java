@@ -32,6 +32,7 @@
 package org.opentox.ontology.util;
 
 import java.util.ArrayList;
+import java.util.Map;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 
 /**
@@ -50,17 +51,15 @@ public class AlgorithmMeta extends Meta {
      * because <code>OTAlgorithmType</code> contains references to <code>Resource</code>
      * which could not be serialized.
      */
-    public transient OTAlgorithmTypes algorithmType;
-
+    private transient OTAlgorithmTypes algorithmType;
     /**
      * List of parameters for the algorithm
      */
-    public ArrayList<AlgorithmParameter> Parameters;
-
+    private Map<String, AlgorithmParameter> parameters;
     /**
      * The name of the algorithm
      */
-    public String name;
+    private String name;
 
     public AlgorithmMeta() {
         super();
@@ -71,13 +70,29 @@ public class AlgorithmMeta extends Meta {
         this.identifier = about;
     }
 
-    /**
-     * Set the parameters to the algorithm meta data.
-     * @param Parameters
-     */
-    public void setParameters(ArrayList<AlgorithmParameter> Parameters) {
-        this.Parameters = Parameters;
+    public Map<String, AlgorithmParameter> getParameters() {
+        return parameters;
     }
 
-    
+    public void setParameters(Map<String, AlgorithmParameter> parameters) {
+        this.parameters = parameters;
+    }
+
+    public OTAlgorithmTypes getAlgorithmType() {
+        return algorithmType;
+    }
+
+    public void setAlgorithmType(OTAlgorithmTypes algorithmType) {
+        this.algorithmType = algorithmType;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+
 }

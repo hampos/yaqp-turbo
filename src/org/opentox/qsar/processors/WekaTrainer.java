@@ -33,8 +33,7 @@
 
 package org.opentox.qsar.processors;
 
-import java.util.ArrayList;
-import org.opentox.ontology.util.AlgorithmParameter;
+
 import weka.core.Instances;
 
 /**
@@ -47,15 +46,6 @@ public abstract class WekaTrainer extends AbstractTrainer<Instances, String>{
 
     protected boolean successful = false;
 
-    public WekaTrainer(){
-        super();
-    }
-
-    public WekaTrainer(ArrayList<AlgorithmParameter> parameters){
-        super(parameters);
-    }
-
-    abstract boolean isSuccessful();
     
 
 }

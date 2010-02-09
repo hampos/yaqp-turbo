@@ -248,7 +248,7 @@ public class Task extends YaqpComponent {
         task += "NAME              : " + getName() + "\n";
         task += "STATUS            : " + getStatus() + "\n";
         task += "USER              : " + getUser().getEmail() + "\n";
-        task += "ALGORITHM         : " + getAlgorithm().getMeta().name + "\n";
+        task += "ALGORITHM         : " + getAlgorithm().getMeta().getName() + "\n";
         task += "HTTP STATUS       : " + getHttpStatus() + "\n";
         task += "RESULT            : " + getResult() + "\n";
         task += "START TIME        : " + getStartStamp() + "\n";

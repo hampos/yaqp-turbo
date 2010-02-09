@@ -36,6 +36,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.opentox.core.processors.BatchProcessor;
 import org.opentox.ontology.components.*;
@@ -300,24 +302,24 @@ public class WriterHandler {
 
         QueryFood algfood = new QueryFood(
                 new String[][]{
-                    {"NAME", algorithm.getMeta().name}
+                    {"NAME", algorithm.getMeta().getName()}
                 });
 
         ArrayList<QueryFood> relfood = new ArrayList<QueryFood>();
-        AlgorithmOntology ontology = new AlgorithmOntology(algorithm.getMeta().algorithmType);
+        AlgorithmOntology ontology = new AlgorithmOntology(algorithm.getMeta().getAlgorithmType());
 
         QueryFood food = new QueryFood(
                 new String[][]{
-                    {"ALGORITHM", algorithm.getMeta().name},
+                    {"ALGORITHM", algorithm.getMeta().getName()},
                     {"ONTOLOGY", ontology.getName()}
                 });
         relfood.add(food);
-        Set<Resource> r = algorithm.getMeta().algorithmType.getSuperEntities();
+        Set<Resource> r = algorithm.getMeta().getAlgorithmType().getSuperEntities();
         Iterator<Resource> it = r.iterator();
         while (it.hasNext()) {
             food = new QueryFood(
                     new String[][]{
-                        {"ALGORITHM", algorithm.getMeta().name},
+                        {"ALGORITHM", algorithm.getMeta().getName()},
                         {"ONTOLOGY", it.next().getLocalName()}
                     });
             relfood.add(food);
@@ -381,7 +383,7 @@ public class WriterHandler {
                     {"CODE", model.getCode()},
                     {"PREDICTION_FEATURE", Integer.toString(model.getPredictionFeature().getID())},
                     {"DEPENDENT_FEATURE", Integer.toString(model.getDependentFeature().getID())},
-                    {"ALGORITHM", model.getAlgorithm().getMeta().name},
+                    {"ALGORITHM", model.getAlgorithm().getMeta().getName()},
                     {"CREATED_BY", model.getUser().getEmail()},
                     {"DATASET_URI", model.getDataset()},
                     {"STATUS", modelStatus.toString()}
@@ -439,12 +441,12 @@ public class WriterHandler {
      * defaults} for SVM models if you need to do so.
      */
     protected static Uri addPredictiveModel(QSARModel model) throws DbException, ImproperEntityException {
-        String algorithmName = model.getAlgorithm().getMeta().name;
+        String algorithmName = model.getAlgorithm().getMeta().getName();
 
-        if (algorithmName.equals(YaqpAlgorithms.SVM.getMeta().name)
-                || algorithmName.equals(YaqpAlgorithms.SVC.getMeta().name)) {
+        if (algorithmName.equals(YaqpAlgorithms.SVM.getMeta().getName())
+                || algorithmName.equals(YaqpAlgorithms.SVC.getMeta().getName())) {
             return addSuppVectModel(model);
-        }else if (algorithmName.equals(YaqpAlgorithms.MLR.getMeta().name)){
+        }else if (algorithmName.equals(YaqpAlgorithms.MLR.getMeta().getName())){
             int new_id = addQSARModel(model);
             System.err.println(new_id);
             model.setId(new_id);
@@ -466,12 +468,18 @@ public class WriterHandler {
             addSupportVectorPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_SUPPORT_VECTOR);
         }
         QueryFood food = new QueryFood();
-        ArrayList<AlgorithmParameter> listParam = model.getTuningParams();
+        Map<String, AlgorithmParameter> modelParams = model.getParams();
+        Set<Entry<String, AlgorithmParameter>> entrySet = modelParams.entrySet();
         food.add("UID", Integer.toString(r));
-        for (AlgorithmParameter ap : listParam) {
-            System.out.println(ap.paramName + "--" + ap.paramValue.toString());
-            food.add(ap.paramName.toUpperCase(), ap.paramValue.toString());
+        for (Entry e : entrySet){
+            String pName = e.getKey().toString();
+            System.out.println(pName);
+            AlgorithmParameter algParam = (AlgorithmParameter) e.getValue();
+            System.out.println(algParam.paramValue.toString());
+            System.out.println(e.getKey().toString() + "--" + e.getValue().toString());
+            food.add(pName.toUpperCase(), algParam.paramValue.toString());
         }
+        
         try {
             addSupportVectorPipeline.process(food);
         } catch (DbException ex) {
@@ -514,7 +522,7 @@ public class WriterHandler {
                 new String[][]{
                     {"NAME", task.getName()},
                     {"CREATED_BY", task.getUser().getEmail()},
-                    {"ALGORITHM", task.getAlgorithm().getMeta().name},
+                    {"ALGORITHM", task.getAlgorithm().getMeta().getName()},
                     {"DURATION", Integer.toString(task.getDuration_sec())}
                 });
         try {

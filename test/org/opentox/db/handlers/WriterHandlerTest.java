@@ -31,6 +31,8 @@
 package org.opentox.db.handlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -43,6 +45,7 @@ import org.opentox.ontology.components.*;
 import org.opentox.db.exceptions.BadEmailException;
 import org.opentox.db.exceptions.DuplicateKeyException;
 import org.opentox.db.util.TheDbConnector;
+import org.opentox.io.util.YaqpIOStream;
 import static org.junit.Assert.*;
 import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.exceptions.YaqpOntException;
@@ -81,23 +84,23 @@ public class WriterHandlerTest {
     /**
      * Test of addUserGroup method, of class WriterHandler.
      */
-    //@Test
+//    @Test
     public void testAddUserGroup() throws Exception {
-        WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60));
-        WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 70));
-        WriterHandler.addUserGroup(new UserGroup("GUEST", 80));
-        WriterHandler.addUserGroup(new UserGroup("ADMIN", 10));
+        System.out.println(WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60)));
+        System.out.println(WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 70)));
+        System.out.println(WriterHandler.addUserGroup(new UserGroup("GUEST", 80)));
+        System.out.println(WriterHandler.addUserGroup(new UserGroup("ADMIN", 10)));
     }
 
     /**
      * Test of addAlgorithmOntology method, of class WriterHandler.
      */
-    //@Test
+//    @Test
     public void testAddAlgorithmOntology() throws YaqpOntException, DbException {
         try {
             ArrayList<OTAlgorithmTypes> otlist = OTAlgorithmTypes.getAllAlgorithmTypes();
             for (OTAlgorithmTypes ot : otlist) {
-                WriterHandler.addAlgorithmOntology(new AlgorithmOntology(ot.getResource().getLocalName()));
+                System.out.println(WriterHandler.addAlgorithmOntology(new AlgorithmOntology(ot.getResource().getLocalName())));
 
             }
         } catch (DuplicateKeyException ex) {
@@ -110,7 +113,7 @@ public class WriterHandlerTest {
      * It seems users are being successfully added in the database.
      * @throws BadEmailException
      */
-    //@Test
+ //   @Test
     public void testAddUser() throws BadEmailException {
         try {
             for (int i = 0; i < 1000; i++) {
@@ -118,7 +121,7 @@ public class WriterHandlerTest {
                         new User(
                         "ann" + i, java.util.UUID.randomUUID().toString(), "john" + i, "smith" + i,
                         "ann" + i + "@foo.goo.gr", "UNDEFINED", "Italy",
-                        "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
+                        "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0))).getRDF().printConsole();
             }
         } catch (DuplicateKeyException ex) {
             System.out.println(ex);
@@ -129,7 +132,7 @@ public class WriterHandlerTest {
         }
     }
 
-    //@Test
+   // @Test
     public void testAddAlgorithm() throws DbException, ImproperEntityException {
 
         WriterHandler.add(YaqpAlgorithms.MLR);
@@ -139,34 +142,46 @@ public class WriterHandlerTest {
 
     //@Test
     public void testAddFeature() throws DbException, ImproperEntityException {
-        for (int i = 1; i <= 3000; i++) {
-            WriterHandler.add(new Feature("http://sth.com/feature/" + i));
+        for (int i = 3001; i <= 3002; i++) {
+            WriterHandler.add(new Feature("http://sth.com/feature/" + i)).getRDF().printConsole();
         }
     }
 
     //@Test
-    public void addQSARModel() throws DuplicateKeyException, DbException {
+    public void addQSARModel() throws DuplicateKeyException, DbException, ImproperEntityException {
         User u = ReaderHandler.getUser(new User()).get(7);
         u.setEmail("ann11@foo.goo.gr");
         Feature f = ReaderHandler.getFeature(1);
         ArrayList<Feature> lf = new ArrayList<Feature>();
         lf.add(f);
-        QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "dataset1");
-        System.out.println(WriterHandler.addQSARModel(m));
+        QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "dataset1", null);
+        WriterHandler.add(m).getTurtle().publish(new YaqpIOStream(System.out));
     }
 
-    //@Test
-    public void addsvmModel() throws DbException {
+    @Test
+    public void addsvmModel() throws DbException, ImproperEntityException {
         User u = ReaderHandler.getUser(new User()).get(7);
         u.setEmail("ann10@foo.goo.gr");
         Feature f = ReaderHandler.getFeature(1);
         ArrayList<Feature> lf = new ArrayList<Feature>();
         lf.add(f);
-        TunableQSARModel m = new TunableQSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVC, u, null, "dataset1");
+        QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "dataset1", null);
+        Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
+        params.putAll(ConstantParameters.SVMParams());
+        m.setParams(params);
+        WriterHandler.add(m).getRDF().printConsole();
+    }
+
+    //@Test
+    public void addmlrModel() throws DbException, ImproperEntityException {
+        User u = ReaderHandler.getUser(new User()).get(7);
+        u.setEmail("ann10@foo.goo.gr");
+        Feature f = ReaderHandler.getFeature(1);
+        ArrayList<Feature> lf = new ArrayList<Feature>();
+        lf.add(f);
+        QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.MLR, u, null, "dataset1", null);
         ArrayList<AlgorithmParameter> tps = new ArrayList<AlgorithmParameter>();
-        tps.addAll(ConstantParameters.DEFAULTS);
-        m.setTuningParams(tps);
-        WriterHandler.addTunableModel(m);
+        System.out.println(WriterHandler.add(m));
     }
 
     //@Test
@@ -174,14 +189,15 @@ public class WriterHandlerTest {
         User prot = new User();
         prot.setEmail("ann11%");
         User u = ReaderHandler.getUser(prot).get(1);
-        for (int i=0;i<1000;i++){
-        Task t = new Task(java.util.UUID.randomUUID().toString()+java.util.UUID.randomUUID().toString(),
-                u, YaqpAlgorithms.SVC, 1000);
-        WriterHandler.addTask(t);}        
+        for (int i = 0; i < 1000; i++) {
+            Task t = new Task(java.util.UUID.randomUUID().toString() + java.util.UUID.randomUUID().toString(),
+                    u, YaqpAlgorithms.SVC, 1000);
+            WriterHandler.addTask(t).getRDF().printConsole();
+        }
     }
 
-    @Test
-    public void addOmega() throws DbException{
+    //@Test
+    public void addOmega() throws DbException, ImproperEntityException {
         User prot = new User();
         prot.setEmail("ann12%");
         User u = ReaderHandler.getUser(prot).get(1);

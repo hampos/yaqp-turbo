@@ -36,6 +36,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import org.opentox.config.Configuration;
 import org.opentox.ontology.components.Algorithm;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
@@ -101,13 +102,10 @@ public class YaqpAlgorithms {
         String uri = "http://" + Configuration.getProperties().getProperty("server.domainName") + ":"
                 + Configuration.getProperties().getProperty("server.port") + "/algorithm/" + name;
 
-        ArrayList<AlgorithmParameter> Parameters = new ArrayList<AlgorithmParameter>();
-        Parameters.add(ConstantParameters.TARGET);
-
         AlgorithmMeta meta = new AlgorithmMeta(uri);
-        meta.setParameters(Parameters);
+        meta.setParameters(new HashMap<String, AlgorithmParameter>());
 
-        meta.name = name;
+        meta.setName(name);
         meta.title = "Multiple Linear Regression Training Algorithm";
         meta.subject = "Regression, Linear, Training, Multiple Linear Regression, Machine Learning, "
                 + "Single Target, Eager Learning, Weka";
@@ -126,7 +124,7 @@ public class YaqpAlgorithms {
         meta.type = "http://purl.org/dc/dcmitype/Service";
         meta.audience.addAll(Audience.AllExpert);
         meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
-        meta.algorithmType = OTAlgorithmTypes.RegressionEagerSingleTarget;
+        meta.setAlgorithmType(OTAlgorithmTypes.RegressionEagerSingleTarget);
 
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -142,11 +140,10 @@ public class YaqpAlgorithms {
     public static AlgorithmMeta svm_metadata() {
         String name = "svm";
         String uri = "http://" + Configuration.getProperties().getProperty("server.domainName") + ":"
-                + Configuration.getProperties().getProperty("server.port") + "/algorithm/" + name;
-        ArrayList<AlgorithmParameter> Parameters = ConstantParameters.SVM_BUNDLE();
+                + Configuration.getProperties().getProperty("server.port") + "/algorithm/" + name;        
         AlgorithmMeta meta = new AlgorithmMeta(uri);
-        meta.setParameters(Parameters);
-        meta.name = name;
+        meta.setParameters(ConstantParameters.SVMParams());
+        meta.setName(name);
         meta.title = "Support Vector Machine Training Algorithm (Regression)";
         // TODO: Provide a reference for SVM Regression
         meta.description =
@@ -167,7 +164,7 @@ public class YaqpAlgorithms {
         meta.type = "http://purl.org/dc/dcmitype/Service";
         meta.audience.addAll(Audience.AllExpert);
         meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
-        meta.algorithmType = OTAlgorithmTypes.RegressionEagerSingleTarget;
+        meta.setAlgorithmType(OTAlgorithmTypes.RegressionEagerSingleTarget);
 
 
         try {
@@ -185,10 +182,9 @@ public class YaqpAlgorithms {
         String name = "svc";
         String uri = "http://" + Configuration.getProperties().getProperty("server.domainName") + ":"
                 + Configuration.getProperties().getProperty("server.port") + "/algorithm/" + name;
-        ArrayList<AlgorithmParameter> Parameters = ConstantParameters.SVM_BUNDLE();
         AlgorithmMeta meta = new AlgorithmMeta(uri);
-        meta.name = name;
-        meta.setParameters(Parameters);
+        meta.setName(name);
+        meta.setParameters(ConstantParameters.SVCParams());
         meta.title = "Support Vector Machine Training Algorithm (Regression)";
         // TODO: Provide a reference for SVM Regression
         meta.description =
@@ -209,7 +205,7 @@ public class YaqpAlgorithms {
         meta.type = "http://purl.org/dc/dcmitype/Service";
         meta.audience.addAll(Audience.AllExpert);
         meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
-        meta.algorithmType = OTAlgorithmTypes.ClassificationEagerSingleTarget;
+        meta.setAlgorithmType(OTAlgorithmTypes.ClassificationEagerSingleTarget);
 
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");

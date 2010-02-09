@@ -58,10 +58,6 @@ public class MLRTrainer extends WekaTrainer{
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    @Override
-    boolean isSuccessful() {
-        return successful;
-    }
 
 
 

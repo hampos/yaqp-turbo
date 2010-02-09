@@ -43,10 +43,11 @@ import java.io.Serializable;
  */
 public class AlgorithmParameter<E extends Object> implements Serializable {
 
-    /**
-     * The parameter's name.
-     */
-    public String paramName="";
+    public enum SCOPE{
+        optional,
+        mandatory;
+    }
+
     /**
      * Parameter datatype according to the <a href="http://www.w3.org/TR/xmlschema-2/">
      * XSD</a> specifications.
@@ -62,13 +63,12 @@ public class AlgorithmParameter<E extends Object> implements Serializable {
      * The scope of the parameter which is either "optional" or
      * "mandatory".
      */
-    public String paramScope;
+    public SCOPE paramScope;
 
     public AlgorithmParameter(
-            String paramName, XSDDatatype dataType,
-            E paramValue, String paramScope){
+            XSDDatatype dataType,
+            E paramValue, SCOPE paramScope){
         this.dataType=dataType;
-        this.paramName=paramName;
         this.paramValue=paramValue;
         this.paramScope=paramScope;
     }

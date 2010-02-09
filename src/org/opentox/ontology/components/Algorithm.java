@@ -47,6 +47,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import org.opentox.config.Configuration;
 import org.opentox.io.publishable.JSONObject;
@@ -75,7 +77,7 @@ import org.restlet.data.MediaType;
 public class Algorithm extends YaqpComponent {
 
     //private  static final long serialVersionUID = -18477218378326540L;
-    public AlgorithmMeta metadata;
+    private AlgorithmMeta metadata;
 
     public Algorithm() {
     }
@@ -92,7 +94,7 @@ public class Algorithm extends YaqpComponent {
     public String toString() {
         String algorithm = "";
         algorithm += "--ALGORITHM--\n";
-        algorithm += "NAME          : "+metadata.name+"\n";
+        algorithm += "NAME          : "+metadata.getName()+"\n";
         return algorithm;
     }
 
@@ -116,7 +118,7 @@ public class Algorithm extends YaqpComponent {
             table.addCell(cell);
 
             table.addCell("Name");
-            table.addCell(getMeta().name);
+            table.addCell(getMeta().getName());
 
             table.addCell("Title");
             table.addCell(getMeta().title);
@@ -206,12 +208,16 @@ public class Algorithm extends YaqpComponent {
             table.addCell("Default Value");
             table.addCell("Scope");
 
-            ArrayList<AlgorithmParameter> paramList = getMeta().Parameters;
-            for (int i = 0; i < paramList.size(); i++) {
-                table.addCell(paramList.get(i).paramName);
-                table.addCell(paramList.get(i).dataType.getURI());
-                table.addCell(paramList.get(i).paramValue.toString());
-                table.addCell(paramList.get(i).paramScope);
+            
+            Map<String, AlgorithmParameter> algParameters = getMeta().getParameters();
+            Set<Entry<String, AlgorithmParameter>> entrySet = algParameters.entrySet();
+            for (Entry e : entrySet) {
+                String pName = (String) e.getKey();
+                AlgorithmParameter ap = (AlgorithmParameter) e.getValue();
+                table.addCell(pName);
+                table.addCell(ap.dataType.getURI());
+                table.addCell(ap.paramValue.toString());
+                table.addCell(ap.paramScope.toString());
             }
 
             pdf.addElement(table);
@@ -222,7 +228,7 @@ public class Algorithm extends YaqpComponent {
             cell = new PdfPCell(new Paragraph("Ontologies"));
             cell.setBackgroundColor(new BaseColor(0xC0, 0xC0, 0xC0));
             table.addCell(cell);
-            OTAlgorithmTypes type = getMeta().algorithmType;
+            OTAlgorithmTypes type = getMeta().getAlgorithmType();
             table.addCell(type.getURI());
 
             Set<Resource> superOntologies = type.getSuperEntities();
@@ -248,9 +254,9 @@ public class Algorithm extends YaqpComponent {
     @Override
     public RDFObject getRDF() {
         RDFObject rdf = new RDFObject();
-        rdf.includeOntClass(getMeta().algorithmType);
+        rdf.includeOntClass(getMeta().getAlgorithmType());
 
-        Individual algorithm = rdf.createIndividual(getMeta().identifier, rdf.createOntResource(getMeta().algorithmType.getURI()));
+        Individual algorithm = rdf.createIndividual(getMeta().identifier, rdf.createOntResource(getMeta().getAlgorithmType().getURI()));
 
         // dc:title
         algorithm.addLiteral(rdf.createAnnotationProperty(DC.title.getURI()),
@@ -290,20 +296,24 @@ public class Algorithm extends YaqpComponent {
                 rdf.createTypedLiteral(getMeta().identifier, XSDDatatype.XSDanyURI));
         // ot:type
         algorithm.addProperty(rdf.createAnnotationProperty(RDF.type.getURI()),
-                rdf.createOntResource(getMeta().algorithmType.getURI()));
+                rdf.createOntResource(getMeta().getAlgorithmType().getURI()));
 
 
         Individual iparam;
-            for (int i = 0; i < getMeta().Parameters.size(); i++) {
+
+        Map<String, AlgorithmParameter> algParameters = getMeta().getParameters();
+            Set<Entry<String, AlgorithmParameter>> entrySet = algParameters.entrySet();
+            for (Entry e : entrySet) {
+                String pName = (String) e.getKey();
+                AlgorithmParameter ap = (AlgorithmParameter) e.getValue();
                 iparam = rdf.createIndividual(OTClass.Parameter.getOntClass(rdf));
-                iparam.addProperty(rdf.createAnnotationProperty(DC.title.getURI()),
-                        getMeta().Parameters.get(i).paramName);
+                iparam.addProperty(rdf.createAnnotationProperty(DC.title.getURI()),pName);
                 iparam.addLiteral(rdf.createAnnotationProperty(OTDataTypeProperties.paramValue.getURI()),
                         rdf.createTypedLiteral(
-                        getMeta().Parameters.get(i).paramValue.toString(),
-                        getMeta().Parameters.get(i).dataType));
+                        ap.paramValue.toString(),
+                        ap.dataType));
                 iparam.addLiteral(rdf.createAnnotationProperty(OTDataTypeProperties.paramScope.getURI()),
-                        rdf.createTypedLiteral(getMeta().Parameters.get(i).paramScope,
+                        rdf.createTypedLiteral(ap.paramScope,
                         XSDDatatype.XSDstring));
                 algorithm.addProperty(rdf.createAnnotationProperty(OTObjectProperties.parameters.getURI()), iparam);
             }
@@ -324,7 +334,7 @@ public class Algorithm extends YaqpComponent {
     @Override
     public Uri uri() throws ImproperEntityException {
         Uri uri = super.uri();
-        uri.setUri(uri.toString()+"/"+getMeta().name);
+        uri.setUri(uri.toString()+"/"+getMeta().getName());
         uri.setOntology(OTClass.Algorithm);
         return null;
     }

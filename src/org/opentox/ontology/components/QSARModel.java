@@ -32,6 +32,8 @@
 package org.opentox.ontology.components;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
@@ -46,7 +48,9 @@ import org.opentox.ontology.util.AlgorithmParameter;
  */
 public class QSARModel extends YaqpComponent {
 
-    private ArrayList<AlgorithmParameter> tuningParams = new ArrayList<AlgorithmParameter>();
+    //private ArrayList<AlgorithmParameter> tuningParams = new ArrayList<AlgorithmParameter>();
+    private Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
+
     private int id = 0;
     private String code = null;
     private Feature predictionFeature = null;
@@ -57,21 +61,6 @@ public class QSARModel extends YaqpComponent {
     private String timestamp = null;
     private String dataset = null;
     private ModelStatus modelStatus = ModelStatus.UNDER_DEVELOPMENT;
-
-    @Override
-    protected String getTag() {
-        return "model";
-    }
-
-    @Override
-    public Uri uri() throws ImproperEntityException {
-        Uri u = super.uri();
-        u.setUri(u.toString()+"/"+getId());
-        u.setOntology(OTClass.Model);
-        return u;
-    }
-
-
 
     public enum ModelStatus {
 
@@ -121,7 +110,6 @@ public class QSARModel extends YaqpComponent {
         this.modelStatus = modelStatus;
     }
 
-
     public QSARModel(
             int id,
             String code,
@@ -133,12 +121,11 @@ public class QSARModel extends YaqpComponent {
             String timestamp,
             String dataset,
             ModelStatus modelStatus,
-            ArrayList<AlgorithmParameter> tuningParams) {
+            Map<String, AlgorithmParameter> tuningParams) {
         this(code, predictionFeature, dependentFeature, independentFeatures, algorithm, user, timestamp, dataset, modelStatus);
         this.id = id;
-        this.tuningParams = tuningParams;
+        this.params = tuningParams;
     }
-
 
     public Algorithm getAlgorithm() {
         return algorithm;
@@ -220,13 +207,23 @@ public class QSARModel extends YaqpComponent {
         this.user = user;
     }
 
-    public ArrayList<AlgorithmParameter> getTuningParams() {
-        return tuningParams;
+    public Map<String, AlgorithmParameter> getParams() {
+        return params;
     }
 
-    public void setTuningParams(ArrayList<AlgorithmParameter> tuningParams) {
-        this.tuningParams = tuningParams;
+    public void setParams(Map<String, AlgorithmParameter> params) {
+        this.params = params;
     }
+
+//    public ArrayList<AlgorithmParameter> getTuningParams() {
+//        return tuningParams;
+//    }
+//
+//    public void setTuningParams(ArrayList<AlgorithmParameter> tuningParams) {
+//        this.tuningParams = tuningParams;
+//    }
+
+    
 
     @Override
     public PDFObject getPDF() {
@@ -241,5 +238,18 @@ public class QSARModel extends YaqpComponent {
     @Override
     public JSONObject getJson() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    protected String getTag() {
+        return "model";
+    }
+
+    @Override
+    public Uri uri() throws ImproperEntityException {
+        Uri u = super.uri();
+        u.setUri(u.toString() + "/" + getId());
+        u.setOntology(OTClass.Model);
+        return u;
     }
 }
