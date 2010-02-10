@@ -51,7 +51,9 @@ public class ConstantParameters {
             coeff0 = "coeff0",
             tolerance = "tolerance",
             cacheSize = "cacheSize",
-            epsilon = "epsilon";
+            epsilon = "epsilon",
+            prediction_feature = "prediction_feature",
+            dataset_uri="dataset_uri";
 
 
     public static Map<String, AlgorithmParameter> SVCParams() {

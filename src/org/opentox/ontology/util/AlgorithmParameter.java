@@ -29,12 +29,14 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.ontology.util;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import java.io.Serializable;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -43,22 +45,20 @@ import java.io.Serializable;
  */
 public class AlgorithmParameter<E extends Object> implements Serializable {
 
-    public enum SCOPE{
+    public enum SCOPE {
+
         optional,
         mandatory;
     }
-
     /**
      * Parameter datatype according to the <a href="http://www.w3.org/TR/xmlschema-2/">
      * XSD</a> specifications.
      */
     public XSDDatatype dataType;
-
     /**
      * The default value of the parameter.
      */
     public E paramValue;
-
     /**
      * The scope of the parameter which is either "optional" or
      * "mandatory".
@@ -67,11 +67,39 @@ public class AlgorithmParameter<E extends Object> implements Serializable {
 
     public AlgorithmParameter(
             XSDDatatype dataType,
-            E paramValue, SCOPE paramScope){
-        this.dataType=dataType;
-        this.paramValue=paramValue;
-        this.paramScope=paramScope;
+            E paramValue, SCOPE paramScope) {
+        this.dataType = dataType;
+        this.paramValue = paramValue;
+        this.paramScope = paramScope;
     }
 
+    public AlgorithmParameter(E paramValue) {
+        this(XSDDatatype.XSDstring, paramValue, SCOPE.optional);
+        dataType = javaXsdRelation(paramValue);
+    }
 
+    public AlgorithmParameter(E paramValue, SCOPE paramScope) {
+        this(paramValue);
+        this.paramScope = paramScope;
+    }
+
+    private XSDDatatype javaXsdRelation(E o) {
+        try {
+            new URI(o.toString());
+            return XSDDatatype.XSDanyURI;
+        } catch (URISyntaxException ex) {
+            if (o instanceof Double) {
+                return XSDDatatype.XSDdouble;
+            } else if (o instanceof Float) {
+                return XSDDatatype.XSDfloat;
+            } else if (o instanceof Integer) {
+                return XSDDatatype.XSDinteger;
+            } else if (o instanceof String) {
+                return XSDDatatype.XSDstring;
+            } else if (o instanceof Long) {
+                return XSDDatatype.XSDlong;
+            }
+        }
+        return XSDDatatype.XSDstring;
+    }
 }

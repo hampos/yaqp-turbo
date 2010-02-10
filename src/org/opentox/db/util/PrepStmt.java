@@ -299,9 +299,13 @@ public enum PrepStmt implements JPrepStmt {
     //    GET_SVC_MODELS("SELECT * FROM "+SvcModels().getTableName(), null),
 
     GET_FEATURES("SELECT * FROM " + Features().getTableName(), null),
-    GET_FEATURE("SELECT * FROM " + Features().getTableName() + " WHERE UID=?",
+
+    SEARCH_FEATURE("SELECT * FROM " + Features().getTableName() + " WHERE UID >= ? AND UID <= ? AND URI LIKE ?",
+
     new QueryParam[]{
-        new QueryParam("UID", Integer.class)
+        new QueryParam("UID_MIN", Integer.class),
+        new QueryParam("UID_MAX", Integer.class),
+        new QueryParam("URI", String.class)
     }),
     GET_INDEP_FEATURES("SELECT " + Features().getTableName() + ".*"
     + " FROM " + Features().getTableName() + " INNER JOIN " + IndepFeaturesRelation().getTableName()

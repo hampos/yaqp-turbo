@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of National Technical University of Athens. Please read README for more
+ * School of the National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -31,40 +31,16 @@
  */
 
 
-package org.opentox.qsar.processors;
+package org.opentox.qsar.processors.filters;
 
-
-import java.util.Map;
-import org.opentox.ontology.components.QSARModel;
-import org.opentox.ontology.util.AlgorithmParameter;
-import org.opentox.qsar.exceptions.QSARException;
 import weka.core.Instances;
 
 /**
- * 
+ * This is a special kind of filter where the filtered entities are <code>Instances</code>
+ * objects (weka).
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class MLRTrainer extends WekaTrainer{
-
-    private String predictionFeature;
-
-
-    public MLRTrainer(Map<String, AlgorithmParameter> parameters) {
-        super(parameters);
-        predictionFeature = getParameters().get("prediction_feature").toString();
-    }
-
-    public MLRTrainer() {
-    }
-       
-
-    public QSARModel train(Instances training_data) throws QSARException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-
-
-
+public abstract class InstancesFilter extends AbstractFilter<Instances>{
     
 }

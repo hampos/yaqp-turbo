@@ -77,6 +77,15 @@ public class Feature extends YaqpComponent {
         return id;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setUri(String uri) {
+        this.uri = uri;
+    }
+    
+
     public void setURI(String _name) {
         this.uri = _name;
     }
@@ -85,7 +94,7 @@ public class Feature extends YaqpComponent {
     public String toString() {
         String feature = "";
         feature += "FEATURE ID        : " + getID()+"\n";
-        feature += "FEATURE URI       : " + getURI();
+        feature += "FEATURE URI       : " + getURI()+".";
         return feature;
     }
 

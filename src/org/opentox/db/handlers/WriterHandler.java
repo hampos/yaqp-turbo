@@ -32,7 +32,6 @@
 package org.opentox.db.handlers;
 
 import com.hp.hpl.jena.rdf.model.Resource;
-import java.net.URI;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -70,7 +69,6 @@ import org.opentox.util.logging.levels.*;
  * @author Charalampos Chomenides
  */
 public class WriterHandler {
-    
 
     private static DbPipeline<QueryFood, HyperResult> addUserPipeline = null,
             addAlgorithmOntologyPipeline = null,
@@ -107,7 +105,7 @@ public class WriterHandler {
      * @see WriterHandler#addUserGroup(org.opentox.ontology.components.UserGroup)  add user group
      * @see WriterHandler#addTask(org.opentox.ontology.components.Task) add task
      */
-    public static URI add(YaqpComponent component) throws YaqpException {
+    public static YaqpComponent add(YaqpComponent component) throws DbException, ImproperEntityException {
         if (component instanceof User) {// add user
             return addUser((User) component);
         } else if (component instanceof UserGroup) { // add user group
@@ -140,7 +138,7 @@ public class WriterHandler {
      * @throws NumberFormatException in case the provided user authorization level is not
      * an integer number
      */
-    protected static URI addUserGroup(UserGroup userGroup) throws YaqpException {
+    protected static UserGroup addUserGroup(UserGroup userGroup) throws DbException {
         if (addUserGroupPipeline == null) {
             addUserGroupPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER_GROUP);
         }
@@ -159,7 +157,7 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
             throw new DbException("XUG512", message, ex);
         }
-        return userGroup.uri();
+        return userGroup;
     }
 
     /**
@@ -171,7 +169,7 @@ public class WriterHandler {
      * in the database (instance of {@link DuplicateKeyException }) or if the provided
      * algorithm ontology is <code>null</code> or its name or URI is not specified/missing.
      */
-    protected static URI addAlgorithmOntology(AlgorithmOntology ontology) throws YaqpException {
+    protected static AlgorithmOntology addAlgorithmOntology(AlgorithmOntology ontology) throws DbException {
         if (addAlgorithmOntologyPipeline == null) {
             addAlgorithmOntologyPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM_ONTOLOGY);
         }
@@ -185,18 +183,14 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Added new algorithm ontology '" + ontology.getName()
                     + "' with uri :" + ontology.getUri()));
         } catch (DbException ex) {
-            if (ex.toString().contains("DuplicateKeyException")) {
+            //TODO: verify that the ontology is indeed added!
+            if (ex.toString().contains("duplicate key")) {
                 String message = "Algorithm Ontology Already Registered in the Database!";
                 YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
                 YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-                throw new DuplicateKeyException("XQW8Y", message, ex);
-            }
-            YaqpLogger.LOG.log(new Trace(WriterHandler.class,
-                    "Could not add the following Algorithm Ontology : \n" + ontology));
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-            throw new DbException("XFE12", ex);
+            }else throw new DbException("XAL5IJ", "Error while adding the ontology with name = "+ontology.getName(), ex);
         }
-        return ontology.uri();
+        return ontology;
     }
 
     /**
@@ -215,7 +209,7 @@ public class WriterHandler {
      * @see ReaderHandler#getUser(org.opentox.ontology.components.User) search for user
      * @see EmailSupervisor
      */
-    protected static URI addUser(User user) throws YaqpException {
+    protected static User addUser(User user) throws BadEmailException, DbException {
         if (!EmailSupervisor.checkMail(user.getEmail())) {
             throw new BadEmailException("XE449", "Bad user email");
         }
@@ -241,17 +235,11 @@ public class WriterHandler {
             addUserPipeline.process(food);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "User added: \n" + user));
         } catch (DbException ex) {
-            if (ex.toString().contains("DuplicateKeyException")) {
-                String message = "Cannot add user because email or username are already used by some other user.";
-                YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
-                YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-                throw new DuplicateKeyException("XU715", message, ex);
-            }
-            String message = "XU716 - Could not add the following user :\n" + user;
-            YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
+            String message = "Cannot add user because email or username are already used by some other user.";
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
-        return user.uri();
+        return user;
     }
 
     /**
@@ -262,7 +250,7 @@ public class WriterHandler {
      * the URI of the feature is not set or if you try to add a <code>null</code>
      * feature.
      */
-    protected static URI addFeature(Feature feature) throws YaqpException {
+    protected static Feature addFeature(Feature feature) throws DbException {
         if (addFeaturePipeline == null) {
             addFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_FEATURE);
         }
@@ -270,19 +258,26 @@ public class WriterHandler {
                 new String[][]{
                     {"URI", feature.getURI()}
                 });
+        HyperResult result = null;
         try {
-            addFeaturePipeline.process(food);
+            result = addFeaturePipeline.process(food);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Feature added: \n" + feature));
-        } catch (DbException ex) {
-            if (ex.toString().contains("DuplicateKeyException")) {
-                String message = "Cannot add feature because it already exists: " + feature;
-                YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
-                YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-                throw new DuplicateKeyException("XU719", message, ex);
+            if (result.getSize() == 1) {
+                Iterator<String> it = result.getColumnIterator(1);
+                int r = Integer.parseInt(it.next());
+                feature.setId(r);
             }
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, "XU719 - Could not add the following feature :\n" + feature));
+        } catch (DbException ex) {
+            String message = "Cannot add feature because it already exists: " + feature;
+            YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
+            try {
+                feature.setId(ReaderHandler.searchFeature(new Feature(-1, feature.getURI())).getID());
+            } catch (DbException ex1) {// in this case feature failed to be added but is not in the DB either!
+                throw new DbException("XFT41P", message, ex1);
+            }
         }
-        return feature.uri();
+        return feature;
     }
 
     /**
@@ -293,7 +288,7 @@ public class WriterHandler {
      * search for algorithms.
      * @throws DuplicateKeyException In case the algorithm already exists.
      */
-    protected static URI addAlgorithm(Algorithm algorithm) throws YaqpException {
+    protected static Algorithm addAlgorithm(Algorithm algorithm) throws DbException {
         if (addAlgorithmPipeline == null) {
             addAlgorithmPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM);
         }
@@ -346,7 +341,7 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Could not batch add Algorithm-Ontology relations :\n" + algorithm));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
-        return algorithm.uri();
+        return algorithm;
     }
 
     /**
@@ -442,22 +437,22 @@ public class WriterHandler {
      * this exception will be throws. Consider using {@link ConstantParameters#DEFAULTS the
      * defaults} for SVM models if you need to do so.
      */
-    protected static URI addPredictiveModel(QSARModel model) throws YaqpException {
+    protected static QSARModel addPredictiveModel(QSARModel model) throws DbException {
         String algorithmName = model.getAlgorithm().getMeta().getName();
 
         if (algorithmName.equals(YaqpAlgorithms.SVM.getMeta().getName())
                 || algorithmName.equals(YaqpAlgorithms.SVC.getMeta().getName())) {
             return addSuppVectModel(model);
-        }else if (algorithmName.equals(YaqpAlgorithms.MLR.getMeta().getName())){
+        } else if (algorithmName.equals(YaqpAlgorithms.MLR.getMeta().getName())) {
             int new_id = addQSARModel(model);
             System.err.println(new_id);
             model.setId(new_id);
-            return model.uri();
+            return model;
         }
         return null;
     }
 
-    private static URI addSuppVectModel(QSARModel model) throws YaqpException {
+    private static QSARModel addSuppVectModel(QSARModel model) throws DbException {
         int r = 0;
         try {
             r = WriterHandler.addQSARModel((QSARModel) model);
@@ -473,7 +468,7 @@ public class WriterHandler {
         Map<String, AlgorithmParameter> modelParams = model.getParams();
         Set<Entry<String, AlgorithmParameter>> entrySet = modelParams.entrySet();
         food.add("UID", Integer.toString(r));
-        for (Entry e : entrySet){
+        for (Entry e : entrySet) {
             String pName = e.getKey().toString();
             System.out.println(pName);
             AlgorithmParameter algParam = (AlgorithmParameter) e.getValue();
@@ -481,7 +476,7 @@ public class WriterHandler {
             System.out.println(e.getKey().toString() + "--" + e.getValue().toString());
             food.add(pName.toUpperCase(), algParam.paramValue.toString());
         }
-        
+
         try {
             addSupportVectorPipeline.process(food);
         } catch (DbException ex) {
@@ -495,7 +490,7 @@ public class WriterHandler {
 
         }
         model.setId(r);
-        return model.uri();
+        return model;
     }
 
     /**
@@ -516,7 +511,7 @@ public class WriterHandler {
      * @see WriterHandler#add(org.opentox.ontology.components.YaqpComponent) add an arbitrary
      * component
      */
-    protected static URI addTask(Task task) throws YaqpException {
+    protected static Task addTask(Task task) throws DbException {
         if (addTaskPipeline == null) {
             addTaskPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_TASK);
         }
@@ -535,7 +530,8 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
             throw new DbException("XU718", message, ex);
         }
-        return task.uri();
+
+        return task;
     }
 
     /**
@@ -544,7 +540,7 @@ public class WriterHandler {
      * @return
      * @throws DbException
      */
-    protected static URI addOmega(OmegaModel model) throws YaqpException {
+    protected static OmegaModel addOmega(OmegaModel model) throws DbException {
         int r = 0;
         if (addOmegaPipeline == null) {
             addOmegaPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_OMEGA_MODEL);
@@ -568,6 +564,6 @@ public class WriterHandler {
             r = Integer.parseInt(it.next());
         }// TODO: Otherwise what?
         model.setId(r);
-        return model.uri();
+        return model;
     }
 }

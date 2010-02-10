@@ -42,8 +42,8 @@ import org.opentox.db.processors.DbPipeline;
 import org.opentox.db.queries.HyperResult;
 import org.opentox.db.queries.QueryFood;
 import org.opentox.db.util.PrepStmt;
+import org.opentox.io.util.ServerList;
 import org.opentox.ontology.exceptions.YaqpOntException;
-import org.opentox.ontology.namespaces.OTClass;
 import org.opentox.ontology.util.AlgorithmMeta;
 import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.util.logging.YaqpLogger;
@@ -119,7 +119,6 @@ public class ReaderHandler {
      * an empty list if no such user was found.
      * @throws DbException In case the search cannot be performed.
      */
-
     // TODO: Change array list to Component list
     public static ArrayList<User> searchUsers(User search_prototype) throws DbException {
         ArrayList<User> searchResult = new ArrayList<User>();
@@ -196,7 +195,7 @@ public class ReaderHandler {
      * due to connection problems or other database access issues.
      */
     public static ComponentList<User> getUsers() throws DbException {
-        ComponentList<User > list = new ComponentList<User>();
+        ComponentList<User> list = new ComponentList<User>();
         if (getUsersPipeline == null) {
             getUsersPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALL_USERS);
         }
@@ -465,26 +464,40 @@ public class ReaderHandler {
         return featureList;
     }
 
-    public static Feature getFeature(int uid) throws DbException {
+    public static void main(String args[]) throws DbException{
+        System.out.println(ReaderHandler.searchFeature(new Feature(-1,ServerList.ambit+"/feature/11954")).getID());
+    }
+
+    public static Feature searchFeature(Feature prototype) throws DbException {
         if (getFeaturePipeline == null) {
-            getFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_FEATURE);
+            getFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_FEATURE);
+        }
+        int uid_prototype = prototype.getID();
+        int uid_min = 0;
+        int uid_max = Integer.MAX_VALUE;
+        if (uid_prototype > 0) {
+            uid_min = uid_prototype;
+            uid_max = uid_min;
         }
         HyperResult result = null;
+        System.out.println(uid_min);System.out.println(fixNull(prototype.getURI()));
+
         QueryFood food = new QueryFood(
                 new String[][]{
-                    {"UID", Integer.toString(uid)}
-                });
+                    {"UID_MIN", Integer.toString(uid_min)},
+                    {"UID_MAX", Integer.toString(uid_max)},
+                    {"URI", fixNull(prototype.getURI())},});
         try {
             result = getFeaturePipeline.process(food);
         } catch (YaqpException ex) {
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Features from database\n"));
         }
-        if (result.getSize() == 1) {
+        if (result.getSize() >= 1) {
             Iterator<String> it = result.getColumnIterator(1);
             Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
             return feature;
-        }
-        throw new DbException("XUS587", "No such Feature :" + uid);
+        }   
+        throw new DbException("XUS587", "No such Feature found :\n"+prototype);
     }
 //    public static ArrayList<Feature> getIndepFeatures(QSARModel model){
 //         if (getIndepFeaturesPipeline == null) {
@@ -522,7 +535,7 @@ public class ReaderHandler {
 //        for (int i = 1; i < result.getSize() + 1; i++) {
 //            Iterator<String> it = result.getColumnIterator(i);
 //            MLRModel model = new MLRModel(Integer.parseInt(it.next()), it.next(), it.next(),
-//                    getFeature(Integer.parseInt(it.next())), getFeature(Integer.parseInt(it.next())),
+//                    searchFeature(Integer.parseInt(it.next())), searchFeature(Integer.parseInt(it.next())),
 //                    getAlgorithm(it.next()), searchUsers(it.next()), it.next(), it.next());
 //            model.setIndependentFeatures(getIndepFeatures(model));
 //            models.add(model);

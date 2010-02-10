@@ -27,16 +27,16 @@ import org.opentox.io.publishable.OntObject;
 
 /**
  *
+ * Datatype properties accordinf to W3C are properties that <tt>"link individuals
+ * to data values."</tt>.
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class OTDataTypeProperties extends YaqpOntEntity{
+public class OTDataTypeProperties extends YaqpOntEntity {
 
-    public OTDataTypeProperties(Resource resource){
+    public OTDataTypeProperties(Resource resource) {
         super(resource);
     }
-        
-
     /**
      *
      * A value.
@@ -80,13 +80,15 @@ public class OTDataTypeProperties extends YaqpOntEntity{
      */
     public static final OTDataTypeProperties percentageCompleted =
             new OTDataTypeProperties(_model.createDatatypeProperty(String.format(_NS_OT, "percentageCompleted")));
-
+    /**
+     * 
+     */
+    public static final OTDataTypeProperties acceptValue =
+            new OTDataTypeProperties(_model.createDatatypeProperty(String.format(_NS_OT, "acceptValue")));
 
     @Override
     public Property createProperty(OntObject model) {
         Property p = model.getObjectProperty(getURI());
-        return p==null?model.createDatatypeProperty(getURI()):p;
+        return p == null ? model.createDatatypeProperty(getURI()) : p;
     }
-
-    
 }

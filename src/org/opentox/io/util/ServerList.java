@@ -84,5 +84,10 @@ public enum ServerList {
         return this.supportsCompounds;
     }
 
+    @Override
+    public String toString(){
+        return getBaseURI();
+    }
+
 
 }

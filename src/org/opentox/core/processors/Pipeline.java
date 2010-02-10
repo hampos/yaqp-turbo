@@ -52,7 +52,7 @@ import org.opentox.util.logging.YaqpLogger;
  * @author Charalampos Chomenides
  */
 public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
-         extends AbstractMultiProcessor<Input, Output, P> {
+          extends AbstractMultiProcessor<Input, Output, P> {
 
     private String PROPERTY_PIPELINE_STATUS = getStatus().getClass().getName();
 
@@ -93,14 +93,14 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
                     firePropertyChange(PROPERTY_PIPELINE_STATUS, null, getStatus());
                 }
             } catch (Exception ex) {
-                String message = "Processor " + i + " is in error state";
-                if (isfailSensitive()) {                    
-                    YaqpLogger.LOG.log(new Debug(getClass(), message + " :: " + ex));
+                String message = "Processor " + i + " is in error state :: " + ex;
+                if (isfailSensitive()) {
+                    YaqpLogger.LOG.log(new Debug(getClass(), message));
                     throw new ProcessorException("XCI108", message, ex);
                 }
                 getStatus().increment(STATUS.ERROR);
                 getStatus().incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - start_time);
-                YaqpLogger.LOG.log(new Trace(getClass(), message +" :: "+ ex));
+                YaqpLogger.LOG.log(new Trace(getClass(), message + " :: " + ex));
             }
         }
         getStatus().setMessage("Pipeline completed the job.");

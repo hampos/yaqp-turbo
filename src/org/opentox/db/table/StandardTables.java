@@ -227,17 +227,17 @@ public enum StandardTables {
         table.addColumn(username);
 
         TableColumn password = new TableColumn("PASS");
-        password.setColumnType(SQLDataTypes.VarChar(255));
+        password.setColumnType(SQLDataTypes.VarChar(40));
         password.setNotNull(true);
         table.addColumn(password);
 
         TableColumn firstname = new TableColumn("FIRSTNAME");
-        firstname.setColumnType(SQLDataTypes.VarChar(50));
+        firstname.setColumnType(SQLDataTypes.VarChar(20));
         firstname.setNotNull(true);
         table.addColumn(firstname);
 
         TableColumn lastname = new TableColumn("LASTNAME");
-        lastname.setColumnType(SQLDataTypes.VarChar(50));
+        lastname.setColumnType(SQLDataTypes.VarChar(20));
         lastname.setNotNull(true);
         table.addColumn(lastname);
 
@@ -248,24 +248,24 @@ public enum StandardTables {
         table.addColumn(email);
 
         TableColumn organization = new TableColumn("ORGANIZATION");
-        organization.setColumnType(SQLDataTypes.VarChar(50));
+        organization.setColumnType(SQLDataTypes.VarChar(20));
         table.addColumn(organization);
 
         TableColumn country = new TableColumn("COUNTRY");
-        country.setColumnType(SQLDataTypes.VarChar(50));
+        country.setColumnType(SQLDataTypes.VarChar(20));
         table.addColumn(country);
 
 
         TableColumn city = new TableColumn("CITY");
-        city.setColumnType(SQLDataTypes.VarChar(50));
+        city.setColumnType(SQLDataTypes.VarChar(20));
         table.addColumn(city);
 
         TableColumn address = new TableColumn("ADDRESS");
-        address.setColumnType(SQLDataTypes.VarChar(80));
+        address.setColumnType(SQLDataTypes.VarChar(50));
         table.addColumn(address);
 
         TableColumn webpage = new TableColumn("WEBPAGE");
-        webpage.setColumnType(SQLDataTypes.VarChar(150));
+        webpage.setColumnType(SQLDataTypes.VarChar(50));
         table.addColumn(webpage);
 
         TableColumn timestamp = new TableColumn("TMSTMP");
@@ -321,7 +321,7 @@ public enum StandardTables {
         table.addColumn(uid);
 
         TableColumn code = new TableColumn("CODE");
-        code.setColumnType(SQLDataTypes.VarChar(255));
+        code.setColumnType(SQLDataTypes.VarChar(40));
         code.setNotNull(true);
         table.addColumn(code);
 
@@ -471,7 +471,7 @@ public enum StandardTables {
         table.addColumn(uid);
 
         TableColumn code = new TableColumn("CODE");
-        code.setColumnType(SQLDataTypes.VarChar(255));
+        code.setColumnType(SQLDataTypes.VarChar(40));
         code.setNotNull(true);
         table.addColumn(code);
 
@@ -499,7 +499,7 @@ public enum StandardTables {
         Table table = new Table("TASKS");
 
         TableColumn name = new TableColumn("NAME");
-        name.setColumnType(SQLDataTypes.VarChar(255));
+        name.setColumnType(SQLDataTypes.VarChar(40));
         name.setPrimaryKey(true, false);
         table.addColumn(name);
 
