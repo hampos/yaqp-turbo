@@ -52,14 +52,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
-import org.opentox.io.publishable.TurtleObject;
 import org.opentox.io.util.YaqpIOStream;
-import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.namespaces.OTClass;
 import org.opentox.ontology.namespaces.OTDataTypeProperties;
@@ -324,10 +321,6 @@ public class Algorithm extends YaqpComponent {
         return rdf;
     }
 
-    @Override
-    public TurtleObject getTurtle() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
 
     @Override
     public JSONObject getJson() {

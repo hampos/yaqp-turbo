@@ -52,8 +52,6 @@ import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
 import org.opentox.io.util.YaqpIOStream;
-import org.opentox.ontology.exceptions.ImproperEntityException;
-import org.opentox.ontology.namespaces.OTClass;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Warning;
 
@@ -77,7 +75,7 @@ public class User extends YaqpComponent {
             address = null,
             webpage = null,
             timeStamp = null;
-    private UserGroup userGroup = null;
+    private UserGroup userGroup = null;    
 
 
     public User(){

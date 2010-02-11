@@ -38,7 +38,6 @@ import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
 import com.itextpdf.text.pdf.PdfWriter;
 import java.io.OutputStream;
 import java.net.URL;
@@ -49,6 +48,7 @@ import org.opentox.io.util.YaqpIOStream;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Trace;
 import org.opentox.util.logging.levels.Warning;
+import org.restlet.data.MediaType;
 
 /**
  *
@@ -57,6 +57,7 @@ import org.opentox.util.logging.levels.Warning;
  */
 public class PDFObject implements JPublishable {
 
+    
     private ArrayList<Element> elements = new ArrayList<Element>();
     private String subject = "OpenTox Entity Representation";
     private String pdfAuthor = "OpenTox NTUA WebServices";
@@ -148,5 +149,9 @@ public class PDFObject implements JPublishable {
             YaqpLogger.LOG.log(new Warning(getClass(), "XPD819 - Error while generating PDF representation."));
         }
 
+    }
+
+    public MediaType getMediaType() {
+        return MediaType.APPLICATION_PDF;
     }
 }

@@ -41,6 +41,7 @@ import org.opentox.io.util.YaqpIOStream;
 import org.opentox.io.interfaces.JOntModel;
 import org.opentox.ontology.namespaces.OTClass;
 import org.opentox.ontology.namespaces.YaqpOntEntity;
+import org.restlet.data.MediaType;
 
 /**
  *
@@ -125,6 +126,12 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
             }
         }
     }
+
+    public MediaType getMediaType() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+
 
     
 

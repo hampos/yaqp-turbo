@@ -33,23 +33,41 @@
 
 package org.opentox.io.publishable;
 
-import org.opentox.io.interfaces.JPublishable;
+import com.hp.hpl.jena.ontology.OntModelSpec;
+import java.io.OutputStream;
 import org.opentox.io.util.YaqpIOStream;
 import org.restlet.data.MediaType;
 
 /**
- * TODO: This should extend the Jackson central object.
+ *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class JSONObject implements JPublishable {
+public class NTripleObject extends OntObject {
+
+    public NTripleObject(YaqpIOStream ioStream) {
+        super(ioStream);
+    }
+
+    public NTripleObject(OntModelSpec spec) {
+        super(spec);
+    }
+
+    public NTripleObject(OntObject other) {
+        super(other);
+    }
+
+    public NTripleObject() {
+    }
+
+
 
     public void publish(YaqpIOStream stream) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        this.write((OutputStream)stream.getStream(), "N-TRIPLE");
     }
 
     public MediaType getMediaType() {
-        return MediaType.APPLICATION_JSON;
+        return MediaType.TEXT_RDF_NTRIPLES;
     }
 
 }

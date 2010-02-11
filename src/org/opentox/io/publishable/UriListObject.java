@@ -37,6 +37,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import org.opentox.io.interfaces.JPublishable;
 import org.opentox.io.util.YaqpIOStream;
+import org.restlet.data.MediaType;
 
 /**
  *
@@ -57,6 +58,10 @@ public class UriListObject implements JPublishable{
 
     public void publish(YaqpIOStream stream) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public MediaType getMediaType() {
+        return MediaType.TEXT_URI_LIST;
     }
 
 }

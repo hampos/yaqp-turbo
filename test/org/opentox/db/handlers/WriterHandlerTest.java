@@ -46,7 +46,6 @@ import org.opentox.ontology.components.*;
 import org.opentox.db.exceptions.BadEmailException;
 import org.opentox.db.exceptions.DuplicateKeyException;
 import org.opentox.db.util.TheDbConnector;
-import org.opentox.io.util.YaqpIOStream;
 import static org.junit.Assert.*;
 import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.exceptions.YaqpOntException;
@@ -85,13 +84,58 @@ public class WriterHandlerTest {
     /**
      * Test of addUserGroup method, of class WriterHandler.
      */
-    //@Test
-    public void testAddUserGroup() throws Exception {
-        System.out.println(WriterHandler.addUserGroup(new UserGroup("MYGROUP5", 60)));
-        System.out.println(WriterHandler.addUserGroup(new UserGroup("MYGROUP9", 70)));
-        System.out.println(WriterHandler.addUserGroup(new UserGroup("GUEST", 80)));
-        System.out.println(WriterHandler.addUserGroup(new UserGroup("ADMIN", 10)));
+//    @Test
+    public void testAddUserGroup() throws ImproperEntityException {
+        try{
+        UserGroup guestGroup = (UserGroup ) WriterHandler.add(new UserGroup("GUEST", 60));
+        assertTrue(guestGroup.getName().equals("GUEST") && guestGroup.getLevel()==60);
+        UserGroup adminGroup = WriterHandler.addUserGroup(new UserGroup("ADMINISTRATOR", 10));
+        assertTrue(adminGroup.getLevel()==10 && adminGroup.getName().equals("ADMINISTRATOR"));
+        } catch (DuplicateKeyException ex){}
+        catch (DbException ex) {
+            //
+        }
     }
+
+//    @Test
+    public void addBadUserGroup() {
+        UserGroup badGroup = new UserGroup(null, 10);
+        boolean dbExcThrown = false;
+        try {
+            WriterHandler.add(badGroup);
+        } catch (DbException ex) {
+            dbExcThrown= true;
+        } catch (ImproperEntityException ex) {
+            fail("Improper Entity ?!");
+        }
+        if (!dbExcThrown){
+            fail("A bad user group seeme to be added!!!");
+        }
+        
+    }
+
+//    @Test
+    public void addDuplicateUserGroup(){
+        UserGroup some = new UserGroup("ROCKETS", 512);
+        try {
+            WriterHandler.add(some);
+        } catch (DbException ex) {
+            
+        } catch (ImproperEntityException ex) {
+            fail("Improper Entity ?!");
+        }
+        try {
+            WriterHandler.add(some);
+        } catch (DbException ex) {
+            assertTrue(ex instanceof DuplicateKeyException);
+        } catch (ImproperEntityException ex) {
+            fail("Improper Entity ?!");
+        }
+    }
+
+
+    
+
 
     /**
      * Test of addAlgorithmOntology method, of class WriterHandler.
@@ -114,7 +158,7 @@ public class WriterHandlerTest {
      * It seems users are being successfully added in the database.
      * @throws BadEmailException
      */
-    //@Test
+    @Test
     public void testAddUser() throws BadEmailException {
         try {
             for (int i = 0; i < 1000; i++) {
@@ -141,10 +185,10 @@ public class WriterHandlerTest {
         WriterHandler.add(YaqpAlgorithms.SVC);
     }
 
-   @Test
+   //@Test
     public void testAddFeature() throws DbException, ImproperEntityException, YaqpException {
-        for (int i = 1; i <= 10; i++) {
-            WriterHandler.addFeature(new Feature("http://sth.com/feature/" + i));
+        for (int i = 5; i <= 20; i++) {
+            System.out.println(WriterHandler.addFeature(new Feature("http://sth.com/feature/" + i)).getID());
         }
     }
 
@@ -159,7 +203,7 @@ public class WriterHandlerTest {
         WriterHandler.add(m);
     }
 
-    @Test
+   // @Test
     public void addsvmModel() throws Exception {
         User u = ReaderHandler.searchUsers(new User()).get(1);
         Feature f = ReaderHandler.searchFeature(new Feature(-1,"http://sth.com/feature/1"));
@@ -184,7 +228,7 @@ public class WriterHandlerTest {
         System.out.println(WriterHandler.add(m));
     }
 
-    @Test
+   // @Test
     public void testaddTask() throws DbException, ImproperEntityException, YaqpException {
         User prot = new User();
         prot.setEmail("ann11%");

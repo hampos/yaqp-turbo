@@ -480,7 +480,6 @@ public class ReaderHandler {
             uid_max = uid_min;
         }
         HyperResult result = null;
-        System.out.println(uid_min);System.out.println(fixNull(prototype.getURI()));
 
         QueryFood food = new QueryFood(
                 new String[][]{

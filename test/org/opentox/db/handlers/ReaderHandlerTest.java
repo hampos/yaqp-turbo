@@ -99,11 +99,7 @@ public class ReaderHandlerTest {
         }
     }
 
-   //@Test
-    public void getUsersTest() throws Exception {
-        UriList users = ReaderHandler.getUsers();
-        users.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/wow.pdf")));
-    }
+  
 
 
     //@Test

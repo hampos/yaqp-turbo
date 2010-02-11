@@ -150,8 +150,8 @@ public class MLRTrainer extends WekaTrainer {
         for (int i = 0; i < data.numAttributes(); i++) {
             Feature f = new Feature(data.attribute(i).name());
             try {
-                f = (Feature) WriterHandler.add(f);                
-            } catch (YaqpException ex) {                
+                f = (Feature) WriterHandler.add(f);
+            } catch (YaqpException ex) {     
             }
             if (data.classIndex() != i) {
                 independentFeatures.add(f);
@@ -166,7 +166,8 @@ public class MLRTrainer extends WekaTrainer {
         }
 
         try {
-            User u = ReaderHandler.searchUsers(new User()).get(7);
+            User u = new User();
+            u.setEmail("ann1@foo.goo.gr");
             QSARModel model = new QSARModel(
                     uuid.toString(), predictedFeature, dependentFeature,
                     independentFeatures, YaqpAlgorithms.MLR,
@@ -285,7 +286,8 @@ public class MLRTrainer extends WekaTrainer {
         URI u = new URI("http://localhost/6");
 
         QSARModel model = (QSARModel) pipe.process(u);        
-        System.out.println(model.getAlgorithm().getMeta().getAlgorithmType().getURI());
+        System.out.println(model.getCode());
+        System.out.println(model.getId());
     }
 
 

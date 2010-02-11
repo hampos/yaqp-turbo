@@ -23,6 +23,7 @@
 package org.opentox.io.interfaces;
 
 import org.opentox.io.util.YaqpIOStream;
+import org.restlet.data.MediaType;
 
 /**
  *
@@ -32,5 +33,7 @@ import org.opentox.io.util.YaqpIOStream;
 public interface JPublishable {
 
     void publish(YaqpIOStream stream);
+
+    MediaType getMediaType();
 
 }

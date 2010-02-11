@@ -35,6 +35,7 @@ package org.opentox.io.publishable;
 
 import java.io.OutputStream;
 import org.opentox.io.util.YaqpIOStream;
+import org.restlet.data.MediaType;
 
 /**
  *
@@ -57,6 +58,11 @@ public class TurtleObject extends OntObject {
 
     public void publish(YaqpIOStream stream) {
         this.write((OutputStream)stream.getStream(), "TURTLE");
+    }
+
+    @Override
+    public MediaType getMediaType() {
+        return MediaType.APPLICATION_RDF_TURTLE;
     }
 
 }

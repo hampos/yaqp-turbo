@@ -153,6 +153,9 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Added new user group '" + userGroup.getName()
                     + "' with authorization level :" + userGroup.getLevel()));
         } catch (DbException ex) {
+            if (ex.toString().contains("duplicate key")) {
+                throw new DuplicateKeyException("XFB9J", "UserGroup already registered", ex);
+            }
             String message = "UserGroup could not be added";
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
             throw new DbException("XUG512", message, ex);
@@ -188,7 +191,9 @@ public class WriterHandler {
                 String message = "Algorithm Ontology Already Registered in the Database!";
                 YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
                 YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-            }else throw new DbException("XAL5IJ", "Error while adding the ontology with name = "+ontology.getName(), ex);
+            } else {
+                throw new DbException("XAL5IJ", "Error while adding the ontology with name = " + ontology.getName(), ex);
+            }
         }
         return ontology;
     }
@@ -268,13 +273,15 @@ public class WriterHandler {
                 feature.setId(r);
             }
         } catch (DbException ex) {
-            String message = "Cannot add feature because it already exists: " + feature;
-            YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-            try {
-                feature.setId(ReaderHandler.searchFeature(new Feature(-1, feature.getURI())).getID());
-            } catch (DbException ex1) {// in this case feature failed to be added but is not in the DB either!
-                throw new DbException("XFT41P", message, ex1);
+            if (ex.toString().contains("duplicate key") || ex.toString().contains("DuplicateKey")) {
+                try {
+                    feature.setId(ReaderHandler.searchFeature(new Feature(-1, feature.getURI())).getID());
+                } catch (DbException ex1) {// in this case feature failed to be added but is not in the DB either!
+                    String message = "Cannot add feature because it already exists: " + feature;
+                    YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
+                    YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
+                    throw new DbException("XFT41P", message, ex1);
+                }
             }
         }
         return feature;
@@ -287,6 +294,8 @@ public class WriterHandler {
      * in the database along with a set of algorithm-ontology-relation entries which facilitate
      * search for algorithms.
      * @throws DuplicateKeyException In case the algorithm already exists.
+     * @throws DbException In case the algorithm cannot be added. Make sure that the corresponding
+     * algorithm ontologies are already added in the database.
      */
     protected static Algorithm addAlgorithm(Algorithm algorithm) throws DbException {
         if (addAlgorithmPipeline == null) {
@@ -296,21 +305,24 @@ public class WriterHandler {
             addAlgOntRelationPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM_ONTOL_RELATION);
         }
         BatchProcessor bp = new BatchProcessor(addAlgOntRelationPipeline);
+        bp.setfailSensitive(false);
 
         QueryFood algfood = new QueryFood(
                 new String[][]{
                     {"NAME", algorithm.getMeta().getName()}
                 });
 
+        // THE RELATIONS OF THE ALGORITHM:
         ArrayList<QueryFood> relfood = new ArrayList<QueryFood>();
+        // THE 'SMALLEST' ONTOLOGY FOR THE ALGORITHM:
         AlgorithmOntology ontology = new AlgorithmOntology(algorithm.getMeta().getAlgorithmType());
-
         QueryFood food = new QueryFood(
                 new String[][]{
                     {"ALGORITHM", algorithm.getMeta().getName()},
                     {"ONTOLOGY", ontology.getName()}
                 });
         relfood.add(food);
+        // ALL OTHER SUPER-ONTOLOGIES:
         Set<Resource> r = algorithm.getMeta().getAlgorithmType().getSuperEntities();
         Iterator<Resource> it = r.iterator();
         while (it.hasNext()) {
@@ -321,6 +333,7 @@ public class WriterHandler {
                     });
             relfood.add(food);
         }
+        // ADD THE ALGORITH IN THE DATABASE...
         try {
             addAlgorithmPipeline.process(algfood);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Algorithm added: \n" + algorithm));
@@ -329,15 +342,17 @@ public class WriterHandler {
                 String message = "Cannot add algorithm because it already exists.";
                 YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
                 YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
+                // IF THE ALGORITHM IS ALREADY ADDED, THROW A DUPLICATE KEY EXCEPTION.
                 throw new DuplicateKeyException("XE4B", message, ex);
             }
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Could not add the following algorithm :\n" + algorithm));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
+        // ADD ALL ALGORITHM ONTOLOGIES FOR THIS ALGORITHM.
         try {
             bp.process(relfood);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Algorithm-Ontology relations batch added"));
-        } catch (Exception ex) {
+        } catch (YaqpException ex) {
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Could not batch add Algorithm-Ontology relations :\n" + algorithm));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }

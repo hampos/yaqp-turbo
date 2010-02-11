@@ -56,6 +56,10 @@ import org.opentox.ontology.namespaces.OTClass;
 import org.opentox.ontology.namespaces.OTDataTypeProperties;
 import org.opentox.ontology.namespaces.OTObjectProperties;
 import org.opentox.ontology.processors.InstancesProcessor;
+import org.opentox.qsar.processors.filters.AbstractFilter;
+import org.opentox.qsar.processors.filters.AttributeCleanup;
+import org.opentox.qsar.processors.filters.AttributeCleanup.ATTRIBUTE_TYPE;
+import org.opentox.qsar.processors.filters.SimpleMVHFilter;
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
@@ -302,12 +306,17 @@ public class Dataset {
         InputProcessor<OntObject> p1 = new InputProcessor<OntObject>();
         DatasetBuilder p2 = new DatasetBuilder();
         InstancesProcessor p3 = new InstancesProcessor();
+        AbstractFilter filter1 = new AttributeCleanup(new ATTRIBUTE_TYPE[] {ATTRIBUTE_TYPE.string, ATTRIBUTE_TYPE.nominal});
+        AbstractFilter filter = new SimpleMVHFilter();
         Pipeline pipe = new Pipeline();
         pipe.add(p1);
         pipe.add(p2);
         pipe.add(p3);
+        pipe.add(filter1);
+        pipe.add(filter);
 
-        Instances data = (Instances) pipe.process(new URI("http://localhost/6"));
+        Instances data = (Instances)
+                pipe.process(new URI("http://localhost/9"));
         System.out.println(data);
     }
 }
