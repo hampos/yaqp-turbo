@@ -21,6 +21,7 @@
  */
 package org.opentox.ontology.exceptions;
 
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 
 /**
@@ -32,20 +33,21 @@ import org.opentox.core.exceptions.YaqpException;
  */
 public class YaqpOntException extends YaqpException {
 
-    public YaqpOntException(String id, String message, Throwable throwable) {
-        super(id, message, throwable);
+    public YaqpOntException(Cause cause, String explanation, Throwable throwable) {
+        super(cause, explanation, throwable);
     }
 
-    public YaqpOntException(String id, Throwable throwable) {
-        super(id, throwable);
+    public YaqpOntException(Cause cause, Throwable throwable) {
+        super(cause, throwable);
     }
 
-    public YaqpOntException(String id, String msg) {
-        super(id, msg);
+    public YaqpOntException(Cause cause, String exaplanation) {
+        super(cause, exaplanation);
     }
 
     public YaqpOntException() {
     }
+
 
     
 

@@ -30,13 +30,16 @@
  */
 package org.opentox.core.processors;
 
+import java.sql.SQLException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JMultiProcessorStatus.STATUS;
+import org.opentox.db.exceptions.DuplicateKeyException;
 import static org.junit.Assert.*;
 
 /**
@@ -50,7 +53,7 @@ public class PipelineTest {
 
         public String process(String data) throws YaqpException {
             try {
-                Thread.sleep(1000);
+                Thread.sleep(200);
             } catch (InterruptedException ex) {
                 throw new YaqpException();
             }
@@ -74,13 +77,19 @@ public class PipelineTest {
 
         public String process(String data) throws YaqpException {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(500);
             } catch (InterruptedException ex) {
                 throw new YaqpException();
             }
             throw new YaqpException();
         }
 
+    };
+
+    private Processor buggy = new Processor(){
+        public Object process(Object data) throws YaqpException {
+            throw new DuplicateKeyException(Cause.XA1,"buggy",new SQLException());
+        }
     };
 
     public PipelineTest() {
@@ -103,6 +112,21 @@ public class PipelineTest {
     public void tearDown() {
     }
 
+
+
+    @Test
+    public void errorHandling(){
+        System.out.println("-- error handling test test --");
+        Pipeline pipe = new Pipeline();
+        pipe.add(buggy);
+        try {
+            pipe.process("");
+        } catch (YaqpException ex) {
+            assertTrue(ex instanceof DuplicateKeyException);
+            assertTrue(ex.getCode().equals(Cause.XA1));
+        }
+    }
+
     /**
      * Test of process method, of class Pipeline.
      */
@@ -116,13 +140,10 @@ public class PipelineTest {
         pipe.add(p3);
         try {
             String out = (String) pipe.process("data ");
-            System.out.println(out);
-            System.out.println(pipe.getStatus());
-            assertTrue(Math.abs(pipe.getStatus().getElapsedTime(STATUS.ERROR)-2000)<5);
-            assertTrue(Math.abs(pipe.getStatus().getElapsedTime(STATUS.PROCESSED)-1080)<5);
+            assertTrue(Math.abs(pipe.getStatus().getElapsedTime(STATUS.ERROR)-5000)<5);
+            assertTrue(Math.abs(pipe.getStatus().getElapsedTime(STATUS.PROCESSED)-180)<5);
             assertTrue(!pipe.getStatus().isInProgress());
         } catch (Throwable ex) {
-            System.out.println(ex);
             //fail(/*ex.getMessage()*/);
         }
     }
@@ -140,9 +161,9 @@ public class PipelineTest {
         p2.setEnabled(false);
         try {
             String out = pipe.process("data ");
-            System.out.println(out);            
+            assertTrue(out.equals("data  <-- p1"));
         } catch (YaqpException ex) {
-            fail(/*ex.getMessage()*/);
+            fail(ex.toString());
         }
     }
 
@@ -157,9 +178,9 @@ public class PipelineTest {
         p1.setEnabled(false);
         try {
             String out = pipe.process("data ");
-            System.out.println(out);
+            assertTrue("data ".equals(out));
         } catch (YaqpException ex) {
-            fail(/*ex.getMessage()*/);
+            fail(ex.toString());
         }
     }
 }

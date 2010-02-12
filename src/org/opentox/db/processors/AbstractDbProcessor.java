@@ -21,14 +21,13 @@
  */
 package org.opentox.db.processors;
 
-
-
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.interfaces.JDbProcessor;
 import org.opentox.core.processors.Processor;
 import org.opentox.db.util.PrepStmt;
 import org.opentox.db.util.QueryType;
 import org.opentox.db.util.TheDbConnector;
+import static org.opentox.core.exceptions.Cause.XDB624;
 
 /**
  * This is an abstraction for the processors which manipulate the data of the
@@ -44,24 +43,15 @@ import org.opentox.db.util.TheDbConnector;
 public abstract class AbstractDbProcessor<Query, QueryResult>
         extends Processor<Query, QueryResult>
         implements JDbProcessor<Query, QueryResult> {
-    
-
 
     public AbstractDbProcessor() {
-        super();     
+        super();
     }
-
 
     public QueryResult process(Query query) throws DbException {
-        if (!TheDbConnector.DB.isConnected()) {            
-            throw new DbException("XDB624","Connection to "+TheDbConnector.DB.getDatabaseName()+" could not be established");
+        if (!TheDbConnector.DB.isConnected()) {
+            throw new DbException(XDB624, "Connection to " + TheDbConnector.DB.getDatabaseName() + " could not be established");
         }
-        try {
-            return execute(query);
-        } catch (Exception x) {
-            throw new DbException("XDB3",x);
-        }
+        return execute(query);
     }
-
-    
 }

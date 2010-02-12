@@ -52,12 +52,10 @@ public class TheDbConnectorTest {
     }
 
     @BeforeClass
-    public static void setUpClass() throws Exception {
-        assertFalse(TheDbConnector.DB.isInitialized());
-        TheDbConnector.init();
-        assertTrue(TheDbConnector.DB.isInitialized());
-        TheDbConnector.init();
-        assertTrue(TheDbConnector.DB.isInitialized());
+    public static void setUpClass() throws Exception {        
+//        assertTrue(TheDbConnector.DB.isInitialized());
+//        TheDbConnector.init();
+//        assertTrue(TheDbConnector.DB.isInitialized());
 
     }
 
@@ -79,16 +77,9 @@ public class TheDbConnectorTest {
     @Test
     public void InstantiationTest() throws Exception {
         System.out.println("-- instantiation test --");
-        ArrayList<String > tn = TheDbConnector.DB.getTableNames();
-        for (int i=0;i<tn.size();i++){
-            System.out.println(tn.get(i));
-        }
-        PreparedStatement ps = TheDbConnector.DB.getConnection().prepareStatement("SELECT * FROM ALGORITHM_ONTOLOGIES WHERE UID = ?");
-        ps.setInt(1, 1);
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-//                System.out.println(rs.getString("NAME"));
-        }
+        assertFalse(TheDbConnector.DB.isInitialized());
+        TheDbConnector.init();
+        
     }
 
     //@Test

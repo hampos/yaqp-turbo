@@ -39,6 +39,7 @@
  */
 package org.opentox.qsar.processors.filters;
 
+import org.opentox.core.exceptions.Cause;
 import org.opentox.qsar.exceptions.QSARException;
 import weka.core.Instances;
 import weka.filters.unsupervised.attribute.ReplaceMissingValues;
@@ -63,7 +64,7 @@ public class SimpleMVHFilter extends InstancesFilter {
             return ReplaceMissingValues.useFilter(data, replacer);
         } catch (Exception ex) {
             String message = "Cannot apply missing values filtering";
-            throw new QSARException("XM7H2", message, ex);
+            throw new QSARException(Cause.XQF412, message, ex);
         }
 
     }

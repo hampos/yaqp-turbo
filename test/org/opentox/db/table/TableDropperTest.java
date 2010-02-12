@@ -37,6 +37,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opentox.core.exceptions.YaqpException;
+import org.opentox.db.exceptions.DbException;
 import org.opentox.db.util.TheDbConnector;
 import static org.junit.Assert.*;
 
@@ -70,9 +71,13 @@ public class TableDropperTest {
      */
     @Test
     public void testExecute() throws YaqpException {
-        System.out.println("execute");
-        TheDbConnector db = TheDbConnector.DB;
-        System.out.println(db.isConnected());
+        TheDbConnector.init();
+        TableDropper dropper = new TableDropper();
+        try{
+        dropper.execute(new Table("ASDF"));
+        }catch(DbException ex){
+            assertTrue(ex.getCause().equals("XDR13"));
+        }
     }
 
 }

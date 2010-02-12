@@ -39,12 +39,11 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.opentox.core.exceptions.ExceptionDetails;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JMultiProcessorStatus.STATUS;
 import org.opentox.core.interfaces.JProcessor;
-import org.opentox.util.logging.YaqpLogger;
-import org.opentox.util.logging.levels.*;
+import static org.opentox.core.exceptions.Cause.*;
+
 
 /**
  * A Parallel Processor is a collection of processors that run in parallel. 
@@ -114,23 +113,18 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
     public ArrayList<Output> process(final ArrayList<Input> data) throws YaqpException {
 
         if (data == null) {
-            throw new YaqpException("XSU144", "Null input to parallel processor");
+            throw new NullPointerException("Null input to parallel processor");
         }
 
         if (data.size() != size()) {
-            throw new YaqpException("XSU145","Sizes of input array list and processors unequal!");
+            throw new IllegalArgumentException("Number of processors different from input size");
         }
-
-        if (size() == 0) {
-            throw new YaqpException("XSU146", "No processors participate in this parallel structure");
-        }
-
+        
 
         /**
          * A null processor (a processor always returning (Object)null ; created on the fly.
          */
         JProcessor nullProcessor = new Processor() {
-
             public Object process(Object data) throws YaqpException {
                 return null;
             }
@@ -194,7 +188,7 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
             getStatus().setMessage("interrupted - not running");
             getStatus().completed();
             firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-            throw new YaqpException("XSU149", "Interruption", ex);
+            throw new YaqpException(XPP1, "Interruption", ex);
         }
 
 
@@ -215,12 +209,10 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
 
                 firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
             } catch (InterruptedException ex) {
-                YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
-                        "Noway!!!! We didn't expect this to happen! (?)"));
                 getStatus().setMessage("completed unexpectedly");
                 getStatus().completed();
                 firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-                throw new YaqpException("XSU150", "Interruption, unknown cause", ex);
+                throw new YaqpException(XPP2, "Interruption, unknown cause", ex);
             } catch (Exception ex) {
 
                 /**
@@ -228,23 +220,14 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
                  * sensitive it should throw an exception and terminate.
                  */
                 if (isfailSensitive()) {
-                    YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
-                            "It seems a computation within this ParallelProcessor died."));
                     parallel_executor.shutdownNow(); // force shut down.
                     getStatus().setMessage("completed unsuccessfully");
                     getStatus().completed();
                     firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-                    throw new YaqpException("XPT77","Fail-sensitive proessor died");
+                    throw new YaqpException(XPP3,"Fail-sensitive proessor died");
                 }
 
-                /**
-                 * In case a Yaqp exception is thrown, it seems there is an error
-                 * with the processor - input could not be properly processed.
-                 */
-                if (ex instanceof YaqpException) {
-                    YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
-                            "XI4R2 - It seems a computation within this ParallelProcessor died."));
-                }
+                
                 result.add(null); // If the processor fails, the result should be null.
                 getStatus().increment(STATUS.ERROR);
                 getStatus().incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - error_start_time);
@@ -263,10 +246,9 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
 
         try {
             return (ArrayList<Output>) result;
-        } catch (Exception ex) {
+        } catch (ClassCastException ex) {
             final String explanation = "Output of parallel processor cannot be cast as the specified type!";
-            YaqpLogger.LOG.log(new Debug(ParallelProcessor.class, explanation));
-            throw new YaqpException("XS5J09",explanation,ex);
+            throw new ClassCastException(explanation);
         }
 
     }
@@ -296,13 +278,12 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
         Callable callable;
         callable = new Callable() {
 
-            public synchronized Object call() throws Exception {
+            public synchronized Object call() throws YaqpException {
                 Object o;
                 o = processor.process(input);
                 return (Object) o;
             }
         };
-
 
         return callable;
     }
@@ -318,18 +299,13 @@ public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Inp
         if (!parallel_executor.isTerminated()) {
             if (isfailSensitive()) {
                 parallel_executor.shutdownNow();
-                YaqpLogger.LOG.log(new ScrewedUp(getClass(),
-                        "Timeout of parallel processor"));
                 getStatus().setMessage("completed unsuccessfully - timeout");
                 getStatus().completed();
                 firePropertyChange(PROPERTY_PARALLEL_STATUS, null, getStatus());
-                throw new YaqpException("XJJ211", "Timeout of parallel processor");
-            } else {
-                YaqpLogger.LOG.log(new Trace(ParallelProcessor.class,
-                        "Some processes in a parallel processor took very long "
-                        + "to complete but the parallel is not fail-sensitive so "
-                        + "no exception is thrown"));
-            }
+                throw new YaqpException(XPP7, "Timeout of parallel processor");
+            } 
         }
     }
+
+   
 }

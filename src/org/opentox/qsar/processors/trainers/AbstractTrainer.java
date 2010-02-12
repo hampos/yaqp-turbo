@@ -52,6 +52,8 @@ public abstract class AbstractTrainer<Input> extends Processor<Input, QSARModel>
     }
 
     public AbstractTrainer(Map<String, AlgorithmParameter> parameters) {
+        if (parameters==null) throw new NullPointerException("You provided 'null' as set " +
+                "of parameters in a trainer");
         this.parameters = parameters;
     }
     

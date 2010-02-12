@@ -24,16 +24,16 @@ package org.opentox.core.processors;
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.opentox.core.exceptions.ExceptionDetails;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.ProcessorException;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JProcessor;
-import org.opentox.util.logging.YaqpLogger;
-import org.opentox.util.logging.levels.*;
 import static org.opentox.core.util.MultiProcessorStatus.STATUS;
+import static org.opentox.core.exceptions.Cause.*;
 
 /**
  * <p>
@@ -66,7 +66,7 @@ import static org.opentox.core.util.MultiProcessorStatus.STATUS;
  * @param <P> Type of internal processor
  */
 public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
-          extends AbstractBatchProcessor<Input, Output, P> {
+           extends AbstractBatchProcessor<Input, Output, P> {
 
     private String PROPERTY = getStatus().getClass().getName();
     private int corePoolSize = 4, maxPoolSize = 4;
@@ -94,7 +94,6 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
         this.timeUnit = timeout_unit;
     }
 
-    
     /**
      * @param data A list of data to be processed by the BatchProcessor.
      * @return Batch Processor Output
@@ -104,40 +103,34 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
     public ArrayList<Output> process(ArrayList<Input> data) throws YaqpException {
 
         if (data == null) {
-            throw new ProcessorException("XPR96","No input to parallel processor");
+            throw new NullPointerException("Null input to batch processor");
         }
 
-        if (data.size() != data.size()) {
-            throw new ProcessorException("XPR97","Sizes of input array list and processors unequal");
-        }
-
-        if (data.size() == 0) {
-            throw new ProcessorException("XPR98","No batch!");
-        }
 
         /**
          * If the internal processor is synchronized, run all processes in
          * a single query.
          */
-        if (getProcessor().isSynchronized()){
+        if (getProcessor().isSynchronized()) {
             corePoolSize = 1;
             maxPoolSize = 1;
         }
 
-
+        // A PROCESSOR WHICH ALWAYS RETURNS 'null'.
         P nullProcessor = (P) new Processor() {
 
             public Object process(Object data) throws YaqpException {
                 return null;
             }
         };
+
         final ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(data.size() + 2);
         parallel_executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 1, TimeUnit.MINUTES, queue);
         getStatus().setMessage("processing in progress");
         long start_time = 0;
 
         Future[] future_array = new Future[data.size()];
-        ArrayList result = new ArrayList();
+        ArrayList<Output> result = new ArrayList<Output>();
         start_time = System.currentTimeMillis();
 
         for (int i = 0; i < data.size(); i++) {
@@ -160,7 +153,7 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
             getStatus().setMessage("interrupted - not running");
             getStatus().completed();
             firePropertyChange(PROPERTY, null, getStatus());
-            throw new ProcessorException("XPR62","A processor was brutally interrupted while performing an operation");
+            throw new ProcessorException(XBP1, "A processor was brutally interrupted while performing an operation", ex);
         }
 
         for (int i = 0; i < data.size(); i++) {
@@ -170,45 +163,38 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
                 // Successful processing...
                 error_start_time = System.currentTimeMillis();
                 if (future_array[i].isDone()) {
-                    result.add(future_array[i].get());
+                    try {
+                        result.add((Output) future_array[i].get());
+                    } catch (ClassCastException ex) {
+                        if (isfailSensitive()) {
+                            throw new ClassCastException("Class Cast is imposible for output of batch processor");
+                        }
+                    }
                     getStatus().increment(STATUS.PROCESSED);
                 } else {
-                    result.add(null);
+                    result.add((Output) null);
                     getStatus().increment(STATUS.ERROR);
                 }
 
                 firePropertyChange(PROPERTY, null, getStatus());
             } catch (InterruptedException ex) {
-                YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
-                        "Noway!!!! We didn't expect this to happen! (?)"));
                 getStatus().setMessage("completed unexpectedly");
                 getStatus().completed();
                 firePropertyChange(PROPERTY, null, getStatus());
-                throw new ProcessorException("XPR11","Unknown cause of exception (Interruption)");
-            } catch (Exception ex) {
-
+                throw new ProcessorException(XBP2, "Unknown cause of exception (Interruption)");
+            } catch (ExecutionException ex) {
                 /**
                  * If a processor error happens and the Parallel Processor is fail
                  * sensitive it should throw an exception and terminate.
                  */
                 if (isfailSensitive()) {
-                    YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
-                            "It seems a computation within this ParallelProcessor died."));
                     parallel_executor.shutdownNow(); // force shut down.
                     getStatus().setMessage("completed unsuccessfully");
                     getStatus().completed();
                     firePropertyChange(PROPERTY, null, getStatus());
-                    throw new ProcessorException("XPR99","The batch Processor is fail-sensitive");
+                    throw new ProcessorException(XBP3, "The batch Processor is fail-sensitive", ex);
                 }
 
-                /**
-                 * In case a Yaqp exception is thrown, it seems there is an error
-                 * with the processor - input could not be properly processed.
-                 */
-                if (ex instanceof YaqpException) {
-                    YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
-                            "It seems a computation within this ParallelProcessor died."));
-                }
                 result.add(null); // If the processor fails, the result should be null.
                 getStatus().increment(STATUS.ERROR);
                 getStatus().incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - error_start_time);
@@ -237,9 +223,6 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
         return callable;
     }
 
-
-
-
     /**
      * Specifies how to cope with timeouts.
      * @throws YaqpException
@@ -248,18 +231,10 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
         if (!parallel_executor.isTerminated()) {
             if (isfailSensitive()) {
                 parallel_executor.shutdownNow();
-                YaqpLogger.LOG.log(new ScrewedUp(ParallelProcessor.class,
-                        "Timeout"));
-                System.out.println("Waiting for " + timeout + timeUnit);
                 getStatus().setMessage("completed unsuccessfully - timeout");
                 getStatus().completed();
                 firePropertyChange(PROPERTY, null, getStatus());
-                throw new ProcessorException("XPR80","Timeout");
-            } else {
-                YaqpLogger.LOG.log(new Debug(ParallelProcessor.class,
-                        "Some processes in a parallel processor took very long "
-                        + "to complete but the parallel is not fail-sensitive so "
-                        + "no exception is thrown"));
+                throw new ProcessorException(XBP7, "Timeout");
             }
         }
 

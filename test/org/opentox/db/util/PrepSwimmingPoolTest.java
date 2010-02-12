@@ -30,6 +30,7 @@
  */
 package org.opentox.db.util;
 
+import java.sql.SQLException;
 import java.util.Random;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -69,7 +70,7 @@ public class PrepSwimmingPoolTest {
      * Test of take method, of class PrepSwimmingPool.
      */
     @Test
-    public void testAddUserGroup() {
+    public void testAddUserGroup() throws SQLException {
         try {
             TheDbConnector.init();
         } catch (DbException ex) {
@@ -85,7 +86,7 @@ public class PrepSwimmingPoolTest {
             throw new RuntimeException(ex);
         }
         try {
-            hp.setString(1, "GROUP_F");
+            hp.setString(1, "GROUP_G");
             hp.setInt(2, 199);
             hp.executeUpdate();
             PrepSwimmingPool.POOL.recycle(hp);
@@ -97,7 +98,7 @@ public class PrepSwimmingPoolTest {
     }
 
     @Test
-    public void testAddUser() {
+    public void testAddUser() throws SQLException {
         HyperStatement hp = null;
         try {
             System.err.println(PrepSwimmingPool.POOL.take(PrepStmt.ADD_USER).toString());

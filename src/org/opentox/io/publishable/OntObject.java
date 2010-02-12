@@ -68,7 +68,12 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
 
     public OntObject(YaqpIOStream ioStream){
         super(OntModelSpec.OWL_DL_MEM);
+        try{
         read( (InputStream)ioStream.getStream(), null);
+        } catch (ClassCastException ex){
+            throw new ClassCastException("The IO stream you provided cannot be used as an Input Stream " +
+                    "for the construction of an OntObject.");
+        }
     }
 
     public void printConsole(){
@@ -84,6 +89,8 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
             for (int i = 0 ; i<ont_entities.length ; i++){
                 this.includeOntClass(ont_entities[i]);
             }
+        }else {
+            throw new NullPointerException("The set of entities you provided is null.");
         }
     }
 
@@ -92,6 +99,9 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
             for (int i=0;i<annotation_uris.length;i++){
                 createAnnotationProperty(annotation_uris[i]);
             }
+        }else{
+            throw new NullPointerException("The set of annotation property URIs you " +
+                    "provided is null.");
         }
     }
 
@@ -100,6 +110,9 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
             for (int i=0;i<datatype_uris.length;i++){
                 createAnnotationProperty(datatype_uris[i]);
             }
+        }else{
+            throw new NullPointerException("The set of datatype property URIs you " +
+                    "provided is null.");
         }
     }
 
@@ -108,6 +121,9 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
             for (int i=0;i<object_uris.length;i++){
                 createObjectProperty(object_uris[i]);
             }
+        }else{
+            throw new NullPointerException("The set of object property URIs you " +
+                    "provided is null.");
         }
     }
 
@@ -116,6 +132,9 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
             for (int i=0;i<symmetric_uris.length;i++){
                 createSymmetricProperty(symmetric_uris[i]);
             }
+        }else{
+            throw new NullPointerException("The set of symmetric propertiy URIs you " +
+                    "provided is null.");
         }
     }
 
@@ -124,11 +143,15 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
             for (int i=0;i<transitive_uris.length;i++){
                 createTransitiveProperty(transitive_uris[i]);
             }
+        }else{
+            throw new NullPointerException("The set of transitive propertiy URIs you " +
+                    "provided is null.");
         }
     }
 
     public MediaType getMediaType() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(
+                "Dont ask for the mediaType from the OntObject - get it from its subclasses!");
     }
 
 

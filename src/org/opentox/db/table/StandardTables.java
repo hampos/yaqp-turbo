@@ -494,7 +494,7 @@ public enum StandardTables {
         return table;
     }   
 
-    // TODO: Add new columns: httpStatus(INT) and result(varchar 255)
+    
     public static Table Tasks() {
         Table table = new Table("TASKS");
 

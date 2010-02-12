@@ -23,6 +23,8 @@ package org.opentox.db.table;
 
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JProcessor;
 import org.opentox.db.util.TheDbConnector;
@@ -47,8 +49,6 @@ public final class TableCreator extends AbstractTableProcessor {
         super();
     }
 
-
-
     /**
      * Creates a new table in the database.
      * @param q this parameters stands only for reasong of consistency and
@@ -61,7 +61,6 @@ public final class TableCreator extends AbstractTableProcessor {
     @Override
     public Object execute(Table q) {
         TheDbConnector db = TheDbConnector.DB;
-
         try {
             // If the database does not contain the table, it will be created....
             if (!db.getTableNames().contains(q.getTableName())) {
@@ -71,22 +70,19 @@ public final class TableCreator extends AbstractTableProcessor {
                     Statement stmt = db.getConnection().createStatement();
                     stmt.execute(createTable);
                     stmt.close();
-                    YaqpLogger.LOG.log(new Info(getClass(), "The table '" + q.getTableName().toUpperCase() + "' was created without content"));
+                    YaqpLogger.LOG.log(new Info(getClass(), "The table '" + q.getTableName().toUpperCase()
+                            + "' was created without content"));
                 } catch (SQLException ex) {
-                    if (ex.toString().contains("already exists")) {
-                        YaqpLogger.LOG.log(new Trace(getClass(), ex.toString()));
-                        YaqpLogger.LOG.log(new Warning(getClass(), "The table '" + q.getTableName().toUpperCase()
-                                + "' could not be created because it already exists"));
-                    } else {
-                        YaqpLogger.LOG.log(new ScrewedUp(getClass(), "XTL920 - The table '" + q.getTableName().toUpperCase()
-                                + "' could not be created :: " + ex));
-                    }
+                    String message = "The table '" + q.getTableName().toUpperCase()
+                            + "' could not be created";
+                    YaqpLogger.LOG.log(new ScrewedUp(getClass(),message + " due to SQLException " + ex));
+                    throw new RuntimeException(message);
                 }
             } else {
                 YaqpLogger.LOG.log(new Info(getClass(), "The table '" + q.getTableName() + "' exists"));
             }
-        } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new ScrewedUp(getClass(), "XTL921 - Exception :: " + ex));
+        } catch (YaqpException ex) {           
+            YaqpLogger.LOG.log(new ScrewedUp(getClass(), ex.toString()));
             YaqpLogger.LOG.log(new Debug(getClass(),
                     !db.isConnected()
                     ? "XIL10A - There is no connection to the database " + db.getDatabaseName()

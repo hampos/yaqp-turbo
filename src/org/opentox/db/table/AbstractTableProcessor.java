@@ -21,6 +21,7 @@
  */
 package org.opentox.db.table;
 
+import org.opentox.db.exceptions.DbException;
 import org.opentox.db.processors.AbstractDbProcessor;
 
 
@@ -53,7 +54,7 @@ public abstract class AbstractTableProcessor extends AbstractDbProcessor<Table, 
      * whatsoever.
      * @return null by default
      */
-    public abstract Object execute(Table q);
+    public abstract Object execute(Table q) throws DbException;
 
 
 }

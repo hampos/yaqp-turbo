@@ -33,7 +33,6 @@ public class EngineFactory {
     public static IOEngine createEngine(final MediaType mediatype) {
         IOEngine e = null;
 
-
         if ((mediatype.equals(MediaType.APPLICATION_RDF_XML)) ) {
             e = new RDFEngine();
         } else if ((mediatype.equals(MediaType.APPLICATION_RDF_TURTLE)) ){

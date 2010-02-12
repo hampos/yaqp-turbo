@@ -29,20 +29,24 @@ package org.opentox.core.exceptions;
  */
 public class ProcessorException extends YaqpException {
 
-    public ProcessorException(String id, String message, Throwable throwable) {
-        super(id, message, throwable);
+    public ProcessorException(Cause cause, String explanation, Throwable throwable) {
+        super(cause, explanation, throwable);
     }
 
-    public ProcessorException(String id, Throwable throwable) {
-        super(id, throwable);
+    public ProcessorException(Cause cause, Throwable throwable) {
+        super(cause, throwable);
     }
 
-    public ProcessorException(String id, String msg) {
-        super(id, msg);
+    public ProcessorException(Cause cause, String exaplanation) {
+        super(cause, exaplanation);
     }
 
     public ProcessorException() {
     }
+
+    
+
+    
 
 
 }

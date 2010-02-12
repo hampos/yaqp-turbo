@@ -1,10 +1,23 @@
 /*
- * YAQP - Yet Another QSAR Project: Machine Learning algorithms designed for
- * the prediction of toxicological features of chemical compounds become
- * available on the Web. Yaqp is developed under OpenTox (http://opentox.org)
- * which is an FP7-funded EU research project.
+ *
+ *   ._.  ._.      ,__,   ._____.
+ *    \ \ | |/\   /    \ /  ___ |
+ *     \ \| /  \ |  ()  |  _____|
+ *      \  / /\ \|  {}  | |
+ *       || .--. |  [] \\ |
+ *       ||_|  |_|\____/\\|      --.-.--.-...-..--..-.
+ *
+ *
+ * YAQP - Yet Another QSAR Project:
+ * Machine Learning algorithms designed for the prediction of toxicological
+ * features of chemical compounds become available on the Web. Yaqp is developed
+ * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
+ * This project was developed at the Automatic Control Lab in the Chemical Engineering
+ * School of the National Technical University of Athens. Please read README for more
+ * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -18,6 +31,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
+ * Contact:
+ * Pantelis Sopasakis
+ * chvng@mail.ntua.gr
+ * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
+ * tel. +30 210 7723236
  */
 package org.opentox.io.processors;
 
@@ -29,15 +47,15 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
-import org.opentox.core.exceptions.YaqpIOException;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.engines.EngineFactory;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.io.engines.IOEngine;
+import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.io.publishable.OntObject;
-import org.opentox.util.logging.YaqpLogger;
-import org.opentox.util.logging.levels.ScrewedUp;
-import org.opentox.util.logging.levels.Warning;
+import org.opentox.ontology.exceptions.YaqpOntException;
 import org.restlet.data.MediaType;
+import static org.opentox.core.exceptions.Cause.*;
 
 /**
  *
@@ -76,7 +94,6 @@ public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI
             connexion.setDoOutput(true);
             connexion.setUseCaches(false);
             connexion.addRequestProperty("Accept", mime.toString());
-
             if (connexion.getResponseCode() == 200) {
                 return true;
             } else {
@@ -90,12 +107,12 @@ public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI
     }
 
     private MediaType getAvailableMime(URI uri) {
-//        for (int i = 0; i < supportedMediaTypes().size(); i++) {
-//            if (IsMimeAvailable(uri, supportedMediaTypes().get(i))) {
-//                return supportedMediaTypes().get(i);
-//            }
-//        }
-        return MediaType.APPLICATION_RDF_XML;
+        for (int i = 0; i < supportedMediaTypes().size(); i++) {
+            if (IsMimeAvailable(uri, supportedMediaTypes().get(i))) {
+                return supportedMediaTypes().get(i);
+            }
+        }
+        return null;
     }
 
     /**
@@ -105,24 +122,24 @@ public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI
      * @throws IOException In case a communication or access issue occurs, or
      * Internet connection is down.
      */
-    private HttpURLConnection initializeConnection(URI uri) {
+    private HttpURLConnection initializeConnection(URI uri) throws YaqpIOException {
+        HttpURLConnection con = null;
         try {
-            HttpURLConnection con = null;
+            media = getAvailableMime(uri);
+            if (media == null) {
+                return null;
+            }
             HttpURLConnection.setFollowRedirects(true);
             URL dataset_url = uri.toURL();
             con = (HttpURLConnection) dataset_url.openConnection();
             con.setDoInput(true);
             con.setDoOutput(true);
             con.setUseCaches(false);
-            media = getAvailableMime(uri);
             con.setRequestProperty("Accept", media.toString());
             return con;
-        } catch (MalformedURLException ex) {
-            YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Ex :" + ex));
-        } catch (IOException ex) {
-            YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Ex :" + ex));
+        } catch (Exception ex) {
+            return null;
         }
-        return null;
     }
 
     /**
@@ -132,26 +149,41 @@ public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI
      * @return The resource encapsulated in a {@link OntObject } object.
      * @throws YaqpException
      */
-    public O handle(URI uri) throws YaqpIOException {
+    public O handle(URI uri) throws YaqpException {
+        if (uri==null){
+            throw new NullPointerException("The provided uri in the InputProcessor in null");
+        }
         O yaqpOntModel = null;
         YaqpIOStream is = null;
-        double start = 0, buff_time = 0, parse_time = 0;
+        InputStream remoteStream = null;
         try {
-            start = System.currentTimeMillis();
             HttpURLConnection con = initializeConnection(uri);
-            InputStream remoteStream = new BufferedInputStream(con.getInputStream(), 4194304*64);
+            if (con == null) {
+                throw new YaqpIOException(XIO54, "Communication Error with the remote at " + uri);
+            }
+            remoteStream = new BufferedInputStream(con.getInputStream(), 4194304);
             is = new YaqpIOStream(remoteStream);
-            buff_time = System.currentTimeMillis() - start;
-            start = System.currentTimeMillis();
-            IOEngine engine = EngineFactory.createEngine(media);            
-            yaqpOntModel = (O) engine.ignite(is);
-            parse_time = System.currentTimeMillis() - start;
-                    System.out.println("Buffer Time : "+buff_time+" +  Reading :"+parse_time+" = "+(buff_time+parse_time));
+            IOEngine engine = EngineFactory.createEngine(media);
+            try {
+                yaqpOntModel = (O) engine.ignite(is);
+                return yaqpOntModel;
+            } catch (YaqpOntException ex) {
+                throw new YaqpOntException(XONT5,
+                        "Unable to parse the content of the resource", ex);
+            }
 
-        } catch (Exception ex) {
-            YaqpLogger.LOG.log(new Warning(getClass(), ex.toString()));
-            throw new YaqpIOException("XDZ19",ex);
+        } catch (IOException ex) {
+            throw new YaqpIOException(XIO76, "Cannot read from input stream of " + uri.toString(), ex);
+        } finally {
+            try {
+                if (remoteStream != null) {
+                    remoteStream.close();
+                }
+            } catch (IOException ex) {
+                throw new YaqpIOException(XIO77, "Remote Stream could not close", ex);
+            }
         }
-        return yaqpOntModel;
+
+
     }
 }

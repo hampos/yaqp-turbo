@@ -54,6 +54,7 @@ import org.opentox.db.table.Table;
 import org.opentox.db.table.TableCreator;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.*;
+import static org.opentox.core.exceptions.Cause.*;
 
 /**
  * This Singleton Class manages the connection to the database.
@@ -243,7 +244,7 @@ public class TheDbConnector implements JDbConnector {
             return Integer.parseInt(database_port);
         } catch (NumberFormatException nfe) {
             YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAE321 - Not acceptable port :" + database_port));
-            throw new YaqpException("XAE321","Wrong port declaration :" + database_port, nfe);
+            throw new YaqpException(XDB18,"Wrong port declaration :" + database_port, nfe);
         }
 
     }
@@ -270,12 +271,12 @@ public class TheDbConnector implements JDbConnector {
                 return connection.getMetaData();
             } catch (SQLException ex) {
                 YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAE323 - No connection to the database :" + database_name));
-                throw new DbException("XAE323","No connection to the database", ex);
+                throw new DbException(XDB19,"No connection to the database", ex);
             }
         } else {
             String message = "No connection to the database :" + database_name;
             YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, message));
-            throw new DbException("XAE324",message);
+            throw new DbException(XDB20,message);
         }
 
     }
@@ -291,7 +292,7 @@ public class TheDbConnector implements JDbConnector {
                     TABLE_LIST.add(rs.getString(3));
                 }
             } catch (SQLException ex) {
-                throw new DbException("XAE325", ex);
+                throw new DbException(XDB21, ex);
             }
         }
         return TABLE_LIST;

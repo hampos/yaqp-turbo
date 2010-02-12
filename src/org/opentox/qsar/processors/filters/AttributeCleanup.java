@@ -31,8 +31,7 @@
  */
 package org.opentox.qsar.processors.filters;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.qsar.exceptions.QSARException;
 import weka.core.Instances;
 import weka.filters.unsupervised.attribute.RemoveType;
@@ -98,7 +97,7 @@ public class AttributeCleanup extends InstancesFilter {
             remover.setInputFormat(input);
         } catch (Exception ex) {
             String message = "Invalid input format for attribute-type removing filter";
-            throw new QSARException("XFL8W", message, ex);
+            throw new QSARException(Cause.XQF11, message, ex);
         }
         String typeRemoved = type.toString();
         Instances output = input;
@@ -107,13 +106,13 @@ public class AttributeCleanup extends InstancesFilter {
             remover.setOptions(options);
         } catch (Exception ex) {
             String message = "Invalid filter options for cleanup";
-            throw new QSARException("XFL4Q", message, ex);
+            throw new QSARException(Cause.XQF111, message, ex);
         }
         try {
             output = RemoveType.useFilter(input, remover);
         } catch (Exception ex) {
             String message = "The filter is unable to remove the specified type :" + typeRemoved;
-            throw new QSARException("XFL5Q", message, ex);
+            throw new QSARException(Cause.XQF212, message, ex);
         }
         return output;
     }

@@ -35,13 +35,10 @@ import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.exceptions.DuplicateKeyException;
 import org.opentox.db.handlers.WriterHandler;
 import org.opentox.db.table.StandardTables;
-import org.opentox.db.table.TableDropper;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.ontology.components.Algorithm;
 import org.opentox.ontology.components.AlgorithmOntology;
@@ -81,17 +78,19 @@ public class DatabaseJanitor {
         populateUsers();
     }
 
-    public void reset() throws DbException {
+    public void reset() throws SQLException  {
         try {
             StandardTables o = null;
             Field[] tables = StandardTables.class.getFields();
-            for (Field table : tables) {
-                StandardTables t = (StandardTables) table.get(o);
+            for (int i=tables.length-1;i>=0;i--) {
+                StandardTables t = (StandardTables) tables[i].get(o);
                 try {
                     Statement statement = TheDbConnector.DB.getConnection().createStatement();
-                    statement.executeUpdate("DELETE FROM "+t.name());
+                    String sql = "DELETE FROM "+t.getTable().getTableName();
+                    //System.out.println(sql);
+                    statement.executeUpdate(sql);
                 } catch (SQLException ex) {
-                    throw new DbException();
+                    throw ex;
                 }
                 t.getTable().getTableName();
             }
@@ -124,7 +123,7 @@ public class DatabaseJanitor {
     private void populateUsers() {
     }
 
-    public static void main(String args[]) throws DbException{
+    public static void main(String args[]) throws DbException, SQLException{
         DatabaseJanitor.INSTANCE.reset();
     };
 }

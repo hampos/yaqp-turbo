@@ -19,34 +19,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-package org.opentox.io.engines;
+package org.opentox.io.exceptions;
 
-import org.opentox.io.util.YaqpIOStream;
-import org.opentox.io.publishable.OntObject;
-import org.opentox.io.publishable.TurtleObject;
-import org.opentox.ontology.exceptions.YaqpOntException;
-import static org.opentox.core.exceptions.Cause.*;
+import org.opentox.core.exceptions.Cause;
+import org.opentox.core.exceptions.YaqpException;
 
 /**
  *
  * @author Charalampos Chomenides
+ * @author Pantelis Sopasakis
  */
-public class TurtleEngine<O extends OntObject> extends IOEngine {
+public class YaqpIOException extends YaqpException {
 
-    public TurtleEngine() {
-        super();
+    public YaqpIOException(Cause cause, String explanation, Throwable throwable) {
+        super(cause, explanation, throwable);
     }
 
-    @Override
-    protected O getYaqpOntModel(YaqpIOStream is) throws YaqpOntException {
-        try {
-            return (O) new TurtleObject(is);
-        } catch (ClassCastException ex) {
-            throw new ClassCastException("Typecasting error while trying to cast " +
-                    "a Turtle Object to a provided datatype");
-        }catch (Exception ex) {// EXCEPTION FROM JENA: COULD NOT PARSE THE CONTENT!
-            throw new YaqpOntException(XONT2,"Unable to parse content properly",ex);
-        }
+    public YaqpIOException(Cause cause, Throwable throwable) {
+        super(cause, throwable);
     }
+
+    public YaqpIOException(Cause cause, String exaplanation) {
+        super(cause, exaplanation);
+    }
+
+    public YaqpIOException() {
+    }
+
 }
-

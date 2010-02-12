@@ -21,6 +21,8 @@
  */
 package org.opentox.db.exceptions;
 
+import org.opentox.core.exceptions.Cause;
+
 /**
  *
  * This exception is thrown when one tries to add a duplicate key in the 
@@ -32,18 +34,21 @@ package org.opentox.db.exceptions;
 public class DuplicateKeyException extends DbException {
 
     public DuplicateKeyException() {
+        super();
     }
 
-    public DuplicateKeyException(String id, String msg) {
-        super(id, msg);
+    public DuplicateKeyException(Cause cause, String exaplanation) {
+        super(cause, exaplanation);
     }
 
-    public DuplicateKeyException(String id, Throwable throwable) {
-        super(id, throwable);
+    public DuplicateKeyException(Cause cause, Throwable throwable) {
+        super(cause, throwable);
     }
 
-    public DuplicateKeyException(String id, String message, Throwable throwable) {
-        super(id, message, throwable);
+    public DuplicateKeyException(Cause cause, String explanation, Throwable throwable) {
+        super(cause, explanation, throwable);
     }
+
+    
 
 }

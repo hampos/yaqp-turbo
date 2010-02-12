@@ -47,7 +47,11 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.opentox.core.exceptions.Cause;
+import org.opentox.core.interfaces.JMultiProcessor;
+import org.opentox.core.interfaces.JProcessor;
 import org.opentox.core.processors.Pipeline;
+import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.io.processors.InputProcessor;
 import org.opentox.io.publishable.OntObject;
 import org.opentox.ontology.exceptions.ImproperEntityException;
@@ -143,11 +147,11 @@ public class Dataset {
         if (dataSetIterator.hasNext()) {
             relationName = dataSetIterator.next().getSubject().getURI();
             if (dataSetIterator.hasNext()) {
-                throw new YaqpOntException("XN311", "More than one datasets found");
+                throw new YaqpOntException(Cause.XONT518, "More than one datasets found");
             }
         } else {
             // this is not a dataset model
-            throw new ImproperEntityException("XN312", "Not a dataset");
+            throw new ImproperEntityException(Cause.XIE2, "Not a dataset");
         }
         dataSetIterator.close();
 
@@ -245,6 +249,7 @@ public class Dataset {
                          * double.
                          */
                     } catch (NumberFormatException ex) {
+                        /* Just don't include this value in the dataset */
                     }
                 } else if (featureTypes.get(oo.createResource(atName)).equals(WekaDataTypes.string)) {
                     vals[data.attribute(atName).index()] = data.attribute(atName).addStringValue(atVal);
@@ -287,7 +292,7 @@ public class Dataset {
                 atts.addElement(new Attribute(entry.getKey().getURI(), (FastVector) null));
             }
         }
-
+        // COPE WITH NOMINAL VALUES:
         Set<Entry<Resource, ArrayList<String>>> nominalAttsSet = nominalValues.entrySet();
         for (Entry<Resource, ArrayList<String>> entry : nominalAttsSet){
             FastVector nominalFVec = new FastVector(entry.getValue().size());
@@ -308,15 +313,16 @@ public class Dataset {
         InstancesProcessor p3 = new InstancesProcessor();
         AbstractFilter filter1 = new AttributeCleanup(new ATTRIBUTE_TYPE[] {ATTRIBUTE_TYPE.string, ATTRIBUTE_TYPE.nominal});
         AbstractFilter filter = new SimpleMVHFilter();
-        Pipeline pipe = new Pipeline();
+
+        JMultiProcessor<URI, Instances, JProcessor> pipe = new Pipeline();
         pipe.add(p1);
         pipe.add(p2);
         pipe.add(p3);
         pipe.add(filter1);
         pipe.add(filter);
 
-        Instances data = (Instances)
-                pipe.process(new URI("http://localhost/9"));
+        Instances data = (Instances) pipe.process(new URI("http://localhost/8"));
         System.out.println(data);
     }
 }
+

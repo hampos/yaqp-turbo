@@ -68,6 +68,7 @@ import org.opentox.ontology.util.vocabulary.Audience;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Warning;
 import org.restlet.data.MediaType;
+import static org.opentox.core.exceptions.Cause.*;
 
 /**
  *
@@ -244,7 +245,7 @@ public class Algorithm extends YaqpComponent {
         return pdf;
     }
 
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws FileNotFoundException, YaqpException {
         YaqpAlgorithms.SVM.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/svm.pdf")));
         //YaqpAlgorithms.MLR.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/mlr.pdf")));
         //YaqpAlgorithms.SVM.getRDF().write(System.out, "TURTLE");
@@ -333,7 +334,7 @@ public class Algorithm extends YaqpComponent {
         try{
         return new URI(superUri+"/"+getMeta().getName());
         } catch (URISyntaxException ex){
-            throw new YaqpException("XGL82", "Improper URI", ex);
+            throw new YaqpException(XTC743, "Improper URI", ex);
         }
     }
 

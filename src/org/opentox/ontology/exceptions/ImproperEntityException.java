@@ -31,6 +31,8 @@
  */
 package org.opentox.ontology.exceptions;
 
+import org.opentox.core.exceptions.Cause;
+
 /**
  * Exception thrown when a given <code>TurboOntModel</code> entity is not
  * acceptable by a method or service. For example, if a method expects as
@@ -42,19 +44,20 @@ package org.opentox.ontology.exceptions;
  */
 public class ImproperEntityException extends YaqpOntException {
 
+    public ImproperEntityException(Cause cause, String exaplanation) {
+        super(cause, exaplanation);
+    }
+
+    public ImproperEntityException(Cause cause, Throwable throwable) {
+        super(cause, throwable);
+    }
+
+    public ImproperEntityException(Cause cause, String explanation, Throwable throwable) {
+        super(cause, explanation, throwable);
+    }
+
     public ImproperEntityException() {
     }
 
-    public ImproperEntityException(String id, String msg) {
-        super(id, msg);
-    }
-
-    public ImproperEntityException(String id, Throwable throwable) {
-        super(id, throwable);
-    }
-
-    public ImproperEntityException(String id, String message, Throwable throwable) {
-        super(id, message, throwable);
-    }
-    
+   
 }

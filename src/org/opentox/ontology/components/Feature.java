@@ -36,8 +36,7 @@ import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.vocabulary.DC;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import static org.opentox.core.exceptions.Cause.*;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
@@ -137,7 +136,7 @@ public class Feature extends YaqpComponent {
         try {
             return new URI(getURI());
         } catch (URISyntaxException ex) {
-            throw new YaqpException("XLI9", "Improper URI", ex);
+            throw new YaqpException(XTC743, "Improper URI", ex);
         }
     }
 

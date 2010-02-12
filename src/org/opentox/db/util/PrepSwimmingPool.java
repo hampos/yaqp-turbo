@@ -28,6 +28,7 @@ import org.opentox.db.exceptions.DbException;
 import org.opentox.db.queries.HyperStatement;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Fatal;
+import static org.opentox.core.exceptions.Cause.*;
 
 /**
  * Pool of hyper statements. This pool implements a first-in-first-out architecture
@@ -68,7 +69,7 @@ public class PrepSwimmingPool {
             }
         } catch (Exception ex) {
             YaqpLogger.LOG.log(new Fatal(getClass(), "XPP501 - " + ex.toString()));
-            throw new RuntimeException("XPP501" , ex);
+            throw new RuntimeException("XPP501", ex);
         }
     }
 
@@ -115,14 +116,14 @@ public class PrepSwimmingPool {
             }
         }
         if (hp_prepStmt == null) {
-            throw new DbException("XPP502","The HyperStatement you provided does " +
-                    "not correspond to a registered prepared statement :"+hp_prepStmt.getSql());
+            throw new DbException(XDB16, "The HyperStatement you provided does "
+                    + "not correspond to a registered prepared statement :" + hp_prepStmt.getSql());
         }
         try {
             hp.flush();
             BlockingQueues.get(hp_prepStmt).put(hp);
         } catch (InterruptedException ex) {
-            throw new DbException("XGQ28",ex);
+            throw new DbException(XDB17, ex);
         }
 
     }

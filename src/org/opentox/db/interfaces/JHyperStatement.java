@@ -21,6 +21,7 @@
  */
 package org.opentox.db.interfaces;
 
+import java.sql.SQLException;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.queries.HyperResult;
 import org.opentox.db.util.QueryType;
@@ -67,14 +68,14 @@ public interface JHyperStatement {
      * @throws DbException If the statement is not well-prepared or some
      * database connection/access issue occurs.
      */
-    HyperResult executeUpdate() throws DbException;
+    HyperResult executeUpdate() throws SQLException;
     /**
      * Execute a database select-type query.
      * @return The result of the query as an instance of <code>HyperResult</code>
      * @throws DbException If the statement is not well-prepared or some
      * database connection/access issue occurs.
      */
-    HyperResult executeQuery() throws DbException;
+    HyperResult executeQuery() throws SQLException;
     /**
      * String representation of the prepared statement
      * @return the SQL command

@@ -21,6 +21,7 @@
  */
 package org.opentox.db.exceptions;
 
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 
 /**
@@ -31,19 +32,22 @@ import org.opentox.core.exceptions.YaqpException;
  */
 public class DbException extends YaqpException {
 
-    public DbException(String id, String message, Throwable throwable) {
-        super(id, message, throwable);
+    public DbException(Cause cause, String explanation, Throwable throwable) {
+        super(cause, explanation, throwable);
     }
 
-    public DbException(String id, Throwable throwable) {
-        super(id, throwable);
+    public DbException(Cause cause, Throwable throwable) {
+        super(cause, throwable);
     }
 
-    public DbException(String id, String msg) {
-        super(id, msg);
+    public DbException(Cause cause, String exaplanation) {
+        super(cause, exaplanation);
     }
 
     public DbException() {
+        super();
     }
+
+    
 
 }

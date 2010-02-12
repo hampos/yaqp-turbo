@@ -38,15 +38,7 @@ public interface JDbConnector {
      * Returns a Reentrant lock from the DbConnector.
      * @return lock 
      */
-    Lock getLock();
-
-    /**
-     * A flag telling whether there is an active connection to the
-     * database. If not you can start a new connection calling the method
-     * {@link JDbConnector#connect() connect() }
-     * @return <code>true</code> if there's an active connection to the DB.
-     */
-    boolean isConnected();
+    Lock getLock();        
 
     /**
      * Starts a new connection with the database. The connection

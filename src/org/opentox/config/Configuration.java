@@ -33,6 +33,7 @@ package org.opentox.config;
 import java.io.FileInputStream;
 import java.util.Properties;
 import org.opentox.core.exceptions.YaqpException;
+import static org.opentox.core.exceptions.Cause.*;
 
 /**
  *
@@ -74,7 +75,7 @@ public class Configuration {
             } else {
                 String message = "Could not load the standard properties hence could not use the standard "
         + "logger - Using the console instead!";
-                throw new YaqpException("XAA12", message);
+                throw new YaqpException(XA1, message);
             }
         }
     }
@@ -95,7 +96,7 @@ public class Configuration {
         } else {
             String message = "Could not load the standard properties hence could not use the standard "
         + "logger - Using the console instead";
-            throw new YaqpException("XAA13", message);
+            throw new YaqpException(XA2, message);
         }
 
     }
@@ -108,7 +109,7 @@ public class Configuration {
         } else {
             String message = "Could not load the standard properties hence could not use the standard "
         + "logger - Using the console instead";
-            throw new YaqpException("XAA5", message);
+            throw new YaqpException(XA3, message);
         }
     }
     // </editor-fold>

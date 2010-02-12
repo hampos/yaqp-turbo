@@ -43,12 +43,15 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import org.opentox.config.ServerFolders;
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.interfaces.JPublishable;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Debug;
 import org.opentox.util.logging.levels.Trace;
 import org.opentox.util.logging.levels.Warning;
 import org.restlet.data.MediaType;
+import static org.opentox.core.exceptions.Cause.*;
 
 /**
  *
@@ -57,7 +60,6 @@ import org.restlet.data.MediaType;
  */
 public class PDFObject implements JPublishable {
 
-    
     private ArrayList<Element> elements = new ArrayList<Element>();
     private String subject = "OpenTox Entity Representation";
     private String pdfAuthor = "OpenTox NTUA WebServices";
@@ -65,10 +67,9 @@ public class PDFObject implements JPublishable {
     private String pdfTitle = "OpenTox Entity Representation";
     private String pdfKeywords = "";
     private static final String OpenToxLogoUrl = "http://opentox.org/logo.png";
-    private static final String alternativeLogoPath = ServerFolders.images+"/logo.png";
-    private static final String kinkyDesignLogo = ServerFolders.images+"/kd_logo.png";
-    private static final String yaqpLogo = ServerFolders.images+"/yaqp_logo.png";
-
+    private static final String alternativeLogoPath = ServerFolders.images + "/logo.png";
+    private static final String kinkyDesignLogo = ServerFolders.images + "/kd_logo.png";
+    private static final String yaqpLogo = ServerFolders.images + "/yaqp_logo.png";
 
     public PDFObject() {
     }
@@ -97,13 +98,17 @@ public class PDFObject implements JPublishable {
         this.pdfKeywords = pdfKeywords;
     }
 
-
-
-    public void publish(YaqpIOStream stream) {
-
+    public void publish(YaqpIOStream stream) throws YaqpException{
+        if (stream == null){
+            throw new NullPointerException("Cannot public pdf to a null output stream");
+        }
         try {
             Document doc = new Document();
-            PdfWriter.getInstance(doc, (OutputStream) stream.getStream());
+            try {
+                PdfWriter.getInstance(doc, (OutputStream) stream.getStream());
+            } catch (ClassCastException ex) {
+                throw new ClassCastException("The stream you provided is not a valid output stream");
+            }
             doc.open();
             doc.addAuthor(pdfAuthor);
             doc.addCreationDate();
@@ -112,19 +117,19 @@ public class PDFObject implements JPublishable {
             doc.addCreator(pdfCreator);
             doc.addTitle(pdfTitle);
             doc.addKeywords(pdfKeywords);
-            doc.addHeader("License", "GNU GPL v3");            
-            Image image = null;            
+            doc.addHeader("License", "GNU GPL v3");
+            Image image = null;
             try {
-                image = Image.getInstance(new URL(OpenToxLogoUrl));                
+                image = Image.getInstance(new URL(OpenToxLogoUrl));
             } catch (Exception ex) {// OpenTox Logo was not found on the web...
                 try {// use the cached image instead
-                    YaqpLogger.LOG.log(new Trace(getClass(), "WCT517 - OpenTox Logo not found at " + OpenToxLogoUrl));
+                    YaqpLogger.LOG.log(new Trace(getClass(), "OpenTox Logo not found at " + OpenToxLogoUrl));
                     image = Image.getInstance(alternativeLogoPath);
-                } catch (Exception ex1) {
-                    YaqpLogger.LOG.log(new Warning(getClass(), "WCT518 - OpenTox Logo not found at "+alternativeLogoPath+" :: "+ex1));
-                } 
+                } catch (Exception ex1) {// if no image at local folder
+                    YaqpLogger.LOG.log(new Debug(getClass(), "OpenTox Logo not found at " + alternativeLogoPath + " :: " + ex1));
+                }
             }
-            if (image != null){
+            if (image != null) {
                 image.scalePercent(40);
                 image.setAnnotation(new Annotation(0, 0, 0, 0, "http://opentox.org"));
                 Chunk ck_ot = new Chunk(image, -5, -30);
@@ -135,18 +140,20 @@ public class PDFObject implements JPublishable {
                 yaqp.scalePercent(30);
                 yaqp.setAnnotation(new Annotation(0, 0, 0, 0, "https://opentox.ntua.gr"));
                 yaqp.setAlt("YAQP(R), yet another QSAR Project");
-                Chunk ck_yaqp = new Chunk(yaqp,15,-30);
+                Chunk ck_yaqp = new Chunk(yaqp, 15, -30);
                 doc.add(ck_yaqp);
             } catch (Exception ex) {
-                YaqpLogger.LOG.log(new Warning(getClass(), "WCT519 - Kinky Design Logo not found at "+kinkyDesignLogo+" :: "+ex));
+                YaqpLogger.LOG.log(new Warning(getClass(), "YAQP Logo not found at " + kinkyDesignLogo + " :: " + ex));
             }
             doc.add(new Paragraph("\n\n\n"));
-            for (int i = 0;i < elements.size(); i++){
+            for (int i = 0; i < elements.size(); i++) {
                 doc.add(elements.get(i));
             }
             doc.close();
         } catch (DocumentException ex) {
-            YaqpLogger.LOG.log(new Warning(getClass(), "XPD819 - Error while generating PDF representation."));
+            String message = "Error while generating PDF representation.";
+            YaqpLogger.LOG.log(new Warning(getClass(), message));
+            throw new YaqpException(XPDF18, message, ex);
         }
 
     }

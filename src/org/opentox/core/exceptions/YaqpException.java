@@ -31,6 +31,8 @@
  */
 package org.opentox.core.exceptions;
 
+
+
 /**
  *
  * @author Pantelis Sopasakis
@@ -38,12 +40,17 @@ package org.opentox.core.exceptions;
  */
 public class YaqpException extends Exception {
 
-    private String ID = "XUU101";
+    private Cause cause = null;
     private String explanation = "Unknown Cause of Exception";
 
-    public String getID() {
-        return ID;
+    public Cause getCode() {
+        return cause;
     }
+
+    public String getExplanation() {
+        return explanation;
+    }
+    
 
     /**
      * Creates a new instance of <code>YaqpException</code> without detail message.
@@ -54,22 +61,22 @@ public class YaqpException extends Exception {
 
     /**
      * Constructs an instance of <code>YaqpException</code> with the specified detail message.
-     * @param msg the detail message.
+     * @param exaplanation the detail message.
      */
-    public YaqpException(String id, String msg) {
-        super(id + " - " + msg);
-        this.ID = id;
-        this.explanation = msg;
+    public YaqpException(Cause cause, String exaplanation) {
+        super(cause + " - " + exaplanation);
+        this.cause = cause;
+        this.explanation = exaplanation;
     }
 
-    public YaqpException(String id, Throwable throwable) {
+    public YaqpException(Cause cause, Throwable throwable) {
         super(throwable);
-        this.ID = id;
+        this.cause = cause;
     }
 
-    public YaqpException(String id, String message, Throwable throwable) {
-        super(id + " - " + message, throwable);
-        this.ID = id;
-        this.explanation = message;
+    public YaqpException(Cause cause, String explanation, Throwable throwable) {
+        super(cause + " - " + explanation, throwable);
+        this.cause = cause;
+        this.explanation = explanation;
     }
 }

@@ -21,7 +21,7 @@
  */
 package org.opentox.io.processors;
 
-import org.opentox.core.exceptions.YaqpIOException;
+import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.io.engines.IOEngine;
 import org.opentox.io.publishable.OntObject;
 import org.restlet.Response;

@@ -40,11 +40,16 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
+import org.opentox.db.DatabaseJanitor;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
 import org.opentox.db.exceptions.BadEmailException;
 import org.opentox.db.exceptions.DuplicateKeyException;
+import org.opentox.db.table.StandardTables;
+import org.opentox.db.table.Table;
+import org.opentox.db.table.TableDropper;
 import org.opentox.db.util.TheDbConnector;
 import static org.junit.Assert.*;
 import org.opentox.ontology.exceptions.ImproperEntityException;
@@ -66,6 +71,7 @@ public class WriterHandlerTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        DatabaseJanitor.INSTANCE.reset();
         TheDbConnector.init();
     }
 
@@ -81,46 +87,48 @@ public class WriterHandlerTest {
     public void tearDown() {
     }
 
+
+
+
+
     /**
      * Test of addUserGroup method, of class WriterHandler.
      */
-//    @Test
+    @Test
     public void testAddUserGroup() throws ImproperEntityException {
-        try{
-        UserGroup guestGroup = (UserGroup ) WriterHandler.add(new UserGroup("GUEST", 60));
-        assertTrue(guestGroup.getName().equals("GUEST") && guestGroup.getLevel()==60);
-        UserGroup adminGroup = WriterHandler.addUserGroup(new UserGroup("ADMINISTRATOR", 10));
-        assertTrue(adminGroup.getLevel()==10 && adminGroup.getName().equals("ADMINISTRATOR"));
-        } catch (DuplicateKeyException ex){}
-        catch (DbException ex) {
-            //
+        System.out.println("user group - test 1");
+        try {
+            UserGroup guestGroup = (UserGroup) WriterHandler.add(new UserGroup("GUEST", 60));
+            assertTrue(guestGroup.getName().equals("GUEST") && guestGroup.getLevel() == 60);
+            UserGroup adminGroup = WriterHandler.addUserGroup(new UserGroup("ADMINISTRATOR", 10));
+            assertTrue(adminGroup.getLevel() == 10 && adminGroup.getName().equals("ADMINISTRATOR"));
+        } catch (DuplicateKeyException ex) {
+            fail();
+        } catch (DbException ex) {
+            fail();
         }
     }
 
-//    @Test
+    @Test
     public void addBadUserGroup() {
+        System.out.println("user group - test 2");
         UserGroup badGroup = new UserGroup(null, 10);
-        boolean dbExcThrown = false;
         try {
             WriterHandler.add(badGroup);
         } catch (DbException ex) {
-            dbExcThrown= true;
+            assertTrue(ex.getCode()==Cause.XDB321);
         } catch (ImproperEntityException ex) {
             fail("Improper Entity ?!");
-        }
-        if (!dbExcThrown){
-            fail("A bad user group seeme to be added!!!");
-        }
-        
+        }        
     }
 
-//    @Test
-    public void addDuplicateUserGroup(){
+    @Test
+    public void addDuplicateUserGroup() {
+        System.out.println("user group - test 3");
         UserGroup some = new UserGroup("ROCKETS", 512);
         try {
             WriterHandler.add(some);
         } catch (DbException ex) {
-            
         } catch (ImproperEntityException ex) {
             fail("Improper Entity ?!");
         }
@@ -133,24 +141,57 @@ public class WriterHandlerTest {
         }
     }
 
+    @Test
+    public void addNullUserGroup() throws DbException {
+        System.out.println("user group - test 4");
+        try {
+            WriterHandler.addUserGroup(null);
+        } catch (NullPointerException ex) {
+            assertTrue(ex.toString().contains("null user group"));
+        }
+    }
 
-    
-
+    @Test
+    public void addBigNameUserGroup(){
+        System.out.println("user group - test 5");
+        UserGroup ug = new UserGroup("ababababababababababababababababababababababa", 10);
+        try {
+            WriterHandler.add(ug);
+        } catch (DbException ex) {
+            assertTrue(ex.getCode()==Cause.XDB490);
+        } catch (ImproperEntityException ex) {
+            fail();
+        }
+    }
 
     /**
      * Test of addAlgorithmOntology method, of class WriterHandler.
      */
-    //@Test
+    @Test
     public void testAddAlgorithmOntology() throws YaqpOntException, DbException, YaqpException {
+        System.out.println("algorithm ontology - test 1");
         try {
             ArrayList<OTAlgorithmTypes> otlist = OTAlgorithmTypes.getAllAlgorithmTypes();
             for (OTAlgorithmTypes ot : otlist) {
-                System.out.println(WriterHandler.addAlgorithmOntology(new AlgorithmOntology(ot.getResource().getLocalName())));
-
+                AlgorithmOntology algOnt = new AlgorithmOntology(ot.getResource().getLocalName());
+                assertTrue(algOnt==WriterHandler.addAlgorithmOntology(algOnt));
             }
         } catch (DuplicateKeyException ex) {
-            Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
             fail();
+        }
+    }
+
+    @Test
+    public void duplicateAddOntology() {
+        System.out.println("algorithm ontology - test 1");
+        AlgorithmOntology algOnt = new AlgorithmOntology(OTAlgorithmTypes.Classification);
+        try{
+            WriterHandler.add(algOnt);
+        }catch (DbException ex){
+            assertTrue(ex instanceof DuplicateKeyException);
+        }catch (ImproperEntityException ex){
+            fail("Improper Entity ?!");
         }
     }
 
@@ -158,7 +199,7 @@ public class WriterHandlerTest {
      * It seems users are being successfully added in the database.
      * @throws BadEmailException
      */
-    @Test
+    //@Test
     public void testAddUser() throws BadEmailException {
         try {
             for (int i = 0; i < 1000; i++) {
@@ -177,7 +218,7 @@ public class WriterHandlerTest {
         }
     }
 
-//   @Test
+    //@Test
     public void testAddAlgorithm() throws DbException, ImproperEntityException, YaqpException {
 
         WriterHandler.add(YaqpAlgorithms.MLR);
@@ -185,7 +226,7 @@ public class WriterHandlerTest {
         WriterHandler.add(YaqpAlgorithms.SVC);
     }
 
-   //@Test
+    //@Test
     public void testAddFeature() throws DbException, ImproperEntityException, YaqpException {
         for (int i = 5; i <= 20; i++) {
             System.out.println(WriterHandler.addFeature(new Feature("http://sth.com/feature/" + i)).getID());
@@ -203,10 +244,10 @@ public class WriterHandlerTest {
         WriterHandler.add(m);
     }
 
-   // @Test
+    //  @Test
     public void addsvmModel() throws Exception {
         User u = ReaderHandler.searchUsers(new User()).get(1);
-        Feature f = ReaderHandler.searchFeature(new Feature(-1,"http://sth.com/feature/1"));
+        Feature f = ReaderHandler.searchFeature(new Feature(-1, "http://sth.com/feature/1"));
         ArrayList<Feature> lf = new ArrayList<Feature>();
         lf.add(f);
         QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "dataset1", null);
@@ -216,11 +257,11 @@ public class WriterHandlerTest {
         WriterHandler.add(m);
     }
 
-    //@Test
+    //  @Test
     public void addmlrModel() throws DbException, ImproperEntityException, YaqpException {
-        User u = ReaderHandler.searchUsers(new User()).get(7);        
+        User u = ReaderHandler.searchUsers(new User()).get(7);
         u.setEmail("ann10@foo.goo.gr");
-        Feature f = ReaderHandler.searchFeature(new Feature(-1,"http://sth.com/feature/1"));
+        Feature f = ReaderHandler.searchFeature(new Feature(-1, "http://sth.com/feature/1"));
         ArrayList<Feature> lf = new ArrayList<Feature>();
         lf.add(f);
         QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.MLR, u, null, "dataset1", null);
@@ -228,7 +269,7 @@ public class WriterHandlerTest {
         System.out.println(WriterHandler.add(m));
     }
 
-   // @Test
+    // @Test
     public void testaddTask() throws DbException, ImproperEntityException, YaqpException {
         User prot = new User();
         prot.setEmail("ann11%");
@@ -240,7 +281,7 @@ public class WriterHandlerTest {
         }
     }
 
-    //@Test
+    //  @Test
     public void addOmega() throws DbException, ImproperEntityException, YaqpException {
         User prot = new User();
         prot.setEmail("ann12%");

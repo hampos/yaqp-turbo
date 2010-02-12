@@ -29,49 +29,122 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.io.publishable;
-
-import java.io.OutputStream;
-import org.opentox.io.exceptions.YaqpIOException;
-import org.opentox.io.util.YaqpIOStream;
-import org.restlet.data.MediaType;
-import static org.opentox.core.exceptions.Cause.*;
+package org.opentox.core.exceptions;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class TurtleObject extends OntObject {
+public enum Cause {
+    // CONFIG:
 
-    public TurtleObject() {
-        super();
-    }
-
-    public TurtleObject(OntObject other) {
-        super(other);
-    }
-
-    public TurtleObject(YaqpIOStream ioStream) {
-        super(ioStream);
-    }
-
-    public void publish(YaqpIOStream stream) throws YaqpIOException {
-        if (stream == null) {
-            throw new NullPointerException("Cannot publish an RDF document to a null stream");
-        }
-        try {
-            this.write((OutputStream) stream.getStream(), "TURTLE");
-        } catch (ClassCastException ex) {
-            throw new ClassCastException("The stream you provided is not a valid stream for publishing "
-                    + "an TTL document but it does not seem to be null either.");
-        } catch (Exception ex) {
-            throw new YaqpIOException(XTTL700, "Cannot write the TTL document to this stream", ex);
-        }
-    }
-
-    @Override
-    public MediaType getMediaType() {
-        return MediaType.APPLICATION_RDF_TURTLE;
-    }
+    XA1,
+    XA2,
+    XA3,
+    //BATCH PROCESSOR:
+    XBP1,
+    XBP2,
+    XBP3,
+    XBP7,
+    // PARALLEL PROCESSOR:
+    XPP1,
+    XPP2,
+    XPP3,
+    XPP7,
+    // DB PROCESSOR
+    XDB4,
+    XDB9,
+    XDB10,
+    XDB11,
+    XDB12,
+    XDB13,
+    XDB14,
+    XDB15,
+    XDB16,
+    XDB17,
+    XDB18,
+    XDB19,
+    XDB20,
+    XDB21,
+    XDB321,
+    XDB490,
+    XDB624,
+    XDB800,
+    XDB1002,
+    XDB1003,
+    XDB1004,
+    XDB1005,
+    // HANDLERS:
+    XDH0,
+    XDH00,
+    XDH1,
+    XDH2,
+    XDH3,
+    XDH4,
+    XDH5,
+    XDH6,
+    XDH7,
+    XDH8,
+    XDH100,
+    XDH101,
+    XDH102,
+    XDH103,
+    XDH104,
+    XDH105,
+    XDH106,
+    XDH107,
+    XDH108,
+    XDH109,
+    XDH110,
+    XDH111,
+    XDH112,
+    // IMPROPER ENTITY:
+    XIE0,
+    XIE1,
+    XIE2,
+    // ONTOLOGICAL:
+    XONT0,
+    XONT1,
+    XONT2,
+    XONT3,
+    XONT4,
+    XONT5,
+    XONT6,
+    XONT7,
+    XONT8,
+    XONT9,
+    XONT517,
+    XONT518,
+    XONT519,
+    XONT520,
+    XONT521,
+    XONT522,
+    // INPUT/OUTPUT
+    XIO54,
+    XIO75,
+    XIO76,
+    XIO77,
+    // PUBLISHABLE
+    XPDF18,
+    XRDF99,
+    XTTL700,
+    // GENERAL PURPOSE
+    XTC743,
+    // QSAR-MLR
+    XQM0,
+    XQM00,
+    XQM000,
+    XQM1,
+    XQM2,
+    XQM3,
+    XQM4,
+    // QSAR - Filters
+    XQF1,
+    XQF11,
+    XQF111,
+    XQF212,
+    XQF535,
+    XQF913,
+    XQF412
 }

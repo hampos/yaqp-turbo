@@ -29,13 +29,13 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.io.publishable;
 
 import java.io.OutputStream;
+import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.io.util.YaqpIOStream;
 import org.restlet.data.MediaType;
+import static org.opentox.core.exceptions.Cause.*;
 
 /**
  *
@@ -44,25 +44,34 @@ import org.restlet.data.MediaType;
  */
 public class RDFObject extends OntObject {
 
-    public RDFObject(){
+    public RDFObject() {
         super();
     }
 
-    public RDFObject(YaqpIOStream ioStream){
+    public RDFObject(YaqpIOStream ioStream) {
         super(ioStream);
     }
 
     public RDFObject(OntObject other) {
         super(other);
     }
-    
 
-    public void publish(YaqpIOStream stream) {
-        this.write((OutputStream)stream.getStream(), "RDF/XML");
+    public void publish(YaqpIOStream stream) throws YaqpIOException {
+        if (stream == null) {
+            throw new NullPointerException("Cannot publish an RDF document to a null stream");
+        }
+        try {
+            this.write((OutputStream) stream.getStream(), "RDF/XML");
+        } catch (ClassCastException ex) {
+            throw new ClassCastException("The stream you provided is not a valid stream for publishing " +
+                    "an RDF document but it does not seem to be null either.");
+        } catch (Exception ex){
+            throw new YaqpIOException(XRDF99, "Cannot write RDF document to this stream", ex);
+        }
     }
 
+    @Override
     public MediaType getMediaType() {
         return MediaType.APPLICATION_RDF_XML;
     }
-
 }

@@ -31,12 +31,17 @@
 package org.opentox.io.processors;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opentox.core.exceptions.YaqpException;
+import org.opentox.io.exceptions.YaqpIOException;
+import org.opentox.io.publishable.OntObject;
 import org.opentox.io.util.ServerList;
+import org.opentox.ontology.exceptions.YaqpOntException;
 import static org.junit.Assert.*;
 
 /**
@@ -65,34 +70,58 @@ public class InputProcessorTest {
     public void tearDown() {
     }
 
-    /**
-     * Test of process method, of class InputProcessor.
-     */
     @Test
-    public void testProcess() {
+    public void testExistingUri() {
         try {
-            InputProcessor p = new InputProcessor();
-
-            //URI uri = new URI("http://opentox.ntua.gr/big.rdf");
-            URI uri = new URI(ServerList.ambit.getBaseURI() + "/dataset/6");
-
-            //p.handle(uri).printConsole();
-
-            //double start = 0, duration = 0, sum = 0;
-            final int N = 10;
-            for (int i = 0; i < N; i++) {
-              //  start = System.currentTimeMillis();
-                p.handle(uri);
-                //duration = System.currentTimeMillis() - start;
-              //  System.out.println(duration);
-                //sum += duration;
-            }
-            //System.out.println("Average :"+(double)sum/(double)N);
-            
-
+            InputProcessor<OntObject> p = new InputProcessor<OntObject>();
+            URI uri = new URI("http://localhost/6");
+            p.handle(uri);
         } catch (Exception e) {
             System.out.println(e);
             fail(e.toString());
+        }
+    }
+
+    @Test
+    public void testNonExistingUri() throws URISyntaxException {
+        try {
+            InputProcessor<OntObject> p = new InputProcessor<OntObject>();
+            URI uri = new URI("http://localhost/asdfwqrety.html");
+            p.handle(uri);
+            fail("SHOULD HAVE FAILED");
+        } catch (YaqpException e) {
+            assertTrue(e instanceof YaqpIOException);
+        }
+    }
+
+    @Test
+    public void testWTFURI() throws URISyntaxException{
+        try {
+            InputProcessor<OntObject> p = new InputProcessor<OntObject>();
+            URI uri = new URI("http://localhost/wtf.txt");
+            p.handle(uri);
+            fail("SHOULD HAVE FAILED");
+        } catch (YaqpException e) {
+            assertTrue(e instanceof YaqpOntException);
+        }
+    }
+
+
+    @Test
+    public void testNullInput() {
+        try{
+            new InputProcessor<OntObject>().process(null);
+        }catch (Throwable ex){
+            assertTrue(ex instanceof NullPointerException);
+        }        
+    }
+
+    @Test
+    public void anotherNullCrashTest(){
+        try{
+            new InputProcessor<OntObject>().handle(null);
+        }catch (Throwable ex){
+            assertTrue(ex instanceof NullPointerException);
         }
     }
 }

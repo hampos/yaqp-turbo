@@ -32,6 +32,7 @@
 package org.opentox.ontology.components;
 
 import java.lang.reflect.Field;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
@@ -83,7 +84,7 @@ public class AlgorithmOntology extends YaqpComponent {
         } catch (Exception ex) {
             String message = "No such algorithm ontology : " + name;
             YaqpLogger.LOG.log(new Trace(getClass(), message));
-            throw new YaqpOntException("XAT982",message, ex);
+            throw new YaqpOntException(Cause.XONT517,message, ex);
         }
     }
 

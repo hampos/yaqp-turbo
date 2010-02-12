@@ -26,7 +26,6 @@ import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JEngine;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.io.publishable.OntObject;
-import org.opentox.ontology.data.Dataset;
 
 /**
  *
@@ -40,13 +39,11 @@ public abstract class IOEngine<O extends OntObject> implements JEngine<YaqpIOStr
         super();
     }
 
-  
-
     public O ignite(YaqpIOStream fuel) throws YaqpException {
             return getYaqpOntModel(fuel);
     }
 
-    protected  abstract O getYaqpOntModel(YaqpIOStream stream);
+    protected  abstract O getYaqpOntModel(YaqpIOStream stream) throws YaqpException;
 
     public YaqpIOStream exhaust(OntObject gas) throws YaqpException {
         throw new UnsupportedOperationException("Not supported yet.");

@@ -22,6 +22,7 @@
  */
 package org.opentox.io.interfaces;
 
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.util.YaqpIOStream;
 import org.restlet.data.MediaType;
 
@@ -32,7 +33,7 @@ import org.restlet.data.MediaType;
  */
 public interface JPublishable {
 
-    void publish(YaqpIOStream stream);
+    void publish(YaqpIOStream stream) throws YaqpException;
 
     MediaType getMediaType();
 

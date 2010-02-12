@@ -39,6 +39,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.BatchProcessor;
 import org.opentox.ontology.components.*;
@@ -57,6 +58,7 @@ import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.*;
+import static org.opentox.core.exceptions.Cause.*;
 
 /**
  * Handles write operations in the database. Provides a collection of static methods
@@ -70,9 +72,8 @@ import org.opentox.util.logging.levels.*;
  */
 public class WriterHandler {
 
-    private static DbPipeline<QueryFood, HyperResult> addUserPipeline = null,
-            addAlgorithmOntologyPipeline = null,
-            addUserGroupPipeline = null,
+    private static DbPipeline<QueryFood, HyperResult>
+            addUserPipeline = null,
             addAlgorithmPipeline = null,
             addAlgOntRelationPipeline = null,
             addFeaturePipeline = null,
@@ -106,6 +107,9 @@ public class WriterHandler {
      * @see WriterHandler#addTask(org.opentox.ontology.components.Task) add task
      */
     public static YaqpComponent add(YaqpComponent component) throws DbException, ImproperEntityException {
+        if (component == null) {
+            throw new NullPointerException("Cannot add a null component into the database");
+        }
         if (component instanceof User) {// add user
             return addUser((User) component);
         } else if (component instanceof UserGroup) { // add user group
@@ -127,7 +131,7 @@ public class WriterHandler {
                     + "database because it cannot be cast to any of the recognizable "
                     + "datatypes ";
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
-            throw new ImproperEntityException("XKK7A", message);
+            throw new ImproperEntityException(XIE0, message);
         }
     }
 
@@ -138,9 +142,17 @@ public class WriterHandler {
      * @throws NumberFormatException in case the provided user authorization level is not
      * an integer number
      */
-    protected static UserGroup addUserGroup(UserGroup userGroup) throws DbException {
-        if (addUserGroupPipeline == null) {
-            addUserGroupPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER_GROUP);
+    protected static UserGroup addUserGroup(UserGroup userGroup) throws DuplicateKeyException, DbException {
+        DbPipeline<QueryFood, HyperResult> addUserGroupPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER_GROUP);
+        if (userGroup == null) {
+            throw new NullPointerException("Cannot add a null user group in the database.");
+        }
+        if (userGroup.getName() == null) {
+            throw new DbException(Cause.XDB321, "It seems you forgot to specify the name "
+                    + "of the userGroup");
+        }
+        if (userGroup.getName().length() > 40) {
+            throw new DbException(XDB490, "Very Big Name for the user group");
         }
         try {
             QueryFood food = new QueryFood(
@@ -153,12 +165,12 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Added new user group '" + userGroup.getName()
                     + "' with authorization level :" + userGroup.getLevel()));
         } catch (DbException ex) {
-            if (ex.toString().contains("duplicate key")) {
-                throw new DuplicateKeyException("XFB9J", "UserGroup already registered", ex);
+            if (ex.getCode() == Cause.XDB800) {
+                throw new DuplicateKeyException(XDH100, "UserGroup already registered", ex);
             }
             String message = "UserGroup could not be added";
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
-            throw new DbException("XUG512", message, ex);
+            throw new DbException(XDH101, message, ex);
         }
         return userGroup;
     }
@@ -168,14 +180,22 @@ public class WriterHandler {
      * Add a new algorithm ontology in the database.
      * @param ontology algorithm ontology to be added in the database with specified
      * name and uri.
-     * @throws DbException If the algorithm ontology is already registered
-     * in the database (instance of {@link DuplicateKeyException }) or if the provided
+     * @return The algorithm ontology itself as added in the database.
+     * @throws DuplicateKeyException If the algorithm ontology is already registered
+     * in the database
+     * @throws DbException if the provided
      * algorithm ontology is <code>null</code> or its name or URI is not specified/missing.
+     * @throws NullPointerException If the provided algorithm ontology is null
      */
-    protected static AlgorithmOntology addAlgorithmOntology(AlgorithmOntology ontology) throws DbException {
-        if (addAlgorithmOntologyPipeline == null) {
-            addAlgorithmOntologyPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM_ONTOLOGY);
-        }
+    protected static AlgorithmOntology addAlgorithmOntology(AlgorithmOntology ontology) throws DuplicateKeyException, DbException {
+        DbPipeline<QueryFood, HyperResult> addAlgorithmOntologyPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM_ONTOLOGY);
+        if (ontology == null) throw new NullPointerException("The algorithm ontology you provided in the db writer is null");
+        if (ontology.getName() == null) throw new DbException(Cause.XDB1002, "You have to specify the name of an algorithm ontology to add it in the database");
+        if (ontology.getName() == null) throw new DbException(Cause.XDB1003, "You have to specify the URI of an algorithm ontology to add it in the database");
+        if (ontology.getName().length() > 40) throw new DbException(Cause.XDB1004, "The name of the ontology you tried to add in the " +
+                "database is too long : "+ontology.getName().length());
+        if (ontology.getUri().length()>200) throw new DbException(Cause.XDB1004, "The URI of the ontology you try to add in the database is too long: "+
+                ontology.getUri().length());
         QueryFood food = new QueryFood(
                 new String[][]{
                     {"NAME", ontology.getName()},
@@ -187,12 +207,12 @@ public class WriterHandler {
                     + "' with uri :" + ontology.getUri()));
         } catch (DbException ex) {
             //TODO: verify that the ontology is indeed added!
-            if (ex.toString().contains("duplicate key")) {
+            if (ex.getCode() == Cause.XDB800) {
                 String message = "Algorithm Ontology Already Registered in the Database!";
                 YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
                 YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
             } else {
-                throw new DbException("XAL5IJ", "Error while adding the ontology with name = " + ontology.getName(), ex);
+                throw new DbException(XDH102, "Error while adding the ontology with name = " + ontology.getName(), ex);
             }
         }
         return ontology;
@@ -216,7 +236,7 @@ public class WriterHandler {
      */
     protected static User addUser(User user) throws BadEmailException, DbException {
         if (!EmailSupervisor.checkMail(user.getEmail())) {
-            throw new BadEmailException("XE449", "Bad user email");
+            throw new BadEmailException(XDH103, "Bad user email");
         }
 
         if (addUserPipeline == null) {
@@ -280,7 +300,7 @@ public class WriterHandler {
                     String message = "Cannot add feature because it already exists: " + feature;
                     YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
                     YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-                    throw new DbException("XFT41P", message, ex1);
+                    throw new DbException(XDH104, message, ex1);
                 }
             }
         }
@@ -343,7 +363,7 @@ public class WriterHandler {
                 YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
                 YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
                 // IF THE ALGORITHM IS ALREADY ADDED, THROW A DUPLICATE KEY EXCEPTION.
-                throw new DuplicateKeyException("XE4B", message, ex);
+                throw new DuplicateKeyException(XDH105, message, ex);
             }
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Could not add the following algorithm :\n" + algorithm));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
@@ -408,11 +428,11 @@ public class WriterHandler {
                 String message = "XU715 - Cannot add model because URI is already used by some other model.";
                 YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
                 YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-                throw new DuplicateKeyException(message, ex);
+                throw new DuplicateKeyException(XDH106, message, ex);
             }
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "XU716 - Could not add the following QSAR model :\n" + model));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-            throw new DbException("XU716", ex);
+            throw new DbException(XDH107, ex);
         }
         if (result.getSize() == 1) {
             Iterator<String> it = result.getColumnIterator(1);
@@ -460,7 +480,6 @@ public class WriterHandler {
             return addSuppVectModel(model);
         } else if (algorithmName.equals(YaqpAlgorithms.MLR.getMeta().getName())) {
             int new_id = addQSARModel(model);
-            System.err.println(new_id);
             model.setId(new_id);
             return model;
         }
@@ -474,7 +493,7 @@ public class WriterHandler {
         } catch (DbException ex) {
             // Could not add the model to the parent table
             // Reproduce the exception!
-            throw new DbException("XKW9", "Support Vector Could not be added in the database", ex);
+            throw new DbException(XDH108, "Support Vector Could not be added in the database", ex);
         }
         if (addSupportVectorPipeline == null) {
             addSupportVectorPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_SUPPORT_VECTOR);
@@ -500,7 +519,7 @@ public class WriterHandler {
                 Statement delete = TheDbConnector.DB.getConnection().createStatement();
                 delete.executeUpdate("DELETE FROM " + StandardTables.QSARModels().getTableName() + " WHERE UID =" + r);
             } catch (SQLException ex1) {
-                throw new DbException("XDL4", "Could not delete the QSAR model with uid : " + r, ex1);
+                throw new DbException(XDH109, "Could not delete the QSAR model with uid : " + r, ex1);
             }
 
         }
@@ -543,7 +562,7 @@ public class WriterHandler {
         } catch (DbException ex) {
             String message = "Could not add the following Task :\n" + task;
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
-            throw new DbException("XU718", message, ex);
+            throw new DbException(XDH110, message, ex);
         }
 
         return task;
@@ -563,11 +582,11 @@ public class WriterHandler {
 
         User u = model.getUser();
         if (u == null) {
-            throw new DbException("XVW981", "You did not provide the user that created the DoA model");
+            throw new DbException(XDH111, "You did not provide the user that created the DoA model");
         }
         String userEmail = u.getEmail();
         if (userEmail == null) {
-            throw new DbException("XVW982", "Unknown user because the provided email is null");
+            throw new DbException(XDH112, "Unknown user because the provided email is null");
         }
         QueryFood food = new QueryFood();
         food.add("CODE", model.getCode());

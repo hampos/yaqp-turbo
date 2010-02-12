@@ -48,6 +48,7 @@ import org.opentox.ontology.util.AlgorithmMeta;
 import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.*;
+import static org.opentox.core.exceptions.Cause.*;
 
 /**
  *
@@ -156,7 +157,7 @@ public class ReaderHandler {
         } catch (YaqpException ex) {
             String message = "Could not get User list from database";
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException("XR51", message, ex);
+            throw new DbException(XDH0, message, ex);
         }
 
         if (result.getSize() > 0) {
@@ -203,7 +204,7 @@ public class ReaderHandler {
         try {
             result = getUsersPipeline.process(null);
         } catch (YaqpException ex) {
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "XR51 - Could not get User list from database\n"));
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get User list from database"));
         }
 
 //        for (int i = 1; i < result.getSize() + 1; i++) {
@@ -264,7 +265,7 @@ public class ReaderHandler {
         } catch (YaqpException ex) {
             String message = "Could not get User Group " + groupName + " from database";
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException("XRT73", message, ex);
+            throw new DbException(XDH1, message, ex);
         }
 
         if (result.getSize() == 1) {
@@ -272,7 +273,7 @@ public class ReaderHandler {
             UserGroup userGroup = new UserGroup(it.next(), Integer.parseInt(it.next()));
             return userGroup;
         }
-        throw new DbException("XUG710", "No such user group :" + groupName);
+        throw new DbException(XDH00, "No such user group :" + groupName);
     }
 
     public static ArrayList<UserGroup> getUserGroups() throws DbException {
@@ -286,7 +287,7 @@ public class ReaderHandler {
         } catch (YaqpException ex) {
             String message = "Could not get User Groups from database";
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException("XUG973", message, ex);
+            throw new DbException(XDH2, message, ex);
         }
         ArrayList<UserGroup> userGroupList = new ArrayList<UserGroup>();
         for (int i = 1; i < result.getSize() + 1; i++) {
@@ -308,7 +309,7 @@ public class ReaderHandler {
         } catch (YaqpException ex) {
             String message = "Could not get Algorithm Ontologies from database";
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException("XR52", message, ex);
+            throw new DbException(XDH3, message, ex);
         }
         ArrayList<AlgorithmOntology> algorithmOntologiesList = new ArrayList<AlgorithmOntology>();
         for (int i = 1; i < result.getSize() + 1; i++) {
@@ -340,7 +341,7 @@ public class ReaderHandler {
         } catch (YaqpException e) {
             String message = "Could not get Algorithm-Ontology Relations from database";
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException("XAD312", message, e);
+            throw new DbException(XDH4, message, e);
         }
         ArrayList<AlgorithmOntology> algorithmOntologiesList = new ArrayList<AlgorithmOntology>();
         for (int i = 1; i < result.getSize() + 1; i++) {
@@ -366,7 +367,7 @@ public class ReaderHandler {
         } catch (YaqpException e) {
             String message = "Could not get Ontology-Algorithm Relations from database\n";
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException("XW10A", message, e);
+            throw new DbException(XDH5, message, e);
         }
         AlgorithmMeta meta = null;
         ArrayList<Algorithm> algorithmList = new ArrayList<Algorithm>();
@@ -441,7 +442,7 @@ public class ReaderHandler {
         } catch (Exception e) {
             YaqpLogger.LOG.log(new Debug(ReaderHandler.class, e.toString()));
         }
-        throw new DbException("XUS484", "No such Algorithm :" + name);
+        throw new DbException(XDH6, "No such Algorithm :" + name);
     }
 
     public static ArrayList<Feature> getFeatures() {
@@ -496,7 +497,7 @@ public class ReaderHandler {
             Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
             return feature;
         }   
-        throw new DbException("XUS587", "No such Feature found :\n"+prototype);
+        throw new DbException(XDH7, "No such Feature found :\n"+prototype);
     }
 //    public static ArrayList<Feature> getIndepFeatures(QSARModel model){
 //         if (getIndepFeaturesPipeline == null) {

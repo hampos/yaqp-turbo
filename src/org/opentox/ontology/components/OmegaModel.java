@@ -33,13 +33,12 @@ package org.opentox.ontology.components;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
-import org.opentox.ontology.exceptions.ImproperEntityException;
-import org.opentox.ontology.namespaces.OTClass;
 
 /**
  *
@@ -127,7 +126,7 @@ public class OmegaModel extends YaqpComponent {
         try {
             return new URI(superUri + "/" + getId());
         } catch (URISyntaxException ex) {
-            throw new YaqpException("XGL82", "Improper URI", ex);
+            throw new YaqpException(Cause.XTC743, "Improper URI", ex);
         }
     }
 }

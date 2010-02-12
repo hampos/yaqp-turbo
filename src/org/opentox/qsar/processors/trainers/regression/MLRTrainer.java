@@ -42,12 +42,13 @@ import java.util.Map;
 import java.util.UUID;
 import org.opentox.config.Configuration;
 import org.opentox.config.ServerFolders;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
-import org.opentox.core.exceptions.YaqpIOException;
+import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.core.processors.Pipeline;
 import org.opentox.db.exceptions.DbException;
-import org.opentox.db.handlers.ReaderHandler;
 import org.opentox.db.handlers.WriterHandler;
+import org.opentox.db.util.TheDbConnector;
 import org.opentox.io.processors.InputProcessor;
 import org.opentox.io.util.ServerList;
 import org.opentox.ontology.components.Feature;
@@ -95,7 +96,7 @@ public class MLRTrainer extends WekaTrainer {
         } catch (NullPointerException ex) {
             String message = "MLR model cannot be trained because you "
                     + "did not provide the parameter " + ConstantParameters.prediction_feature;
-            throw new QSARException("XMLR10", message, ex);
+            throw new NullPointerException(message);
         }
         /* Retrieve the parameter dataset_uri */
         try {
@@ -103,14 +104,14 @@ public class MLRTrainer extends WekaTrainer {
         } catch (NullPointerException ex) {
             String message = "MLR model cannot be trained because you "
                     + "did not provide the parameter " + ConstantParameters.dataset_uri;
-            throw new QSARException("XMLR11", message, ex);
+            throw new NullPointerException(message);
         }
         /* Check that the provided parameter is indeed a URI */
         try {
             new URI(datasetUri);
         } catch (URISyntaxException ex) {
             String message = "The dataset_uri you provided is not a valid URI";
-            throw new QSARException("XMLR12", message, ex);
+            throw new IllegalArgumentException(message, ex);
         }
         uuid = UUID.randomUUID();
     }
@@ -120,6 +121,8 @@ public class MLRTrainer extends WekaTrainer {
     }
 
     public QSARModel train(Instances data) throws QSARException {
+        if (data==null) throw new NullPointerException("Cannot train an " +
+                "MLR model without a training dataset");
         /* The incoming dataset always has the first attribute set to 
         'compound_uri' which is of type "String". This is removed at the
         begining of the training procedure */
@@ -136,13 +139,13 @@ public class MLRTrainer extends WekaTrainer {
         } catch (Exception ex) {// illegal options or could not build the classifier!
             String message = "MLR Model could not be trained";
             YaqpLogger.LOG.log(new Trace(getClass(), message + " :: " + ex));
-            throw new QSARException("XMLR45", message, ex);
+            throw new QSARException(Cause.XQM1, message, ex);
         }
         try {
             generatePMML(linreg, data);
         } catch (YaqpIOException ex) {
-            String message = "Could not generated PMML representation for MLR model";
-            throw new QSARException("XMLR46", message, ex);
+            String message = "Could not generated PMML representation for MLR model :: " + ex;
+            throw new QSARException(Cause.XQM2, message, ex);
         }
 
 
@@ -151,7 +154,7 @@ public class MLRTrainer extends WekaTrainer {
             Feature f = new Feature(data.attribute(i).name());
             try {
                 f = (Feature) WriterHandler.add(f);
-            } catch (YaqpException ex) {     
+            } catch (YaqpException ex) {
             }
             if (data.classIndex() != i) {
                 independentFeatures.add(f);
@@ -162,7 +165,6 @@ public class MLRTrainer extends WekaTrainer {
         try {
             WriterHandler.add(dependentFeature);
         } catch (YaqpException ex) {
-            
         }
 
         try {
@@ -173,10 +175,10 @@ public class MLRTrainer extends WekaTrainer {
                     independentFeatures, YaqpAlgorithms.MLR,
                     u, null, datasetUri, ModelStatus.UNDER_DEVELOPMENT);
             model.setParams(new HashMap<String, AlgorithmParameter>());
-            try{
-            WriterHandler.add(model);
-            }catch(DbException ex){
-                System.out.println("Exception Caught!");
+            try {
+                model = (QSARModel) WriterHandler.add(model);
+            } catch (DbException ex) {
+                System.out.println("Exception Caught!"+ex);
             }
             return model;
         } catch (YaqpException ex) {
@@ -260,19 +262,20 @@ public class MLRTrainer extends WekaTrainer {
             writer.flush();
             writer.close();
         } catch (IOException ex) {
-            throw new YaqpIOException("XIO200", "Could not write data to PMML file :" + uuid.toString(), ex);
+            throw new YaqpIOException(Cause.XQM3, "Could not write data to PMML file :" + uuid.toString(), ex);
         }
     }
 
     public static void main(String args[]) throws QSARException, YaqpException, URISyntaxException {
+        TheDbConnector.init();
         InputProcessor p1 = new InputProcessor();
         DatasetBuilder p2 = new DatasetBuilder();
         InstancesProcessor p3 = new InstancesProcessor();
         InstancesFilter p4 = new SimpleMVHFilter();
-        InstancesFilter p5 = new AttributeCleanup(new ATTRIBUTE_TYPE[] {ATTRIBUTE_TYPE.string, ATTRIBUTE_TYPE.nominal});
+        InstancesFilter p5 = new AttributeCleanup(new ATTRIBUTE_TYPE[]{ATTRIBUTE_TYPE.string, ATTRIBUTE_TYPE.nominal});
         Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
-          params.put("prediction_feature", new AlgorithmParameter<String>(ServerList.ambit + "/feature/11954"));
-          params.put("dataset_uri", new AlgorithmParameter<String>("http://localhost/6"));
+        params.put("prediction_feature", new AlgorithmParameter<String>(ServerList.ambit + "/feature/12111"));
+        params.put("dataset_uri", new AlgorithmParameter<String>("http://localhost/8"));
         WekaTrainer p6 = new MLRTrainer(params);
 
         Pipeline pipe = new Pipeline();
@@ -283,12 +286,10 @@ public class MLRTrainer extends WekaTrainer {
         pipe.add(p5);
         pipe.add(p6);
 
-        URI u = new URI("http://localhost/6");
+        URI u = new URI("http://localhost/8");
 
-        QSARModel model = (QSARModel) pipe.process(u);        
+        QSARModel model = (QSARModel) pipe.process(u);
         System.out.println(model.getCode());
         System.out.println(model.getId());
     }
-
-
 }

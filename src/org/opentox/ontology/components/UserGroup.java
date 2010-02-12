@@ -42,6 +42,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
@@ -133,7 +134,7 @@ public class UserGroup extends YaqpComponent {
         return pdf;
     }
 
-    public static void main(String args[]) throws FileNotFoundException {
+    public static void main(String args[]) throws FileNotFoundException, YaqpException {
         UserGroup ug = new UserGroup("Administrator", 100);
         ug.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/a.pdf")));
 
@@ -165,7 +166,7 @@ public class UserGroup extends YaqpComponent {
         try{
         return new URI(superUri+"/"+getName());
         } catch (URISyntaxException ex){
-            throw new YaqpException("XGL77", "Improper URI", ex);
+            throw new YaqpException(Cause.XTC743, "Improper URI", ex);
         }
     }
 }

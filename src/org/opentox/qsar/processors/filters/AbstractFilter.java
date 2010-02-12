@@ -33,6 +33,7 @@
 
 package org.opentox.qsar.processors.filters;
 
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Processor;
 import org.opentox.qsar.exceptions.QSARException;
@@ -58,7 +59,7 @@ public abstract class AbstractFilter<F> extends Processor<F, F>{
         if (data!=null){
             return filter(data);
         }
-        throw new YaqpException("XG1AR", "Cannot filter null data");
+        throw new YaqpException(Cause.XQF1, "Cannot filter null data");
     }
 
     /**

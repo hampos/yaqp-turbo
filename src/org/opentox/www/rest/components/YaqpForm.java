@@ -29,49 +29,36 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.io.publishable;
 
-import java.io.OutputStream;
-import org.opentox.io.exceptions.YaqpIOException;
-import org.opentox.io.util.YaqpIOStream;
-import org.restlet.data.MediaType;
-import static org.opentox.core.exceptions.Cause.*;
+
+package org.opentox.www.rest.components;
+
+import java.util.Map;
+import org.restlet.data.Form;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class TurtleObject extends OntObject {
+public class YaqpForm {
 
-    public TurtleObject() {
-        super();
+    private Form form = new Form();
+
+    public YaqpForm() {
+        form = new Form();
     }
 
-    public TurtleObject(OntObject other) {
-        super(other);
+
+
+    public Map<String, String> getValuesMap() {
+        return form.getValuesMap();
     }
 
-    public TurtleObject(YaqpIOStream ioStream) {
-        super(ioStream);
+    public String getFirstValue(String name) {
+        return form.getFirstValue(name);
     }
 
-    public void publish(YaqpIOStream stream) throws YaqpIOException {
-        if (stream == null) {
-            throw new NullPointerException("Cannot publish an RDF document to a null stream");
-        }
-        try {
-            this.write((OutputStream) stream.getStream(), "TURTLE");
-        } catch (ClassCastException ex) {
-            throw new ClassCastException("The stream you provided is not a valid stream for publishing "
-                    + "an TTL document but it does not seem to be null either.");
-        } catch (Exception ex) {
-            throw new YaqpIOException(XTTL700, "Cannot write the TTL document to this stream", ex);
-        }
-    }
 
-    @Override
-    public MediaType getMediaType() {
-        return MediaType.APPLICATION_RDF_TURTLE;
-    }
+
 }

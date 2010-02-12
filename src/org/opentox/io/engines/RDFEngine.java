@@ -21,10 +21,12 @@
  */
 package org.opentox.io.engines;
 
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.io.publishable.OntObject;
 import org.opentox.io.publishable.RDFObject;
-import org.opentox.ontology.data.Dataset;
+import org.opentox.ontology.exceptions.YaqpOntException;
+import static org.opentox.core.exceptions.Cause.XONT1;
 
 /**
  *
@@ -37,7 +39,13 @@ public class RDFEngine<O extends OntObject> extends IOEngine {
     }
 
     @Override
-    protected O getYaqpOntModel(YaqpIOStream is) {
-        return (O) new RDFObject(is);
+    protected O getYaqpOntModel(YaqpIOStream is) throws YaqpException {
+        try {
+            return (O) new RDFObject(is);
+        } catch (ClassCastException ex) {
+            throw new ClassCastException("Typecasting error while trying to cast an RDF Object to a provided datatype");
+        } catch (Exception ex) {// EXCEPTION FROM JENA: COULD NOT PARSE THE CONTENT!
+            throw new YaqpOntException(XONT1,"Unable to parse content properly",ex);
+        }
+        }
     }
-}

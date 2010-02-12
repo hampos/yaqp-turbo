@@ -39,6 +39,7 @@ import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.opentox.config.Configuration;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.OntObject;
@@ -93,7 +94,7 @@ public abstract class YaqpComponent implements Serializable {
         try {
             return new URI(Configuration.baseUri + "/" + getTag());
         } catch (URISyntaxException ex) {
-            throw new YaqpException("XJJ815", "Invalid URI", ex);
+            throw new YaqpException(Cause.XTC743, "Invalid URI", ex);
         }
     }
 

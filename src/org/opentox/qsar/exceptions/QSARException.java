@@ -32,6 +32,7 @@
 
 package org.opentox.qsar.exceptions;
 
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 
 /**
@@ -41,16 +42,16 @@ import org.opentox.core.exceptions.YaqpException;
  */
 public class QSARException extends YaqpException {
 
-    public QSARException(String id, String message, Throwable throwable) {
-        super(id, message, throwable);
+    public QSARException(Cause cause, String explanation, Throwable throwable) {
+        super(cause, explanation, throwable);
     }
 
-    public QSARException(String id, Throwable throwable) {
-        super(id, throwable);
+    public QSARException(Cause cause, Throwable throwable) {
+        super(cause, throwable);
     }
 
-    public QSARException(String id, String msg) {
-        super(id, msg);
+    public QSARException(Cause cause, String exaplanation) {
+        super(cause, exaplanation);
     }
 
     public QSARException() {

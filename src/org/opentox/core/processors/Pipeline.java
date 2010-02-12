@@ -31,13 +31,11 @@
  */
 package org.opentox.core.processors;
 
-import org.opentox.core.exceptions.ExceptionDetails;
-import org.opentox.core.exceptions.ProcessorException;
+
+
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JMultiProcessorStatus.STATUS;
 import org.opentox.core.interfaces.JProcessor;
-import org.opentox.util.logging.levels.*;
-import org.opentox.util.logging.YaqpLogger;
 
 /**
  * A set of jobs to be executed through a pipeline of processors
@@ -77,6 +75,7 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
      */
     public Output process(Input data) throws YaqpException {
 
+        
         long start_time = 0;
         getStatus().setMessage("pipeline in process");
         Object o = data;
@@ -92,15 +91,12 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
                     getStatus().incrementElapsedTime(STATUS.PROCESSED, System.currentTimeMillis() - start_time);
                     firePropertyChange(PROPERTY_PIPELINE_STATUS, null, getStatus());
                 }
-            } catch (Exception ex) {
-                String message = "Processor " + i + " is in error state :: " + ex;
-                if (isfailSensitive()) {
-                    YaqpLogger.LOG.log(new Debug(getClass(), message));
-                    throw new ProcessorException("XCI108", message, ex);
+            } catch (YaqpException ex) {
+                if (isfailSensitive()) {                   
+                    throw ex;
                 }
                 getStatus().increment(STATUS.ERROR);
                 getStatus().incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - start_time);
-                YaqpLogger.LOG.log(new Trace(getClass(), message + " :: " + ex));
             }
         }
         getStatus().setMessage("Pipeline completed the job.");
@@ -109,10 +105,9 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
         // Try to cast the result as 'Output'
         try {
             return (Output) o;
-        } catch (Exception ex) {
+        } catch (ClassCastException ex) {
             String message = "pipeline output typecasting error";
-            YaqpLogger.LOG.log(new ScrewedUp(getClass(), message));
-            throw new YaqpException("XBR", message, ex);
+            throw new ClassCastException(message);
         }
     }
 }

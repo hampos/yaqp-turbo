@@ -29,6 +29,7 @@ import org.opentox.db.util.PrepStmt;
 import org.opentox.db.util.PrepSwimmingPool;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Debug;
+import static org.opentox.core.exceptions.Cause.*;
 
 /**
  * This is a Processor that handles how parameters are set on a PrepStmt object.
@@ -69,9 +70,11 @@ public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatemen
 
                 if (!food.containsName(prepStmt.getParameters()[i].getName())) {
                     String message = "The parameter " + prepStmt.getParameters()[i].getName() + " is not set";
-                    throw new DbException("XDR162",message);
+                    throw new DbException(XDB15, message);
                 }
+
                 value = food.getValue(prepStmt.getParameters()[i].getName());
+
                 if (prepStmt.getParameters()[i].getType().equals(String.class)) {
                     hs.setString((i + 1), value);
                 } else if (prepStmt.getParameters()[i].getType().equals(Integer.class)) {
@@ -81,9 +84,7 @@ public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatemen
                 }
             }
         } catch (InterruptedException ex) {
-            YaqpLogger.LOG.log(new Debug(getClass(), "XDR163 - Exception thrown :: " + ex));
-        } catch (DbException ex) {
-            YaqpLogger.LOG.log(new Debug(getClass(), "XDR164 - Exception thrown :: " + ex));
+            throw new RuntimeException("Application broke while waiting for a prepared statement to become available");
         }
         return hs;
     }
@@ -95,5 +96,4 @@ public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatemen
     public void setPrepStmt(PrepStmt prepStmt) {
         this.prepStmt = prepStmt;
     }
-
 }

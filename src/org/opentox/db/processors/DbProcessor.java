@@ -21,6 +21,8 @@
  */
 package org.opentox.db.processors;
 
+import java.sql.SQLException;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.queries.HyperResult;
 import org.opentox.db.queries.HyperStatement;
@@ -61,10 +63,16 @@ public class DbProcessor extends AbstractDbProcessor<HyperStatement, HyperResult
             } else if (q.getType().equals(QueryType.SELECT)) {
                 result = q.executeQuery();
             }
-        } catch (Exception e) {
-            String message = "Error while executing query :"+q.toString()+". Reproducing SQL Exception ::: "+e.toString();
+        } catch (SQLException e) {
+            System.out.println(e);
+            String message = "Error while executing query :" + q.toString();
             YaqpLogger.LOG.log(new Warning(getClass(), message));
-            throw new DbException("XD701",message, e);
+            if (e.getErrorCode() == -1) {
+                throw new DbException(Cause.XDB800, message, e);
+            } else {
+                throw new DbException(Cause.XDB9, message, e);
+            }
+
         } finally {
             PrepSwimmingPool.POOL.recycle(q);
         }

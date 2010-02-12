@@ -21,6 +21,8 @@
  */
 package org.opentox.db.exceptions;
 
+import org.opentox.core.exceptions.Cause;
+
 /**
  * An exception thrown in case an email address is not valid.
  * @author Pantelis Sopasakis
@@ -29,18 +31,19 @@ package org.opentox.db.exceptions;
 public class BadEmailException extends DbException {
 
     public BadEmailException() {
+        super();
     }
 
-    public BadEmailException(String id, String msg) {
-        super(id, msg);
+    public BadEmailException(Cause cause, String exaplanation) {
+        super(cause, exaplanation);
     }
 
-    public BadEmailException(String id, Throwable throwable) {
-        super(id, throwable);
+    public BadEmailException(Cause cause, Throwable throwable) {
+        super(cause, throwable);
     }
 
-    public BadEmailException(String id, String message, Throwable throwable) {
-        super(id, message, throwable);
+    public BadEmailException(Cause cause, String explanation, Throwable throwable) {
+        super(cause, explanation, throwable);
     }
 
  

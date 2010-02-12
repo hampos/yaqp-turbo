@@ -50,6 +50,9 @@ public class Table implements JDbTable<TableColumn> {
      */
     public Table(String tableName) {
         this();
+        if (tableName == null){
+            throw new NullPointerException("The name of a table cannot be null");
+        }
         this.tableName = tableName.toUpperCase();
     }
 
@@ -74,6 +77,9 @@ public class Table implements JDbTable<TableColumn> {
      * @param column table column to be added in the table.
      */
     public void addColumn(TableColumn column) {
+        if (column == null) throw new NullPointerException("You cannot add a null column");
+        if (column.getColumnName() == null) throw new NullPointerException("You cannot add a column without a name");
+        if (column.getColumnType()==null) throw new NullPointerException("Column "+column.getColumnName()+" must have an SQL type");
         this.listOfColumns.add(column);
     }
 

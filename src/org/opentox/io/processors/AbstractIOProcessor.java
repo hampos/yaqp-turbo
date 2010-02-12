@@ -21,10 +21,10 @@
  */
 package org.opentox.io.processors;
 
-import org.opentox.core.exceptions.YaqpIOException;
+import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.core.processors.Processor;
 import org.opentox.io.interfaces.JIOProcessor;
-
+import static org.opentox.core.exceptions.Cause.XONT3;
 /**
  *
  * @author Charalampos Chomenides
@@ -38,10 +38,13 @@ public abstract class AbstractIOProcessor<Input, Output>
     }
 
     public Output process(Input data) throws YaqpIOException {
+        if (data==null){
+            throw new NullPointerException("NULL input to IO Processor");
+        }
         try {
             return handle(data);
         } catch (Exception x) {
-            throw new YaqpIOException("XVV31",x);
+            throw new YaqpIOException(XONT3,x);
         }
     }
 

@@ -21,6 +21,7 @@
  */
 package org.opentox.db.processors;
 
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Pipeline;
 import org.opentox.db.exceptions.DbException;
@@ -63,7 +64,8 @@ public class DbPipeline<QF extends QueryFood, HR extends HyperResult> extends Ab
         try {
             result = (HR) pipeline.process(q);
         } catch (YaqpException ex) {
-            throw new DbException("XDB4",ex);
+            // REPLICATE THE EXCEPTION CAUGHT PERTAINING THE CODE:
+            throw new DbException(ex.getCode(),ex);
         }
         return result;
     }

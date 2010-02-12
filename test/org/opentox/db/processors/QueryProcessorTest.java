@@ -30,6 +30,7 @@
  */
 package org.opentox.db.processors;
 
+import java.sql.SQLException;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -80,7 +81,7 @@ public class QueryProcessorTest {
      * Algorithm_ontologies.
      */
     @Test
-    public void testExecute() throws DbException {
+    public void testExecute() throws DbException, SQLException {
         System.out.println("-- testing normal execute --");
 
         for (int i = 0; i < 100; i++) {
@@ -108,7 +109,7 @@ public class QueryProcessorTest {
      * @throws DbException A DbException should be thrown
      */
     @Test
-    public void oneIsMissing() throws DbException {
+    public void oneIsMissing() throws DbException, SQLException {
         System.out.println("-- one is missing --");
         QueryProcessor pr = new QueryProcessor(PrepStmt.ADD_ALGORITHM_ONTOLOGY);
         HyperStatement hs = null;
@@ -130,7 +131,7 @@ public class QueryProcessorTest {
      * @throws DbException  A DbException should be thrown
      */
     @Test
-    public void allAreMissing() throws DbException {
+    public void allAreMissing() throws DbException, SQLException {
         System.out.println("-- all are missing --");
         QueryProcessor pr = new QueryProcessor(PrepStmt.ADD_ALGORITHM_ONTOLOGY);
         HyperStatement hs = null;
