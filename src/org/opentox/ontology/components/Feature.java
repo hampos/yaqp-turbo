@@ -52,8 +52,10 @@ import org.opentox.ontology.namespaces.OTClass;
  */
 public class Feature extends YaqpComponent {
 
-    private String uri;
+    private String uri = null;
     private int id;
+
+    private int _minId = Integer.MIN_VALUE, _maxId = Integer.MAX_VALUE;
 
     public Feature() {
         super();
@@ -66,6 +68,24 @@ public class Feature extends YaqpComponent {
     public Feature(int id, String uri) {
         this.uri = uri;
         this.id = id;
+        this._maxId = id;
+        this._minId = id;
+    }
+
+    public int getMaxId() {
+        return _maxId;
+    }
+
+    public void setMaxId(int _maxId) {
+        this._maxId = _maxId;
+    }
+
+    public int getMinId() {
+        return _minId;
+    }
+
+    public void setMinId(int _minId) {
+        this._minId = _minId;
     }
 
     public String getURI() {
@@ -78,6 +98,8 @@ public class Feature extends YaqpComponent {
 
     public void setId(int id) {
         this.id = id;
+        this._maxId = id;
+        this._minId = id;
     }
 
     public void setUri(String uri) {

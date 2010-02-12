@@ -51,7 +51,8 @@ import org.opentox.util.logging.levels.Trace;
 public class AlgorithmOntology extends YaqpComponent {
 
     public static final long serialVersionUID = -18477218374326540L;
-    private String name, uri;
+    private String name = null,
+                   uri = null;
     private OTAlgorithmTypes type;
 
     public AlgorithmOntology() {

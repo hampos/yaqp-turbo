@@ -297,7 +297,7 @@ public class WriterHandler {
         } catch (DbException ex) {
             if (ex.getCode()==Cause.XDB800) {
                 try {
-                    feature.setId(ReaderHandler.searchFeature(new Feature(-1, feature.getURI())).getID());
+                    feature.setId(ReaderHandler.searchFeature(new Feature(feature.getURI()),0,0).get(0).getID());
                 } catch (DbException ex1) {// in this case feature failed to be added but is not in the DB either!
                     throw new DbException(Cause.XDB3238, "Error ");
                 }

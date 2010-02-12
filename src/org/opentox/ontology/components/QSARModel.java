@@ -54,6 +54,7 @@ public class QSARModel extends YaqpComponent {
     private Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
 
     private int id = 0;
+    private int _minId = Integer.MIN_VALUE, _maxId = Integer.MAX_VALUE;
     private String code = null;
     private Feature predictionFeature = null;
     private Feature dependentFeature = null;
