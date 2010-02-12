@@ -33,6 +33,7 @@ package org.opentox.db.handlers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -55,6 +56,7 @@ import static org.junit.Assert.*;
 import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
+import org.opentox.ontology.util.AlgorithmMeta;
 import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.ontology.util.vocabulary.ConstantParameters;
@@ -87,13 +89,6 @@ public class WriterHandlerTest {
     public void tearDown() {
     }
 
-
-
-
-
-    /**
-     * Test of addUserGroup method, of class WriterHandler.
-     */
     @Test
     public void testAddUserGroup() throws ImproperEntityException {
         System.out.println("user group - test 1");
@@ -113,13 +108,18 @@ public class WriterHandlerTest {
     public void addBadUserGroup() {
         System.out.println("user group - test 2");
         UserGroup badGroup = new UserGroup(null, 10);
+        boolean failed = false;
         try {
             WriterHandler.add(badGroup);
         } catch (DbException ex) {
-            assertTrue(ex.getCode()==Cause.XDB321);
+            assertTrue(ex.getCode() == Cause.XDB321);
+            failed = true;
         } catch (ImproperEntityException ex) {
             fail("Improper Entity ?!");
-        }        
+        }
+        if (!failed) {
+            fail("SHOULD HAVE FAILED!");
+        }
     }
 
     @Test
@@ -134,6 +134,7 @@ public class WriterHandlerTest {
         }
         try {
             WriterHandler.add(some);
+            fail("SHOULD HAVE FAILED!");
         } catch (DbException ex) {
             assertTrue(ex instanceof DuplicateKeyException);
         } catch (ImproperEntityException ex) {
@@ -146,27 +147,26 @@ public class WriterHandlerTest {
         System.out.println("user group - test 4");
         try {
             WriterHandler.addUserGroup(null);
+            fail("SHOULD HAVE FAILED!");
         } catch (NullPointerException ex) {
             assertTrue(ex.toString().contains("null user group"));
         }
     }
 
     @Test
-    public void addBigNameUserGroup(){
+    public void addBigNameUserGroup() {
         System.out.println("user group - test 5");
         UserGroup ug = new UserGroup("ababababababababababababababababababababababa", 10);
         try {
             WriterHandler.add(ug);
+            fail("SHOULD HAVE FAILED!");
         } catch (DbException ex) {
-            assertTrue(ex.getCode()==Cause.XDB490);
+            assertTrue(ex.getCode() == Cause.XDB490);
         } catch (ImproperEntityException ex) {
             fail();
         }
     }
 
-    /**
-     * Test of addAlgorithmOntology method, of class WriterHandler.
-     */
     @Test
     public void testAddAlgorithmOntology() throws YaqpOntException, DbException, YaqpException {
         System.out.println("algorithm ontology - test 1");
@@ -174,7 +174,7 @@ public class WriterHandlerTest {
             ArrayList<OTAlgorithmTypes> otlist = OTAlgorithmTypes.getAllAlgorithmTypes();
             for (OTAlgorithmTypes ot : otlist) {
                 AlgorithmOntology algOnt = new AlgorithmOntology(ot.getResource().getLocalName());
-                assertTrue(algOnt==WriterHandler.addAlgorithmOntology(algOnt));
+                assertTrue(algOnt == WriterHandler.addAlgorithmOntology(algOnt));
             }
         } catch (DuplicateKeyException ex) {
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
@@ -184,65 +184,301 @@ public class WriterHandlerTest {
 
     @Test
     public void duplicateAddOntology() {
-        System.out.println("algorithm ontology - test 1");
+        System.out.println("algorithm ontology - test 2");
         AlgorithmOntology algOnt = new AlgorithmOntology(OTAlgorithmTypes.Classification);
-        try{
+        try {
             WriterHandler.add(algOnt);
-        }catch (DbException ex){
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
             assertTrue(ex instanceof DuplicateKeyException);
-        }catch (ImproperEntityException ex){
+        } catch (ImproperEntityException ex) {
             fail("Improper Entity ?!");
         }
     }
 
-    /**
-     * It seems users are being successfully added in the database.
-     * @throws BadEmailException
-     */
-    //@Test
-    public void testAddUser() throws BadEmailException {
+    @Test
+    public void addProperUser() throws BadEmailException {
+        System.out.println("user - test 1");
         try {
-            for (int i = 0; i < 1000; i++) {
-                WriterHandler.add(
-                        new User(
-                        "ann" + i, java.util.UUID.randomUUID().toString(), "john" + i, "smith" + i,
-                        "ann" + i + "@foo.goo.gr", "UNDEFINED", "Italy",
-                        "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
-            }
+            WriterHandler.add(
+                    new User(
+                    "john", java.util.UUID.randomUUID().toString(), "john", "smith",
+                    "john@foo.goo.gr", null, "Italy",
+                    "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
+
         } catch (DuplicateKeyException ex) {
             System.out.println(ex);
             Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
         } catch (Exception ex) {
-            System.out.println(ex);
-            fail(ex.toString());
+            fail();
         }
     }
 
-    //@Test
-    public void testAddAlgorithm() throws DbException, ImproperEntityException, YaqpException {
+    @Test
+    public void noUsername() {
+        System.out.println("user - test 2");
+        try {
+            WriterHandler.add(new User(null, java.util.UUID.randomUUID().toString(), "john", "smith", "john@foo.goo.gr", null, "Italy", "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
+            assertTrue(ex.getCode() == Cause.XDB5870);
+        } catch (ImproperEntityException ex) {
+            Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-        WriterHandler.add(YaqpAlgorithms.MLR);
-        WriterHandler.add(YaqpAlgorithms.SVM);
-        WriterHandler.add(YaqpAlgorithms.SVC);
     }
 
-    //@Test
-    public void testAddFeature() throws DbException, ImproperEntityException, YaqpException {
+    @Test
+    public void noPassWord() {
+        System.out.println("user - test 3");
+        try {
+            WriterHandler.add(new User("john", null, "john", "smith", "john@foo.goo.gr", null, "Italy", "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
+            assertTrue(ex.getCode() == Cause.XDB5872);
+        } catch (ImproperEntityException ex) {
+            Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    @Test
+    public void noAddress() {
+        System.out.println("user - test 4");
+        try {
+            WriterHandler.add(new User("mike", java.util.UUID.randomUUID().toString(), "mike", "williams", "mike@foo.goo.gr", null, "Greece", "Larisa", null, "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
+        } catch (Exception ex) {
+            fail();
+        }
+    }
+
+    @Test
+    public void duplicateUser() throws BadEmailException {
+        System.out.println("user - test 5");
+        try {
+            WriterHandler.add(
+                    new User(
+                    "john", java.util.UUID.randomUUID().toString(), "john", "smith",
+                    "john@foo.goo.gr", null, "Italy",
+                    "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
+            assertTrue(ex instanceof DuplicateKeyException);
+        } catch (Exception ex) {
+            fail();
+        }
+    }
+
+    @Test
+    public void badEMailUser() {
+        System.out.println("user - test 6");
+        try {
+            WriterHandler.add(
+                    new User(
+                    "flash", java.util.UUID.randomUUID().toString(), "flash", "gordon",
+                    "iDontGiveYouMyEmail", null, "Chung",
+                    null, null, null, null, new UserGroup("GUEST", 0)));
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
+            assertTrue(ex instanceof BadEmailException);
+            assertTrue(ex.getCode() == Cause.XDH103);
+        } catch (Exception ex) {
+            fail();
+        }
+    }
+
+    @Test
+    public void addProperAlgorithm() {
+        System.out.println("algorithm - test 1");
+        try {
+            WriterHandler.add(YaqpAlgorithms.MLR);
+            WriterHandler.add(YaqpAlgorithms.SVM);
+            WriterHandler.add(YaqpAlgorithms.SVC);
+        } catch (Throwable thr) {
+            fail("SHOULD NOT HAVE FAILED!");
+        }
+    }
+
+    @Test
+    public void duplicateAlgorithm() {
+        System.out.println("algorithm - test 2");
+        try {
+            WriterHandler.add(YaqpAlgorithms.SVM);
+        } catch (DbException ex) {
+            //assertTrue(ex.getCode()==Cause);
+            assertTrue(ex instanceof DuplicateKeyException);
+        } catch (ImproperEntityException ex) {
+            fail("Improper Entity ?!");
+        }
+    }
+
+    @Test
+    public void algorithmNoOntologies() {
+        System.out.println("algorithm - test 3");
+        Algorithm a = new Algorithm();
+        a.setMeta(new AlgorithmMeta());
+        try {
+            WriterHandler.add(a);
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
+            assertTrue(ex.getCode() == Cause.XDB3235);
+        } catch (ImproperEntityException ex) {
+            Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Test
+    public void voidAlgorithm() {
+        System.out.println("algorithm - test 4");
+        Algorithm a = new Algorithm();
+        try {
+            WriterHandler.add(a);
+            fail("SHOULD HAVE FAILED!");
+        } catch (Exception ex) {
+            assertTrue(ex instanceof NullPointerException);
+            assertTrue(ex.getMessage().contains("algorithm with unknown metadata"));
+        }
+    }
+
+    @Test
+    public void addProperFeature() {
+        System.out.println("feature - test 1");
         for (int i = 5; i <= 20; i++) {
-            System.out.println(WriterHandler.addFeature(new Feature("http://sth.com/feature/" + i)).getID());
+            try {
+                System.out.println(WriterHandler.addFeature(new Feature("http://sth.com/feature/" + i)).getID());
+            } catch (DbException ex) {
+                fail("SHOULDN'T HAVE FAILED!");
+            }
         }
     }
 
-    //@Test
-    public void addQSARModel() throws DuplicateKeyException, DbException, ImproperEntityException, YaqpException {
-        User u = ReaderHandler.searchUsers(new User()).get(7);
-        u.setEmail("ann11@foo.goo.gr");
-        Feature f = ReaderHandler.searchFeature(new Feature(1, null));
-        ArrayList<Feature> lf = new ArrayList<Feature>();
-        lf.add(f);
-        QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "dataset1", null);
-        WriterHandler.add(m);
+    @Test
+    public void addDuplicateFeature() {
+        System.out.println("feature - test 2");
+        try {
+            String feature_uri = "http://sth.com/feature/10";
+            Feature feature = WriterHandler.addFeature(new Feature(feature_uri));
+            assertTrue(feature.getID() > 0);
+            assertTrue(feature.getURI().equals(feature_uri));
+        } catch (DbException ex) {
+            fail("SHOULD NOT HAVE FAILED!");
+        }
     }
+
+    @Test
+    public void addNullFeature() {
+        System.out.println("feature - test 3");
+        try {
+            WriterHandler.addFeature(null);
+            fail("SHOULD HAVE FAILED!");
+        } catch (Exception ex) {
+            assertTrue(ex instanceof NullPointerException);
+        }
+    }
+
+    @Test
+    public void addBadURIFeature() {
+        System.out.println("feature - test 4");
+        Feature bad = new Feature("asdf wqeryt *&^");
+        try {
+            WriterHandler.addFeature(bad);
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
+            assertTrue(ex.getCode() == Cause.XDB3237);
+        }
+    }
+
+    @Test
+    public void addVoidFeature() {
+        System.out.println("feature - test 5");
+        Feature bad = new Feature();
+        try {
+            WriterHandler.addFeature(bad);
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
+            assertTrue(ex.getCode() == Cause.XDB3236);
+        }
+    }
+
+    @Test
+    public void addProperTask() {
+        System.out.println("task - test 1");
+        try {
+            User prot = new User();
+            prot.setUserName("%ik%");            
+            User u = ReaderHandler.searchUsers(prot).get(0);
+            Task t = new Task(java.util.UUID.randomUUID().toString(), u, YaqpAlgorithms.SVC, 1000);
+            assertEquals(WriterHandler.addTask(t), t);
+        } catch (DbException ex) {
+            fail();
+        }
+    }
+
+    @Test
+    public void addTaskUnknownUser() {
+        System.out.println("task - test 2");
+        try {
+            User u = new User();
+            u.setEmail("a@bc.d");
+            Task t = new Task(java.util.UUID.randomUUID().toString(), u, YaqpAlgorithms.SVC, 1000);
+            assertEquals(WriterHandler.addTask(t), t);
+        } catch (DbException ex) {
+            assertTrue(ex.getCode() == Cause.XDH110);
+        }
+    }
+
+    @Test
+    public void addTaskUndefinedAlgorithm() {
+        System.out.println("task - test 3");
+        try {
+            User prot = new User();
+            User u = ReaderHandler.searchUsers(prot).get(1);
+            Task t = new Task(java.util.UUID.randomUUID().toString(), u, null, 1000);
+            assertEquals(WriterHandler.addTask(t), t);
+        } catch (DbException ex) {
+            assertEquals(ex.getCode(), Cause.XDB4003);
+        }
+    }
+
+    @Test
+    public void addTaskZeroDuration() {
+        System.out.println("task - test 4");
+        try {
+            User prot = new User();
+            User u = ReaderHandler.searchUsers(prot).get(1);
+            Task t = new Task(java.util.UUID.randomUUID().toString(), u, YaqpAlgorithms.SVC, 0);
+            assertEquals(WriterHandler.addTask(t), t);
+        } catch (DbException ex) {
+            assertEquals(ex.getCode(), Cause.XDB4001);
+        }
+    }
+
+    @Test
+    public void addQSARModel() {
+        System.out.println("QSAR Model - test 1");
+        try {
+            User u = ReaderHandler.searchUsers(new User()).get(0);
+            Feature f = ReaderHandler.searchFeature(new Feature(-1, null));
+            System.err.println(f);
+            ArrayList<Feature> lf = new ArrayList<Feature>();
+            lf.add(f);
+            QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.MLR, u, null, "dataset1", QSARModel.ModelStatus.UNDER_DEVELOPMENT);
+            WriterHandler.addQSARModel(m);
+            //System.out.println(model.getId());
+        } catch (DbException ex) {
+            fail("SHOULDN'T HAVE FAILED!");
+        }
+    }
+
+
+
+
+
+
+
+
+
+
 
     //  @Test
     public void addsvmModel() throws Exception {
@@ -267,18 +503,6 @@ public class WriterHandlerTest {
         QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.MLR, u, null, "dataset1", null);
         ArrayList<AlgorithmParameter> tps = new ArrayList<AlgorithmParameter>();
         System.out.println(WriterHandler.add(m));
-    }
-
-    // @Test
-    public void testaddTask() throws DbException, ImproperEntityException, YaqpException {
-        User prot = new User();
-        prot.setEmail("ann11%");
-        User u = ReaderHandler.searchUsers(prot).get(1);
-        for (int i = 0; i < 1000; i++) {
-            Task t = new Task(java.util.UUID.randomUUID().toString(),
-                    u, YaqpAlgorithms.SVC, 1000);
-            WriterHandler.addTask(t);
-        }
     }
 
     //  @Test

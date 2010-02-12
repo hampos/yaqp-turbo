@@ -169,7 +169,7 @@ public class MLRTrainer extends WekaTrainer {
 
         try {
             User u = new User();
-            u.setEmail("ann1@foo.goo.gr");
+            u.setEmail("john@foo.goo.gr");
             QSARModel model = new QSARModel(
                     uuid.toString(), predictedFeature, dependentFeature,
                     independentFeatures, YaqpAlgorithms.MLR,

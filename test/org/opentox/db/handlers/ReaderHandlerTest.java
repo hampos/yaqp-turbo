@@ -71,7 +71,7 @@ public class ReaderHandlerTest {
     public void tearDown() {
     }
 
-    @Test
+ //   @Test
     public void getQSARMods(){
         ArrayList<QSARModel> list = ReaderHandler.getQSARModels(new QSARModel());
         for (QSARModel q : list){
@@ -102,14 +102,15 @@ public class ReaderHandlerTest {
   
 
 
-    //@Test
+    @Test
     public void searchForUser() throws DbException{
         User prototype = new User();
         //prototype.setEmail("%foo%");
+        prototype.setUserName("%i%");
         //prototype.setCountry("%ADM%");
 //        u.setEmail("%.gr%");
-        prototype.setFirstName("%9");
-        prototype.setUserGroup(new UserGroup(null, 80));
+        //prototype.setFirstName("%");
+        //prototype.setUserGroup(new UserGroup(null, 80));
         ArrayList<User> list = ReaderHandler.searchUsers(prototype);
         for (User user : list){
             System.out.println(user);

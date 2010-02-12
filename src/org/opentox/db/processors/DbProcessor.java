@@ -29,7 +29,7 @@ import org.opentox.db.queries.HyperStatement;
 import org.opentox.db.util.PrepSwimmingPool;
 import org.opentox.db.util.QueryType;
 import org.opentox.util.logging.YaqpLogger;
-import org.opentox.util.logging.levels.Warning;
+import org.opentox.util.logging.levels.*;
 
 /**A DbProcessor handles all execution of statements.
  * A {@link HyperStatement} must be provided for it to operate,
@@ -66,7 +66,7 @@ public class DbProcessor extends AbstractDbProcessor<HyperStatement, HyperResult
         } catch (SQLException e) {
             System.out.println(e);
             String message = "Error while executing query :" + q.toString();
-            YaqpLogger.LOG.log(new Warning(getClass(), message));
+            YaqpLogger.LOG.log(new Trace(getClass(), message));
             if (e.getErrorCode() == -1) {
                 throw new DbException(Cause.XDB800, message, e);
             } else {

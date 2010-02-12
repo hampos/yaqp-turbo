@@ -31,7 +31,6 @@
  */
 package org.opentox.ontology.components;
 
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.opentox.core.exceptions.Cause;
@@ -57,14 +56,12 @@ public class Task extends YaqpComponent {
     @Override
     public URI uri() throws YaqpException {
         String superUri = super.uri().toString();
-        try{
-        return new URI(superUri+"/"+getName());
-        } catch (URISyntaxException ex){
+        try {
+            return new URI(superUri + "/" + getName());
+        } catch (URISyntaxException ex) {
             throw new YaqpException(Cause.XTC743, "Improper URI", ex);
         }
     }
-
-
 
     /**
      * The possible statuses a task can have.
@@ -84,11 +81,10 @@ public class Task extends YaqpComponent {
          */
         CANCELLED
     };
-
     private String name;
     private STATUS taskStatus;
     private String result, startStamp, endStamp;
-    private int id, httpStatus;
+    private int httpStatus;
     private User user;
     private Algorithm algorithm;
     private int duration_sec;
@@ -98,9 +94,8 @@ public class Task extends YaqpComponent {
         httpStatus = 202;
     }
 
-    public Task(int id, String name, STATUS taskStatus, User user, Algorithm algorithm, int httpStatus,
+    public Task(String name, STATUS taskStatus, User user, Algorithm algorithm, int httpStatus,
             String result, String startStamp, String endStamp, int duration_sec) {
-        this.id = id;
         this.name = name;
         this.taskStatus = taskStatus;
         this.user = user;
@@ -138,14 +133,6 @@ public class Task extends YaqpComponent {
 
     public void setEndStamp(String endStamp) {
         this.endStamp = endStamp;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getStartStamp() {
@@ -202,7 +189,7 @@ public class Task extends YaqpComponent {
 
     public STATUS getStatus() {
         return taskStatus;
-    }   
+    }
 
     public void setName(String name) {
         this.name = name;
@@ -211,7 +198,6 @@ public class Task extends YaqpComponent {
     public void setStatus(STATUS status) {
         this.taskStatus = status;
     }
-
 
     @Override
     public PDFObject getPDF() {
@@ -244,12 +230,9 @@ public class Task extends YaqpComponent {
         this.duration_sec = duration_sec;
     }
 
-
-
     @Override
     public String toString() {
         String task = "-- Task --\n";
-        task += "ID                : " + getId() + "\n";
         task += "NAME              : " + getName() + "\n";
         task += "STATUS            : " + getStatus() + "\n";
         task += "USER              : " + getUser().getEmail() + "\n";

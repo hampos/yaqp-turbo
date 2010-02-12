@@ -91,6 +91,12 @@ public class Algorithm extends YaqpComponent {
         return metadata;
     }
 
+    public void setMeta(AlgorithmMeta metadata) {
+        this.metadata = metadata;
+    }
+
+
+
     @Override
     public String toString() {
         String algorithm = "";

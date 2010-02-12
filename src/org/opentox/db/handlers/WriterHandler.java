@@ -32,6 +32,8 @@
 package org.opentox.db.handlers;
 
 import com.hp.hpl.jena.rdf.model.Resource;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -73,14 +75,7 @@ import static org.opentox.core.exceptions.Cause.*;
 public class WriterHandler {
 
     private static DbPipeline<QueryFood, HyperResult>
-            addUserPipeline = null,
-            addAlgorithmPipeline = null,
-            addAlgOntRelationPipeline = null,
-            addFeaturePipeline = null,
-            addQSARModelPipeline = null,
             addSupportVectorPipeline = null,
-            addIndepFeaturePipeline = null,
-            addTaskPipeline = null,
             addOmegaPipeline = null;
 
     /**
@@ -164,7 +159,7 @@ public class WriterHandler {
             addUserGroupPipeline.process(food);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Added new user group '" + userGroup.getName()
                     + "' with authorization level :" + userGroup.getLevel()));
-        } catch (DbException ex) {
+        } catch (final DbException ex) {
             if (ex.getCode() == Cause.XDB800) {
                 throw new DuplicateKeyException(XDH100, "UserGroup already registered", ex);
             }
@@ -205,12 +200,10 @@ public class WriterHandler {
             addAlgorithmOntologyPipeline.process(food);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Added new algorithm ontology '" + ontology.getName()
                     + "' with uri :" + ontology.getUri()));
-        } catch (DbException ex) {
+        } catch (final DbException ex) {
             //TODO: verify that the ontology is indeed added!
             if (ex.getCode() == Cause.XDB800) {
-                String message = "Algorithm Ontology Already Registered in the Database!";
-                YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
-                YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
+                throw new DuplicateKeyException(XDB4301, "Algorithm Ontology already added in the database", ex);
             } else {
                 throw new DbException(XDH102, "Error while adding the ontology with name = " + ontology.getName(), ex);
             }
@@ -231,17 +224,23 @@ public class WriterHandler {
      * @throws DbException If the provided user could not be added in the database. This is
      * the case when one tries to register a user like <code>User u = new User()</code>, i.e.
      * without specified the mandatory fields.
-     * @see ReaderHandler#getUser(org.opentox.ontology.components.User) search for user
+     * @see ReaderHandler#searchUsers(org.opentox.ontology.components.User) search for user
      * @see EmailSupervisor
      */
     protected static User addUser(User user) throws BadEmailException, DbException {
-        if (!EmailSupervisor.checkMail(user.getEmail())) {
-            throw new BadEmailException(XDH103, "Bad user email");
-        }
+        // CHECK IF THE MANDATORY PARAMETERS ARE SPECIFIED:
+        if (user == null) throw new NullPointerException("Cannot add a null user in the database");
+        if (user.getUserName() == null) throw new DbException(Cause.XDB5870, "Username has to be specified");
+        if (user.getEmail() == null) throw new DbException(Cause.XDB5871, "You have to specify the user's email");
+        if (user.getUserPass() == null) throw new DbException(Cause.XDB5872, "You must specify a password");
+        if (user.getFirstName() == null) throw new DbException(Cause.XDB5873, "You must specify your first name");
+        if (user.getUserGroup() == null) throw new DbException(Cause.XDB5874, "Usergroup has to be specified");
+        if (user.getUserGroup().getName() == null) throw new DbException(Cause.XDB5875, "You have to specify a user group with a group name");
+        if (!EmailSupervisor.checkMail(user.getEmail())) throw new BadEmailException(XDH103, "Bad user email");
 
-        if (addUserPipeline == null) {
-            addUserPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER);
-        }
+       DbPipeline<QueryFood, HyperResult> addUserPipeline =
+               new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_USER);
+        
         QueryFood food = new QueryFood(
                 new String[][]{
                     {"USERNAME", user.getUserName()},
@@ -249,20 +248,18 @@ public class WriterHandler {
                     {"FIRSTNAME", user.getFirstName()},
                     {"LASTNAME", user.getLastName()},
                     {"EMAIL", user.getEmail()},
-                    {"ORGANIZATION", user.getOrganization()},
-                    {"COUNTRY", user.getCountry()},
-                    {"CITY", user.getCity()},
-                    {"ADDRESS", user.getAddress()},
-                    {"WEBPAGE", user.getWebpage()},
+                    {"ORGANIZATION", user.getOrganization()!=null?user.getOrganization():"N/A"},
+                    {"COUNTRY", user.getCountry()!=null?user.getCountry():"N/A"},
+                    {"CITY", user.getCity()!=null?user.getCity():"N/A"},
+                    {"ADDRESS", user.getAddress()!=null?user.getAddress():"N/A"},
+                    {"WEBPAGE", user.getWebpage()!=null?user.getWebpage():"N/A"},
                     {"ROLE", user.getUserGroup().getName()}
                 });
         try {
             addUserPipeline.process(food);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "User added: \n" + user));
-        } catch (DbException ex) {
-            String message = "Cannot add user because email or username are already used by some other user.";
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
+        } catch (final DbException ex) {
+            if(ex.getCode()==Cause.XDB800) throw new DuplicateKeyException(Cause.XDB4300, "Username and/or email already registered");
         }
         return user;
     }
@@ -276,9 +273,14 @@ public class WriterHandler {
      * feature.
      */
     protected static Feature addFeature(Feature feature) throws DbException {
-        if (addFeaturePipeline == null) {
-            addFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_FEATURE);
+        if (feature == null) throw new NullPointerException("The feature you provided is null");
+        if (feature.getURI() == null) throw new DbException(Cause.XDB3236, "Cannot register a feature with no URI provided");
+        try {
+            new URI(feature.getURI());
+        }catch (URISyntaxException ex){
+            throw new DbException(XDB3237, "Invalid URI for feature :"+feature.getURI());
         }
+        DbPipeline<QueryFood, HyperResult> addFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_FEATURE);
         QueryFood food = new QueryFood(
                 new String[][]{
                     {"URI", feature.getURI()}
@@ -293,14 +295,11 @@ public class WriterHandler {
                 feature.setId(r);
             }
         } catch (DbException ex) {
-            if (ex.toString().contains("duplicate key") || ex.toString().contains("DuplicateKey")) {
+            if (ex.getCode()==Cause.XDB800) {
                 try {
                     feature.setId(ReaderHandler.searchFeature(new Feature(-1, feature.getURI())).getID());
                 } catch (DbException ex1) {// in this case feature failed to be added but is not in the DB either!
-                    String message = "Cannot add feature because it already exists: " + feature;
-                    YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
-                    YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-                    throw new DbException(XDH104, message, ex1);
+                    throw new DbException(Cause.XDB3238, "Error ");
                 }
             }
         }
@@ -318,12 +317,12 @@ public class WriterHandler {
      * algorithm ontologies are already added in the database.
      */
     protected static Algorithm addAlgorithm(Algorithm algorithm) throws DbException {
-        if (addAlgorithmPipeline == null) {
-            addAlgorithmPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM);
-        }
-        if (addAlgOntRelationPipeline == null) {
-            addAlgOntRelationPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM_ONTOL_RELATION);
-        }
+        if (algorithm == null) throw new NullPointerException("Cannot add a null algorithm in the database");
+        if (algorithm.getMeta() == null) throw new NullPointerException("Cannot add an algorithm with unknown metadata");
+        if (algorithm.getMeta().getName() == null) throw new DbException(Cause.XDB3235, "Specify the name of the algorithm");
+        if (algorithm.getMeta().getAlgorithmType() == null) throw new DbException(Cause.XDB3235, "Specify the type of the algorithm");
+        DbPipeline<QueryFood, HyperResult> addAlgorithmPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM);
+        DbPipeline<QueryFood, HyperResult> addAlgOntRelationPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_ALGORITHM_ONTOL_RELATION);
         BatchProcessor bp = new BatchProcessor(addAlgOntRelationPipeline);
         bp.setfailSensitive(false);
 
@@ -358,23 +357,18 @@ public class WriterHandler {
             addAlgorithmPipeline.process(algfood);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Algorithm added: \n" + algorithm));
         } catch (DbException ex) {
-            if (ex.toString().contains("DuplicateKeyException")) {
+            if (ex.getCode()==Cause.XDB800) {
                 String message = "Cannot add algorithm because it already exists.";
-                YaqpLogger.LOG.log(new Trace(WriterHandler.class, message));
-                YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
-                // IF THE ALGORITHM IS ALREADY ADDED, THROW A DUPLICATE KEY EXCEPTION.
                 throw new DuplicateKeyException(XDH105, message, ex);
             }
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Could not add the following algorithm :\n" + algorithm));
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
         // ADD ALL ALGORITHM ONTOLOGIES FOR THIS ALGORITHM.
         try {
-            bp.process(relfood);
+            bp.process(relfood);            
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Algorithm-Ontology relations batch added"));
         } catch (YaqpException ex) {
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Could not batch add Algorithm-Ontology relations :\n" + algorithm));
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
         }
         return algorithm;
     }
@@ -396,17 +390,23 @@ public class WriterHandler {
      * @see WriterHandler#addPredictiveModel(org.opentox.ontology.components.TunableQSARModel) add svm/svc models
      */
     protected static int addQSARModel(QSARModel model) throws DbException {
+        if (model == null) throw new NullPointerException("Cannot add null QSAR model");
+        if (model.getCode() == null) throw new DbException(Cause.XDB5001, "Cannot add a model with unspecified code");
+        if (model.getDependentFeature() == null) throw new DbException(Cause.XDB5002, "Cannot add a model with no dependent feature");
+        if (model.getPredictionFeature() == null) throw new DbException(Cause.XDB5003, "Cannot add a model with no prediction feature");
+        if (model.getDataset() == null) throw new DbException(Cause.XDB5004, "You did not specify a training dataset for the QSAΡ model");
+        if (model.getUser() == null) throw new DbException(Cause.XDB5005, "You must specify a user/creator for the QSAR model");
+        if (model.getIndependentFeatures() == null || model.getIndependentFeatures().size() == 0) throw new DbException(Cause.XDB5006, "You did not specify and independent features");
 
-        if (addQSARModelPipeline == null) {
-            addQSARModelPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_QSAR_MODEL);
-        }
-        if (addIndepFeaturePipeline == null) {
-            addIndepFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_INDEP_FEATURE_RELATION);
-        }
+
+        DbPipeline<QueryFood, HyperResult> addQSARModelPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_QSAR_MODEL);
+        DbPipeline<QueryFood, HyperResult> addIndepFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_INDEP_FEATURE_RELATION);
+
+        
         QSARModel.ModelStatus modelStatus = model.getModelStatus();
-        if (model.getModelStatus() == null) {
-            modelStatus = QSARModel.ModelStatus.UNDER_DEVELOPMENT;
-        }
+
+        if (model.getModelStatus() == null) modelStatus = QSARModel.ModelStatus.UNDER_DEVELOPMENT;
+        
         BatchProcessor bp = new BatchProcessor(addIndepFeaturePipeline);
         int r = 0;
         HyperResult result = new HyperResult();
@@ -421,7 +421,7 @@ public class WriterHandler {
                     {"STATUS", modelStatus.toString()}
                 });
         try {
-            result = addQSARModelPipeline.process(food);
+            result = addQSARModelPipeline.process(food);            
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "QSarModel added"));
         } catch (DbException ex) {
             if (ex.toString().contains("DuplicateKeyException")) {
@@ -456,6 +456,7 @@ public class WriterHandler {
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "XDD445 - Could not batch "
                     + "add Independent feature relations for model :" + model.getId()));
             YaqpLogger.LOG.log(new Debug(WriterHandler.class, ex.toString()));
+            throw new DbException();
         }
         return r;
     }
@@ -546,9 +547,13 @@ public class WriterHandler {
      * component
      */
     protected static Task addTask(Task task) throws DbException {
-        if (addTaskPipeline == null) {
-            addTaskPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_TASK);
-        }
+        if (task == null) throw new NullPointerException("Cannot add a null task in the database");
+        if (task.getDuration_sec() < 0) throw new DbException(Cause.XDB4001, "You provided a negative duration for a task");
+        if (task.getName() == null) throw new DbException(Cause.XDB4002, "A task has to have a not-null name.");
+        if (task.getAlgorithm() == null) throw new DbException(Cause.XDB4003, "You did not provide an algorithm for the task you attempted to register");
+        if (task.getUser() == null) throw new DbException(Cause.XDB4004, "You need to specify a user/creator or your task");
+        if (task.getUser().getEmail() == null) throw new DbException(Cause.XDB4005, "You did not specify the email of the user that created the task");
+        DbPipeline<QueryFood, HyperResult> addTaskPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.ADD_TASK);
         QueryFood food = new QueryFood(
                 new String[][]{
                     {"NAME", task.getName()},
@@ -560,11 +565,11 @@ public class WriterHandler {
             addTaskPipeline.process(food);
             YaqpLogger.LOG.log(new Trace(WriterHandler.class, "Task added: \n" + task));
         } catch (DbException ex) {
-            String message = "Could not add the following Task :\n" + task;
-            YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
-            throw new DbException(XDH110, message, ex);
+            if (ex.getCode()==Cause.XDB800){
+                throw new DbException(Cause.XDH110, "Cannot add task due to some constraint violation (user email or algorithm)");
+            }
+            throw new DbException(XDH2, "Unexpected condition while trying to add a task", ex);
         }
-
         return task;
     }
 

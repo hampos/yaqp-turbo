@@ -123,9 +123,7 @@ public class ReaderHandler {
     // TODO: Change array list to Component list
     public static ArrayList<User> searchUsers(User search_prototype) throws DbException {
         ArrayList<User> searchResult = new ArrayList<User>();
-        if (getUserPipeline == null) {
-            getUserPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_USER);
-        }
+        DbPipeline<QueryFood, HyperResult> getUserPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_USER);
         HyperResult result = null;
         String groupName = null;
         long authLevel = -1, auth_min = 0, auth_max = Integer.MAX_VALUE;
@@ -161,6 +159,7 @@ public class ReaderHandler {
         }
 
         if (result.getSize() > 0) {
+            
             for (int i = 1; i <= result.getSize(); i++) {
                 Iterator<String> it = result.getColumnIterator(i);
                 User user = new User(it.next(), it.next(), it.next(), it.next(), it.next(), it.next(), it.next(),
