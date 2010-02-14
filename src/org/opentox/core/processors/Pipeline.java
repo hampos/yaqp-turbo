@@ -49,6 +49,7 @@ import org.opentox.core.interfaces.JProcessor;
  * @author Sopasakis Pantelis
  * @author Charalampos Chomenides
  */
+@SuppressWarnings({"unchecked"})
 public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
           extends AbstractMultiProcessor<Input, Output, P> {
 
@@ -97,6 +98,8 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
                 }
                 getStatus().increment(STATUS.ERROR);
                 getStatus().incrementElapsedTime(STATUS.ERROR, System.currentTimeMillis() - start_time);
+            }catch (ClassCastException ex){
+                throw new ClassCastException("Typecasting error in the pipeline - be more careful");
             }
         }
         getStatus().setMessage("Pipeline completed the job.");

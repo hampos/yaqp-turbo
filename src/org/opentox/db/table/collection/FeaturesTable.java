@@ -31,48 +31,53 @@
  */
 
 
-package org.opentox.www.rest.components;
+package org.opentox.db.table.collection;
 
-import java.util.Collection;
-import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.representation.Variant;
-import org.restlet.resource.ResourceException;
-import org.restlet.resource.ServerResource;
+import org.opentox.db.table.Table;
+import org.opentox.db.table.TableColumn;
+import org.opentox.db.util.SQLDataTypes;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class YaqpResource extends ServerResource {
+public final class FeaturesTable {
 
-   
-    public YaqpResource(){
-        super();
-    }
+    private static final String
+            _TABLE = "FEATURES",
+            _UID = "UID",
+            _URI = "URI";
 
-    
-    public void initialize(Collection<MediaType> supportedMedia){
-        super.doInit();
-    }
-    
-    public void initialize(MediaType[] supportedMedia){
-        super.doInit();
-    }
+    private static final int URI_SIZE = 255;
 
-    
-    
-    protected YaqpRepresentation post(YaqpRepresentation entity, Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.post(entity, variant);
-    }
+    public static final TableColumn UID = uid();
+    public static final TableColumn URI = uri();
 
-    @Override
-    protected YaqpRepresentation get(Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.get(variant);
+    public static final Table TABLE = table();
+
+    private static final Table table(){
+        Table table = new Table(_TABLE);
+        table.addColumn(UID);
+        table.addColumn(URI);
+        return table;
     }
 
 
+    private static TableColumn uid(){
+        TableColumn uid = new TableColumn(_UID);
+        uid.setColumnType(SQLDataTypes.Int());
+        uid.setNotNull(true);
+        uid.setPrimaryKey(true, true);
+        return uid;
+    }
 
+    private static TableColumn uri(){
+        TableColumn uri = new TableColumn(_URI);
+        uri.setColumnType(SQLDataTypes.VarChar(URI_SIZE));
+        uri.setUnique(true);
+        uri.setNotNull(true);
+        return uri;
+    }
 
 }

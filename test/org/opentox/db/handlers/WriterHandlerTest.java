@@ -33,7 +33,6 @@ package org.opentox.db.handlers;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.junit.After;
@@ -43,14 +42,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
-import org.opentox.db.DatabaseJanitor;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
 import org.opentox.db.exceptions.BadEmailException;
 import org.opentox.db.exceptions.DuplicateKeyException;
-import org.opentox.db.table.StandardTables;
-import org.opentox.db.table.Table;
-import org.opentox.db.table.TableDropper;
 import org.opentox.db.util.TheDbConnector;
 import static org.junit.Assert.*;
 import org.opentox.ontology.exceptions.ImproperEntityException;
@@ -60,6 +55,7 @@ import org.opentox.ontology.util.AlgorithmMeta;
 import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.ontology.util.vocabulary.ConstantParameters;
+import org.opentox.util.monitoring.Jennifer;
 
 /**
  *
@@ -73,8 +69,8 @@ public class WriterHandlerTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-        DatabaseJanitor.INSTANCE.reset();
         TheDbConnector.init();
+        Jennifer.INSTANCE.resetDBContent();
     }
 
     @AfterClass
@@ -90,6 +86,15 @@ public class WriterHandlerTest {
     }
 
     @Test
+    public void addNullComponent() {
+        try {
+            WriterHandler.add(null);
+        } catch (Exception ex) {
+            assertTrue(ex instanceof NullPointerException);
+        }
+    }
+
+    @Test
     public void testAddUserGroup() throws ImproperEntityException {
         System.out.println("user group - test 1");
         try {
@@ -98,6 +103,7 @@ public class WriterHandlerTest {
             UserGroup adminGroup = WriterHandler.addUserGroup(new UserGroup("ADMINISTRATOR", 10));
             assertTrue(adminGroup.getLevel() == 10 && adminGroup.getName().equals("ADMINISTRATOR"));
         } catch (DuplicateKeyException ex) {
+            System.out.println(ex);
             fail();
         } catch (DbException ex) {
             fail();
@@ -295,6 +301,7 @@ public class WriterHandlerTest {
             WriterHandler.add(YaqpAlgorithms.SVM);
             WriterHandler.add(YaqpAlgorithms.SVC);
         } catch (Throwable thr) {
+            System.out.println(thr);
             fail("SHOULD NOT HAVE FAILED!");
         }
     }
@@ -345,7 +352,7 @@ public class WriterHandlerTest {
         System.out.println("feature - test 1");
         for (int i = 5; i <= 20; i++) {
             try {
-                System.out.println(WriterHandler.addFeature(new Feature("http://sth.com/feature/" + i)).getID());
+                assertTrue(WriterHandler.addFeature(new Feature(0, "http://sth.com/feature/" + i)).getID() > 0);
             } catch (DbException ex) {
                 fail("SHOULDN'T HAVE FAILED!");
             }
@@ -405,11 +412,12 @@ public class WriterHandlerTest {
         System.out.println("task - test 1");
         try {
             User prot = new User();
-            prot.setUserName("%ik%");            
+            prot.setUserName("%ik%");
             User u = ReaderHandler.searchUsers(prot).get(0);
             Task t = new Task(java.util.UUID.randomUUID().toString(), u, YaqpAlgorithms.SVC, 1000);
             assertEquals(WriterHandler.addTask(t), t);
         } catch (DbException ex) {
+            System.out.println(ex);
             fail();
         }
     }
@@ -454,65 +462,235 @@ public class WriterHandlerTest {
     }
 
     @Test
-    public void addQSARModel() {
+    public void addQSARModel() throws ImproperEntityException {
         System.out.println("QSAR Model - test 1");
         try {
             User u = ReaderHandler.searchUsers(new User()).get(0);
             Feature f = ReaderHandler.searchFeature(new Feature(-1, null));
-            System.err.println(f);
             ArrayList<Feature> lf = new ArrayList<Feature>();
             lf.add(f);
             QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.MLR, u, null, "dataset1", QSARModel.ModelStatus.UNDER_DEVELOPMENT);
+            m = (QSARModel) WriterHandler.add(m);
+            assertTrue(m.getId() > 0);
+        } catch (DbException ex) {
+            System.out.println(ex);
+            fail("SHOULDN'T HAVE FAILED!");
+        }
+    }
+
+    @Test
+    public void addNullQSAR() {
+        System.out.println("QSAR Model - test 2");
+        QSARModel m = null;
+        try {
+            WriterHandler.addPredictiveModel(m);
+        } catch (Exception ex) {
+            assertTrue(ex instanceof NullPointerException);
+        }
+    }
+
+    @Test
+    public void addEmptyQSAR() {
+        System.out.println("QSAR Model - test 3");
+        QSARModel m = new QSARModel();
+        try {
             WriterHandler.addQSARModel(m);
-            //System.out.println(model.getId());
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
+            assertEquals(ex.getCode(), Cause.XDB5001);
+        }
+    }
+
+    @Test
+    public void addQSARNewFeatures() throws ImproperEntityException {
+        System.out.println("QSAR Model - test 4");
+        try {
+            User u = ReaderHandler.searchUsers(new User()).get(0);
+            Feature f1 = new Feature("http://example.org/feature/1");
+            Feature f2 = new Feature("http://example.org/feature/2");
+            Feature f3 = new Feature("http://example.org/feature/3");
+            ArrayList<Feature> lf = new ArrayList<Feature>();
+            lf.add(f1);
+            lf.add(f2);
+            lf.add(f3);
+            QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f1, f2, lf, YaqpAlgorithms.MLR, u, null, "http://sth.com/dataset/1", QSARModel.ModelStatus.UNDER_DEVELOPMENT);
+            m = (QSARModel) WriterHandler.add(m);
+            assertTrue(m.getDependentFeature().getID() > 0);
+            assertTrue(m.getPredictionFeature().getID() > 0);
+            assertTrue(m.getIndependentFeatures().get(0).getID() > 0);
+            assertTrue(m.getId() > 0);
         } catch (DbException ex) {
             fail("SHOULDN'T HAVE FAILED!");
         }
     }
 
-
-
-
-
-
-
-
-
-
-
-    //  @Test
-    public void addsvmModel() throws Exception {
-        User u = ReaderHandler.searchUsers(new User()).get(1);
-        Feature f = ReaderHandler.searchFeature(new Feature(-1, "http://sth.com/feature/1"));
-        ArrayList<Feature> lf = new ArrayList<Feature>();
-        lf.add(f);
-        QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "dataset1", null);
-        Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
-        params.putAll(ConstantParameters.SVMParams());
-        m.setParams(params);
-        WriterHandler.add(m);
+    @Test
+    public void addsvmModel() {
+        System.out.println("SVM Model - test 1");
+        try {
+            User u = ReaderHandler.searchUsers(new User()).get(1);
+            Feature f = new Feature(-1, "http://chung.net/feature/666");
+            ArrayList<Feature> lf = new ArrayList<Feature>();
+            lf.add(f);
+            QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "http://dataset.com/1", null);
+            Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
+            params.putAll(ConstantParameters.SVMParams());
+            m.setParams(params);
+            WriterHandler.add(m);
+        } catch (DbException ex) {
+            fail();
+        } catch (ImproperEntityException ex) {
+            fail();
+        }
     }
 
-    //  @Test
+    
+    @Test
+    public void addsvmModel_badParams() {
+        System.out.println("SVM Model - test 2");
+        try {
+            User u = ReaderHandler.searchUsers(new User()).get(1);
+            Feature f = new Feature(-1, "http://chung.net/feature/666");
+            ArrayList<Feature> lf = new ArrayList<Feature>();
+            lf.add(f);
+            QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "http://dataset.com/1", null);
+            Map<String, AlgorithmParameter> temp = ConstantParameters.SVMParams();
+            temp.remove("gamma"); 
+            temp.put("gamma", new AlgorithmParameter(-1));
+            m.setParams(temp);
+            m = (QSARModel) WriterHandler.add(m);
+            fail();
+        } catch (DbException ex) {
+            assertEquals(ex.getCode(), Cause.XDB7703);
+        } catch (ImproperEntityException ex) {
+            System.out.println(ex);
+            fail();
+        }
+    }
+
+    @Test
+    public void addsvmModel_missing() {
+        System.out.println("SVM Model - test 2");
+        try {
+            User u = ReaderHandler.searchUsers(new User()).get(1);
+            Feature f = new Feature(-1, "http://chung.net/feature/666");
+            ArrayList<Feature> lf = new ArrayList<Feature>();
+            lf.add(f);
+            QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "http://dataset.com/1", null);
+            Map<String, AlgorithmParameter> temp = ConstantParameters.SVMParams();
+            temp.remove("gamma"); // gamma is missing but a default value replaces it!
+            m.setParams(temp);
+            m = (QSARModel) WriterHandler.add(m);   
+            assertTrue(m.getId()>0);
+        } catch (DbException ex) {
+            fail();
+        } catch (ImproperEntityException ex) {
+            System.out.println(ex);
+            fail();
+        }
+    }
+
+    @Test
     public void addmlrModel() throws DbException, ImproperEntityException, YaqpException {
-        User u = ReaderHandler.searchUsers(new User()).get(7);
-        u.setEmail("ann10@foo.goo.gr");
-        Feature f = ReaderHandler.searchFeature(new Feature(-1, "http://sth.com/feature/1"));
+        System.out.println("MLR Model - test 1");
+        User u = ReaderHandler.searchUsers(new User()).get(0);
+        //u.setEmail("john@foo.goo.gr");
+        Feature f = new Feature(-1, "http://chung.net/feature/666");
         ArrayList<Feature> lf = new ArrayList<Feature>();
         lf.add(f);
         QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.MLR, u, null, "dataset1", null);
-        ArrayList<AlgorithmParameter> tps = new ArrayList<AlgorithmParameter>();
-        System.out.println(WriterHandler.add(m));
+        m=(QSARModel) WriterHandler.add(m);
+        assertTrue(m.getId()>0);
     }
 
-    //  @Test
-    public void addOmega() throws DbException, ImproperEntityException, YaqpException {
-        User prot = new User();
-        prot.setEmail("ann12%");
-        User u = ReaderHandler.searchUsers(prot).get(1);
-        OmegaModel om = new OmegaModel("dset50", java.util.UUID.randomUUID().toString(), u);
-        System.out.println(WriterHandler.addOmega(om));
 
+    @Test
+    public void addmlrModelUnknownUser()  {
+        try {
+            System.out.println("MLR Model - test 2");
+            User u = new User();
+            u.setEmail("unknown@foo.hyt");
+            Feature f = new Feature(-1, "http://chung.net/feature/666");
+            ArrayList<Feature> lf = new ArrayList<Feature>();
+            lf.add(f);
+            QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.MLR, u, null, "dataset1", null);
+            System.out.println(WriterHandler.add(m));
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
+            assertTrue(ex.getCode() == Cause.XDB7701);
+        } catch (ImproperEntityException ex) {
+            fail();
+        }
     }
+
+    @Test
+    public void addMlrModelNoUser(){
+        try {
+            System.out.println("MLR Model - test 3");
+            User u = new User();
+            Feature f = new Feature(-1, "http://chung.net/feature/777");
+            ArrayList<Feature> lf = new ArrayList<Feature>();
+            lf.add(f);
+            QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.MLR, u, null, "dataset1", null);
+            System.out.println(WriterHandler.add(m));
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
+            assertTrue(ex.getCode() == Cause.XDB7701);
+        } catch (ImproperEntityException ex) {
+            fail();
+        }
+    }
+
+
+    @Test
+    public void addMlrInvalidDataset(){
+        try {
+            System.out.println("MLR Model - test 4");
+            User u = new User();
+            u.setEmail("john@foo.goo.gr");
+            Feature f = new Feature(-1, "http://chung.net/feature/777");
+            ArrayList<Feature> lf = new ArrayList<Feature>();
+            lf.add(f);
+            QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.MLR, u, null, "asdf qwerty %@#& 89", null);
+            System.out.println(WriterHandler.add(m));
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
+            assertTrue(ex.getCode() == Cause.XDB18);
+        } catch (ImproperEntityException ex) {
+            fail();
+        }
+    }
+
+    @Test
+    public void addProperOmega() {
+        System.out.println("oMega - test 1");
+        try {
+            User prot = new User();
+            prot.setEmail("john%");
+            User u = ReaderHandler.searchUsers(prot).get(0);
+            OmegaModel om = new OmegaModel("dset50", java.util.UUID.randomUUID().toString(), u);
+            assertTrue(WriterHandler.addOmega(om).getId() > 0);
+        } catch (DbException ex) {
+            Logger.getLogger(WriterHandlerTest.class.getName()).log(Level.SEVERE, null, ex);
+            fail();
+        }
+    }
+
+    @Test
+    public void addOmegaUnknownUser() throws ImproperEntityException {
+        System.out.println("oMega - test 2");
+        try {
+            User u = new User();
+            u.setEmail("asdf@qwerty.gr");
+            OmegaModel om = new OmegaModel("dset50", java.util.UUID.randomUUID().toString(), u);
+            WriterHandler.add(om);
+            fail("SHOULD HAVE FAILED!");
+        } catch (DbException ex) {
+            assertTrue(ex.getCode() == Cause.XDB9095);
+        }
+    }
+
+    
 }
+
 

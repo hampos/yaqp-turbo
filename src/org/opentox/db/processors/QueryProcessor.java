@@ -27,8 +27,6 @@ import org.opentox.db.queries.HyperStatement;
 import org.opentox.db.queries.QueryFood;
 import org.opentox.db.util.PrepStmt;
 import org.opentox.db.util.PrepSwimmingPool;
-import org.opentox.util.logging.YaqpLogger;
-import org.opentox.util.logging.levels.Debug;
 import static org.opentox.core.exceptions.Cause.*;
 
 /**
@@ -74,6 +72,7 @@ public class QueryProcessor extends AbstractDbProcessor<QueryFood, HyperStatemen
                 }
 
                 value = food.getValue(prepStmt.getParameters()[i].getName());
+                
 
                 if (prepStmt.getParameters()[i].getType().equals(String.class)) {
                     hs.setString((i + 1), value);

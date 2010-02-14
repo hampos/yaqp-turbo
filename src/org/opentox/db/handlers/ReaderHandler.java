@@ -31,12 +31,9 @@
  */
 package org.opentox.db.handlers;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.exceptions.DbException;
@@ -60,94 +57,23 @@ import static org.opentox.core.exceptions.Cause.*;
  */
 public class ReaderHandler {
 
+    private static DbPipeline<QueryFood, HyperResult>
+            getUsersPipeline = null,
+            getAlgorithmOntologiesPipeline = null,
+            getUserGroupsPipeline = null,
+            getUserGroupPipeline = null,
+            getAlgorithmsPipeline = null,
+            getAlgOntRelationPipeline = null,
+            getOntAlgRelationPipeline = null,
+            getFeaturesPipeline = null,
+            getFeaturePipeline = null,
+            getIndepFeaturesPipeline = null,
+            getQSARModelsPipeline = null,
+            getMLRModelsPipeline = null,
+            getTasksPipeline = null;
     private static final String baseURI =
             "http://" + Configuration.getProperties().getProperty("server.domainName")
             + ":" + Configuration.getProperties().getProperty("server.port");
-
-
-
-     public static ComponentList<UserGroup>
-             searchUserGroup(UserGroup prototype, int pageSize, int pageNum) throws DbException {
-
-        ComponentList<UserGroup> groupList = new ComponentList<UserGroup>();
-        DbPipeline<QueryFood, HyperResult> pipeline =
-                new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_USER_GROUP);
-
-        HyperResult result = null;
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"NAME", fixNull(prototype.getName())},
-                    {"USER_LEVEL_MIN", Integer.toString(prototype.getMinLevel())},
-                    {"USER_LEVEL_MAX", Integer.toString(prototype.getMaxLevel())},
-                    {"MODEL_AUTH", fixNull(prototype.getModelAuth())},
-                    {"USER_AUTH", fixNull(prototype.getUserAuth())},
-                    {"ALGORITHM_AUTH", fixNull(prototype.getAlgorithmAuth())},
-                    {"USER_GROUP_AUTH", fixNull(prototype.getUserGroupAuth())},
-                    {"MAX_MODELS_MIN", Integer.toString(prototype.getMinModels())},
-                    {"MAX_MODELS_MAX", Integer.toString(prototype.getMaxModels())}
-        });
-        food.add("OFFSET", Integer.toString(pageSize*pageNum));
-        if(pageSize == 0){
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else{
-            food.add("ROWS", Integer.toString(pageSize));
-        }
-        try {
-            result = pipeline.process(food);
-            for (int i = 1; i < result.getSize() + 1; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-            UserGroup userGroup = new UserGroup(it.next(),Integer.parseInt(it.next()),
-                    it.next(),it.next(), it.next(), it.next(), Integer.parseInt(it.next()));
-            groupList.add(userGroup);
-            }
-        } catch (YaqpException ex) {
-            String message = "Could not get User Groups for given Prototype from database";
-            throw new DbException(XDH1, message, ex);
-        }
-        return groupList;
-    }
-
-    public static ComponentList<UserGroup>
-             searchUserGroupSkroutz(UserGroup prototype, int pageSize, int pageNum) throws DbException {
-
-        ComponentList<UserGroup> groupList = new ComponentList<UserGroup>();
-        DbPipeline<QueryFood, HyperResult> pipeline =
-                new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_USER_GROUP_SKROUTZ);
-
-        HyperResult result = null;
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"NAME", fixNull(prototype.getName())},
-                    {"USER_LEVEL_MIN", Integer.toString(prototype.getMinLevel())},
-                    {"USER_LEVEL_MAX", Integer.toString(prototype.getMaxLevel())},
-                    {"MODEL_AUTH", fixNull(prototype.getModelAuth())},
-                    {"USER_AUTH", fixNull(prototype.getUserAuth())},
-                    {"ALGORITHM_AUTH", fixNull(prototype.getAlgorithmAuth())},
-                    {"USER_GROUP_AUTH", fixNull(prototype.getUserGroupAuth())},
-                    {"MAX_MODELS_MIN", Integer.toString(prototype.getMinModels())},
-                    {"MAX_MODELS_MAX", Integer.toString(prototype.getMaxModels())}
-        });
-        food.add("OFFSET", Integer.toString(pageSize*pageNum));
-        if(pageSize == 0){
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else{
-            food.add("ROWS", Integer.toString(pageSize));
-        }
-        try {
-            result = pipeline.process(food);
-            for (int i = 1; i < result.getSize() + 1; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-            UserGroup userGroup = new UserGroup(it.next(),Integer.parseInt(it.next()),
-                    it.next(),it.next(), it.next(), it.next(), Integer.parseInt(it.next()));
-            groupList.add(userGroup);
-            }
-        } catch (YaqpException ex) {
-            String message = "Could not get User Group Names for given Prototype from database";
-            throw new DbException(XDH2, message, ex);
-        }        
-        return groupList;
-    }
-
 
     /**
      *
@@ -195,253 +121,54 @@ public class ReaderHandler {
      * @throws DbException In case the search cannot be performed.
      */
     // TODO: Change array list to Component list
-     public static ComponentList<User>
-             searchUser(User prototype, int pageSize, int pageNum) throws DbException {
-
-        ComponentList<User> userList = new ComponentList<User>();
-        DbPipeline<QueryFood, HyperResult> pipeline =
-                new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_USER);
+    public static ArrayList<User> searchUsers(User search_prototype) throws DbException {
+        ArrayList<User> searchResult = new ArrayList<User>();
+        DbPipeline<QueryFood, HyperResult> getUserPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_USER);
         HyperResult result = null;
+        String groupName = null;
+        long authLevel = -1, auth_min = 0, auth_max = Integer.MAX_VALUE;
+        if (search_prototype.getUserGroup() != null) {
+            groupName = search_prototype.getUserGroup().getName();
+            authLevel = search_prototype.getUserGroup().getLevel();
+            if (authLevel > 0) {
+                auth_min = authLevel;
+                auth_max = authLevel;
+            }
+        }
+
         QueryFood food = new QueryFood(
                 new String[][]{
-                    {"USER_LEVEL_MIN", Integer.toString(prototype.getUserGroup().getMinLevel())},
-                    {"USER_LEVEL_MAX", Integer.toString(prototype.getUserGroup().getMaxLevel())},
-                    {"MODEL_AUTH", fixNull(prototype.getUserGroup().getModelAuth())},
-                    {"USER_AUTH", fixNull(prototype.getUserGroup().getUserAuth())},
-                    {"ALGORITHM_AUTH", fixNull(prototype.getUserGroup().getAlgorithmAuth())},
-                    {"USER_GROUP_AUTH", fixNull(prototype.getUserGroup().getUserGroupAuth())},
-                    {"MAX_MODELS_MIN", Integer.toString(prototype.getUserGroup().getMinModels())},
-                    {"MAX_MODELS_MAX", Integer.toString(prototype.getUserGroup().getMaxModels())},
-
-                    {"EMAIL", fixNull(prototype.getEmail())},
-                    {"USERNAME", fixNull(prototype.getUserName())},
-                    {"FIRSTNAME", fixNull(prototype.getFirstName())},
-                    {"LASTNAME", fixNull(prototype.getLastName())},
-                    {"COUNTRY", fixNull(prototype.getCountry())},
-                    {"CITY", fixNull(prototype.getCity())},
-                    {"ADDRESS", fixNull(prototype.getAddress())},
-                    {"ORGANIZATION", fixNull(prototype.getOrganization())},
-                    {"WEBPAGE", fixNull(prototype.getWebpage())},
-                    {"ROLE", fixNull(prototype.getUserGroup().getName())},});
-        food.add("OFFSET", Integer.toString(pageSize*pageNum));
-        if(pageSize == 0){
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else{
-            food.add("ROWS", Integer.toString(pageSize));
-        }
+                    {"USER_LEVEL_MIN", Long.toString(auth_min)},
+                    {"USER_LEVEL_MAX", Long.toString(auth_max)},
+                    {"EMAIL", fixNull(search_prototype.getEmail())},
+                    {"USERNAME", fixNull(search_prototype.getUserName())},
+                    {"FIRSTNAME", fixNull(search_prototype.getFirstName())},
+                    {"LASTNAME", fixNull(search_prototype.getLastName())},
+                    {"COUNTRY", fixNull(search_prototype.getCountry())},
+                    {"CITY", fixNull(search_prototype.getCity())},
+                    {"ADDRESS", fixNull(search_prototype.getAddress())},
+                    {"ORGANIZATION", fixNull(search_prototype.getOrganization())},
+                    {"WEBPAGE", fixNull(search_prototype.getWebpage())},
+                    {"ROLE", fixNull(groupName)},});
         try {
-            result = pipeline.process(food);
+            result = getUserPipeline.process(food);
+        } catch (YaqpException ex) {
+            String message = "Could not get User list from database";
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
+            throw new DbException(XDH0, message, ex);
+        }
+
+        if (result.getSize() > 0) {
+            
             for (int i = 1; i <= result.getSize(); i++) {
                 Iterator<String> it = result.getColumnIterator(i);
-                User user = new User(it.next(), it.next(), it.next(), it.next(),
-                        it.next(), it.next(), it.next(),
-                        it.next(), it.next(), it.next(), it.next(),
-                        searchUserGroup(new UserGroup(it.next()),0,0).get(0)
-                        );
-                userList.add(user);
+                User user = new User(it.next(), it.next(), it.next(), it.next(), it.next(), it.next(), it.next(),
+                        it.next(), it.next(), it.next(), it.next(), getUserGroup(it.next()));
+                searchResult.add(user);
             }
-        } catch (YaqpException ex) {
-            String message = "Could not get Users for given Prototype from database";
-            throw new DbException(XDH3, message, ex);
         }
-        return userList;
+        return searchResult;
     }
-
-     public static ComponentList<User>
-             searchUserSkroutz(User prototype, int pageSize, int pageNum) throws DbException {
-
-        ComponentList<User> userList = new ComponentList<User>();
-        DbPipeline<QueryFood, HyperResult> pipeline =
-                new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_USER_SKROUTZ);
-        HyperResult result = null;
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"USER_LEVEL_MIN", Integer.toString(prototype.getUserGroup().getMinLevel())},
-                    {"USER_LEVEL_MAX", Integer.toString(prototype.getUserGroup().getMaxLevel())},
-                    {"MODEL_AUTH", fixNull(prototype.getUserGroup().getModelAuth())},
-                    {"USER_AUTH", fixNull(prototype.getUserGroup().getUserAuth())},
-                    {"ALGORITHM_AUTH", fixNull(prototype.getUserGroup().getAlgorithmAuth())},
-                    {"USER_GROUP_AUTH", fixNull(prototype.getUserGroup().getUserGroupAuth())},
-                    {"MAX_MODELS_MIN", Integer.toString(prototype.getUserGroup().getMinModels())},
-                    {"MAX_MODELS_MAX", Integer.toString(prototype.getUserGroup().getMaxModels())},
-
-                    {"EMAIL", fixNull(prototype.getEmail())},
-                    {"USERNAME", fixNull(prototype.getUserName())},
-                    {"FIRSTNAME", fixNull(prototype.getFirstName())},
-                    {"LASTNAME", fixNull(prototype.getLastName())},
-                    {"COUNTRY", fixNull(prototype.getCountry())},
-                    {"CITY", fixNull(prototype.getCity())},
-                    {"ADDRESS", fixNull(prototype.getAddress())},
-                    {"ORGANIZATION", fixNull(prototype.getOrganization())},
-                    {"WEBPAGE", fixNull(prototype.getWebpage())},
-                    {"ROLE", fixNull(prototype.getUserGroup().getName())}
-        });
-        food.add("OFFSET", Integer.toString(pageSize*pageNum));
-        if(pageSize == 0){
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else{
-            food.add("ROWS", Integer.toString(pageSize));
-        }
-        try {
-            result = pipeline.process(food);
-            for (int i = 1; i <= result.getSize(); i++) {
-                Iterator<String> it = result.getColumnIterator(i);
-                User user = new User(it.next(), it.next(), it.next(), it.next(),
-                        it.next(), it.next(), it.next(),
-                        it.next(), it.next(), it.next(), it.next(),
-                        searchUserGroup(new UserGroup(it.next()),0,0).get(0)
-                        );
-                userList.add(user);
-            }
-        } catch (YaqpException ex) {
-            String message = "Could not get Users for given Prototype from database";
-            throw new DbException(XDH3, message, ex);
-        }
-        return userList;
-    }
-
-
-
-
-
-     public static ComponentList<AlgorithmOntology>
-             searchAlgorithmOntology(AlgorithmOntology prototype, int pageSize, int pageNum) throws YaqpOntException, DbException {
-        ComponentList<AlgorithmOntology> ontList = new ComponentList<AlgorithmOntology>();
-        DbPipeline<QueryFood, HyperResult> pipeline =
-                new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_ALGORITHM_ONTOLOGY);
-        HyperResult result = null;
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"NAME", fixNull(prototype.getName())},
-                    {"URI", fixNull(prototype.getUri())},
-        });
-        food.add("OFFSET", Integer.toString(pageSize*pageNum));
-        if(pageSize == 0){
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else{
-            food.add("ROWS", Integer.toString(pageSize));
-        }
-        try {
-            result = pipeline.process(null);
-            for (int i = 1; i <= result.getSize() ; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-
-            AlgorithmOntology algont = new AlgorithmOntology(it.next());
-            ontList.add(algont);
-            }
-        } catch (YaqpException ex) {
-            String message = "Could not get Algorithm Ontologies from database";
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException(XDH3, message, ex);
-        }
-        return ontList;
-    }
-
-
-     public static ComponentList<AlgorithmOntology>
-             searchAlgorithmOntologySkroutz(AlgorithmOntology prototype, int pageSize, int pageNum) throws YaqpOntException, DbException {
-        ComponentList<AlgorithmOntology> ontList = new ComponentList<AlgorithmOntology>();
-        DbPipeline<QueryFood, HyperResult> pipeline =
-                new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_ALGORITHM_ONTOLOGY_SKROUTZ);
-        HyperResult result = null;
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"NAME", fixNull(prototype.getName())},
-                    {"URI", fixNull(prototype.getUri())},
-        });
-        food.add("OFFSET", Integer.toString(pageSize*pageNum));
-        if(pageSize == 0){
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else{
-            food.add("ROWS", Integer.toString(pageSize));
-        }
-        try {
-            result = pipeline.process(null);
-            for (int i = 1; i <= result.getSize() ; i++) {
-                Iterator<String> it = result.getColumnIterator(i);
-                AlgorithmOntology algont = new AlgorithmOntology(it.next());
-                ontList.add(algont);
-            }
-        } catch (YaqpException ex) {
-            String message = "Could not get Algorithm Ontologies from database";
-            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
-            throw new DbException(XDH3, message, ex);
-        }
-        return ontList;
-    }
-
-
-
-     public static ComponentList<Feature>
-             searchFeature(Feature prototype, int pageSize, int pageNum) throws DbException {
-
-        ComponentList<Feature> featureList = new ComponentList<Feature>();
-        DbPipeline<QueryFood,HyperResult> pipeline =
-                new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_FEATURE);
-        
-        HyperResult result = null;
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"UID_MIN", Integer.toString(prototype.getMinId())},
-                    {"UID_MAX", Integer.toString(prototype.getMaxId())},
-                    {"URI", fixNull(prototype.getURI())}
-        });
-        food.add("OFFSET", Integer.toString(pageSize*pageNum));
-        if(pageSize == 0){
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else{
-            food.add("ROWS", Integer.toString(pageSize));
-        }
-        try {
-            result = pipeline.process(food);
-            for (int i = 1; i <= result.getSize() ; i++) {
-                Iterator<String> it = result.getColumnIterator(i);
-                Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
-                featureList.add(feature);
-            }
-        } catch (YaqpException ex) {
-            throw new DbException(XDH7, "Could not get Features from Database", ex);
-        }
-        return featureList;
-    }
-
-
-     public static ComponentList<Feature>
-             searchFeatureSkroutz(Feature prototype, int pageSize, int pageNum) throws DbException {
-
-        ComponentList<Feature> featureList = new ComponentList<Feature>();
-        DbPipeline<QueryFood,HyperResult> pipeline =
-                new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_FEATURE_SKROUTZ);
-
-        HyperResult result = null;
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"UID_MIN", Integer.toString(prototype.getMinId())},
-                    {"UID_MAX", Integer.toString(prototype.getMaxId())},
-                    {"URI", fixNull(prototype.getURI())}
-        });
-        food.add("OFFSET", Integer.toString(pageSize*pageNum));
-        if(pageSize == 0){
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else{
-            food.add("ROWS", Integer.toString(pageSize));
-        }
-        try {
-            result = pipeline.process(food);
-            for (int i = 1; i <= result.getSize() ; i++) {
-                Iterator<String> it = result.getColumnIterator(i);
-                Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
-                featureList.add(feature);
-            }
-        } catch (YaqpException ex) {
-            throw new DbException(XDH7, "Could not get Features from Database", ex);
-        }
-        return featureList;
-    }
-
-
-
-
 
     /**
      * Auxiliary method.
@@ -456,52 +183,343 @@ public class ReaderHandler {
         return in;
     }
 
-  
+    /**
+     * Get a list of URIs of all users in the database. This in fact will return an
+     * instance of {@link UriList } but no other data about every user. If you need
+     * a more detailed representation as a list consider using
+     * {@link ReaderHandler#searchUsers(org.opentox.ontology.components.User) } which
+     * returns all users that meet a certain criterion as an <code>ArrayList&lt;User&gt;
+     * </code>.
+     * @return The list of all users as a {@link UriList }
+     * @throws DbException In case the list could not be retrieved from the database
+     * due to connection problems or other database access issues.
+     */
+    public static ComponentList<User> getUsers() throws DbException {
+        ComponentList<User> list = new ComponentList<User>();
+        if (getUsersPipeline == null) {
+            getUsersPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALL_USERS);
+        }
+        HyperResult result = null;
+        try {
+            result = getUsersPipeline.process(null);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get User list from database"));
+        }
+
+//        for (int i = 1; i < result.getSize() + 1; i++) {
+//            Iterator<String> it = result.getColumnIterator(i);
+//            list.add(new Uri(baseURI + "/user/" + it.next(), OTClass.User));
+//        }
+
+        //TODO: Complete the implementation of this method
+        return null;
+    }
+
     /**
      *
      * @return
      */
-//    public static ArrayList<QSARModel> getQSARModels(QSARModel prototype) {
-//        ArrayList<QSARModel> searchResult = new ArrayList<QSARModel>();
-//        if (getQSARModelsPipeline == null) {
-//            getQSARModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODELS);
+    public static ArrayList<QSARModel> getQSARModels(QSARModel prototype) {
+        ArrayList<QSARModel> searchResult = new ArrayList<QSARModel>();
+        if (getQSARModelsPipeline == null) {
+            getQSARModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODELS);
+        }
+        QueryFood food = new QueryFood();
+        food.add("PREDICTION_FEATURE", fixNull(prototype.getPredictionFeature().getURI()));
+        food.add("DEPENDENT_FEATURE", fixNull(prototype.getAlgorithm().getMeta().getName()));
+        food.add("CREATED_BY", fixNull(prototype.getUser().getEmail()));
+        food.add("DATASET_URI", fixNull(prototype.getDataset()));
+        HyperResult result = null;
+        try {
+            result = getQSARModelsPipeline.process(food);
+            if (result.getSize() > 0) {
+                for (int i = 1; i <= result.getSize(); i++) {
+                    Iterator<String> it = result.getColumnIterator(i);
+                    String code = it.next();
+                    QSARModel model = new QSARModel();
+                    searchResult.add(model);
+                }
+            }
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get QSARModels from database"));
+        }
+
+
+
+        return null;
+    }
+
+    public static UserGroup getUserGroup(String groupName) throws DbException {
+        if (getUserGroupPipeline == null) {
+            getUserGroupPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USER_GROUP);
+        }
+
+        HyperResult result = null;
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"NAME", groupName}
+                });
+        try {
+            result = getUserGroupPipeline.process(food);
+        } catch (YaqpException ex) {
+            String message = "Could not get User Group " + groupName + " from database";
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
+            throw new DbException(XDH1, message, ex);
+        }
+
+        if (result.getSize() == 1) {
+            Iterator<String> it = result.getColumnIterator(1);
+            UserGroup userGroup = new UserGroup(it.next(), Integer.parseInt(it.next()));
+            return userGroup;
+        }
+        throw new DbException(XDH00, "No such user group :" + groupName);
+    }
+
+    public static ArrayList<UserGroup> getUserGroups() throws DbException {
+        if (getUserGroupsPipeline == null) {
+            getUserGroupsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_USER_GROUPS);
+        }
+
+        HyperResult result = null;
+        try {
+            result = getUserGroupsPipeline.process(null);
+        } catch (YaqpException ex) {
+            String message = "Could not get User Groups from database";
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
+            throw new DbException(XDH2, message, ex);
+        }
+        ArrayList<UserGroup> userGroupList = new ArrayList<UserGroup>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            UserGroup userGroup = new UserGroup(it.next(), Integer.parseInt(it.next()));
+            userGroupList.add(userGroup);
+        }
+        return userGroupList;
+    }
+
+    public static ArrayList<AlgorithmOntology> getAlgorithmOntologies() throws YaqpOntException, DbException {
+        if (getAlgorithmOntologiesPipeline == null) {
+            getAlgorithmOntologiesPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALGORITHM_ONTOLOGIES);
+        }
+
+        HyperResult result = null;
+        try {
+            result = getAlgorithmOntologiesPipeline.process(null);
+        } catch (YaqpException ex) {
+            String message = "Could not get Algorithm Ontologies from database";
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
+            throw new DbException(XDH3, message, ex);
+        }
+        ArrayList<AlgorithmOntology> algorithmOntologiesList = new ArrayList<AlgorithmOntology>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+
+            AlgorithmOntology algont = new AlgorithmOntology(it.next());
+            algorithmOntologiesList.add(algont);
+        }
+        return algorithmOntologiesList;
+    }
+
+    /**
+     * Name-based database search for algorithms.
+     * @param algorithmName
+     * @return
+     * @throws YaqpOntException
+     */
+    public static ArrayList<AlgorithmOntology> getAlgOntRelation(String algorithmName) throws YaqpOntException, DbException {
+        if (getAlgOntRelationPipeline == null) {
+            getAlgOntRelationPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALGORITHM_ONTOLOGY_RELATION);
+        }
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"ALGORITHM", algorithmName}
+                });
+        HyperResult result = null;
+        try {
+            result = getAlgOntRelationPipeline.process(food);
+        } catch (YaqpException e) {
+            String message = "Could not get Algorithm-Ontology Relations from database";
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
+            throw new DbException(XDH4, message, e);
+        }
+        ArrayList<AlgorithmOntology> algorithmOntologiesList = new ArrayList<AlgorithmOntology>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            AlgorithmOntology algont = new AlgorithmOntology(it.next());
+            algorithmOntologiesList.add(algont);
+        }
+        return algorithmOntologiesList;
+    }
+
+    // TODO: Fix the following code and then perform tons of tests!
+    public static ArrayList<Algorithm> getOntAlgRelation(AlgorithmOntology ontology) throws DbException {
+        if (getOntAlgRelationPipeline == null) {
+            getOntAlgRelationPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ONTOLOGY_ALGORITHM_RELATION);
+        }
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"ONTOLOGY", ontology.getName()}
+                });
+        HyperResult result = null;
+        try {
+            result = getOntAlgRelationPipeline.process(food);
+        } catch (YaqpException e) {
+            String message = "Could not get Ontology-Algorithm Relations from database\n";
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, message));
+            throw new DbException(XDH5, message, e);
+        }
+        AlgorithmMeta meta = null;
+        ArrayList<Algorithm> algorithmList = new ArrayList<Algorithm>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            String algName = it.next();
+            try {
+                Class<?> c = YaqpAlgorithms.class;
+                Method[] allMethods = c.getDeclaredMethods();
+                for (Method m : allMethods) {
+                    String mname = m.getName();
+                    if (mname.contains(algName)) {
+                        meta = (AlgorithmMeta) m.invoke(null, (Object[]) null);
+                        Algorithm algorithm = new Algorithm(meta);
+                        algorithmList.add(algorithm);
+                    }
+                }
+            } catch (Exception e) {
+                YaqpLogger.LOG.log(new Warning(ReaderHandler.class, "XX101 - Xeption : " + e.toString()));
+            }
+        }
+        return algorithmList;
+    }
+
+    public static ArrayList<Algorithm> getAlgorithms() {
+        if (getAlgorithmsPipeline == null) {
+            getAlgorithmsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALGORITHMS);
+        }
+        HyperResult result = null;
+        try {
+            result = getAlgorithmsPipeline.process(new QueryFood());
+        } catch (YaqpException e) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Algorithms from database\n"));
+        }
+        AlgorithmMeta meta = null;
+        ArrayList<Algorithm> algorithmList = new ArrayList<Algorithm>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            String algName = it.next();
+            try {
+                Class<?> c = YaqpAlgorithms.class;
+                Method[] allMethods = c.getDeclaredMethods();
+                for (Method m : allMethods) {
+                    String mname = m.getName();
+                    if (mname.contains(algName)) {
+                        meta = (AlgorithmMeta) m.invoke(null, (Object[]) null);
+                        Algorithm algorithm = new Algorithm(meta);
+                        algorithmList.add(algorithm);
+                    }
+                }
+            } catch (Exception e) {
+                YaqpLogger.LOG.log(new Debug(ReaderHandler.class, e.toString()));
+            }
+        }
+        return algorithmList;
+    }
+
+    public static Algorithm getAlgorithm(String name) throws DbException {
+        AlgorithmMeta meta = null;
+        Algorithm algorithm = null;
+        try {
+            Class<?> c = YaqpAlgorithms.class;
+            Method[] allMethods = c.getDeclaredMethods();
+            for (Method m : allMethods) {
+                String mname = m.getName();
+                if (mname.contains(name)) {
+                    meta = (AlgorithmMeta) m.invoke(null, (Object[]) null);
+                    algorithm = new Algorithm(meta);
+                    return algorithm;
+                }
+            }
+        } catch (Exception e) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, e.toString()));
+        }
+        throw new DbException(XDH6, "No such Algorithm :" + name);
+    }
+
+    public static ArrayList<Feature> getFeatures() {
+        if (getFeaturesPipeline == null) {
+            getFeaturesPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_FEATURES);
+        }
+
+        HyperResult result = null;
+        try {
+            result = getFeaturesPipeline.process(null);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Features from database\n"));
+        }
+        ArrayList<Feature> featureList = new ArrayList<Feature>();
+        for (int i = 1; i < result.getSize() + 1; i++) {
+            Iterator<String> it = result.getColumnIterator(i);
+            Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
+            featureList.add(feature);
+        }
+        return featureList;
+    }
+
+    public static void main(String args[]) throws DbException{
+        System.out.println(ReaderHandler.searchFeature(new Feature(-1,ServerList.ambit+"/feature/11954")).getID());
+    }
+
+    public static Feature searchFeature(Feature prototype) throws DbException {
+        if (getFeaturePipeline == null) {
+            getFeaturePipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_FEATURE);
+        }
+        int uid_prototype = prototype.getID();
+        int uid_min = 0;
+        int uid_max = Integer.MAX_VALUE;
+        if (uid_prototype > 0) {
+            uid_min = uid_prototype;
+            uid_max = uid_min;
+        }
+        HyperResult result = null;
+
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"UID_MIN", Integer.toString(uid_min)},
+                    {"UID_MAX", Integer.toString(uid_max)},
+                    {"URI", fixNull(prototype.getURI())},});
+        try {
+            result = getFeaturePipeline.process(food);
+        } catch (YaqpException ex) {
+            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Features from database\n"));
+        }
+        if (result.getSize() >= 1) {
+            Iterator<String> it = result.getColumnIterator(1);
+            Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
+            return feature;
+        }   
+        throw new DbException(XDH7, "No such Feature found :\n"+prototype);
+    }
+//    public static ArrayList<Feature> getIndepFeatures(QSARModel model){
+//         if (getIndepFeaturesPipeline == null) {
+//            getIndepFeaturesPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_INDEP_FEATURES);
 //        }
-//        QueryFood food = new QueryFood();
-//        food.add("PREDICTION_FEATURE", fixNull(prototype.getPredictionFeature().getURI()));
-//        food.add("DEPENDENT_FEATURE", fixNull(prototype.getAlgorithm().getMeta().getName()));
-//        food.add("CREATED_BY", fixNull(prototype.getUser().getEmail()));
-//        food.add("DATASET_URI", fixNull(prototype.getDataset()));
+//        QueryFood food = new QueryFood(
+//                new String[][]{
+//                    {"MODEL_UID", Integer.toString(model.getId())}
+//                });
 //        HyperResult result = null;
 //        try {
-//            result = getQSARModelsPipeline.process(food);
-//            if (result.getSize() > 0) {
-//                for (int i = 1; i <= result.getSize(); i++) {
-//                    Iterator<String> it = result.getColumnIterator(i);
-//                    String code = it.next();
-//                    QSARModel model = new QSARModel();
-//                    searchResult.add(model);
-//                }
-//            }
+//            result = getIndepFeaturesPipeline.process(food);
 //        } catch (YaqpException ex) {
-//            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get QSARModels from database"));
+//            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Independent Features from database for model: "+model.getName()));
 //        }
-//
-//
-//
-//        return null;
+//        ArrayList<Feature> featureList = new ArrayList<Feature>();
+//        for (int i = 1; i < result.getSize() + 1; i++) {
+//            Iterator<String> it = result.getColumnIterator(i);
+//            Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
+//            featureList.add(feature);
+//        }
+//        return featureList;
 //    }
-
-   
-
-  
-
-    
-
-    
-
-
-    
-    
 //    public static ArrayList<MLRModel> getMLRModels() throws DbException{
 //        if (getMLRModelsPipeline == null) {
 //            getMLRModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_MLR_MODELS);
@@ -543,184 +561,4 @@ public class ReaderHandler {
 //        }
 //        return tasks;
 //    }
-
-
-
-
-
-      /**
-     * Name-based database search for algorithms.
-     * @param algorithmName
-     * @return
-     * @throws YaqpOntException
-     */
-    public static ComponentList<AlgorithmOntology>
-            getAlgOntRelation(Algorithm prototype, int pageSize, int pageNum) throws YaqpOntException, DbException {
-        ComponentList<AlgorithmOntology> ontList = new ComponentList<AlgorithmOntology>();
-        DbPipeline<QueryFood,HyperResult> pipeline =
-                new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALGORITHM_ONTOLOGY_RELATION);
-
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"ALGORITHM", prototype.getMeta().getName()}
-                });
-        food.add("OFFSET", Integer.toString(pageSize*pageNum));
-        if(pageSize == 0){
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        }
-        else{
-            food.add("ROWS", Integer.toString(pageSize));
-        }
-        HyperResult result = null;
-        try {
-            result = pipeline.process(food);
-            for (int i = 1; i <= result.getSize() ; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-            AlgorithmOntology algont = new AlgorithmOntology(it.next());
-            ontList.add(algont);
-            }
-        } catch (YaqpException ex) {
-            String message = "Could not get Algorithm-Ontology Relations from database";
-            throw new DbException(XDH4, message, ex);
-        }
-        return ontList;
-    }
-
-    // TODO: Fix the following code and then perform tons of tests!
-    public static ComponentList<Algorithm> getOntAlgRelation(AlgorithmOntology prototype, int pageSize, int pageNum) throws DbException {
-        ComponentList<Algorithm> algList = new ComponentList<Algorithm>();
-        DbPipeline<QueryFood,HyperResult> pipeline =
-                new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ONTOLOGY_ALGORITHM_RELATION);
-
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"ONTOLOGY", prototype.getName()}
-                });
-        food.add("OFFSET", Integer.toString(pageSize*pageNum));
-        if(pageSize == 0){
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        }
-        else{
-            food.add("ROWS", Integer.toString(pageSize));
-        }
-        HyperResult result = null;
-        try {
-            result = pipeline.process(food);
-        } catch (YaqpException e) {
-            String message = "Could not get Ontology-Algorithm Relations from database\n";
-            throw new DbException(XDH5, message, e);
-        }
-        AlgorithmMeta meta = null;
-        ArrayList<Algorithm> algorithmList = new ArrayList<Algorithm>();
-        for (int i = 1; i <= result.getSize() ; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-            String algName = it.next();
-
-                Class<?> c = YaqpAlgorithms.class;
-                Method[] allMethods = c.getDeclaredMethods();
-                for (Method m : allMethods) {
-                    try {
-                        meta = (AlgorithmMeta) m.invoke(null, (Object[]) null);
-                        if(meta.getName().equals(algName)){
-                            Algorithm algorithm = new Algorithm(meta);
-                            algorithmList.add(algorithm);
-                            break;
-                        }
-                    } catch (IllegalAccessException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (IllegalArgumentException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (InvocationTargetException ex) {
-                        throw new RuntimeException(ex);
-                    }                 
-                }
-        }
-        return algList;
-    }
-
-
-    public static ComponentList<Algorithm> getAlgorithms() throws DbException {
-        ComponentList<Algorithm> algorithmList = new ComponentList<Algorithm>();
-        DbPipeline<QueryFood,HyperResult> pipeline =
-                new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALGORITHMS);
-        HyperResult result = null;
-        try {
-            result = pipeline.process(new QueryFood());
-        } catch (YaqpException ex) {
-            String message = "Could not get Algorithms from database\n";
-            throw new DbException(XDH7, message, ex);
-        }
-        AlgorithmMeta meta = null;
-        for (int i = 1; i < result.getSize() + 1; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-            String algName = it.next();
-            Class<?> c = YaqpAlgorithms.class;
-                Method[] allMethods = c.getDeclaredMethods();
-                for (Method m : allMethods) {
-                    try {
-                        meta = (AlgorithmMeta) m.invoke(null, (Object[]) null);
-                        if(meta.getName().equals(algName)){
-                            Algorithm algorithm = new Algorithm(meta);
-                            algorithmList.add(algorithm);
-                            break;
-                        }
-                    } catch (IllegalAccessException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (IllegalArgumentException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (InvocationTargetException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-        }
-        return algorithmList;
-    }
-
-
-    public static Algorithm getAlgorithm(String name) throws DbException {
-        AlgorithmMeta meta = null;
-        Algorithm algorithm = null;
-            Class<?> c = YaqpAlgorithms.class;
-                Method[] allMethods = c.getDeclaredMethods();
-                for (Method m : allMethods) {
-                    try {
-                        meta = (AlgorithmMeta) m.invoke(null, (Object[]) null);
-                        if(meta.getName().equals(name)){
-                            algorithm = new Algorithm(meta);
-                            return algorithm;
-                        }
-                    } catch (IllegalAccessException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (IllegalArgumentException ex) {
-                        throw new RuntimeException(ex);
-                    } catch (InvocationTargetException ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-        throw new DbException(XDH6, "No such Algorithm :" + name);
-    }
-
-    public static ComponentList<Feature> getIndepFeatures(QSARModel model) throws DbException{
-        ComponentList<Feature> featureList = new ComponentList<Feature>();
-         DbPipeline<QueryFood,HyperResult> pipeline =  new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_INDEP_FEATURES);
-
-        QueryFood food = new QueryFood(
-                new String[][]{
-                    {"MODEL_UID", Integer.toString(model.getId())}
-                });
-        HyperResult result = null;
-        try {
-            result = pipeline.process(food);
-            for (int i = 1; i < result.getSize() + 1; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-            Feature feature = new Feature(Integer.parseInt(it.next()), it.next());
-            featureList.add(feature);
-            }
-        } catch (YaqpException ex) {
-            String message = "Could not get Features from database\n";
-            throw new DbException(XDH8, message, ex);
-        }
-        return featureList;
-    }
-
 }

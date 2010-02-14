@@ -29,50 +29,55 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
+package org.opentox.db.table.collection;
 
-
-package org.opentox.www.rest.components;
-
-import java.util.Collection;
-import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.representation.Variant;
-import org.restlet.resource.ResourceException;
-import org.restlet.resource.ServerResource;
+import org.opentox.db.table.Table;
+import org.opentox.db.table.TableColumn;
+import org.opentox.db.util.SQLDataTypes;
 
 /**
+ * Table for <code>Algorithm Ontologies</code> named <code>ALGORITHM_ONTOLOGIES</code>.
+ * @return The Table for Algorithm Ontologies
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class YaqpResource extends ServerResource {
+public final class AlgOntTable {
 
-   
-    public YaqpResource(){
-        super();
+    private static final String _NAME = "NAME";
+    private static final String _URI = "URI";
+    private static final String _TABLE = "ALGORITHM_ONTOLOGIES";
+
+    private static final int NAME_SIZE = 40;
+    private static final int URI_SIZE = 200;    
+    
+    public static TableColumn NAME = name();
+    public static TableColumn URI = uri();
+
+    public static Table TABLE = table();
+
+    
+    private static final Table table() {
+        Table table = new Table(_TABLE);
+        table.addColumn(NAME);
+        table.addColumn(URI);
+        return table;
+    }
+
+    private static final TableColumn name() {
+        TableColumn name = new TableColumn(_NAME);
+        name.setColumnType(SQLDataTypes.VarChar(NAME_SIZE));
+        name.setNotNull(true);
+        name.setPrimaryKey(true, false);
+        return name;
+    }
+
+    private static final TableColumn uri() {
+        TableColumn uri = new TableColumn(_URI);
+        uri.setColumnType(SQLDataTypes.VarChar(URI_SIZE));
+        uri.setUnique(true);
+        return uri;
     }
 
     
-    public void initialize(Collection<MediaType> supportedMedia){
-        super.doInit();
-    }
-    
-    public void initialize(MediaType[] supportedMedia){
-        super.doInit();
-    }
-
-    
-    
-    protected YaqpRepresentation post(YaqpRepresentation entity, Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.post(entity, variant);
-    }
-
-    @Override
-    protected YaqpRepresentation get(Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.get(variant);
-    }
-
-
-
-
 }

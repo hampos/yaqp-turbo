@@ -67,4 +67,20 @@ public class SQLDataTypes {
         return columnType;
     }
 
+    @Override
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
+    public boolean equals(Object obj) {
+        SQLDataTypes other = (SQLDataTypes)obj;
+        return  (toString() == null ? other.toString() == null : toString().equals(other.toString()));
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 17 * hash + (this.columnType != null ? this.columnType.hashCode() : 0);
+        return hash;
+    }
+
+
+
 }

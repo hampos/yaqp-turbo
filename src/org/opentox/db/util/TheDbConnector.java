@@ -32,6 +32,7 @@
 package org.opentox.db.util;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
@@ -124,6 +125,7 @@ public class TheDbConnector implements JDbConnector {
     private final String derbyHome =
             properties.getProperty("derbyHome", "/usr/local/sges-v3/javadb");
     private static ArrayList<String> TABLE_LIST = null;
+    private final Runtime runtime = Runtime.getRuntime();
     /**
      * Connection Flag.
      */
@@ -152,8 +154,8 @@ public class TheDbConnector implements JDbConnector {
      * @throws DbException If the database could not be initialized properly.
      */
     public synchronized static void init() throws DbException {
-
-        if (!instanceOfthis.isInitialized()) {
+        DB.connect();
+        if (!DB.isInitialized()) {
             TableCreator creator = new TableCreator();
 
             BatchProcessor<Table, Object, JProcessor<Table, Object>> bp =
@@ -176,7 +178,7 @@ public class TheDbConnector implements JDbConnector {
         } else {
             YaqpLogger.LOG.log(new Trace(TheDbConnector.class, "Database is Already Initialized"));
         }
-
+        DB.isConnected = true;
     }
 
     /**
@@ -195,7 +197,7 @@ public class TheDbConnector implements JDbConnector {
      * case, check again your server.properties file.
      */
     private TheDbConnector() throws YaqpException {
-        connect();
+        //connect();
     }
 
     public Lock getLock() {
@@ -222,7 +224,9 @@ public class TheDbConnector implements JDbConnector {
             try {
                 connection.close();
                 instanceOfthis = null;
-                isConnected = false;
+                DB.isConnected = false;
+                connection = null;
+                isInitialized = false;
             } catch (SQLException ex) {
                 YaqpLogger.LOG.log(new ScrewedUp(TheDbConnector.class, "XAE320 - Connection "
                         + database_url + " cannot close!"));
@@ -244,7 +248,7 @@ public class TheDbConnector implements JDbConnector {
             return Integer.parseInt(database_port);
         } catch (NumberFormatException nfe) {
             YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAE321 - Not acceptable port :" + database_port));
-            throw new YaqpException(XDB18,"Wrong port declaration :" + database_port, nfe);
+            throw new YaqpException(XDB18, "Wrong port declaration :" + database_port, nfe);
         }
 
     }
@@ -271,12 +275,12 @@ public class TheDbConnector implements JDbConnector {
                 return connection.getMetaData();
             } catch (SQLException ex) {
                 YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, "XAE323 - No connection to the database :" + database_name));
-                throw new DbException(XDB19,"No connection to the database", ex);
+                throw new DbException(XDB19, "No connection to the database", ex);
             }
         } else {
             String message = "No connection to the database :" + database_name;
             YaqpLogger.LOG.log(new Fatal(TheDbConnector.class, message));
-            throw new DbException(XDB20,message);
+            throw new DbException(XDB20, message);
         }
 
     }
@@ -298,42 +302,71 @@ public class TheDbConnector implements JDbConnector {
         return TABLE_LIST;
     }
 
-    private void startDerbyServer() throws Exception {
-        String[] derby_start_command = {
+
+    public void killDerby(){
+        final String[] derby_kill_command = {
+            javacmd, javaOptions,
+            "-jar", derbyHome + "/lib/derbyrun.jar", "server", "shutdown"
+        };
+        try {
+            Runtime.getRuntime().exec(derby_kill_command);
+        } catch (IOException ex) {
+        }
+    }
+
+    public boolean isDerbyRunning() {
+        final String[] derby_ping_command = {
+            javacmd, javaOptions,
+            "-jar", derbyHome + "/lib/derbyrun.jar", "server", "ping",
+            "-p", database_port};
+        try {
+            Process derby_ping = Runtime.getRuntime().exec(derby_ping_command);
+            BufferedReader br = new BufferedReader(new InputStreamReader(derby_ping.getInputStream()));
+            if (br.readLine().contains("Connection obtained")) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (IOException ex) {
+            return false;
+        }
+
+    }
+
+    /**
+     * Makes one attempt to start the derby server
+     * @throws Exception
+     */
+    public void startDerbyServer() throws Exception {
+       
+        /**
+         * We tried the following, but encountered some problems. In particular it
+         * was impossible to connect to the database from the console when the
+         * application was connected already!
+         */
+//        serverControl = new NetworkServerControl();
+//        try {
+//            serverControl.shutdown();
+//        } catch (Throwable thr) {
+//        }
+//        serverControl.start(new PrintWriter(new FileOutputStream("derby.log")));
+
+
+        final String[] derby_start_command = {
             javacmd, javaOptions,
             "-jar", derbyHome + "/lib/derbyrun.jar", "server", "start",
             "-p", database_port
         };
-
-        String[] derby_ping_command = {
-            javacmd, javaOptions,
-            "-jar", derbyHome + "/lib/derbyrun.jar", "server", "ping",
-            "-p", database_port};
-
-
-        Runtime runtime = Runtime.getRuntime();
-
+        
         YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Attempting connection to the derby server..."));
-        // Check if the server is started:
-        boolean is_server_started = false;
-        Process derby_ping = runtime.exec(derby_ping_command);
-        BufferedReader br = new BufferedReader(new InputStreamReader(derby_ping.getInputStream()));
-        if (br.readLine().contains("Connection obtained")) {
-            is_server_started = true;
-        }
-
-        if (!is_server_started) {
+        boolean derby_alive = isDerbyRunning();
+        if (!derby_alive) {
             YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Derby server is down. Now starting..."));
-            Process derby_start = runtime.exec(derby_start_command);
+            runtime.exec(derby_start_command);
             // Wait until the derby server is started.
-            derby_ping = runtime.exec(derby_ping_command);
-            br = new BufferedReader(new InputStreamReader(derby_ping.getInputStream()));
-            while (!br.readLine().contains("Connection obtained")) {
-                derby_ping = runtime.exec(derby_ping_command);
-                br = new BufferedReader(new InputStreamReader(derby_ping.getInputStream()));
-            }
+            Thread.sleep(400);
+            derby_alive = isDerbyRunning();
         }
-
 
         YaqpLogger.LOG.log(new Info(TheDbConnector.class, "Derby server is up, listening and ready"
                 + " to accept connections on port " + getDatabasePort()));

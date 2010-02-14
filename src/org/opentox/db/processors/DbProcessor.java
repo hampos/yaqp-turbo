@@ -64,7 +64,6 @@ public class DbProcessor extends AbstractDbProcessor<HyperStatement, HyperResult
                 result = q.executeQuery();
             }
         } catch (SQLException e) {
-            System.out.println(e);
             String message = "Error while executing query :" + q.toString();
             YaqpLogger.LOG.log(new Trace(getClass(), message));
             if (e.getErrorCode() == -1) {

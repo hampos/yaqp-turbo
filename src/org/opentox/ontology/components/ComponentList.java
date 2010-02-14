@@ -71,10 +71,6 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent {
         this.componentList = componentList;
     }
 
-    public H get(int i){
-        return componentList.get(i);
-    }
-
     
 
     @Override

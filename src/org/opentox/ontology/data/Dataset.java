@@ -48,10 +48,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.opentox.core.exceptions.Cause;
-import org.opentox.core.interfaces.JMultiProcessor;
-import org.opentox.core.interfaces.JProcessor;
 import org.opentox.core.processors.Pipeline;
-import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.io.processors.InputProcessor;
 import org.opentox.io.publishable.OntObject;
 import org.opentox.ontology.exceptions.ImproperEntityException;
@@ -75,7 +72,7 @@ import weka.core.Instances;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class Dataset {
+@SuppressWarnings({"unchecked"}) public class Dataset {
 
     private OntObject oo = null;
     /**
@@ -314,7 +311,7 @@ public class Dataset {
         AbstractFilter filter1 = new AttributeCleanup(new ATTRIBUTE_TYPE[] {ATTRIBUTE_TYPE.string, ATTRIBUTE_TYPE.nominal});
         AbstractFilter filter = new SimpleMVHFilter();
 
-        JMultiProcessor<URI, Instances, JProcessor> pipe = new Pipeline();
+        Pipeline pipe = new Pipeline();
         pipe.add(p1);
         pipe.add(p2);
         pipe.add(p3);

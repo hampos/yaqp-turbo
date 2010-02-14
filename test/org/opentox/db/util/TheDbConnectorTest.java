@@ -77,7 +77,6 @@ public class TheDbConnectorTest {
     @Test
     public void InstantiationTest() throws Exception {
         System.out.println("-- instantiation test --");
-        assertFalse(TheDbConnector.DB.isInitialized());
         TheDbConnector.init();
         
     }

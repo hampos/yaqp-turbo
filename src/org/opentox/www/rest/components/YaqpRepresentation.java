@@ -33,46 +33,28 @@
 
 package org.opentox.www.rest.components;
 
-import java.util.Collection;
+import java.io.IOException;
+import java.io.OutputStream;
 import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.representation.Variant;
-import org.restlet.resource.ResourceException;
-import org.restlet.resource.ServerResource;
+import org.restlet.representation.OutputRepresentation;
+
+
+
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class YaqpResource extends ServerResource {
+public class YaqpRepresentation extends OutputRepresentation{
 
-   
-    public YaqpResource(){
-        super();
-    }
-
-    
-    public void initialize(Collection<MediaType> supportedMedia){
-        super.doInit();
-    }
-    
-    public void initialize(MediaType[] supportedMedia){
-        super.doInit();
-    }
-
-    
-    
-    protected YaqpRepresentation post(YaqpRepresentation entity, Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.post(entity, variant);
+    public YaqpRepresentation(MediaType mediaType) {
+        super(mediaType);
     }
 
     @Override
-    protected YaqpRepresentation get(Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.get(variant);
+    public void write(OutputStream outputStream) throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
-
-
-
-
+    
 }

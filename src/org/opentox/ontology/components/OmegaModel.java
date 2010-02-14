@@ -124,7 +124,7 @@ public class OmegaModel extends YaqpComponent {
     public URI uri() throws YaqpException {
         String superUri = super.uri().toString();
         try {
-            return new URI(superUri + "/" + getId());
+            return new URI(superUri + "/mad" + getId());
         } catch (URISyntaxException ex) {
             throw new YaqpException(Cause.XTC743, "Improper URI", ex);
         }

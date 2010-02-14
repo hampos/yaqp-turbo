@@ -29,50 +29,46 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
+package org.opentox.db.table.collection;
 
-
-package org.opentox.www.rest.components;
-
-import java.util.Collection;
-import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.representation.Variant;
-import org.restlet.resource.ResourceException;
-import org.restlet.resource.ServerResource;
+import org.opentox.db.table.Table;
+import org.opentox.db.table.TableColumn;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class YaqpResource extends ServerResource {
+public class AlgOntRelationTable {
 
-   
-    public YaqpResource(){
-        super();
+    private static final String
+            _TABLE = "ALG_ONT_RELATION",
+            _ALGORITHM = "ALGORITHM",
+            _ONTOLOGY = "ONTOLOGY";
+
+    public static final TableColumn ALGORITHM = algorithm();
+    public static final TableColumn ONTOLOGY = ontology();
+
+    public static final Table TABLE = table();
+
+    private static final Table table() {
+        Table table = new Table(_TABLE);
+        table.addColumn(ALGORITHM);
+        table.addColumn(ONTOLOGY);
+        return table;
     }
 
-    
-    public void initialize(Collection<MediaType> supportedMedia){
-        super.doInit();
-    }
-    
-    public void initialize(MediaType[] supportedMedia){
-        super.doInit();
+    private static final TableColumn algorithm() {
+        TableColumn algorithm_name = new TableColumn(_ALGORITHM);
+        algorithm_name.setColumnType(AlgorithmsTable.NAME.getColumnType());
+        algorithm_name.setForeignKey(AlgorithmsTable.TABLE.getTableName(), AlgorithmsTable.NAME.getColumnName(), true);
+        return algorithm_name;
     }
 
-    
-    
-    protected YaqpRepresentation post(YaqpRepresentation entity, Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.post(entity, variant);
+    private static final TableColumn ontology() {
+        TableColumn ontology_name = new TableColumn(_ONTOLOGY);
+        ontology_name.setColumnType(AlgOntTable.NAME.getColumnType());
+        ontology_name.setForeignKey(AlgOntTable.TABLE.getTableName(), AlgOntTable.NAME.getColumnName(), true);
+        return ontology_name;
     }
-
-    @Override
-    protected YaqpRepresentation get(Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.get(variant);
-    }
-
-
-
-
 }

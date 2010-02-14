@@ -37,6 +37,7 @@ import org.opentox.util.logging.levels.Trace;
  * @param <L> Subinterface of LogObject
  * @author Sopasakis Pantelis
  */
+@SuppressWarnings({"unchecked"})
 public abstract class AbstractLoggingProcessor<L extends LogObject>
         extends Processor<L, L>
         implements ILoggingProcessor<L> {

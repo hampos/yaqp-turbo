@@ -65,6 +65,7 @@ import static org.opentox.core.exceptions.Cause.*;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
+@SuppressWarnings({"unchecked"})
 public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI, O> {
 
     /**

@@ -111,6 +111,7 @@ public class User extends YaqpComponent {
         this.userGroup = userGroup;
     }
 
+
     public String getAddress() {
         return address;
     }

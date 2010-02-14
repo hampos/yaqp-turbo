@@ -31,48 +31,40 @@
  */
 
 
-package org.opentox.www.rest.components;
+package org.opentox.db.table.collection;
 
-import java.util.Collection;
-import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.representation.Variant;
-import org.restlet.resource.ResourceException;
-import org.restlet.resource.ServerResource;
+import org.opentox.db.table.Table;
+import org.opentox.db.table.TableColumn;
+import org.opentox.db.util.SQLDataTypes;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class YaqpResource extends ServerResource {
+public final class AlgorithmsTable {
 
-   
-    public YaqpResource(){
-        super();
+    private static final String
+            _NAME = "NAME",
+            _TABLE = "ALGORITHMS";
+
+    private static final int NAME_SIZE = 40;
+
+    public static final TableColumn NAME = name();
+    public static final Table TABLE = table();
+
+    private static final Table table(){
+        Table table = new Table(_TABLE);
+        table.addColumn(NAME);
+        return table;
     }
 
-    
-    public void initialize(Collection<MediaType> supportedMedia){
-        super.doInit();
+    private static TableColumn name(){
+        TableColumn name = new TableColumn(_NAME);
+        name.setColumnType(SQLDataTypes.VarChar(NAME_SIZE));
+        name.setNotNull(true);
+        name.setPrimaryKey(true, false);
+        return name;
+
     }
-    
-    public void initialize(MediaType[] supportedMedia){
-        super.doInit();
-    }
-
-    
-    
-    protected YaqpRepresentation post(YaqpRepresentation entity, Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.post(entity, variant);
-    }
-
-    @Override
-    protected YaqpRepresentation get(Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.get(variant);
-    }
-
-
-
-
 }

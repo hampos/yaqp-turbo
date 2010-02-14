@@ -34,6 +34,17 @@ package org.opentox.db.util;
 import org.opentox.db.interfaces.JPrepStmt;
 import org.opentox.db.queries.QueryFood;
 import org.opentox.db.queries.QueryParam;
+import org.opentox.db.table.collection.AlgOntRelationTable;
+import org.opentox.db.table.collection.AlgOntTable;
+import org.opentox.db.table.collection.AlgorithmsTable;
+import org.opentox.db.table.collection.FeaturesTable;
+import org.opentox.db.table.collection.IndFeatRelationTable;
+import org.opentox.db.table.collection.OmegaTable;
+import org.opentox.db.table.collection.QSARModelsTable;
+import org.opentox.db.table.collection.SupportVecTable;
+import org.opentox.db.table.collection.TasksTable;
+import org.opentox.db.table.collection.UserAuthTable;
+import org.opentox.db.table.collection.UsersTable;
 import static org.opentox.db.table.StandardTables.*;
 
 /**
@@ -47,16 +58,6 @@ import static org.opentox.db.table.StandardTables.*;
  */
 public enum PrepStmt implements JPrepStmt {
 
-
-    /**
-     * ****************************************************************************
-     * ----------------------------------------------------------------------------
-     *                      ADD QUERIES
-     * ----------------------------------------------------------------------------
-     * ****************************************************************************
-     */
-
-
     /**
      * Add a new Algorithm Ontology in the database. The <code>NAME</code> and the
      * <code>URI</code> of the algorithm ontology have to be provided.
@@ -65,7 +66,7 @@ public enum PrepStmt implements JPrepStmt {
      * @see PrepStmt#ADD_ALGORITHM_ONTOL_RELATION Add an Algorithm-Ontology Relation
      */
     ADD_ALGORITHM_ONTOLOGY(
-    "INSERT INTO " + AlgorithmOntologies().getTableName()
+    "INSERT INTO " + AlgOntTable.TABLE.getTableName()
     + " (NAME, URI ) VALUES (?,?)",
     new QueryParam[]{new QueryParam("NAME", String.class), new QueryParam("URI", String.class)}),
     /**
@@ -79,7 +80,7 @@ public enum PrepStmt implements JPrepStmt {
      * @see QueryFood
      */
     ADD_ALGORITHM_ONTOL_RELATION(
-    "INSERT INTO " + AlgorithmOntolRelation().getTableName() + " ( ALGORITHM, ONTOLOGY) VALUES (?,?)",
+    "INSERT INTO " + AlgOntRelationTable.TABLE.getTableName() + " ( ALGORITHM, ONTOLOGY) VALUES (?,?)",
     new QueryParam[]{new QueryParam("ALGORITHM", String.class), new QueryParam("ONTOLOGY", String.class)}),
     /**
      * Add a new user into the database; you need to provide the username, password
@@ -88,7 +89,7 @@ public enum PrepStmt implements JPrepStmt {
      * @see PrepStmt#ADD_USER_GROUP Add a UserGroup
      */
     ADD_USER(
-    "INSERT INTO " + Users().getTableName()
+    "INSERT INTO " + UsersTable.TABLE.getTableName()
     + " ( USERNAME, PASS, FIRSTNAME, LASTNAME, EMAIL, ORGANIZATION, "
     + "COUNTRY, CITY, ADDRESS, WEBPAGE, ROLE) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
     new QueryParam[]{
@@ -112,7 +113,7 @@ public enum PrepStmt implements JPrepStmt {
      *
      * @see PrepStmt#ADD_USER Add a new user
      */
-    ADD_USER_GROUP("INSERT INTO " + UserAuth().getTableName() + "(NAME, USER_LEVEL) VALUES (?,?)",
+    ADD_USER_GROUP("INSERT INTO " + UserAuthTable.TABLE.getTableName() + "(NAME, USER_LEVEL) VALUES (?,?)",
     new QueryParam[]{
         new QueryParam("NAME", String.class),
         new QueryParam("USER_LEVEL", Integer.class)
@@ -120,14 +121,14 @@ public enum PrepStmt implements JPrepStmt {
     /**
      * Add a new Algorithm in the database.
      */
-    ADD_ALGORITHM("INSERT INTO " + Algorithms().getTableName() + " (NAME) VALUES (?)",
+    ADD_ALGORITHM("INSERT INTO " + AlgorithmsTable.TABLE.getTableName() + " (NAME) VALUES (?)",
     new QueryParam[]{
         new QueryParam("NAME", String.class)
     }),
     /**
      * Add a new prediction model in the database.
      */
-    ADD_QSAR_MODEL("INSERT INTO " + QSARModels().getTableName()
+    ADD_QSAR_MODEL("INSERT INTO " + QSARModelsTable.TABLE.getTableName()
     + " (CODE, PREDICTION_FEATURE, DEPENDENT_FEATURE, ALGORITHM, CREATED_BY, DATASET_URI, STATUS ) VALUES (?,?,?,?,?,?,?)",
     new QueryParam[]{
         new QueryParam("CODE", String.class),
@@ -138,7 +139,7 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("DATASET_URI", String.class),
         new QueryParam("STATUS", String.class)
 }),
-    ADD_INDEP_FEATURE_RELATION("INSERT INTO " + IndepFeaturesRelation().getTableName()
+    ADD_INDEP_FEATURE_RELATION("INSERT INTO " + IndFeatRelationTable.TABLE.getTableName()
     + " (MODEL_UID, FEATURE_UID) VALUES (?,?)",
     new QueryParam[]{
         new QueryParam("MODEL_UID", Integer.class),
@@ -147,7 +148,7 @@ public enum PrepStmt implements JPrepStmt {
     /**
      *
      */
-    ADD_SUPPORT_VECTOR("INSERT INTO " + SupportVector().getTableName()
+    ADD_SUPPORT_VECTOR("INSERT INTO " + SupportVecTable.TABLE.getTableName()
     + " (UID, GAMMA, EPSILON, COST, COEFF0, TOLERANCE, CACHESIZE, KERNEL, DEGREE ) "
     + "VALUES (?,?,?,?,?,?,?,?,?)",
     new QueryParam[]{
@@ -166,11 +167,11 @@ public enum PrepStmt implements JPrepStmt {
      * Add a new feature in the database. The <code>URI</code> of the feature has to
      * be provided in the <code>QueryFood<code>.
      */
-    ADD_FEATURE("INSERT INTO " + Features().getTableName() + " (URI) VALUES (?)",
+    ADD_FEATURE("INSERT INTO " + FeaturesTable.TABLE.getTableName() + " (URI) VALUES (?)",
     new QueryParam[]{
         new QueryParam("URI", String.class)
     }),
-    ADD_TASK("INSERT INTO " + Tasks().getTableName()
+    ADD_TASK("INSERT INTO " + TasksTable.TABLE.getTableName()
     + " (NAME, CREATED_BY, ALGORITHM, DURATION ) VALUES (?,?,?,?)",
     new QueryParam[]{
         new QueryParam("NAME", String.class),
@@ -181,90 +182,24 @@ public enum PrepStmt implements JPrepStmt {
     /**
      *
      */
-    ADD_OMEGA_MODEL("INSERT INTO "+OmegaModels().getTableName()+" (CODE, CREATED_BY, DATASET_URI) VALUES (?,?,?)",
+    ADD_OMEGA_MODEL("INSERT INTO "+OmegaTable.TABLE.getTableName()+" (CODE, CREATED_BY, DATASET_URI) VALUES (?,?,?)",
     new QueryParam[]{
         new QueryParam("CODE", String.class),
         new QueryParam("CREATED_BY", String.class),
         new QueryParam("DATASET_URI", String.class)
     }),
-
-
     /**
-     * ****************************************************************************
-     * ----------------------------------------------------------------------------
-     *                      SEARCH QUERIES
-     * ----------------------------------------------------------------------------
-     * ****************************************************************************
+     *
+     * A Prepared Statement to retrieve all users from the database. The SQL command
+     * is: <code>SELECT * FROM USERS</code>.
      */
-
-    /**
-     * Get a specific user group.
-     */
-    SEARCH_USER_GROUP("SELECT * FROM " + UserAuth().getTableName() + " WHERE " +
-            "NAME LIKE ?" +
-            "AND USER_LEVEL >= ?" +
-            "AND USER_LEVEL <= ?" +
-            "AND MODEL_AUTH LIKE ?" +
-            "AND USER_AUTH LIKE ?" +
-            "AND ALGORITHM_AUTH LIKE ?" +
-            "AND USER_GROUP_AUTH LIKE ?" +
-            "AND MAX_MODELS >= ?" +
-            "AND MAX_MODEL <= ?" +
-            getPagingQuery(),
-    new QueryParam[]{
-        new QueryParam("NAME", String.class),
-        new QueryParam("USER_LEVEL_MIN", Integer.class),
-        new QueryParam("USER_LEVEL_MAX", Integer.class),
-        new QueryParam("MODEL_AUTH", String.class),
-        new QueryParam("USER_AUTH", String.class),
-        new QueryParam("ALGORITHM_AUTH", String.class),
-        new QueryParam("USER_GROUP_AUTH", String.class),
-        new QueryParam("MAX_MODELS_MIN", Integer.class),
-        new QueryParam("MAX_MODELS_MAX", Integer.class),
-        new QueryParam("OFFSET", Integer.class),
-        new QueryParam("ROWS", Integer.class),
-    }),
-
-    SEARCH_USER_GROUP_SKROUTZ("SELECT NAME FROM " + UserAuth().getTableName() + " WHERE " +
-            "NAME LIKE ?" +
-            "AND USER_LEVEL >= ?" +
-            "AND USER_LEVEL <= ?" +
-            "AND MODEL_AUTH LIKE ?" +
-            "AND USER_AUTH LIKE ?" +
-            "AND ALGORITHM_AUTH LIKE ?" +
-            "AND USER_GROUP_AUTH LIKE ?" +
-            "AND MAX_MODELS >= ?" +
-            "AND MAX_MODEL <= ?" +
-            getPagingQuery(),
-    new QueryParam[]{
-        new QueryParam("NAME", String.class),
-        new QueryParam("USER_LEVEL_MIN", Integer.class),
-        new QueryParam("USER_LEVEL_MAX", Integer.class),
-        new QueryParam("MODEL_AUTH", String.class),
-        new QueryParam("USER_AUTH", String.class),
-        new QueryParam("ALGORITHM_AUTH", String.class),
-        new QueryParam("USER_GROUP_AUTH", String.class),
-        new QueryParam("MAX_MODELS_MIN", Integer.class),
-        new QueryParam("MAX_MODELS_MAX", Integer.class),
-        new QueryParam("OFFSET", Integer.class),
-        new QueryParam("ROWS", Integer.class),
-    }),
-    
+    GET_ALL_USERS("SELECT USERNAME FROM " + UsersTable.TABLE.getTableName(), null),
     /**
      * Get a set of users for a given search criterion.
      */
-    SEARCH_USER("SELECT " + Users().getTableName() + ".* FROM " + Users().getTableName() + " "
-    + "INNER JOIN " + UserAuth().getTableName() + " "
-    + "ON NAME = ROLE WHERE " +
-            "USER_LEVEL >= ? AND USER_LEVEL <= ? " +
-            "AND USER_LEVEL >= ?" +
-            "AND USER_LEVEL <= ?" +
-            "AND MODEL_AUTH LIKE ?" +
-            "AND USER_AUTH LIKE ?" +
-            "AND ALGORITHM_AUTH LIKE ?" +
-            "AND USER_GROUP_AUTH LIKE ?" +
-            "AND MAX_MODELS >= ?" +
-            "AND MAX_MODEL <= ?"         
+    SEARCH_USER("SELECT " + UsersTable.TABLE.getTableName() + ".* FROM " + UsersTable.TABLE.getTableName() + " "
+    + "INNER JOIN " + UserAuthTable.TABLE.getTableName() + " "
+    + "ON NAME = ROLE WHERE USER_LEVEL >= ? AND USER_LEVEL <= ? "
     + "AND USERNAME LIKE ? "
     + "AND EMAIL LIKE ? "
     + "AND FIRSTNAME LIKE ? "
@@ -274,9 +209,10 @@ public enum PrepStmt implements JPrepStmt {
     + "AND ADDRESS LIKE ? "
     + "AND ORGANIZATION LIKE ? "
     + "AND WEBPAGE LIKE ? "
-    + "AND ROLE LIKE ? "
-    + getPagingQuery(),
-    new QueryParam[]{                
+    + "AND ROLE LIKE ? ",
+    new QueryParam[]{
+        new QueryParam("USER_LEVEL_MIN", Integer.class),
+        new QueryParam("USER_LEVEL_MAX", Integer.class),
         new QueryParam("USERNAME", String.class),
         new QueryParam("EMAIL", String.class),
         new QueryParam("FIRSTNAME", String.class),
@@ -287,157 +223,13 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("ORGANIZATION", String.class),
         new QueryParam("WEBPAGE", String.class),
         new QueryParam("ROLE", String.class),
-        new QueryParam("OFFSET", Integer.class),
-        new QueryParam("ROWS", Integer.class),
-        
-        new QueryParam("USER_LEVEL_MIN", Integer.class),
-        new QueryParam("USER_LEVEL_MAX", Integer.class),
-        new QueryParam("MODEL_AUTH", String.class),
-        new QueryParam("USER_AUTH", String.class),
-        new QueryParam("ALGORITHM_AUTH", String.class),
-        new QueryParam("USER_GROUP_AUTH", String.class),
-        new QueryParam("MAX_MODELS_MIN", Integer.class),
-        new QueryParam("MAX_MODELS_MAX", Integer.class),
-        new QueryParam("MAX_MODELS_MIN", Integer.class),
-        new QueryParam("OFFSET", Integer.class),
-        new QueryParam("ROWS", Integer.class),
     }),
-
-
-    SEARCH_USER_SKROUTZ("SELECT " + Users().getTableName() + ".USERNAME FROM " + Users().getTableName() + " "
-    + "INNER JOIN " + UserAuth().getTableName() + " "
-    + "ON NAME = ROLE WHERE " +
-            "USER_LEVEL >= ? AND USER_LEVEL <= ? " +
-            "AND USER_LEVEL >= ?" +
-            "AND USER_LEVEL <= ?" +
-            "AND MODEL_AUTH LIKE ?" +
-            "AND USER_AUTH LIKE ?" +
-            "AND ALGORITHM_AUTH LIKE ?" +
-            "AND USER_GROUP_AUTH LIKE ?" +
-            "AND MAX_MODELS >= ?" +
-            "AND MAX_MODEL <= ?"
-    + "AND USERNAME LIKE ? "
-    + "AND EMAIL LIKE ? "
-    + "AND FIRSTNAME LIKE ? "
-    + "AND LASTNAME LIKE ? "
-    + "AND COUNTRY LIKE ? "
-    + "AND CITY LIKE ? "
-    + "AND ADDRESS LIKE ? "
-    + "AND ORGANIZATION LIKE ? "
-    + "AND WEBPAGE LIKE ? "
-    + "AND ROLE LIKE ? "
-    + getPagingQuery(),
-    new QueryParam[]{
-        new QueryParam("USERNAME", String.class),
-        new QueryParam("EMAIL", String.class),
-        new QueryParam("FIRSTNAME", String.class),
-        new QueryParam("LASTNAME", String.class),
-        new QueryParam("COUNTRY", String.class),
-        new QueryParam("CITY", String.class),
-        new QueryParam("ADDRESS", String.class),
-        new QueryParam("ORGANIZATION", String.class),
-        new QueryParam("WEBPAGE", String.class),
-        new QueryParam("ROLE", String.class),
-        new QueryParam("OFFSET", Integer.class),
-        new QueryParam("ROWS", Integer.class),
-
-        new QueryParam("USER_LEVEL_MIN", Integer.class),
-        new QueryParam("USER_LEVEL_MAX", Integer.class),
-        new QueryParam("MODEL_AUTH", String.class),
-        new QueryParam("USER_AUTH", String.class),
-        new QueryParam("ALGORITHM_AUTH", String.class),
-        new QueryParam("USER_GROUP_AUTH", String.class),
-        new QueryParam("MAX_MODELS_MIN", Integer.class),
-        new QueryParam("MAX_MODELS_MAX", Integer.class),
-        new QueryParam("MAX_MODELS_MIN", Integer.class),
-        new QueryParam("OFFSET", Integer.class),
-        new QueryParam("ROWS", Integer.class),
-    }),
-
-
-    SEARCH_ALGORITHM_ONTOLOGY("SELECT * FROM " + AlgorithmOntologies().getTableName() +
-            "WHERE NAME LIKE ?" +
-            "AND URI LIKE ?" +
-            getPagingQuery(),
-    new QueryParam[]{
-        new QueryParam("NAME", String.class),
-        new QueryParam("URI", String.class),
-        new QueryParam("OFFSET", Integer.class),
-        new QueryParam("ROWS", Integer.class),
-    }),
-
-    SEARCH_ALGORITHM_ONTOLOGY_SKROUTZ("SELECT NAME FROM " + AlgorithmOntologies().getTableName() +
-            "WHERE NAME LIKE ?" +
-            "AND URI LIKE ?" +
-            getPagingQuery(),
-    new QueryParam[]{
-        new QueryParam("NAME", String.class),
-        new QueryParam("URI", String.class),
-        new QueryParam("OFFSET", Integer.class),
-        new QueryParam("ROWS", Integer.class),
-    }),
-
-    SEARCH_FEATURE("SELECT * FROM " + Features().getTableName() + " " +
-            "WHERE UID >= ? AND UID <= ? " +
-            "AND URI LIKE ?" +
-            getPagingQuery(),
-
-    new QueryParam[]{
-        new QueryParam("UID_MIN", Integer.class),
-        new QueryParam("UID_MAX", Integer.class),
-        new QueryParam("URI", String.class),
-        new QueryParam("OFFSET", Integer.class),
-        new QueryParam("ROWS", Integer.class)
-    }),
-
-    SEARCH_FEATURE_SKROUTZ("SELECT UID FROM " + Features().getTableName() +
-            "WHERE UID >= ? AND UID <= ? " +
-            "AND URI LIKE ?" +
-            getPagingQuery(),
-
-    new QueryParam[]{
-        new QueryParam("UID_MIN", Integer.class),
-        new QueryParam("UID_MAX", Integer.class),
-        new QueryParam("URI", String.class),
-        new QueryParam("OFFSET", Integer.class),
-        new QueryParam("ROWS", Integer.class)
-    }),
-
     /**
      *
-     * Get all prediction models from the database.
+     * Prepared statement used to retrieve all algorithm ontologies in the database.
+     * The SQL command is: <code>SELECT * FROM ALGORITHM_ONTOLOGIES</code>
      */
-    SEARCH_QSAR_MODEL("SELECT * FROM " + QSARModels().getTableName()+
-            "WHERE PREDICTION_FEATURE = ? " +
-            "AND DEPENDENT_FEATURE = ? " +
-            "AND ALGORITHM LIKE ? " +
-            "AND CREATED_BY LIKE ? " +
-            "AND DATASET_URI LIKE ? "+
-            getPagingQuery(),
-            new QueryParam[]{
-                new QueryParam("PREDICTION_FEATURE", String.class),
-                new QueryParam("DEPENDENT_FEATURE", String.class),
-                new QueryParam("ALGORITHM", String.class),
-                new QueryParam("CREATED_BY", String.class),
-                new QueryParam("DATASET_URI", String.class),
-                new QueryParam("OFFSET", Integer.class),
-                new QueryParam("ROWS", Integer.class)
-            }),
-
-
-    SEARCH_TASK("SELECT * FROM " + Tasks().getTableName() +
-            ""
-            , null),
-
-    /**
-     * ****************************************************************************
-     * ----------------------------------------------------------------------------
-     *                      GET QUERIES
-     * ----------------------------------------------------------------------------
-     * ****************************************************************************
-     */
-
-
+    GET_ALGORITHM_ONTOLOGIES("SELECT * FROM " + AlgOntTable.TABLE.getTableName(), null),
     /**
      *
      * For a certain Algorithm, retrieve all algorithm ontologies, i.e. the algorithm
@@ -445,8 +237,8 @@ public enum PrepStmt implements JPrepStmt {
      * ALGORITHM_ONTOLOGIES INNER JOID ALG_ONT_RELATION ON NAME = ONTOLOGY WHERE ALGORITHM
      * = ?</code>.
      */
-    GET_ALGORITHM_ONTOLOGY_RELATION("SELECT " + AlgorithmOntologies().getTableName() + ".*"
-    + " FROM " + AlgorithmOntologies().getTableName() + " INNER JOIN " + AlgorithmOntolRelation().getTableName()
+    GET_ALGORITHM_ONTOLOGY_RELATION("SELECT " + AlgOntTable.TABLE.getTableName()+ ".*"
+    + " FROM " + AlgOntTable.TABLE.getTableName() + " INNER JOIN " +AlgOntRelationTable.TABLE.getTableName()
     + " ON NAME=ONTOLOGY" + " WHERE ALGORITHM=?",
     new QueryParam[]{
         new QueryParam("ALGORITHM", String.class)
@@ -455,19 +247,51 @@ public enum PrepStmt implements JPrepStmt {
      *
      * Retrieve all algorithms that hava a certain ontological type.
      */
-    GET_ONTOLOGY_ALGORITHM_RELATION("SELECT " + Algorithms().getTableName() + ".*"
-    + " FROM " + Algorithms().getTableName() + " INNER JOIN " + AlgorithmOntolRelation().getTableName()
+    GET_ONTOLOGY_ALGORITHM_RELATION("SELECT " + AlgorithmsTable.TABLE.getTableName() + ".*"
+    + " FROM " + AlgorithmsTable.TABLE.getTableName() + " INNER JOIN " + AlgOntRelationTable.TABLE.getTableName()
     + " ON NAME=ALGORITHM" + " WHERE ONTOLOGY=?",
     new QueryParam[]{
         new QueryParam("ONTOLOGY", String.class)
     }),
-    
+    /**
+     *
+     * Retrieve all algorithm-ontology relations.
+     */
+    GET_ALGORITHM_ONTOLOGY_RELATIONS("SELECT * FROM " + AlgOntRelationTable.TABLE.getTableName(), null),
+    /**
+     * Get a specific user group.
+     */
+    GET_USER_GROUP("SELECT * FROM " + UserAuthTable.TABLE.getTableName() + " WHERE NAME=?",
+    new QueryParam[]{
+        new QueryParam("NAME", String.class)
+    }),
+    /**
+     *
+     * Get all user groups.
+     */
+    GET_USER_GROUPS("SELECT * FROM " + UserAuthTable.TABLE.getTableName(), null),
     /**
      *
      * Retrieve all algorithms.
      */
-    GET_ALGORITHMS("SELECT * FROM " + Algorithms().getTableName(), new QueryParam[]{}),
-    
+    GET_ALGORITHMS("SELECT * FROM " + AlgorithmsTable.TABLE.getTableName(), new QueryParam[]{}),
+    /**
+     *
+     * Get all prediction models from the database.
+     */
+    SEARCH_QSAR_MODELS("SELECT * FROM " + QSARModelsTable.TABLE.getTableName()+" "+
+            "WHERE PREDICTION_FEATURE = ? " +
+            "AND DEPENDENT_FEATURE = ? " +
+            "AND ALGORITHM LIKE ? " +
+            "AND CREATED_BY LIKE ? " +
+            "AND DATASET_URI LIKE ? ",
+            new QueryParam[]{
+                new QueryParam("PREDICTION_FEATURE", String.class),
+                new QueryParam("DEPENDENT_FEATURE", String.class),
+                new QueryParam("ALGORITHM", String.class),
+                new QueryParam("CREATED_BY", String.class),
+                new QueryParam("DATASET_URI", String.class),
+            }),
     /**
      *
      * Get all MLR models.
@@ -478,15 +302,29 @@ public enum PrepStmt implements JPrepStmt {
      *
      * Get all SVM models
      */
-    GET_SVM_MODELS("SELECT * FROM " + SupportVector().getTableName(), null),
-  
-    GET_INDEP_FEATURES("SELECT " + Features().getTableName() + ".*"
-    + " FROM " + Features().getTableName() + " INNER JOIN " + IndepFeaturesRelation().getTableName()
+    GET_SVM_MODELS("SELECT * FROM " + SupportVecTable.TABLE.getTableName(), null),
+    /**
+     *
+     * Get all SVC models.
+     */
+    //    GET_SVC_MODELS("SELECT * FROM "+SvcModels().getTableName(), null),
+
+    GET_FEATURES("SELECT * FROM " + FeaturesTable.TABLE.getTableName(), null),
+
+    SEARCH_FEATURE("SELECT * FROM " + FeaturesTable.TABLE.getTableName() + " WHERE UID >= ? AND UID <= ? AND URI LIKE ?",
+
+    new QueryParam[]{
+        new QueryParam("UID_MIN", Integer.class),
+        new QueryParam("UID_MAX", Integer.class),
+        new QueryParam("URI", String.class)
+    }),
+    GET_INDEP_FEATURES("SELECT " + FeaturesTable.TABLE.getTableName() + ".*"
+    + " FROM " + FeaturesTable.TABLE.getTableName() + " INNER JOIN " + IndFeatRelationTable.TABLE.getTableName()
     + " ON UID=FEATURE_UID" + " WHERE MODEL_UID=?",
     new QueryParam[]{
         new QueryParam("MODEL_UID", Integer.class)
-    });
-    
+    }),
+    GET_TASKS("SELECT * FROM " + TasksTable.TABLE.getTableName(), null);
 
     /**
      * The SQL command for the preparation of the statement.
@@ -494,16 +332,9 @@ public enum PrepStmt implements JPrepStmt {
     private String sql;
     private QueryParam[] parameters;
 
-    private static final String pagingQuery = "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
-    
-
     private PrepStmt(String SQL, QueryParam[] pl) {
         this.sql = SQL;
         this.parameters = pl;
-    }
-
-    private static String getPagingQuery(){
-        return pagingQuery;
     }
 
     public String getSql() {

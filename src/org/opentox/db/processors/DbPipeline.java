@@ -44,6 +44,7 @@ import org.opentox.db.util.PrepStmt;
  * @param <QF> QueryFood type of the input to the pipeline
  * @param <HR> HyperResult is the output type of this pipeline
  */
+@SuppressWarnings({"unchecked"})
 public class DbPipeline<QF extends QueryFood, HR extends HyperResult> extends AbstractDbProcessor<QF, HR> {
 
     private Pipeline pipeline;

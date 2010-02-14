@@ -28,7 +28,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.ProcessorException;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.interfaces.JProcessor;
@@ -65,6 +64,7 @@ import static org.opentox.core.exceptions.Cause.*;
  * @param <Output> Output from the processor
  * @param <P> Type of internal processor
  */
+@SuppressWarnings({"unchecked"})
 public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
            extends AbstractBatchProcessor<Input, Output, P> {
 
@@ -117,12 +117,15 @@ public class BatchProcessor<Input, Output, P extends JProcessor<Input, Output>>
         }
 
         // A PROCESSOR WHICH ALWAYS RETURNS 'null'.
-        P nullProcessor = (P) new Processor() {
+
+        Processor n = new Processor() {
 
             public Object process(Object data) throws YaqpException {
                 return null;
             }
         };
+
+        P nullProcessor = (P) n;
 
         final ArrayBlockingQueue<Runnable> queue = new ArrayBlockingQueue<Runnable>(data.size() + 2);
         parallel_executor = new ThreadPoolExecutor(corePoolSize, maxPoolSize, 1, TimeUnit.MINUTES, queue);

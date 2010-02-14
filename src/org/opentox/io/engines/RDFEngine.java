@@ -32,7 +32,7 @@ import static org.opentox.core.exceptions.Cause.XONT1;
  *
  * @author Charalampos Chomenides
  */
-public class RDFEngine<O extends OntObject> extends IOEngine {
+@SuppressWarnings({"unchecked"}) public class RDFEngine<O extends OntObject> extends IOEngine {
 
     public RDFEngine() {
         super();

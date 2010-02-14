@@ -29,9 +29,16 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox;
+
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.Statement;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.opentox.config.Configuration;
+import org.opentox.db.util.TheDbConnector;
+import org.opentox.util.monitoring.Jennifer;
 
 /**
  *
@@ -40,8 +47,68 @@ package org.opentox;
  */
 public class YAQP {
 
-    public static void main(String args[]){
-        
+    private static void fancyPrint(String str, int n) throws InterruptedException {
+        char[] ch = str.toCharArray();
+        for (char i : ch) {
+            System.out.print(i);
+            Thread.sleep(n);
+        }
+    }
+    private static Thread showDashDot = new Thread("dashdot") {
+
+        @Override
+        public void run() {
+            try {
+                fancyPrint("-.--.-...", 200);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(YAQP.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    };
+
+    private static void logo() throws InterruptedException {
+        System.out.print("\n\n*   ._.  ._.      ,__,   ._____.\n");
+        Thread.sleep(20);
+        System.out.print("*    \\ \\ | |/\\   /    \\ /  ___ |\n");
+        Thread.sleep(20);
+        System.out.print("*     \\ \\| /  \\ |  ()  |  _____|\n");
+        Thread.sleep(20);
+        System.out.print("*      \\  / /\\ \\|  {}  | |\n");
+        Thread.sleep(20);
+        System.out.print("*       || .--. |  [] \\\\ |\n");
+        Thread.sleep(20);
+        System.out.print("*       ||_|  |_|\\____/\\\\|\n*");
     }
 
+    private static void load() throws InterruptedException {
+
+
+        System.out.print("\n* Loading YAQP modules       : ");
+        fancyPrint("--.-.--.--.-.--.-...-..--..-.\t [ DONE ]\n", 10);
+
+
+        System.out.print("* Initializing the database  : ");
+        fancyPrint("--.--.-.--.", 60);
+        showDashDot.start();
+        Jennifer.INSTANCE.start();
+        while (showDashDot.isAlive() || !Jennifer.INSTANCE.isDbInit()) {
+            Thread.sleep(20);
+        }
+        fancyPrint("-..--..-.", 40);
+        System.out.print("\t [ Connected at " + TheDbConnector.DB.getDatabaseUrl() + ";user=" + TheDbConnector.DB.getDatabaseUser() + "  ]\n");
+
+
+        System.out.print("* Loading Services           : ");
+        fancyPrint("--..-..-.-.--.-.--..--..-....\t [ DONE ]\n", 10);
+        fancyPrint("*\n* Server is up and accepts connections on port 3000!\n*\n", 10);
+    }
+
+    public static void main(String args[]) throws Exception {
+        logo();
+        load();
+        Thread.sleep(3000);
+        Jennifer.INSTANCE.ressurect();
+        
+
+    }
 }

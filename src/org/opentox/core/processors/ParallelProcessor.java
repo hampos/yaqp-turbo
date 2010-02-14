@@ -57,6 +57,7 @@ import static org.opentox.core.exceptions.Cause.*;
  * @author Sopasakis Pantelis
  * @author Charalampos Chomenides
  */
+@SuppressWarnings({"unchecked"})
 public class ParallelProcessor<Input, Output, P extends JProcessor<ArrayList<Input>, ArrayList<Output>>>
               extends AbstractMultiProcessor<ArrayList<Input>, ArrayList<Output>, P> {
 

@@ -64,6 +64,7 @@ public class AlgorithmParameter<E extends Object> implements Serializable {
      * "mandatory".
      */
     public SCOPE paramScope;
+        
 
     public AlgorithmParameter(
             XSDDatatype dataType,

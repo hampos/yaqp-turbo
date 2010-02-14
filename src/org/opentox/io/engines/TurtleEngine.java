@@ -31,7 +31,7 @@ import static org.opentox.core.exceptions.Cause.*;
  *
  * @author Charalampos Chomenides
  */
-public class TurtleEngine<O extends OntObject> extends IOEngine {
+@SuppressWarnings({"unchecked"}) public class TurtleEngine<O extends OntObject> extends IOEngine {
 
     public TurtleEngine() {
         super();

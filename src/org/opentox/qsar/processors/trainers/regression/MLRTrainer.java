@@ -76,7 +76,7 @@ import weka.core.Instances;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class MLRTrainer extends WekaTrainer {
+@SuppressWarnings({"unchecked"}) public class MLRTrainer extends WekaTrainer {
 
     private String predictionFeature = null;
     private String datasetUri = null;

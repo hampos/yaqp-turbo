@@ -31,7 +31,6 @@
  */
 package org.opentox.db;
 
-import java.lang.reflect.Field;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
@@ -39,9 +38,22 @@ import org.opentox.db.exceptions.DbException;
 import org.opentox.db.exceptions.DuplicateKeyException;
 import org.opentox.db.handlers.WriterHandler;
 import org.opentox.db.table.StandardTables;
+import org.opentox.db.table.collection.AlgOntRelationTable;
+import org.opentox.db.table.collection.AlgOntTable;
+import org.opentox.db.table.collection.AlgorithmsTable;
+import org.opentox.db.table.collection.FeaturesTable;
+import org.opentox.db.table.collection.IndFeatRelationTable;
+import org.opentox.db.table.collection.OmegaTable;
+import org.opentox.db.table.collection.QSARModelsTable;
+import org.opentox.db.table.collection.SupportVecTable;
+import org.opentox.db.table.collection.TasksTable;
+import org.opentox.db.table.collection.UserAuthTable;
+import org.opentox.db.table.collection.UsersTable;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.ontology.components.Algorithm;
 import org.opentox.ontology.components.AlgorithmOntology;
+import org.opentox.ontology.components.User;
+import org.opentox.ontology.components.UserGroup;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.util.YaqpAlgorithms;
@@ -78,26 +90,20 @@ public class DatabaseJanitor {
         populateUsers();
     }
 
-    public void reset() throws SQLException  {
-        try {
-            StandardTables o = null;
-            Field[] tables = StandardTables.class.getFields();
-            for (int i=tables.length-1;i>=0;i--) {
-                StandardTables t = (StandardTables) tables[i].get(o);
-                try {
-                    Statement statement = TheDbConnector.DB.getConnection().createStatement();
-                    String sql = "DELETE FROM "+t.getTable().getTableName();
-                    //System.out.println(sql);
-                    statement.executeUpdate(sql);
-                } catch (SQLException ex) {
-                    throw ex;
-                }
-                t.getTable().getTableName();
+    public void reset() throws SQLException {
+        // THE CONTENT OF THE TABLES HAS TO BE CLEANED IN A CERTAIN ORDER
+        // OTHERWISE WE WILL ENCOUNTER FOREIGN-KEY VIOLATION EXCEPTIONS.
+        StandardTables[] tablesForCleanup = StandardTables.values();
+
+        for (int i = tablesForCleanup.length - 1; i >= 0; i--) {
+            try {
+                Statement statement = TheDbConnector.DB.getConnection().createStatement();
+                String sql = "DELETE FROM " + tablesForCleanup[i].getTable().getTableName();
+                //System.out.println(sql);
+                statement.executeUpdate(sql);
+            } catch (SQLException ex) {
+                throw ex;
             }
-        } catch (IllegalArgumentException ex) {
-            //Logger.getLogger(DatabaseJanitor.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-           // Logger.getLogger(DatabaseJanitor.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
@@ -121,9 +127,15 @@ public class DatabaseJanitor {
     }
 
     private void populateUsers() {
+        User u = new User(
+                "john", java.util.UUID.randomUUID().toString(), "john", "smith",
+                "john@foo.goo.gr", null, "Italy",
+                "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("JANITOR", 10000));
     }
 
-    public static void main(String args[]) throws DbException, SQLException{
+    public static void main(String args[]) throws DbException, SQLException {
         DatabaseJanitor.INSTANCE.reset();
-    };
+    }
+
+    ;
 }

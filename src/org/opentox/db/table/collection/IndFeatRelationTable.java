@@ -29,50 +29,47 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
+package org.opentox.db.table.collection;
 
-
-package org.opentox.www.rest.components;
-
-import java.util.Collection;
-import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.representation.Variant;
-import org.restlet.resource.ResourceException;
-import org.restlet.resource.ServerResource;
+import org.opentox.db.table.Table;
+import org.opentox.db.table.TableColumn;
+import org.opentox.db.util.SQLDataTypes;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class YaqpResource extends ServerResource {
+public final class IndFeatRelationTable {
 
-   
-    public YaqpResource(){
-        super();
+    private static final String 
+            _TABLE = "INDEPENDENT_FEATURES_RELATION",
+            _MODEL_fk = "MODEL_UID",
+            _FEATURES_fk = "FEATURE_UID";
+
+    public static final TableColumn MODEL_UID = mod();
+    public static final TableColumn FEATURE_UID = feat();
+
+    public static final Table TABLE = table();
+
+    private static final Table table(){
+        Table table = new Table(_TABLE);
+        table.addColumn(MODEL_UID);
+        table.addColumn(FEATURE_UID);
+        return table;
     }
 
-    
-    public void initialize(Collection<MediaType> supportedMedia){
-        super.doInit();
-    }
-    
-    public void initialize(MediaType[] supportedMedia){
-        super.doInit();
+    private static final TableColumn mod() {
+        TableColumn model_uid = new TableColumn(_MODEL_fk);
+        model_uid.setColumnType(SQLDataTypes.Int());
+        model_uid.setForeignKey(QSARModelsTable.TABLE.getTableName(), QSARModelsTable.UID.getColumnName(), true);
+        return model_uid;
     }
 
-    
-    
-    protected YaqpRepresentation post(YaqpRepresentation entity, Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.post(entity, variant);
+    private static final TableColumn feat() {
+        TableColumn feature_uid = new TableColumn(_FEATURES_fk);
+        feature_uid.setColumnType(SQLDataTypes.Int());
+        feature_uid.setForeignKey(FeaturesTable.TABLE.getTableName(), FeaturesTable.UID.getColumnName(), true);
+        return feature_uid;
     }
-
-    @Override
-    protected YaqpRepresentation get(Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.get(variant);
-    }
-
-
-
-
 }

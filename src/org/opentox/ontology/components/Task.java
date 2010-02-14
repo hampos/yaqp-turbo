@@ -50,6 +50,7 @@ public class Task extends YaqpComponent {
 
     @Override
     protected String getTag() {
+        User u;
         return "task";
     }
 
