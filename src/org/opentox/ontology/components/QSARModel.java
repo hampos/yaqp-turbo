@@ -54,12 +54,13 @@ public class QSARModel extends YaqpComponent {
     private Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
 
     private int id = 0;
+    private int _minId = Integer.MIN_VALUE, _maxId = Integer.MAX_VALUE;
     private String code = null;
-    private Feature predictionFeature = null;
-    private Feature dependentFeature = null;
+    private Feature predictionFeature = new Feature();
+    private Feature dependentFeature = new Feature();
     private ArrayList<Feature> independentFeatures = new ArrayList<Feature>();
-    private Algorithm algorithm = null;
-    private User user = null;
+    private Algorithm algorithm = new Algorithm();
+    private User user = new User();
     private String timestamp = null;
     private String dataset = null;
     private ModelStatus modelStatus = ModelStatus.UNDER_DEVELOPMENT;
@@ -126,9 +127,28 @@ public class QSARModel extends YaqpComponent {
             Map<String, AlgorithmParameter> tuningParams) {
         this(code, predictionFeature, dependentFeature, independentFeatures, algorithm, user, timestamp, dataset, modelStatus);
         this.id = id;
+        this._maxId = id;
+        this._minId = id;
         this.params = tuningParams;
     }
 
+    public int getMaxId() {
+        return _maxId;
+    }
+
+    public void setMaxId(int _maxId) {
+        this._maxId = _maxId;
+    }
+
+    public int getMinId() {
+        return _minId;
+    }
+
+    public void setMinId(int _minId) {
+        this._minId = _minId;
+    }
+
+    
     public Algorithm getAlgorithm() {
         return algorithm;
     }
@@ -167,6 +187,8 @@ public class QSARModel extends YaqpComponent {
 
     public void setId(int id) {
         this.id = id;
+        this._maxId = id;
+        this._minId = id;
     }
 
     public ArrayList<Feature> getIndependentFeatures() {
@@ -225,7 +247,7 @@ public class QSARModel extends YaqpComponent {
 //        this.tuningParams = tuningParams;
 //    }
 
-    
+
 
     @Override
     public PDFObject getPDF() {

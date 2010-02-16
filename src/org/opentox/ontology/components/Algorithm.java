@@ -78,7 +78,7 @@ import static org.opentox.core.exceptions.Cause.*;
 public class Algorithm extends YaqpComponent {
 
     //private  static final long serialVersionUID = -18477218378326540L;
-    private AlgorithmMeta metadata;
+    private AlgorithmMeta metadata = new AlgorithmMeta();
 
     public Algorithm() {
     }

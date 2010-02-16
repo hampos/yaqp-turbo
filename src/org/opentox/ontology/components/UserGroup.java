@@ -38,8 +38,6 @@ import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.opentox.core.exceptions.Cause;
@@ -48,7 +46,6 @@ import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
-import org.opentox.io.util.YaqpIOStream;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Warning;
 
@@ -59,36 +56,134 @@ import org.opentox.util.logging.levels.Warning;
  */
 public class UserGroup extends YaqpComponent {
 
-    private String name;
-    private int level;
+    private String name = null,
+            userAuth = null,
+            modelAuth = null,
+            algorithmAuth = null,
+            userGroupAuth = null;
+
+    private int level, models;
+
+    private int _minLevel = Integer.MIN_VALUE, _maxLevel = Integer.MAX_VALUE;
+    private int _minModels = Integer.MIN_VALUE, _maxModels = Integer.MAX_VALUE;
 
     public UserGroup() {
     }
 
-    public UserGroup(String name, int level) {
+    public UserGroup(String name) {
         this.name = name;
+    }
+
+    public UserGroup(String name, int level,  String modelAuth, String userAuth,
+            String algorithmAuth, String userGroupAuth,  int models) {
+        this.name = name;
+        this.userAuth = userAuth;
+        this.modelAuth = modelAuth;
+        this.algorithmAuth = algorithmAuth;
+        this.userGroupAuth = userGroupAuth;
         this.level = level;
+        this._minLevel = level;
+        this._maxLevel = level;
+        this.models = models;
+        this._minModels = models;
+        this._maxModels = models;
+    }
+
+    public int getMaxLevel() {
+        return _maxLevel;
+    }
+
+    public void setMaxLevel(int _maxLevel) {
+        this._maxLevel = _maxLevel;
+    }
+
+    public int getMaxModels() {
+        return _maxModels;
+    }
+
+    public void setMaxModels(int _maxModels) {
+        this._maxModels = _maxModels;
+    }
+
+    public int getMinLevel() {
+        return _minLevel;
+    }
+
+    public void setMinLevel(int _minLevel) {
+        this._minLevel = _minLevel;
+    }
+
+    public int getMinModels() {
+        return _minModels;
+    }
+
+    public void setMinModels(int _minModels) {
+        this._minModels = _minModels;
+    }
+
+    public String getAlgorithmAuth() {
+        return algorithmAuth;
+    }
+
+    public void setAlgorithmAuth(String algorithmAuth) {
+        this.algorithmAuth = algorithmAuth;
     }
 
     public int getLevel() {
         return level;
     }
 
-    /**
-     * The name of the user group as it is registered in the database.
-     * @return
-     */
-    public String getName() {
-        return name;
-    }
-
     public void setLevel(int level) {
         this.level = level;
+        this._minLevel = level;
+        this._maxLevel = level;
+    }
+
+    public String getModelAuth() {
+        return modelAuth;
+    }
+
+    public void setModelAuth(String modelAuth) {
+        this.modelAuth = modelAuth;
+    }
+
+    public int getModels() {
+        return models;
+    }
+
+    public void setModels(int models) {
+        this.models = models;
+        this._minModels = models;
+        this._maxModels = models;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
+
+    public String getUserAuth() {
+        return userAuth;
+    }
+
+    public void setUserAuth(String userAuth) {
+        this.userAuth = userAuth;
+    }
+
+    public String getUserGroupAuth() {
+        return userGroupAuth;
+    }
+
+    public void setUserGroupAuth(String userGroupAuth) {
+        this.userGroupAuth = userGroupAuth;
+    }
+
+
+
+
 
     // TODO: This was just a test. Implement the method!
     @Override
@@ -132,12 +227,6 @@ public class UserGroup extends YaqpComponent {
         return pdf;
     }
 
-    public static void main(String args[]) throws FileNotFoundException, YaqpException {
-        UserGroup ug = new UserGroup("Administrator", 100);
-        ug.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/a.pdf")));
-
-    }
-
     @Override
     public RDFObject getRDF() {
         throw new UnsupportedOperationException("Not supported yet.");
@@ -167,4 +256,5 @@ public class UserGroup extends YaqpComponent {
             throw new YaqpException(Cause.XTC743, "Improper URI", ex);
         }
     }
+
 }

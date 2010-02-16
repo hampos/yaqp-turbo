@@ -43,6 +43,8 @@ import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.exceptions.YaqpOntException;
+import org.opentox.ontology.util.YaqpAlgorithms;
+import org.opentox.util.monitoring.Jennifer;
 import static org.junit.Assert.*;
 
 /**
@@ -57,6 +59,8 @@ public class ReaderHandlerTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         TheDbConnector.init();
+//        Jennifer.INSTANCE.start();
+//        Thread.sleep(3000);
     }
 
     @AfterClass
@@ -71,100 +75,87 @@ public class ReaderHandlerTest {
     public void tearDown() {
     }
 
- //   @Test
-    public void getQSARMods(){
-        ArrayList<QSARModel> list = ReaderHandler.getQSARModels(new QSARModel());
-        for (QSARModel q : list){
-            q.getRDF().printConsole();
-        }
-    }
-
-
-  //  @Test
-//    public void getBadUser() {
-//        try{
-//        User u = ReaderHandler.searchUsers("chomiole");
-//        System.out.println(u);
-//        }catch (DbException e){
-//            assertTrue(e.toString().contains("XUS452"));
-//        }
-//    }
-
-  //  @Test
-    public void getBadUserGroup(){
-        try{
-        UserGroup ug = ReaderHandler.getUserGroup("asdf");
-        } catch(DbException e){
-            assertTrue(e.toString().contains("XUG710"));
-        }
-    }
-
-  
-
 
     @Test
     public void searchForUser() throws DbException{
+        System.out.println("---------------- search for user ------------");
+
         User prototype = new User();
-        //prototype.setEmail("%foo%");
-        prototype.setUserName("%i%");
-        //prototype.setCountry("%ADM%");
-//        u.setEmail("%.gr%");
-        //prototype.setFirstName("%");
-        //prototype.setUserGroup(new UserGroup(null, 80));
-        ArrayList<User> list = ReaderHandler.searchUsers(prototype);
-        for (User user : list){
+        ComponentList<User> list = ReaderHandler.searchUser(prototype,0,0);
+        for (User user : list.getComponentList()){
             System.out.println(user);
         }
     }
 
-   // @Test
+    @Test
     public void getAlgorithmOntologiesTest() throws YaqpOntException, DbException {
-
-        ArrayList<AlgorithmOntology> algont = ReaderHandler.getAlgorithmOntologies();
-        Iterator<AlgorithmOntology> it = algont.iterator();
-        while (it.hasNext()) {
-            System.out.println(it.next());
+        System.out.println("---------------- search for ontologies ------------");
+        ComponentList<AlgorithmOntology> algont = ReaderHandler.searchAlgorithmOntology(new AlgorithmOntology(), 0, 0);
+        for(AlgorithmOntology ont : algont.getComponentList()){
+            System.out.println(ont);
         }
 
     }
 
-  //  @Test
+    @Test
     public void getUserGroupsTest() throws DbException {
-        ArrayList<UserGroup> userGroups = ReaderHandler.getUserGroups();
-        Iterator<UserGroup> it = userGroups.iterator();
-        while (it.hasNext()) {
-            System.out.println(it.next());
+        System.out.println("---------------- search for user groups ------------");
+        ComponentList<UserGroup> userGroups = ReaderHandler.searchUserGroup(new UserGroup(), 0, 0);
+        ArrayList<UserGroup> list = userGroups.getComponentList();
+
+        for(UserGroup group : list) {
+            System.out.println(group);
         }
     }
 
 
-   // @Test
+    @Test
     public void getAlgOntRelationTest() throws YaqpOntException, DbException {
-        ArrayList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation("svm");
-        Iterator<AlgorithmOntology> it = ontologies.iterator();
-        while (it.hasNext()) {
-            System.out.println(it.next());
+        System.out.println("---------------- search for ontologies for given algorithm ------------");
+        ComponentList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation(new Algorithm(YaqpAlgorithms.mlr_metadata()),0,0);
+        for(AlgorithmOntology ont : ontologies.getComponentList()){
+            System.out.println(ont);
         }
     }
 
-   // @Test
+    @Test
     public void getOntAlgRelationTest() throws Exception {
-        AlgorithmOntology ontology = new AlgorithmOntology("Classification");
-        ArrayList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology);
-        Iterator<Algorithm> it = algorithms.iterator();
-        while (it.hasNext()) {
-            System.out.println(it.next());
+        System.out.println("---------------- search for algorithms for given ontology ------------");
+        AlgorithmOntology ontology = new AlgorithmOntology("Regression");
+        ComponentList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology,0,0);
+        for(Algorithm alg : algorithms.getComponentList()){
+            System.out.println(alg);
         }
     }
 
-   // @Test
-    public void getAlgorithmsTest() {
-        ArrayList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
-        Iterator<Algorithm> it = algorithms.iterator();
-        while (it.hasNext()) {
-            System.out.println(it.next());
+    @Test
+    public void getAlgorithmsTest() throws DbException {
+        System.out.println("---------------- get all algorithms ------------");
+        ComponentList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
+        for(Algorithm alg : algorithms.getComponentList()){
+            System.out.println(alg);
         }
     }
+
+    @Test
+    public void getFeaturesTest() throws DbException {
+        System.out.println("---------------- search features ------------");
+        ComponentList<Feature> features = ReaderHandler.searchFeature(new Feature(), 0, 0);
+        for(Feature f : features.getComponentList()){
+            System.out.println(f);
+        }
+    }
+
+        @Test
+    public void getQSARMods() throws DbException{
+        System.out.println("---------------- search QSARModels ------------");
+        ComponentList<QSARModel> models = ReaderHandler.searchQSARModels(new QSARModel(), 0, 0);
+        for (QSARModel m : models.getComponentList()){
+            System.out.println(m.getId());
+            System.out.println(m.getDependentFeature());
+        }
+    }
+
 
 //   @Test
 //    public void getMLRModelsTest() throws DbException{

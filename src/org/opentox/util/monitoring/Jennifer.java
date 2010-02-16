@@ -173,7 +173,7 @@ public class Jennifer extends Thread {
     private void populateUserGroups() throws DbException {
         try {
             try {
-                WriterHandler.add(new UserGroup("GUEST", 10));
+                WriterHandler.add(new UserGroup("GUEST", 10,"CCC", "CCC", "CCC" , "CCC", 3000));
             } catch (DbException ex) {
                 if (!(ex instanceof DuplicateKeyException)) {
                     YaqpLogger.LOG.log(new ScrewedUp(getClass(),
@@ -184,7 +184,7 @@ public class Jennifer extends Thread {
             } catch (ImproperEntityException ex) {
             }
             try {
-                WriterHandler.add(new UserGroup("SIMPLE", 100));
+                WriterHandler.add(new UserGroup("SIMPLE", 100,"CCC", "CCC", "CCC" , "CCC", 3000));
             } catch (DbException ex) {
                 if (!(ex instanceof DuplicateKeyException)) {
                     YaqpLogger.LOG.log(new ScrewedUp(getClass(),
@@ -194,7 +194,7 @@ public class Jennifer extends Thread {
             } catch (ImproperEntityException ex) {
             }
             try {
-                WriterHandler.add(new UserGroup("ADMINISTRATOR", 1000));
+                WriterHandler.add(new UserGroup("ADMINISTRATOR", 1000,"CCC", "CCC", "CCC" , "CCC", 3000));
             } catch (DbException ex) {
                 if (!(ex instanceof DuplicateKeyException)) {
                     YaqpLogger.LOG.log(new ScrewedUp(getClass(),
@@ -204,7 +204,7 @@ public class Jennifer extends Thread {
             } catch (ImproperEntityException ex) {
             }
             try {
-                WriterHandler.add(new UserGroup("JANITOR", 10000));
+                WriterHandler.add(new UserGroup("JANITOR", 10000,"CCC", "CCC", "CCC" , "CCC", 3000));
             } catch (DbException ex) {
                 if (!(ex instanceof DuplicateKeyException)) {
                     YaqpLogger.LOG.log(new ScrewedUp(getClass(),
@@ -222,7 +222,8 @@ public class Jennifer extends Thread {
         User u = new User(
                 "chung", pass, "Pantelis", "Sopasakis",
                 "makis@foo.goo.gr", null, "Greece",
-                "Athens", "9, Iroon Politechniou St..", "https://opentox.ntua.gr/new", null, new UserGroup("JANITOR", 10000));
+                "Athens", "9, Iroon Politechniou St..", "https://opentox.ntua.gr/new", null, 
+                new UserGroup("JANITOR", 10000,"CCC", "CCC", "CCC" , "CCC", 3000));
         try {
             WriterHandler.add(u);
         } catch (DbException ex) {

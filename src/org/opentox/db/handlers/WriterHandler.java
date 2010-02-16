@@ -155,7 +155,12 @@ import org.opentox.util.logging.levels.*;
             QueryFood food = new QueryFood(
                     new String[][]{
                         {UserAuthTable.NAME.getColumnName(), userGroup.getName()},
-                        {UserAuthTable.USER_LEVEL.getColumnName(), Integer.toString(userGroup.getLevel())}
+                        {UserAuthTable.USER_LEVEL.getColumnName(), Integer.toString(userGroup.getLevel())},
+                        {UserAuthTable.MODEL_AUTH.getColumnName(), userGroup.getModelAuth()},
+                        {UserAuthTable.USER_AUTH.getColumnName(), userGroup.getUserAuth()},
+                        {UserAuthTable.ALGORITHM_AUTH.getColumnName(), userGroup.getAlgorithmAuth()},
+                        {UserAuthTable.USER_GROUP_AUTH.getColumnName(), userGroup.getUserGroupAuth()},
+                        {UserAuthTable.MAX_MODELS.getColumnName(), Integer.toString(userGroup.getMaxModels())}
                     });
 
             addUserGroupPipeline.process(food);
@@ -331,7 +336,7 @@ import org.opentox.util.logging.levels.*;
         } catch (DbException ex) {
             if (ex.getCode() == Cause.XDB800) {
                 try {
-                    feature.setId(ReaderHandler.searchFeature(new Feature(-1, feature.getURI())).getID());
+                    feature.setId(ReaderHandler.searchFeature(new Feature(feature.getURI()) , 0 , 0).get(0).getID());
                 } catch (DbException ex1) {// in this case feature failed to be added but is not in the DB either!
                     throw new DbException(Cause.XDB3238, "Error ");
                 }
