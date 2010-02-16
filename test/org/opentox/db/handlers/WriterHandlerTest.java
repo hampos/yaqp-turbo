@@ -98,9 +98,9 @@ public class WriterHandlerTest {
     public void testAddUserGroup() throws ImproperEntityException {
         System.out.println("user group - test 1");
         try {
-            UserGroup guestGroup = (UserGroup) WriterHandler.add(new UserGroup("GUEST", 60));
+            UserGroup guestGroup = (UserGroup) WriterHandler.add(new UserGroup("GUEST", 60,"CCC", "CCC", "CCC" , "CCC", 3000));
             assertTrue(guestGroup.getName().equals("GUEST") && guestGroup.getLevel() == 60);
-            UserGroup adminGroup = WriterHandler.addUserGroup(new UserGroup("ADMINISTRATOR", 10));
+            UserGroup adminGroup = WriterHandler.addUserGroup(new UserGroup("ADMINISTRATOR", 10,"CCC", "CCC", "CCC" , "CCC", 3000));
             assertTrue(adminGroup.getLevel() == 10 && adminGroup.getName().equals("ADMINISTRATOR"));
         } catch (DuplicateKeyException ex) {
             System.out.println(ex);
@@ -113,7 +113,7 @@ public class WriterHandlerTest {
     @Test
     public void addBadUserGroup() {
         System.out.println("user group - test 2");
-        UserGroup badGroup = new UserGroup(null, 10);
+        UserGroup badGroup = new UserGroup(null, 10,"CCC", "CCC", "CCC" , "CCC", 3000);
         boolean failed = false;
         try {
             WriterHandler.add(badGroup);
@@ -131,7 +131,7 @@ public class WriterHandlerTest {
     @Test
     public void addDuplicateUserGroup() {
         System.out.println("user group - test 3");
-        UserGroup some = new UserGroup("ROCKETS", 512);
+        UserGroup some = new UserGroup("ROCKETS", 512,"CCC", "CCC", "CCC" , "CCC", 3000);
         try {
             WriterHandler.add(some);
         } catch (DbException ex) {
@@ -162,7 +162,7 @@ public class WriterHandlerTest {
     @Test
     public void addBigNameUserGroup() {
         System.out.println("user group - test 5");
-        UserGroup ug = new UserGroup("ababababababababababababababababababababababa", 10);
+        UserGroup ug = new UserGroup("ababababababababababababababababababababababa", 10,"CCC", "CCC", "CCC" , "CCC", 3000);
         try {
             WriterHandler.add(ug);
             fail("SHOULD HAVE FAILED!");
@@ -210,7 +210,8 @@ public class WriterHandlerTest {
                     new User(
                     "john", java.util.UUID.randomUUID().toString(), "john", "smith",
                     "john@foo.goo.gr", null, "Italy",
-                    "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
+                    "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, 
+                    new UserGroup("GUEST", 0,"CCC", "CCC", "CCC" , "CCC", 3000)));
 
         } catch (DuplicateKeyException ex) {
             System.out.println(ex);
@@ -224,7 +225,8 @@ public class WriterHandlerTest {
     public void noUsername() {
         System.out.println("user - test 2");
         try {
-            WriterHandler.add(new User(null, java.util.UUID.randomUUID().toString(), "john", "smith", "john@foo.goo.gr", null, "Italy", "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
+            WriterHandler.add(new User(null, java.util.UUID.randomUUID().toString(), "john", "smith", "john@foo.goo.gr", null, "Italy", "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, 
+                    new UserGroup("GUEST", 0,"CCC", "CCC", "CCC" , "CCC", 3000)));
             fail("SHOULD HAVE FAILED!");
         } catch (DbException ex) {
             assertTrue(ex.getCode() == Cause.XDB5870);
@@ -238,7 +240,8 @@ public class WriterHandlerTest {
     public void noPassWord() {
         System.out.println("user - test 3");
         try {
-            WriterHandler.add(new User("john", null, "john", "smith", "john@foo.goo.gr", null, "Italy", "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
+            WriterHandler.add(new User("john", null, "john", "smith", "john@foo.goo.gr", null, "Italy", "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, 
+                    new UserGroup("GUEST", 0,"CCC", "CCC", "CCC" , "CCC", 3000)));
             fail("SHOULD HAVE FAILED!");
         } catch (DbException ex) {
             assertTrue(ex.getCode() == Cause.XDB5872);
@@ -252,7 +255,8 @@ public class WriterHandlerTest {
     public void noAddress() {
         System.out.println("user - test 4");
         try {
-            WriterHandler.add(new User("mike", java.util.UUID.randomUUID().toString(), "mike", "williams", "mike@foo.goo.gr", null, "Greece", "Larisa", null, "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
+            WriterHandler.add(new User("mike", java.util.UUID.randomUUID().toString(), "mike", "williams", "mike@foo.goo.gr", null, "Greece", "Larisa", null, "https://opentox.ntua.gr/abc", null, 
+                    new UserGroup("GUEST", 0,"CCC", "CCC", "CCC" , "CCC", 3000)));
         } catch (Exception ex) {
             fail();
         }
@@ -266,7 +270,8 @@ public class WriterHandlerTest {
                     new User(
                     "john", java.util.UUID.randomUUID().toString(), "john", "smith",
                     "john@foo.goo.gr", null, "Italy",
-                    "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("GUEST", 0)));
+                    "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, 
+                    new UserGroup("GUEST", 0,"CCC", "CCC", "CCC" , "CCC", 3000)));
             fail("SHOULD HAVE FAILED!");
         } catch (DbException ex) {
             assertTrue(ex instanceof DuplicateKeyException);
@@ -283,7 +288,8 @@ public class WriterHandlerTest {
                     new User(
                     "flash", java.util.UUID.randomUUID().toString(), "flash", "gordon",
                     "iDontGiveYouMyEmail", null, "Chung",
-                    null, null, null, null, new UserGroup("GUEST", 0)));
+                    null, null, null, null, 
+                    new UserGroup("GUEST", 0,"CCC", "CCC", "CCC" , "CCC", 3000)));
             fail("SHOULD HAVE FAILED!");
         } catch (DbException ex) {
             assertTrue(ex instanceof BadEmailException);
@@ -413,7 +419,7 @@ public class WriterHandlerTest {
         try {
             User prot = new User();
             prot.setUserName("%ik%");
-            User u = ReaderHandler.searchUsers(prot).get(0);
+            User u = ReaderHandler.searchUser(prot,0,0).get(0);
             Task t = new Task(java.util.UUID.randomUUID().toString(), u, YaqpAlgorithms.SVC, 1000);
             assertEquals(WriterHandler.addTask(t), t);
         } catch (DbException ex) {
@@ -440,7 +446,7 @@ public class WriterHandlerTest {
         System.out.println("task - test 3");
         try {
             User prot = new User();
-            User u = ReaderHandler.searchUsers(prot).get(1);
+            User u = ReaderHandler.searchUser(prot,0,0).get(0);
             Task t = new Task(java.util.UUID.randomUUID().toString(), u, null, 1000);
             assertEquals(WriterHandler.addTask(t), t);
         } catch (DbException ex) {
@@ -453,7 +459,7 @@ public class WriterHandlerTest {
         System.out.println("task - test 4");
         try {
             User prot = new User();
-            User u = ReaderHandler.searchUsers(prot).get(1);
+            User u = ReaderHandler.searchUser(prot,0,0).get(0);
             Task t = new Task(java.util.UUID.randomUUID().toString(), u, YaqpAlgorithms.SVC, 0);
             assertEquals(WriterHandler.addTask(t), t);
         } catch (DbException ex) {
@@ -465,8 +471,8 @@ public class WriterHandlerTest {
     public void addQSARModel() throws ImproperEntityException {
         System.out.println("QSAR Model - test 1");
         try {
-            User u = ReaderHandler.searchUsers(new User()).get(0);
-            Feature f = ReaderHandler.searchFeature(new Feature(-1, null));
+            User u = ReaderHandler.searchUser(new User(),0,0).get(0);
+            Feature f = ReaderHandler.searchFeature(new Feature(null),0,0).get(0);
             ArrayList<Feature> lf = new ArrayList<Feature>();
             lf.add(f);
             QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.MLR, u, null, "dataset1", QSARModel.ModelStatus.UNDER_DEVELOPMENT);
@@ -505,7 +511,7 @@ public class WriterHandlerTest {
     public void addQSARNewFeatures() throws ImproperEntityException {
         System.out.println("QSAR Model - test 4");
         try {
-            User u = ReaderHandler.searchUsers(new User()).get(0);
+            User u = ReaderHandler.searchUser(new User(),0,0).get(0);
             Feature f1 = new Feature("http://example.org/feature/1");
             Feature f2 = new Feature("http://example.org/feature/2");
             Feature f3 = new Feature("http://example.org/feature/3");
@@ -528,7 +534,7 @@ public class WriterHandlerTest {
     public void addsvmModel() {
         System.out.println("SVM Model - test 1");
         try {
-            User u = ReaderHandler.searchUsers(new User()).get(1);
+            User u = ReaderHandler.searchUser(new User(),0,0).get(1);
             Feature f = new Feature(-1, "http://chung.net/feature/666");
             ArrayList<Feature> lf = new ArrayList<Feature>();
             lf.add(f);
@@ -549,7 +555,7 @@ public class WriterHandlerTest {
     public void addsvmModel_badParams() {
         System.out.println("SVM Model - test 2");
         try {
-            User u = ReaderHandler.searchUsers(new User()).get(1);
+            User u = ReaderHandler.searchUser(new User(),0,0).get(1);
             Feature f = new Feature(-1, "http://chung.net/feature/666");
             ArrayList<Feature> lf = new ArrayList<Feature>();
             lf.add(f);
@@ -572,7 +578,7 @@ public class WriterHandlerTest {
     public void addsvmModel_missing() {
         System.out.println("SVM Model - test 2");
         try {
-            User u = ReaderHandler.searchUsers(new User()).get(1);
+            User u = ReaderHandler.searchUser(new User(),0,0).get(1);
             Feature f = new Feature(-1, "http://chung.net/feature/666");
             ArrayList<Feature> lf = new ArrayList<Feature>();
             lf.add(f);
@@ -593,7 +599,7 @@ public class WriterHandlerTest {
     @Test
     public void addmlrModel() throws DbException, ImproperEntityException, YaqpException {
         System.out.println("MLR Model - test 1");
-        User u = ReaderHandler.searchUsers(new User()).get(0);
+        User u = ReaderHandler.searchUser(new User(),0,0).get(0);
         //u.setEmail("john@foo.goo.gr");
         Feature f = new Feature(-1, "http://chung.net/feature/666");
         ArrayList<Feature> lf = new ArrayList<Feature>();
@@ -667,7 +673,7 @@ public class WriterHandlerTest {
         try {
             User prot = new User();
             prot.setEmail("john%");
-            User u = ReaderHandler.searchUsers(prot).get(0);
+            User u = ReaderHandler.searchUser(prot,0,0).get(0);
             OmegaModel om = new OmegaModel("dset50", java.util.UUID.randomUUID().toString(), u);
             assertTrue(WriterHandler.addOmega(om).getId() > 0);
         } catch (DbException ex) {

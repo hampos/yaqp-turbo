@@ -40,19 +40,14 @@ import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
-import org.opentox.db.exceptions.DbException;
-import org.opentox.db.handlers.ReaderHandler;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
-import org.opentox.io.util.YaqpIOStream;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Warning;
 
@@ -76,13 +71,15 @@ public class User extends YaqpComponent {
             address = null,
             webpage = null,
             timeStamp = null;
-    private UserGroup userGroup = null;    
+    private UserGroup userGroup = new UserGroup();
 
 
     public User(){
-
     }
 
+    public User(String email){
+        this.email = email;
+    }
  
     public User(
             String userName,
@@ -310,13 +307,6 @@ public class User extends YaqpComponent {
         }
 
         return pdf;
-    }
-
-
-     public static void main(String args[]) throws FileNotFoundException, DbException, YaqpException {
-        User u = ReaderHandler.searchUsers(new User()).get(1);
-        u.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/user.pdf")));
-
     }
 
 

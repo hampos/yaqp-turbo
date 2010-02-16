@@ -130,7 +130,7 @@ public class DatabaseJanitor {
         User u = new User(
                 "john", java.util.UUID.randomUUID().toString(), "john", "smith",
                 "john@foo.goo.gr", null, "Italy",
-                "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("JANITOR", 10000));
+                "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, new UserGroup("JANITOR", 10000, "CCC", "CCC", "CCC" , "CCC", 3000));
     }
 
     public static void main(String args[]) throws DbException, SQLException {

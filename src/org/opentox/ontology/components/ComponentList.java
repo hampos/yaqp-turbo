@@ -49,7 +49,7 @@ import org.opentox.io.publishable.UriListObject;
  */
 public class ComponentList<H extends YaqpComponent> extends YaqpComponent {
 
-    private ArrayList<H> componentList;
+    private ArrayList<H> componentList = new ArrayList<H>();
 
     public void add(H component){
         componentList.add(component);
@@ -71,7 +71,11 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent {
         this.componentList = componentList;
     }
 
-    
+    public H get(int i){
+        return componentList.get(i);
+    }
+
+
 
     @Override
     public PDFObject getPDF() {

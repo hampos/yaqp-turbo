@@ -37,6 +37,7 @@ import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.opentox.config.Configuration;
+import org.opentox.db.handlers.ReaderHandler;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.util.monitoring.Jennifer;
 
@@ -106,9 +107,8 @@ public class YAQP {
     public static void main(String args[]) throws Exception {
         logo();
         load();
-        Thread.sleep(3000);
-        Jennifer.INSTANCE.ressurect();
+       // Thread.sleep(3000);
+       // Jennifer.INSTANCE.ressurect();
         
-
     }
 }
