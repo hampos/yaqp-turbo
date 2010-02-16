@@ -68,6 +68,7 @@ import org.opentox.qsar.processors.filters.SimpleMVHFilter;
 import org.opentox.qsar.processors.trainers.WekaTrainer;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Trace;
+import org.opentox.www.rest.components.YaqpForm;
 import weka.classifiers.functions.LinearRegression;
 import weka.core.Instances;
 
@@ -76,23 +77,124 @@ import weka.core.Instances;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-@SuppressWarnings({"unchecked"}) public class MLRTrainer extends WekaTrainer {
+@SuppressWarnings({"unchecked"})
+public class MLRTrainer extends WekaTrainer {
 
+    /**
+     * The URI of the prediction feature (class attribute or target attribute) accoeding
+     * to which the training is carried out.
+     */
     private String predictionFeature = null;
+    /**
+     * URI of the training dataset
+     */
     private String datasetUri = null;
+    /**
+     * Uniformly Unique Identifier used to identify the file path of the produced
+     * model. This ID is stored in the database as well.
+     */
     private UUID uuid;
-    private final String PMMLIntro =
+    private static final String PMMLIntro =
             "<PMML version=\"3.2\" "
             + " xmlns=\"http://www.dmg.org/PMML-3_2\"  "
             + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
             + " <Header copyright=\"Copyleft (c) OpenTox - An Open Source "
             + "Predictive Toxicology Framework, http://www.opentox.org, 2009\" />\n";
 
+
+    /**
+     * <p>Construct a new MLR trainer which is initialized with a set of parameters as
+     * posted by the client to the resource (instance of {@link YaqpForm }. Some
+     * checks are done regarding the consisteny of the parameters. The mandatory parameters
+     * one has to specidy are the <code>prediction_feature</code> and the <code>
+     * dataset_uri</code> which should be posted by the client to the training resoruce.
+     * </p>
+     * @param parameters
+     *      Set of parameters as an instance of {@link YaqpForm }
+     * @throws QSARException
+     *      In case there are some inconsistencies with the posted parameters.
+     * <p>
+     * <table>
+     * <thead>
+     * <tr>
+     * <td><b>Code</b></td><td><b>Explanation</b></td>
+     * </tr>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td>XQM200</td><td>The <code>prediction_feature</code> you provided is not a valid URI</td>
+     * </tr>
+     * <tr>
+     * <td>XQM201</td><td>The <code>dataset_uri</code> you provided is not a valid URI</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </p>
+     * @throws NullPointerException
+     *      In case some mandatory parameters are not specified or
+     *      are set to null (For example if one does not specify the
+     *      <code>prediction_feature</code>).
+     */
+    public MLRTrainer(YaqpForm form) throws QSARException {
+        this.datasetUri = form.getFirstValue(ConstantParameters.dataset_uri);
+        this.predictionFeature = form.getFirstValue(ConstantParameters.prediction_feature);
+        System.out.println(predictionFeature);
+        if (datasetUri == null ) throw new QSARException(Cause.XQM500, "The parameter "+ConstantParameters.dataset_uri+" was not specified");
+        if (predictionFeature == null ) throw new QSARException(Cause.XQM501, "The parameter "+ConstantParameters.prediction_feature+" was not specified");
+        Map<String, AlgorithmParameter> m = new HashMap<String, AlgorithmParameter>(2);
+        try {
+            m.put(ConstantParameters.prediction_feature, new AlgorithmParameter(new URI(this.predictionFeature)));
+        } catch (URISyntaxException ex) {
+            throw new QSARException(Cause.XQM711, "Invalid URI for prediction feature {" + predictionFeature + "}", ex);
+        }
+        try {
+            m.put(ConstantParameters.dataset_uri, new AlgorithmParameter(new URI(this.datasetUri)));
+        } catch (URISyntaxException ex) {
+            throw new QSARException(Cause.XQM712, "Invalid URI for dataset {" + datasetUri + "}", ex);
+        }
+        uuid = UUID.randomUUID();
+    }
+
+    /**
+     * <p>Construct a new MLR trainer which is initialized with a set of parameters. Some
+     * checks are done regarding the consisteny of the parameters. The mandatory parameters
+     * one has to specidy are the <code>prediction_feature</code> and the <code>
+     * dataset_uri</code> which should be posted by the client to the training resoruce.
+     * </p>
+     * @param parameters
+     *      Set of parameters as a Map&lt;String,{@link  AlgorithmParameter }&gt;.
+     * @throws QSARException
+     *      In case there are some inconsistencies with the posted parameters.
+     * <p>
+     * <table>
+     * <thead>
+     * <tr>
+     * <td><b>Code</b></td><td><b>Explanation</b></td>
+     * </tr>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td>XQM200</td><td>The <code>prediction_feature</code> you provided is not a valid URI</td>
+     * </tr>
+     * <tr>
+     * <td>XQM201</td><td>The <code>dataset_uri</code> you provided is not a valid URI</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </p>
+     * @throws NullPointerException
+     *      In case some mandatory parameters are not specified or
+     *      are set to null (For example if one does not specify the
+     *      <code>prediction_feature</code>).
+     */
     public MLRTrainer(Map<String, AlgorithmParameter> parameters) throws QSARException {
         super(parameters);
         /* Retrieve the parameter prediction-feature */
         try {
             predictionFeature = getParameters().get(ConstantParameters.prediction_feature).paramValue.toString();
+            new URI(predictionFeature);
+        } catch (URISyntaxException ex) {
+            throw new QSARException(Cause.XQM200, "The prediction feature you provided is not a valid URI : {" + predictionFeature + "}", ex);
         } catch (NullPointerException ex) {
             String message = "MLR model cannot be trained because you "
                     + "did not provide the parameter " + ConstantParameters.prediction_feature;
@@ -101,32 +203,71 @@ import weka.core.Instances;
         /* Retrieve the parameter dataset_uri */
         try {
             datasetUri = getParameters().get(ConstantParameters.dataset_uri).paramValue.toString();
+            new URI(datasetUri);
+        } catch (URISyntaxException ex) {
+            throw new QSARException(Cause.XQM201, "The dataset_uri parameter you provided is not a valid URI {" + datasetUri + "}", ex);
         } catch (NullPointerException ex) {
             String message = "MLR model cannot be trained because you "
                     + "did not provide the parameter " + ConstantParameters.dataset_uri;
             throw new NullPointerException(message);
         }
-        /* Check that the provided parameter is indeed a URI */
-        try {
-            new URI(datasetUri);
-        } catch (URISyntaxException ex) {
-            String message = "The dataset_uri you provided is not a valid URI";
-            throw new IllegalArgumentException(message, ex);
-        }
         uuid = UUID.randomUUID();
     }
 
+    /**
+     *
+     * Construct a new MLRTrainer object. No parameters are specified for the trainer.
+     * A new <code>UUID</code> is chosen.
+     */
     public MLRTrainer() {
         super();
+        uuid = UUID.randomUUID();
     }
 
+    /**
+     * Trains the MLR model given an Instances object with the training data. The prediction
+     * feature (class attributre) is specified in the constructor of the class.
+     * @param data The training data as <code>weka.core.Instances</code> object.
+     * @return The QSARModel corresponding to the trained model.
+     * @throws QSARException In case the model cannot be trained
+     * <p>
+     * <table>
+     * <thead>
+     * <tr>
+     * <td><b>Code</b></td><td><b>Explanation</b></td>
+     * </tr>
+     * </thead>
+     * <tbody>
+     * <tr>
+     * <td>XQM1</td><td>Could not train the an model</td>
+     * </tr>
+     * <tr>
+     * <td>XQM2</td><td>Could not generate PMML representation for the model</td>
+     * </tr>
+     * <tr>
+     * <td>XQM202</td><td>The prediction feature you provided is not a valid numeric attribute of the dataset</td>
+     * </tr>
+     * </tbody>
+     * </table>
+     * </p>
+     * @throws NullPointerException
+     *      In case the provided training data is null.
+     */
     public QSARModel train(Instances data) throws QSARException {
-        if (data==null) throw new NullPointerException("Cannot train an " +
-                "MLR model without a training dataset");
+        if (data == null) {
+            throw new NullPointerException("Cannot train an "
+                    + "MLR model without a training dataset");
+        }
+        if (data.attribute(predictionFeature) == null) {
+            throw new QSARException(Cause.XQM202,
+                    "The prediction feature you provided is not a valid numeric attribute of the dataset :{"
+                    + predictionFeature + "}");
+        }
         /* The incoming dataset always has the first attribute set to 
         'compound_uri' which is of type "String". This is removed at the
         begining of the training procedure */
         AttributeCleanup filter = new AttributeCleanup(ATTRIBUTE_TYPE.string);
+        // NOTE: Removal of string attributes should be always performed prior to any kind of training!
         data = filter.filter(data);
         SimpleMVHFilter fil = new SimpleMVHFilter();
         data = fil.filter(data);
@@ -144,7 +285,7 @@ import weka.core.Instances;
         try {
             generatePMML(linreg, data);
         } catch (YaqpIOException ex) {
-            String message = "Could not generated PMML representation for MLR model :: " + ex;
+            String message = "Could not generate PMML representation for MLR model :: " + ex;
             throw new QSARException(Cause.XQM2, message, ex);
         }
 
@@ -169,7 +310,7 @@ import weka.core.Instances;
 
         try {
             User u = new User();
-            u.setEmail("john@foo.goo.gr");
+            u.setEmail("makis@foo.goo.gr");
             QSARModel model = new QSARModel(
                     uuid.toString(), predictedFeature, dependentFeature,
                     independentFeatures, YaqpAlgorithms.MLR,
@@ -178,7 +319,7 @@ import weka.core.Instances;
             try {
                 model = (QSARModel) WriterHandler.add(model);
             } catch (DbException ex) {
-                System.out.println("Exception Caught!"+ex);
+                System.out.println("Exception Caught!" + ex);
             }
             return model;
         } catch (YaqpException ex) {
@@ -194,6 +335,7 @@ import weka.core.Instances;
      * @param model_id The id of the generated model.
      * TODO: build the XML using some XML editor
      */
+    // <editor-fold defaultstate="collapsed" desc="PMML generation routine!">
     private void generatePMML(LinearRegression wekaModel, Instances data) throws YaqpIOException {
         double[] coefficients = wekaModel.coefficients();
         StringBuilder pmml = new StringBuilder();
@@ -265,20 +407,21 @@ import weka.core.Instances;
             throw new YaqpIOException(Cause.XQM3, "Could not write data to PMML file :" + uuid.toString(), ex);
         }
     }
+    // </editor-fold>
 
     public static void main(String args[]) throws QSARException, YaqpException, URISyntaxException {
         TheDbConnector.init();
-        InputProcessor p1 = new InputProcessor();
-        DatasetBuilder p2 = new DatasetBuilder();
-        InstancesProcessor p3 = new InstancesProcessor();
-        InstancesFilter p4 = new SimpleMVHFilter();
-        InstancesFilter p5 = new AttributeCleanup(new ATTRIBUTE_TYPE[]{ATTRIBUTE_TYPE.string, ATTRIBUTE_TYPE.nominal});
-        Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
-        params.put("prediction_feature", new AlgorithmParameter<String>(ServerList.ambit + "/feature/12111"));
-        params.put("dataset_uri", new AlgorithmParameter<String>("http://localhost/8"));
-        WekaTrainer p6 = new MLRTrainer(params);
+        final InputProcessor p1 = new InputProcessor();
+        final DatasetBuilder p2 = new DatasetBuilder();
+        final InstancesProcessor p3 = new InstancesProcessor();
+        final InstancesFilter p4 = new SimpleMVHFilter();
+        final InstancesFilter p5 = new AttributeCleanup(new ATTRIBUTE_TYPE[]{ATTRIBUTE_TYPE.string, ATTRIBUTE_TYPE.nominal});
+        final Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
+        params.put("prediction_feature", new AlgorithmParameter<String>(ServerList.ambit + "/feature/11954"));
+        params.put("dataset_uri", new AlgorithmParameter<String>("http://localhost/6"));
+        final WekaTrainer p6 = new MLRTrainer(params);
 
-        Pipeline pipe = new Pipeline();
+        final Pipeline pipe = new Pipeline();
         pipe.add(p1);
         pipe.add(p2);
         pipe.add(p3);
@@ -286,10 +429,12 @@ import weka.core.Instances;
         pipe.add(p5);
         pipe.add(p6);
 
-        URI u = new URI("http://localhost/8");
+        URI u = new URI("http://localhost/6");
 
-        QSARModel model = (QSARModel) pipe.process(u);
+        pipe.setfailSensitive(true);
+        final QSARModel model = (QSARModel) pipe.process(u);
         System.out.println(model.getCode());
         System.out.println(model.getId());
+        System.out.println(pipe.getStatus());
     }
 }

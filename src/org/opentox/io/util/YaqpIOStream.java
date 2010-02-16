@@ -33,10 +33,11 @@ import java.io.OutputStream;
  */
 public class YaqpIOStream {
 
-    private InputStream in = null;
-    private OutputStream out = null;
+    private InputStream in;
+    private OutputStream out;
 
-    public YaqpIOStream(Object ioStream){
+
+    public YaqpIOStream(final Object ioStream){
         if (ioStream instanceof InputStream){
             in = (InputStream) ioStream;
         }else if (ioStream instanceof OutputStream){
@@ -44,6 +45,14 @@ public class YaqpIOStream {
         }else{
             // TODO: Exception
         }
+    }
+
+    public YaqpIOStream(final InputStream in){
+        this.in = in;
+    }
+
+    public YaqpIOStream(final OutputStream out){
+        this.out = out;
     }
     
     public Object getStream(){

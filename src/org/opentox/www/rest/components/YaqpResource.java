@@ -29,15 +29,11 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.www.rest.components;
 
 import java.util.Collection;
 import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
-import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 /**
@@ -45,34 +41,20 @@ import org.restlet.resource.ServerResource;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class YaqpResource extends ServerResource {
+public abstract class YaqpResource extends ServerResource {
 
-   
-    public YaqpResource(){
-        super();
-    }
-
-    
-    public void initialize(Collection<MediaType> supportedMedia){
+    public void initialize(Collection<MediaType> supportedMedia) {
         super.doInit();
+        for (MediaType m : supportedMedia) {
+            getVariants().add(new Variant(m));
+        }
     }
-    
-    public void initialize(MediaType[] supportedMedia){
+
+    public void initialize(MediaType... supportedMedia) {
         super.doInit();
+        for (MediaType m : supportedMedia) {
+            getVariants().add(new Variant(m));
+        }
+
     }
-
-    
-    
-    protected YaqpRepresentation post(YaqpRepresentation entity, Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.post(entity, variant);
-    }
-
-    @Override
-    protected YaqpRepresentation get(Variant variant) throws ResourceException {
-        return (YaqpRepresentation) super.get(variant);
-    }
-
-
-
-
 }

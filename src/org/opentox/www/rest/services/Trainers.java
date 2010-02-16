@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of National Technical University of Athens. Please read README for more
+ * School of the National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -31,37 +31,15 @@
  */
 
 
-package org.opentox.qsar.processors.trainers;
-
-
-import java.util.Map;
-import org.opentox.ontology.util.AlgorithmParameter;
-import org.opentox.qsar.exceptions.QSARException;
-import org.opentox.www.rest.components.YaqpForm;
-import weka.core.Instances;
+package org.opentox.www.rest.services;
 
 /**
- * This is just a step before implementation. Classes that extend WekaTrainer perform
- * training using <code>Weka</code> algorothms. 
+ *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public abstract class WekaTrainer extends AbstractTrainer<Instances>{
-
-    public WekaTrainer(){
-        super();
-    }
-
-    public WekaTrainer(Map<String, AlgorithmParameter> parameters) {
-        super(parameters);
-    }
-
-    public WekaTrainer(YaqpForm form) throws QSARException{
-     /* To be implemented in subclasses... */
-    }
-
-    
-
-
-
+public enum Trainers {
+    svm,
+    mlr,
+    svc;
 }

@@ -33,11 +33,53 @@
 
 package org.opentox.qsar.processors.trainers.regression;
 
+import java.util.Map;
+import java.util.UUID;
+import org.opentox.ontology.components.QSARModel;
+import org.opentox.ontology.util.AlgorithmParameter;
+import org.opentox.qsar.exceptions.QSARException;
+import org.opentox.qsar.processors.trainers.WekaTrainer;
+import org.opentox.www.rest.components.YaqpForm;
+import weka.core.Instances;
+
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class SVMTrainer {
+public class SVMTrainer extends WekaTrainer {
+
+    /**
+     * The URI of the prediction feature (class attribute or target attribute) accoeding
+     * to which the training is carried out.
+     */
+    private String predictionFeature = null;
+    /**
+     * URI of the training dataset
+     */
+    private String datasetUri = null;
+    /**
+     * Uniformly Unique Identifier used to identify the file path of the produced
+     * model. This ID is stored in the database as well.
+     */
+    private UUID uuid;
+    
+
+    public SVMTrainer(Map<String, AlgorithmParameter> parameters) {
+        super(parameters);        
+    }
+
+    public SVMTrainer() {
+        super();
+    }
+
+    public SVMTrainer(YaqpForm form) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+
+    public QSARModel train(Instances training_data) throws QSARException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
 }

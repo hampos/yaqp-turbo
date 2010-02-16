@@ -5,7 +5,7 @@
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of National Technical University of Athens. Please read README for more
+ * School of the National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -29,39 +29,34 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
+package org.opentox.www.rest;
 
-
-package org.opentox.qsar.processors.trainers;
-
-
-import java.util.Map;
-import org.opentox.ontology.util.AlgorithmParameter;
-import org.opentox.qsar.exceptions.QSARException;
-import org.opentox.www.rest.components.YaqpForm;
-import weka.core.Instances;
+import java.io.IOException;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import org.opentox.www.rest.components.YaqpApplication;
+import org.opentox.www.rest.resources.AlgorithmResource;
+import org.restlet.Context;
+import org.restlet.Restlet;
+import org.restlet.routing.Router;
 
 /**
- * This is just a step before implementation. Classes that extend WekaTrainer perform
- * training using <code>Weka</code> algorothms. 
+ *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public abstract class WekaTrainer extends AbstractTrainer<Instances>{
+final public class Applecation extends YaqpApplication {
 
-    public WekaTrainer(){
+    public Applecation() throws IOException {
         super();
+        Context.getCurrentLogger().addHandler(new FileHandler("application.log", true));
+        Context.getCurrentLogger().setLevel(Level.ALL);
     }
 
-    public WekaTrainer(Map<String, AlgorithmParameter> parameters) {
-        super(parameters);
+    @Override
+    public Restlet createInboundRoot() {
+        Router router = new YaqpRouter(this.getContext().createChildContext());
+        router.attach(AlgorithmResource.key, AlgorithmResource.class);
+        return router;
     }
-
-    public WekaTrainer(YaqpForm form) throws QSARException{
-     /* To be implemented in subclasses... */
-    }
-
-    
-
-
-
 }

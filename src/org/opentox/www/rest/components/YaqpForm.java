@@ -35,6 +35,7 @@ package org.opentox.www.rest.components;
 
 import java.util.Map;
 import org.restlet.data.Form;
+import org.restlet.representation.Representation;
 
 /**
  *
@@ -49,8 +50,14 @@ public class YaqpForm {
         form = new Form();
     }
 
+    public YaqpForm(YaqpRepresentation entity){
+        form = new Form(entity);
+    }
 
-
+    public YaqpForm(Representation entity){
+        form = new Form(entity);
+    }
+    
     public Map<String, String> getValuesMap() {
         return form.getValuesMap();
     }

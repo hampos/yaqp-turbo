@@ -35,6 +35,7 @@ import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -84,11 +85,9 @@ public class AlgorithmParameter<E extends Object> implements Serializable {
         this.paramScope = paramScope;
     }
 
+    
     private XSDDatatype javaXsdRelation(E o) {
-        try {
-            new URI(o.toString());
-            return XSDDatatype.XSDanyURI;
-        } catch (URISyntaxException ex) {
+        
             if (o instanceof Double) {
                 return XSDDatatype.XSDdouble;
             } else if (o instanceof Float) {
@@ -99,8 +98,10 @@ public class AlgorithmParameter<E extends Object> implements Serializable {
                 return XSDDatatype.XSDstring;
             } else if (o instanceof Long) {
                 return XSDDatatype.XSDlong;
+            } else if (o instanceof URI || o instanceof URL){
+                return XSDDatatype.XSDanyURI;
             }
-        }
+        
         return XSDDatatype.XSDstring;
     }
 }

@@ -245,16 +245,16 @@ public class Algorithm extends YaqpComponent {
                 table.addCell(it.next().getURI());
             }
             pdf.addElement(table);
-        } catch (DocumentException ex) {
+        } catch (final DocumentException ex) {
             YaqpLogger.LOG.log(new Warning(getClass(), "XCF316 - Pdf Exception :" + ex.toString()));
         }
         return pdf;
     }
 
     public static void main(String[] args) throws FileNotFoundException, YaqpException {
-        YaqpAlgorithms.SVM.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/svm.pdf")));
+        //YaqpAlgorithms.SVM.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/svm.pdf")));
         //YaqpAlgorithms.MLR.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/mlr.pdf")));
-        //YaqpAlgorithms.SVM.getRDF().write(System.out, "TURTLE");
+        YaqpAlgorithms.SVM.getTurtle().publish(new YaqpIOStream(System.out));
 
     }
 

@@ -65,7 +65,7 @@ public class AttributeCleanup extends InstancesFilter {
         this.toBeRemoved = new ATTRIBUTE_TYPE[]{ATTRIBUTE_TYPE.string};
     }
 
-    public AttributeCleanup(ATTRIBUTE_TYPE[] toBeRemoved) {
+    public AttributeCleanup(ATTRIBUTE_TYPE... toBeRemoved) {
         this.toBeRemoved = toBeRemoved;
     }
     public AttributeCleanup(ATTRIBUTE_TYPE toBeRemoved) {

@@ -14,6 +14,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opentox.db.util.TheDbConnector;
 import org.opentox.io.util.ServerList;
 import org.opentox.ontology.components.QSARModel;
 import org.opentox.ontology.util.AlgorithmParameter;
@@ -30,6 +31,7 @@ public class MLRTrainerTest {
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+        TheDbConnector.init();
     }
 
     @AfterClass
@@ -69,8 +71,11 @@ public class MLRTrainerTest {
         };
 
 
-        
-
+        train.run();
 
     }
+
+
+
+
 }

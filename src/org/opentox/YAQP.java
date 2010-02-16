@@ -31,14 +31,15 @@
  */
 package org.opentox;
 
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.opentox.config.Configuration;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.util.monitoring.Jennifer;
+import org.opentox.www.rest.Applecation;
+import org.opentox.www.rest.components.YaqpApplication;
+import org.restlet.Application;
+import org.restlet.Component;
+import org.restlet.data.Protocol;
 
 /**
  *
@@ -79,13 +80,12 @@ public class YAQP {
         Thread.sleep(20);
         System.out.print("*       ||_|  |_|\\____/\\\\|\n*");
     }
+                    
 
     private static void load() throws InterruptedException {
 
-
         System.out.print("\n* Loading YAQP modules       : ");
         fancyPrint("--.-.--.--.-.--.-...-..--..-.\t [ DONE ]\n", 10);
-
 
         System.out.print("* Initializing the database  : ");
         fancyPrint("--.--.-.--.", 60);
@@ -103,12 +103,22 @@ public class YAQP {
         fancyPrint("*\n* Server is up and accepts connections on port 3000!\n*\n", 10);
     }
 
+    private static void startWebServer() throws Exception{
+        Logger L = Logger.getLogger("grizzly");
+        L.setLevel(Level.ALL);
+        Applecation application = new Applecation();
+        Component component = new Component();
+        component.getServers().add(Protocol.HTTP, 3000);
+        application.setContext(component.getContext().createChildContext());
+        component.getDefaultHost().attach("", application);
+        component.start();
+    }
+
     public static void main(String args[]) throws Exception {
         logo();
         load();
-        Thread.sleep(3000);
-        Jennifer.INSTANCE.ressurect();
-        
-
+        startWebServer();
     }
+
+    
 }

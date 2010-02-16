@@ -38,6 +38,7 @@ package org.opentox.core.exceptions;
  */
 public enum Cause {
     // CONFIG:
+
     XA1, XA2, XA3,
     //BATCH PROCESSOR:
     XBP1, XBP2, XBP3, XBP7,
@@ -78,6 +79,9 @@ public enum Cause {
     XTC743,
     // QSAR-MLR
     XQM0, XQM00, XQM000, XQM1, XQM2, XQM3, XQM4,
+    XQM200, XQM201, XQM202,
+    XQM500, XQM501,
+    XQM711, XQM712,
     // QSAR - Filters
     XQF1, XQF11, XQF111, XQF212, XQF535, XQF913, XQF412
 }

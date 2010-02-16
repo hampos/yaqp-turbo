@@ -146,8 +146,8 @@ public class PDFObject implements JPublishable {
                 YaqpLogger.LOG.log(new Warning(getClass(), "YAQP Logo not found at " + kinkyDesignLogo + " :: " + ex));
             }
             doc.add(new Paragraph("\n\n\n"));
-            for (int i = 0; i < elements.size(); i++) {
-                doc.add(elements.get(i));
+            for (Element e : elements) {
+                doc.add(e);
             }
             doc.close();
         } catch (DocumentException ex) {
