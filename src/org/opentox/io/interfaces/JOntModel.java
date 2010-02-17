@@ -22,6 +22,7 @@
 package org.opentox.io.interfaces;
 
 import com.hp.hpl.jena.ontology.OntModel;
+import com.hp.hpl.jena.rdf.model.Model;
 import org.opentox.ontology.namespaces.YaqpOntEntity;
 
 /**
@@ -29,7 +30,7 @@ import org.opentox.ontology.namespaces.YaqpOntEntity;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public interface JOntModel extends OntModel, JPublishable {
+public interface JOntModel extends Model, OntModel, JPublishable {
 
     void printConsole();
 

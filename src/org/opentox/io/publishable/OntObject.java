@@ -34,6 +34,7 @@ package org.opentox.io.publishable;
 
 import com.hp.hpl.jena.ontology.OntModelSpec;
 import com.hp.hpl.jena.ontology.impl.OntModelImpl;
+import com.hp.hpl.jena.rdf.model.Model;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -62,6 +63,10 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
         super(OntModelSpec.OWL_DL_MEM, other);
     }
 
+    public OntObject(Model other){
+        super(OntModelSpec.OWL_DL_MEM, other);
+    }
+
     public OntObject(OntModelSpec spec){
         super(spec);
     }
@@ -84,7 +89,7 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
         ont_entity.createOntClass(this);
     }
 
-    public void includeOntClasses(YaqpOntEntity[] ont_entities){
+    public void includeOntClasses(YaqpOntEntity... ont_entities){
         if (ont_entities!=null){
             for (int i = 0 ; i<ont_entities.length ; i++){
                 this.includeOntClass(ont_entities[i]);
@@ -94,7 +99,7 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
         }
     }
 
-    public void createAnnotationProperties(String[] annotation_uris){
+    public void createAnnotationProperties(String... annotation_uris){
         if (annotation_uris!=null){
             for (int i=0;i<annotation_uris.length;i++){
                 createAnnotationProperty(annotation_uris[i]);
@@ -105,7 +110,7 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
         }
     }
 
-    public void createDataTypeProperties(String[] datatype_uris){
+    public void createDataTypeProperties(String... datatype_uris){
         if (datatype_uris!=null){
             for (int i=0;i<datatype_uris.length;i++){
                 createAnnotationProperty(datatype_uris[i]);
@@ -116,7 +121,7 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
         }
     }
 
-    public void createObjectProperties(String[] object_uris){
+    public void createObjectProperties(String... object_uris){
         if (object_uris!=null){
             for (int i=0;i<object_uris.length;i++){
                 createObjectProperty(object_uris[i]);
@@ -127,7 +132,7 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
         }
     }
 
-    public void createSymmetricProperties(String[] symmetric_uris){
+    public void createSymmetricProperties(String... symmetric_uris){
         if (symmetric_uris!=null){
             for (int i=0;i<symmetric_uris.length;i++){
                 createSymmetricProperty(symmetric_uris[i]);
@@ -138,7 +143,7 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
         }
     }
 
-    public void createTransitiveProperties(String[] transitive_uris){
+    public void createTransitiveProperties(String... transitive_uris){
         if (transitive_uris!=null){
             for (int i=0;i<transitive_uris.length;i++){
                 createTransitiveProperty(transitive_uris[i]);

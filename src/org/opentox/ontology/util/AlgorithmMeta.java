@@ -32,6 +32,7 @@
 package org.opentox.ontology.util;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 
@@ -51,15 +52,15 @@ public class AlgorithmMeta extends Meta {
      * because <code>OTAlgorithmType</code> contains references to <code>Resource</code>
      * which could not be serialized.
      */
-    private transient OTAlgorithmTypes algorithmType;
+    private transient OTAlgorithmTypes algorithmType = OTAlgorithmTypes.AlgorithmType;
     /**
      * List of parameters for the algorithm
      */
-    private Map<String, AlgorithmParameter> parameters;
+    private Map<String, AlgorithmParameter> parameters = new HashMap<String, AlgorithmParameter>();
     /**
      * The name of the algorithm
      */
-    private String name;
+    private String name = "";
 
     public AlgorithmMeta() {
         super();

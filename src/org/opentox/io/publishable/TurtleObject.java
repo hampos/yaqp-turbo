@@ -31,6 +31,7 @@
  */
 package org.opentox.io.publishable;
 
+import com.hp.hpl.jena.rdf.model.Model;
 import java.io.OutputStream;
 import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.io.util.YaqpIOStream;
@@ -46,6 +47,10 @@ public class TurtleObject extends OntObject {
 
     public TurtleObject() {
         super();
+    }
+
+    public TurtleObject(Model other) {
+        super(other);
     }
 
     public TurtleObject(OntObject other) {

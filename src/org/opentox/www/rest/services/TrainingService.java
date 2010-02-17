@@ -143,7 +143,7 @@ public class TrainingService implements Callable<Representation> {
                 + "ALGORITHM              :" + model.getAlgorithm().getMeta().getName() + "\n"
                 + "DEPENDENT FEATURE      :" + model.getDependentFeature().getURI() + "\n"
                 + "AN INDEPENDENT FEATURE :" + model.getIndependentFeatures().get(2).getURI() + "\n"
-                + "GAMMA                 :" + model.getParams().get(ConstantParameters.gamma).paramValue.toString() + "\n"
+                //+ "GAMMA                  :" + model.getParams().get(ConstantParameters.gamma).paramValue.toString() + "\n"
                 + "MODEL STATUS           :" + model.getModelStatus().toString() + "\n"
                 );
 

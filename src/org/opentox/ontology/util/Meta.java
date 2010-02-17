@@ -34,6 +34,7 @@ package org.opentox.ontology.util;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import org.opentox.config.Configuration;
 import org.opentox.ontology.util.vocabulary.Audience;
@@ -136,7 +137,7 @@ public class Meta implements Serializable {
      * W3CDTF profile of ISO 8601 [W3CDTF].
      * @see http://www.w3.org/TR/NOTE-datetime
      */
-    public Date date;
+    public Date date = GregorianCalendar.getInstance().getTime();
     /**
      *
      * The file format, physical medium, or dimensions of the resource. Examples of

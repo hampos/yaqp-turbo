@@ -41,6 +41,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.ontology.components.User;
+import org.opentox.qsar.processors.trainers.classification.NaiveBayesTrainer;
+import org.opentox.qsar.processors.trainers.classification.SVCTrainer;
 import org.opentox.qsar.processors.trainers.regression.MLRTrainer;
 import org.opentox.qsar.processors.trainers.regression.SVMTrainer;
 import org.opentox.www.rest.components.YaqpForm;
@@ -88,14 +90,14 @@ public class AlgorithmResource extends YaqpResource {
     @Override
     protected Representation post(Representation entity, Variant variant) throws ResourceException {
         try {
-            return new TrainingService(new YaqpForm(entity), new User(), SVMTrainer.class, MediaType.TEXT_PLAIN).call();
+            return new TrainingService(new YaqpForm(entity), new User(), SVCTrainer.class, MediaType.TEXT_PLAIN).call();
         } catch (YaqpException ex) {
             getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            return new StringRepresentation(ex.toString()+"\n");
+            return new StringRepresentation(ex.toString() + "\n");
         } catch (Exception ex) {
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
             Logger.getLogger(AlgorithmResource.class.getName()).log(Level.SEVERE, null, ex);
-            return new StringRepresentation(ex.toString()+"\n");
+            return new StringRepresentation(ex.toString() + "\n");
         }
 
     }

@@ -31,6 +31,7 @@
  */
 package org.opentox.io.publishable;
 
+import com.hp.hpl.jena.rdf.model.Model;
 import java.io.OutputStream;
 import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.io.util.YaqpIOStream;
@@ -56,6 +57,11 @@ public class RDFObject extends OntObject {
         super(other);
     }
 
+    public RDFObject(Model other) {
+        super(other);
+    }
+
+    
     public void publish(YaqpIOStream stream) throws YaqpIOException {
         if (stream == null) {
             throw new NullPointerException("Cannot publish an RDF document to a null stream");
