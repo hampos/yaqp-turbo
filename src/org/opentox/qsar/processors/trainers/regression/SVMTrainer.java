@@ -34,15 +34,20 @@ package org.opentox.qsar.processors.trainers.regression;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.opentox.config.ServerFolders;
 import org.opentox.core.exceptions.Cause;
+import org.opentox.ontology.components.Feature;
 import org.opentox.ontology.components.QSARModel;
+import org.opentox.ontology.components.QSARModel.ModelStatus;
 import org.opentox.ontology.util.AlgorithmParameter;
+import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.ontology.util.vocabulary.ConstantParameters;
 import org.opentox.qsar.exceptions.QSARException;
 import org.opentox.qsar.processors.filters.AttributeCleanup;
@@ -64,7 +69,7 @@ import weka.core.converters.ArffSaver;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class SVMTrainer extends WekaTrainer {
+final public class SVMTrainer extends WekaTrainer {
 
     /**
      * The parameter gamma
@@ -109,7 +114,8 @@ public class SVMTrainer extends WekaTrainer {
 
     public SVMTrainer(final YaqpForm form) throws QSARException {
         super(form);
-
+        
+        
         // CHECK GAMMA
         try {
             if (form.getFirstValue(ConstantParameters.gamma) != null) {
@@ -124,6 +130,7 @@ public class SVMTrainer extends WekaTrainer {
             throw new QSARException(Cause.XQSVM3001, "Parameter gamma should be numeric. "
                     + "You provided the illegal value : {" + form.getFirstValue(ConstantParameters.gamma) + "}", ex);
         }
+        putParameter(ConstantParameters.gamma, new AlgorithmParameter((double)gamma));
 
         // CHECK COST
         try {
@@ -140,6 +147,7 @@ public class SVMTrainer extends WekaTrainer {
                     + "You provided the illegal "
                     + "value : {" + form.getFirstValue(ConstantParameters.cost) + "}", ex);
         }
+        putParameter(ConstantParameters.cost, new AlgorithmParameter(cost));
 
         // CHECK EPSILON
         try {
@@ -157,6 +165,7 @@ public class SVMTrainer extends WekaTrainer {
                     + "You provided the illegal "
                     + "value : {" + form.getFirstValue(ConstantParameters.epsilon) + "}", ex);
         }
+        putParameter(ConstantParameters.epsilon, new AlgorithmParameter(epsilon));
 
 
         // CHECK COEFF_0
@@ -169,6 +178,7 @@ public class SVMTrainer extends WekaTrainer {
                     + "You provided the illegal "
                     + "value : {" + form.getFirstValue(ConstantParameters.coeff0) + "}", ex);
         }
+        putParameter(ConstantParameters.coeff0, new AlgorithmParameter(coeff0));
 
 
         // CHECK CACHE SIZE
@@ -181,6 +191,7 @@ public class SVMTrainer extends WekaTrainer {
                     + "You provided the illegal "
                     + "value : {" + form.getFirstValue(ConstantParameters.cacheSize) + "}", ex);
         }
+        putParameter(ConstantParameters.cacheSize, new AlgorithmParameter(cacheSize));
 
 
         // CHECK DEGREE
@@ -193,6 +204,7 @@ public class SVMTrainer extends WekaTrainer {
                     + "You provided the illegal "
                     + "value : {" + form.getFirstValue(ConstantParameters.degree) + "}", ex);
         }
+        putParameter(ConstantParameters.degree, new AlgorithmParameter(degree));
 
 
         // CHECK TOLERANCE
@@ -210,6 +222,7 @@ public class SVMTrainer extends WekaTrainer {
             throw new QSARException(Cause.XQSVM3010, "Parameter " + ConstantParameters.tolerance + " should be numeric. "
                     + "You provided the illegal value : {" + form.getFirstValue(ConstantParameters.tolerance) + "}", ex);
         }
+        putParameter(ConstantParameters.tolerance, new AlgorithmParameter(tolerance));
 
 
 
@@ -222,6 +235,8 @@ public class SVMTrainer extends WekaTrainer {
                         "the illegal value : {"+kernel+"}");
             }
         }
+        putParameter(ConstantParameters.kernel, new AlgorithmParameter(kernel));
+
 
     }
 
@@ -328,8 +343,30 @@ public class SVMTrainer extends WekaTrainer {
             throw new QSARException(Cause.XQSVM350, "Unexpected condition while trying to train "
                     + "an SVM model. Possible explanation : {" + ex.getMessage() + "}", ex);
         }
+
+
         QSARModel model = new QSARModel();
+
+
+        model.setParams(getParameters());
         model.setCode(uuid.toString());
+        model.setAlgorithm(YaqpAlgorithms.SVM);
+        model.setDataset(datasetUri);
+        model.setModelStatus(ModelStatus.UNDER_DEVELOPMENT);
+
+        ArrayList<Feature> independentFeatures = new ArrayList<Feature>();
+        for (int i = 0; i < data.numAttributes(); i++) {
+            Feature f = new Feature(data.attribute(i).name());
+            if (data.classIndex() != i) {
+                independentFeatures.add(f);
+            }
+        }
+
+        Feature dependentFeature = new Feature(data.classAttribute().name());
+        Feature predictedFeature = dependentFeature;
+        model.setDependentFeature(dependentFeature);
+        model.setIndependentFeatures(independentFeatures);
+        model.setPredictionFeature(predictedFeature);
         tempFile.delete();
         return model;
     }

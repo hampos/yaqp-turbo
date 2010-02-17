@@ -104,6 +104,7 @@ public class YAQP {
         fancyPrint("*\n* Server is up and accepts connections on port 3000!\n*\n", 10);
     }
 
+    
     private static final void startHttpServer() throws Exception{
          Logger L = Logger.getLogger("grizzly");
         L.setLevel(Level.ALL);

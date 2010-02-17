@@ -31,22 +31,31 @@
  */
 package org.opentox.qsar.processors.trainers.classification;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Map;
+import org.opentox.config.ServerFolders;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.ontology.components.QSARModel;
 import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.vocabulary.ConstantParameters;
 import org.opentox.qsar.exceptions.QSARException;
+import org.opentox.qsar.processors.filters.AttributeCleanup;
+import org.opentox.qsar.processors.filters.AttributeCleanup.ATTRIBUTE_TYPE;
+import org.opentox.qsar.processors.filters.SimpleMVHFilter;
 import org.opentox.qsar.processors.trainers.WekaTrainer;
 import org.opentox.www.rest.components.YaqpForm;
+import weka.core.Attribute;
 import weka.core.Instances;
+import weka.core.converters.ArffSaver;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class SVCTrainer extends WekaTrainer {
+public final class SVCTrainer extends WekaTrainer {
 
     /**
      * The parameter gamma
@@ -87,7 +96,7 @@ public class SVCTrainer extends WekaTrainer {
         super();
     }
 
-    public SVCTrainer(YaqpForm form) throws QSARException {
+    public SVCTrainer(final YaqpForm form) throws QSARException {
         super(form);
 
 
@@ -189,7 +198,7 @@ public class SVCTrainer extends WekaTrainer {
     }
     
 
-    public QSARModel train(Instances training_data) throws QSARException {
+    public QSARModel train(Instances data) throws QSARException {
         // Will be ready on Wed Feb 17...
         //
         // An extra check should be performed on whether the provided prediction
@@ -199,6 +208,63 @@ public class SVCTrainer extends WekaTrainer {
         // a classification model because it does not contain any nominal features').
         // Or in case a client choses a non-nominal feature for the classifier,
         // provide a list of some available nominal features.
+
+        if (data == null) throw new NullPointerException("Cannot train an SVC model without data");
+
+        /* The incoming dataset always has the first attribute set to
+        'compound_uri' which is of type "String". This is removed at the
+        begining of the training procedure */
+        AttributeCleanup filter = new AttributeCleanup(ATTRIBUTE_TYPE.string);
+        // NOTE: Removal of string attributes should be always performed prior to any kind of training!
+        data = filter.filter(data);
+        SimpleMVHFilter fil = new SimpleMVHFilter();
+        data = fil.filter(data);
+
+        // CHECK IF THE GIVEN URI IS AN ATTRIBUTE OF THE DATASET
+        Attribute classAttribute = data.attribute(predictionFeature);
+        if (classAttribute == null) {
+            throw new QSARException(Cause.XQM202,
+                    "The prediction feature you provided is not a valid numeric attribute of the dataset :{"
+                    + predictionFeature + "}");
+        }
+
+        // CHECK IF THE DATASET CONTAINS ANY NOMINAL ATTRIBUTES
+        if (data.checkForAttributeType(Attribute.NOMINAL)){
+            throw new QSARException(Cause.XQSVC4040, "Improper dataset! The dataset you provided has no " +
+                    "nominal features therefore classification models cannot be built.");
+        }
+
+        // CHECK OF THE CLASS ATTRIBUTE IS NOMINAL
+        if (!classAttribute.isNominal()){
+            throw new QSARException(Cause.XQSVC4041, "The prediction feature you provided " +
+                    "is not a nominal");
+        }
+
+        // SET THE CLASS ATTRIBUTE OF THE DATASET
+        data.setClass(classAttribute);
+
+        // GET A UUID AND DEFINE THE TEMPORARY FILE WHERE THE TRAINING DATA
+        // ARE STORED IN ARFF FORMAT PRIOR TO TRAINING.
+        final String rand = java.util.UUID.randomUUID().toString();
+        final String temporaryFilePath = ServerFolders.temp +"/"+rand+ ".arff";
+        final File tempFile = new File(temporaryFilePath);
+
+        // SAVE THE DATA IN THE TEMPORARY FILE
+        try {
+            ArffSaver dataSaver = new ArffSaver();
+            dataSaver.setInstances(data);
+            dataSaver.setDestination(new FileOutputStream(tempFile));
+            dataSaver.writeBatch();
+        } catch (final IOException ex) {/*
+                                         * The content of the dataset cannot be
+                                         * written to the destination file due to
+                                         * some communication issue.
+                                         */
+            tempFile.delete();
+            throw new RuntimeException("Unexpected condition while trying to save the " +
+                    "dataset in a temporary ARFF file", ex);
+        }
+
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

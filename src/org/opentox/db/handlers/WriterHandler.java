@@ -338,7 +338,7 @@ import org.opentox.util.logging.levels.*;
                 try {
                     feature.setId(ReaderHandler.searchFeature(new Feature(feature.getURI()) , 0 , 0).get(0).getID());
                 } catch (DbException ex1) {// in this case feature failed to be added but is not in the DB either!
-                    throw new DbException(Cause.XDB3238, "Error ");
+                    throw new DbException(Cause.XDB3238, "Error {"+ex1+"}", ex1);
                 }
             }
         }

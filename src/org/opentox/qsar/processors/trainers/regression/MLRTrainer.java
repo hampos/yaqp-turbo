@@ -32,6 +32,7 @@
 package org.opentox.qsar.processors.trainers.regression;
 
 import java.io.BufferedWriter;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URI;
@@ -235,42 +236,24 @@ public class MLRTrainer extends WekaTrainer {
             throw new QSARException(Cause.XQM2, message, ex);
         }
 
-
         ArrayList<Feature> independentFeatures = new ArrayList<Feature>();
         for (int i = 0; i < data.numAttributes(); i++) {
             Feature f = new Feature(data.attribute(i).name());
-            try {
-                f = (Feature) WriterHandler.add(f);
-            } catch (final YaqpException ex) {
-            }
             if (data.classIndex() != i) {
                 independentFeatures.add(f);
             }
         }
+
         Feature dependentFeature = new Feature(data.classAttribute().name());
         Feature predictedFeature = dependentFeature;
-        try {
-            WriterHandler.add(dependentFeature);
-        } catch (final YaqpException ex) {
-        }
 
-        try {
-            User u = new User();
-            u.setEmail("makis@foo.goo.gr");
-            QSARModel model = new QSARModel(
-                    uuid.toString(), predictedFeature, dependentFeature,
-                    independentFeatures, YaqpAlgorithms.MLR,
-                    u, null, datasetUri, ModelStatus.UNDER_DEVELOPMENT);
-            model.setParams(new HashMap<String, AlgorithmParameter>());
-            try {
-                model = (QSARModel) WriterHandler.add(model);
-            } catch (DbException ex) {
-                System.out.println("Exception Caught!" + ex);
-            }
-            return model;
-        } catch (final YaqpException ex) {
-            throw new QSARException();
-        }
+        QSARModel model = new QSARModel(
+                uuid.toString(), predictedFeature, dependentFeature,
+                independentFeatures, YaqpAlgorithms.MLR,
+                new User(), null, datasetUri, ModelStatus.UNDER_DEVELOPMENT);
+        model.setParams(new HashMap<String, AlgorithmParameter>());
+
+        return model;
 
     }
 
@@ -282,8 +265,8 @@ public class MLRTrainer extends WekaTrainer {
      * TODO: build the XML using some XML editor
      */
     // <editor-fold defaultstate="collapsed" desc="PMML generation routine!">
-    private void generatePMML(LinearRegression wekaModel, Instances data) throws YaqpIOException {
-        double[] coefficients = wekaModel.coefficients();
+    private void generatePMML(final LinearRegression wekaModel, final Instances data) throws YaqpIOException {
+        final double[] coefficients = wekaModel.coefficients();
         StringBuilder pmml = new StringBuilder();
         pmml.append("<?xml version=\"1.0\" ?>");
         pmml.append(PMMLIntro);

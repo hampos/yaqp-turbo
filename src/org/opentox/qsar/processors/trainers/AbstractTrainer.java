@@ -53,7 +53,7 @@ import org.opentox.www.rest.components.YaqpForm;
  */
 public abstract class AbstractTrainer<Input> extends Processor<Input, QSARModel> implements JTrainer<Input, QSARModel> {
 
-    private Map<String, AlgorithmParameter> parameters;
+    private Map<String, AlgorithmParameter> parameters = new HashMap<String, AlgorithmParameter>();
 
      /**
      * The URI of the prediction feature (class attribute or target attribute) accoeding
@@ -110,14 +110,13 @@ public abstract class AbstractTrainer<Input> extends Processor<Input, QSARModel>
         this.predictionFeature = form.getFirstValue(ConstantParameters.prediction_feature);
         if (datasetUri == null ) throw new QSARException(Cause.XQM500, "The parameter "+ConstantParameters.dataset_uri+" was not specified");
         if (predictionFeature == null ) throw new QSARException(Cause.XQM501, "The parameter "+ConstantParameters.prediction_feature+" was not specified");
-        Map<String, AlgorithmParameter> m = new HashMap<String, AlgorithmParameter>(2);
         try {
-            m.put(ConstantParameters.prediction_feature, new AlgorithmParameter(new URI(this.predictionFeature)));
+            putParameter(ConstantParameters.prediction_feature, new AlgorithmParameter(new URI(this.predictionFeature)));
         } catch (URISyntaxException ex) {
             throw new QSARException(Cause.XQM711, "Invalid URI for prediction feature {" + predictionFeature + "}", ex);
         }
         try {
-            m.put(ConstantParameters.dataset_uri, new AlgorithmParameter(new URI(this.datasetUri)));
+            putParameter(ConstantParameters.dataset_uri, new AlgorithmParameter(new URI(this.datasetUri)));
         } catch (URISyntaxException ex) {
             throw new QSARException(Cause.XQM712, "Invalid URI for dataset {" + datasetUri + "}", ex);
         }
@@ -133,7 +132,13 @@ public abstract class AbstractTrainer<Input> extends Processor<Input, QSARModel>
         this.parameters = parameters;
     }
 
+    public void putParameter(String paramName, AlgorithmParameter parameter){
+        this.parameters.put(paramName, parameter);
+    }
+
     public QSARModel process(Input data) throws YaqpException {
+        if (data == null) throw new NullPointerException("Cannot training a model if " +
+                "no input (training) data are provided");
         return train(data);
     }
 }

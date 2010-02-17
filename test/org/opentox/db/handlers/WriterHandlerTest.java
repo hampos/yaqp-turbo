@@ -42,6 +42,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
+import org.opentox.db.DatabaseJanitor;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
 import org.opentox.db.exceptions.BadEmailException;
@@ -70,7 +71,7 @@ public class WriterHandlerTest {
     @BeforeClass
     public static void setUpClass() throws Exception {
         TheDbConnector.init();
-        Jennifer.INSTANCE.resetDBContent();
+        DatabaseJanitor.INSTANCE.reset();
     }
 
     @AfterClass
@@ -375,6 +376,7 @@ public class WriterHandlerTest {
             assertTrue(feature.getURI().equals(feature_uri));
         } catch (DbException ex) {
             fail("SHOULD NOT HAVE FAILED!");
+            System.out.println(ex);
         }
     }
 

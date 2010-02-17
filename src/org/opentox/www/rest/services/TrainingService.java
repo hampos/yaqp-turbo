@@ -137,7 +137,15 @@ public class TrainingService implements Callable<Representation> {
 
         final QSARModel model = (QSARModel) trainingPipe.process(new URI(form.getFirstValue(ConstantParameters.dataset_uri)));
 
-        return new StringRepresentation(model.getCode() + "\n");
+        return new StringRepresentation(
+                  "CODE                   :" + model.getCode() + "\n"
+                + "DATASET                :" + model.getDataset() + "\n"
+                + "ALGORITHM              :" + model.getAlgorithm().getMeta().getName() + "\n"
+                + "DEPENDENT FEATURE      :" + model.getDependentFeature().getURI() + "\n"
+                + "AN INDEPENDENT FEATURE :" + model.getIndependentFeatures().get(2).getURI() + "\n"
+                + "GAMMA                 :" + model.getParams().get(ConstantParameters.gamma).paramValue.toString() + "\n"
+                + "MODEL STATUS           :" + model.getModelStatus().toString() + "\n"
+                );
 
 
     }
