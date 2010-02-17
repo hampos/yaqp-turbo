@@ -52,12 +52,12 @@ public abstract class WekaTrainer extends AbstractTrainer<Instances>{
         super();
     }
 
-    public WekaTrainer(Map<String, AlgorithmParameter> parameters) {
+    public WekaTrainer(final Map<String, AlgorithmParameter> parameters) throws QSARException {
         super(parameters);
     }
 
-    public WekaTrainer(YaqpForm form) throws QSARException{
-     /* To be implemented in subclasses... */
+    public WekaTrainer(final YaqpForm form) throws QSARException{
+     super(form);
     }
 
     

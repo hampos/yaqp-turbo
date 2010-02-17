@@ -37,13 +37,18 @@ import com.hp.hpl.jena.ontology.impl.OntModelImpl;
 import com.hp.hpl.jena.vocabulary.OWL;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.core.exceptions.YaqpException;
+import org.opentox.ontology.components.User;
 import org.opentox.qsar.processors.trainers.regression.MLRTrainer;
+import org.opentox.qsar.processors.trainers.regression.SVMTrainer;
 import org.opentox.www.rest.components.YaqpForm;
 import org.opentox.www.rest.components.YaqpResource;
 import org.opentox.www.rest.services.Trainers;
 import org.opentox.www.rest.services.TrainingService;
 import org.restlet.data.MediaType;
+import org.restlet.data.Status;
 import org.restlet.representation.OutputRepresentation;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -58,7 +63,6 @@ import org.restlet.resource.ResourceException;
 public class AlgorithmResource extends YaqpResource {
 
     public static final String key = "/algorithm/a";
-
 
     @Override
     protected void doInit() throws ResourceException {
@@ -81,16 +85,17 @@ public class AlgorithmResource extends YaqpResource {
         };
     }
 
-
-
     @Override
     protected Representation post(Representation entity, Variant variant) throws ResourceException {
         try {
-            return new TrainingService(new YaqpForm(entity), null, MLRTrainer.class, MediaType.TEXT_PLAIN).call();
+            return new TrainingService(new YaqpForm(entity), new User(), SVMTrainer.class, MediaType.TEXT_PLAIN).call();
         } catch (YaqpException ex) {
-            return new StringRepresentation(ex.toString());
+            getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+            return new StringRepresentation(ex.toString()+"\n");
         } catch (Exception ex) {
-            return new StringRepresentation(ex.toString());
+            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+            Logger.getLogger(AlgorithmResource.class.getName()).log(Level.SEVERE, null, ex);
+            return new StringRepresentation(ex.toString()+"\n");
         }
 
     }

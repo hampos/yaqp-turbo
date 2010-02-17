@@ -210,7 +210,7 @@ public class WriterHandlerTest {
                     new User(
                     "john", java.util.UUID.randomUUID().toString(), "john", "smith",
                     "john@foo.goo.gr", null, "Italy",
-                    "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, 
+                    "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null,
                     new UserGroup("GUEST", 0,"CCC", "CCC", "CCC" , "CCC", 3000)));
 
         } catch (DuplicateKeyException ex) {
@@ -225,7 +225,7 @@ public class WriterHandlerTest {
     public void noUsername() {
         System.out.println("user - test 2");
         try {
-            WriterHandler.add(new User(null, java.util.UUID.randomUUID().toString(), "john", "smith", "john@foo.goo.gr", null, "Italy", "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, 
+            WriterHandler.add(new User(null, java.util.UUID.randomUUID().toString(), "john", "smith", "john@foo.goo.gr", null, "Italy", "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null,
                     new UserGroup("GUEST", 0,"CCC", "CCC", "CCC" , "CCC", 3000)));
             fail("SHOULD HAVE FAILED!");
         } catch (DbException ex) {
@@ -240,7 +240,7 @@ public class WriterHandlerTest {
     public void noPassWord() {
         System.out.println("user - test 3");
         try {
-            WriterHandler.add(new User("john", null, "john", "smith", "john@foo.goo.gr", null, "Italy", "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, 
+            WriterHandler.add(new User("john", null, "john", "smith", "john@foo.goo.gr", null, "Italy", "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null,
                     new UserGroup("GUEST", 0,"CCC", "CCC", "CCC" , "CCC", 3000)));
             fail("SHOULD HAVE FAILED!");
         } catch (DbException ex) {
@@ -255,7 +255,7 @@ public class WriterHandlerTest {
     public void noAddress() {
         System.out.println("user - test 4");
         try {
-            WriterHandler.add(new User("mike", java.util.UUID.randomUUID().toString(), "mike", "williams", "mike@foo.goo.gr", null, "Greece", "Larisa", null, "https://opentox.ntua.gr/abc", null, 
+            WriterHandler.add(new User("mike", java.util.UUID.randomUUID().toString(), "mike", "williams", "mike@foo.goo.gr", null, "Greece", "Larisa", null, "https://opentox.ntua.gr/abc", null,
                     new UserGroup("GUEST", 0,"CCC", "CCC", "CCC" , "CCC", 3000)));
         } catch (Exception ex) {
             fail();
@@ -270,7 +270,7 @@ public class WriterHandlerTest {
                     new User(
                     "john", java.util.UUID.randomUUID().toString(), "john", "smith",
                     "john@foo.goo.gr", null, "Italy",
-                    "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null, 
+                    "Roma", "15, Efi Sarri st.", "https://opentox.ntua.gr/abc", null,
                     new UserGroup("GUEST", 0,"CCC", "CCC", "CCC" , "CCC", 3000)));
             fail("SHOULD HAVE FAILED!");
         } catch (DbException ex) {
@@ -288,7 +288,7 @@ public class WriterHandlerTest {
                     new User(
                     "flash", java.util.UUID.randomUUID().toString(), "flash", "gordon",
                     "iDontGiveYouMyEmail", null, "Chung",
-                    null, null, null, null, 
+                    null, null, null, null,
                     new UserGroup("GUEST", 0,"CCC", "CCC", "CCC" , "CCC", 3000)));
             fail("SHOULD HAVE FAILED!");
         } catch (DbException ex) {
@@ -347,9 +347,9 @@ public class WriterHandlerTest {
         try {
             WriterHandler.add(a);
             fail("SHOULD HAVE FAILED!");
-        } catch (Exception ex) {
-            assertTrue(ex instanceof NullPointerException);
-            assertTrue(ex.getMessage().contains("algorithm with unknown metadata"));
+        } catch (YaqpException ex) {
+            assertTrue(ex instanceof DbException);
+            assertEquals(ex.getCode(), Cause.XDB3235);
         }
     }
 
@@ -550,7 +550,7 @@ public class WriterHandlerTest {
         }
     }
 
-    
+
     @Test
     public void addsvmModel_badParams() {
         System.out.println("SVM Model - test 2");
@@ -561,7 +561,7 @@ public class WriterHandlerTest {
             lf.add(f);
             QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "http://dataset.com/1", null);
             Map<String, AlgorithmParameter> temp = ConstantParameters.SVMParams();
-            temp.remove("gamma"); 
+            temp.remove("gamma");
             temp.put("gamma", new AlgorithmParameter(-1));
             m.setParams(temp);
             m = (QSARModel) WriterHandler.add(m);
@@ -586,7 +586,7 @@ public class WriterHandlerTest {
             Map<String, AlgorithmParameter> temp = ConstantParameters.SVMParams();
             temp.remove("gamma"); // gamma is missing but a default value replaces it!
             m.setParams(temp);
-            m = (QSARModel) WriterHandler.add(m);   
+            m = (QSARModel) WriterHandler.add(m);
             assertTrue(m.getId()>0);
         } catch (DbException ex) {
             fail();
@@ -696,7 +696,7 @@ public class WriterHandlerTest {
         }
     }
 
-    
+
 }
 
 

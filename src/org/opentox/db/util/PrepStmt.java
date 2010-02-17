@@ -399,7 +399,7 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("UID_MIN", Integer.class),
         new QueryParam("UID_MAX", Integer.class),
         new QueryParam("URI", String.class),
-        new QueryParam("OFFSET", Integer.class),
+        new QueryParam("O                    PolyKernel linear_kernel = new PolyKernel();FFSET", Integer.class),
         new QueryParam("ROWS", Integer.class)
     }),
 

@@ -32,14 +32,14 @@
 package org.opentox;
 
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.opentox.config.Configuration;
-import org.opentox.db.handlers.ReaderHandler;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.util.monitoring.Jennifer;
+import org.opentox.www.rest.Applecation;
+import org.opentox.www.rest.components.YaqpApplication;
+import org.restlet.Component;
+import org.restlet.data.Protocol;
 
 /**
  *
@@ -104,9 +104,21 @@ public class YAQP {
         fancyPrint("*\n* Server is up and accepts connections on port 3000!\n*\n", 10);
     }
 
+    private static final void startHttpServer() throws Exception{
+         Logger L = Logger.getLogger("grizzly");
+        L.setLevel(Level.ALL);
+        YaqpApplication application = new Applecation();
+        Component component = new Component();
+        component.getServers().add(Protocol.HTTP, 3000);
+        application.setContext(component.getContext().createChildContext());
+        component.getDefaultHost().attach("", application);
+        component.start();
+    }
+
     public static void main(String args[]) throws Exception {
         logo();
         load();
+        startHttpServer();
        // Thread.sleep(3000);
        // Jennifer.INSTANCE.ressurect();
 

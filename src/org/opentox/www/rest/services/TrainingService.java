@@ -86,7 +86,7 @@ public class TrainingService implements Callable<Representation> {
      */
     public TrainingService(YaqpForm form, User user, Class<? extends JTrainer> trainer, MediaType outputMedia)  {
         if (form == null ) throw new NullPointerException("Form must be null");
-        if (user == null) throw new NullPointerException("User must be null");
+        if (user == null) throw new NullPointerException("User must not be null");
         if (trainer == null) throw new NullPointerException("The trainer must not be null");
         if (outputMedia == null) outputMedia = MediaType.TEXT_PLAIN;
         this.form = form;
@@ -142,6 +142,5 @@ public class TrainingService implements Callable<Representation> {
 
     }
 
-    public static void main(String[] args) {
-    }
+
 }

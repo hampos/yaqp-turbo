@@ -249,11 +249,13 @@ public class QSARModel extends YaqpComponent {
 
 
 
+    // TODO: Implement this method ASAP (due for Feb 17)!
     @Override
     public PDFObject getPDF() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    // TODO: Implement this method ASAP (due for Feb 17)!
     @Override
     public RDFObject getRDF() {
         throw new UnsupportedOperationException("Not supported yet.");

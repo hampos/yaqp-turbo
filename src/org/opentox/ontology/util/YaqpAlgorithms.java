@@ -148,7 +148,7 @@ public class YaqpAlgorithms {
         // TODO: Provide a reference for SVM Regression
         meta.description =
                 "Algorithm for training regression models using the Support Vector "
-                + "Machine Learning Model. The training is based on the Weka implementation of "
+                + "Machine Learning Algorithm. The training is based on the Weka implementation of "
                 + "SVM and specifically the class weka.classifiers.functions.SVMreg. A comprehensive introductory text "
                 + "is provided by John Shawe-Taylor & Nello Cristianin in the book 'Support Vector Machines', "
                 + "Cambridge University Press, 2000";
@@ -189,8 +189,8 @@ public class YaqpAlgorithms {
         // TODO: Provide a reference for SVM Regression
         meta.description =
                 "Algorithm for training classification models using the Support Vector "
-                + "Machine Learning Model. The training is based on the Weka implementation of "
-                + "SVM and specifically the class weka.classifiers.functions.SVMreg. A comprehensive introductory text "
+                + "Machine Learning algorithm. The training is based on the Weka implementation of "
+                + "SVM and specifically the class weka.classifiers.functions.SMO. A comprehensive introductory text "
                 + "is provided by John Shawe-Taylor & Nello Cristianin in the book 'Support Vector Machines', "
                 + "Cambridge University Press, 2000";
         meta.subject =

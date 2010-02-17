@@ -252,8 +252,10 @@ public class Algorithm extends YaqpComponent {
     }
 
     public static void main(String[] args) throws FileNotFoundException, YaqpException {
-        //YaqpAlgorithms.SVM.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/svm.pdf")));
-        //YaqpAlgorithms.MLR.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/mlr.pdf")));
+        YaqpAlgorithms.SVM.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/svm.pdf")));
+        YaqpAlgorithms.SVC.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/svc.pdf")));
+        YaqpAlgorithms.MLR.getPDF().publish(new YaqpIOStream(new FileOutputStream("/home/chung/Desktop/mlr.pdf")));
+
         YaqpAlgorithms.SVM.getTurtle().publish(new YaqpIOStream(System.out));
 
     }

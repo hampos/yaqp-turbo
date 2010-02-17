@@ -62,9 +62,9 @@ public class Configuration {
         try {
             properties = new Properties();
             if (System.getProperty("os.name").contains("Linux")) {
-                properties.load(new FileInputStream("src/org/opentox/config/server.properties"));
+                properties.load(new FileInputStream("config/server.properties"));
             } else if (System.getProperty("os.name").contains("Mac OS")) {
-                properties.load(new FileInputStream("src/org/opentox/config/macos.server.properties"));
+                properties.load(new FileInputStream("config/macos.server.properties"));
             }
             properties.setProperty("log4j.useDefaultFile", "true");
         } catch (final Exception ex) {

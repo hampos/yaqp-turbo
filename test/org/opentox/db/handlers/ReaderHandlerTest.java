@@ -30,9 +30,7 @@
  */
 package org.opentox.db.handlers;
 
-import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -41,10 +39,9 @@ import org.junit.Test;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
-import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.exceptions.YaqpOntException;
+import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.util.YaqpAlgorithms;
-import org.opentox.util.monitoring.Jennifer;
 import static org.junit.Assert.*;
 
 /**
@@ -76,10 +73,13 @@ public class ReaderHandlerTest {
     }
 
 
+    /**
+     * Get all users - check if it works
+     * @throws DbException
+     */
     @Test
     public void searchForUser() throws DbException{
-        System.out.println("---------------- search for user ------------");
-
+        System.out.println("-- serch user - test 1 --");
         User prototype = new User();
         ComponentList<User> list = ReaderHandler.searchUser(prototype,0,0);
         for (User user : list.getComponentList()){
@@ -87,25 +87,68 @@ public class ReaderHandlerTest {
         }
     }
 
+    /**
+     * Check if the page size works.
+     * @throws DbException
+     */
+    @Test
+    public void searchUser_size() throws DbException{
+        System.out.println("-- serch user - test 2 --");
+        User prototype = new User();
+        ComponentList<User> list = ReaderHandler.searchUser(prototype,1,0);
+        assertTrue(list.getComponentList().size() == 1);
+    }
+
+
+    @Test
+    public void unknownEmail() throws DbException{
+        System.out.println("-- serch user - test 3 --");
+        User prototype = new User();
+        prototype.setEmail("unknown@user.mail.tnt");
+        ComponentList<User> list = ReaderHandler.searchUser(prototype,1,0);
+        assertTrue(list.getComponentList().size() == 0);
+    }
+
+    @Test
+    public void unknownName() throws DbException{
+        System.out.println("-- serch user - test 3 --");
+        User prototype = new User();
+        prototype.setUserName("mitsos");
+        ComponentList<User> list = ReaderHandler.searchUser(prototype,1,0);
+        assertTrue(list.getComponentList().size() == 0);
+    }
+
+
+
+    /**
+     * Assure that null prototype throws NPE.
+     * @throws DbException
+     */
+    @Test
+    public void searchNullUser() throws DbException{
+        System.out.println("-- serch user - test 4 --");
+        User prototype = null;
+        try{
+        ComponentList<User> list = ReaderHandler.searchUser(prototype,0,0);
+        } catch (Exception ex){
+            assertTrue(ex instanceof NullPointerException);
+        }
+    }
+
     @Test
     public void getAlgorithmOntologiesTest() throws YaqpOntException, DbException {
-        System.out.println("---------------- search for ontologies ------------");
+        System.out.println("-- check whether all ontologies are in the DB --");
         ComponentList<AlgorithmOntology> algont = ReaderHandler.searchAlgorithmOntology(new AlgorithmOntology(), 0, 0);
-        for(AlgorithmOntology ont : algont.getComponentList()){
-            System.out.println(ont);
-        }
+        assertEquals(algont.getComponentList().size(), OTAlgorithmTypes.getAllAlgorithmTypes().size());
 
     }
 
     @Test
     public void getUserGroupsTest() throws DbException {
-        System.out.println("---------------- search for user groups ------------");
-        ComponentList<UserGroup> userGroups = ReaderHandler.searchUserGroup(new UserGroup(), 0, 0);
+        System.out.println("-- user groups page size --");
+        ComponentList<UserGroup> userGroups = ReaderHandler.searchUserGroup(new UserGroup(), 1, 0);
         ArrayList<UserGroup> list = userGroups.getComponentList();
-
-        for(UserGroup group : list) {
-            System.out.println(group);
-        }
+        assertEquals(list.size(), 1);
     }
 
 

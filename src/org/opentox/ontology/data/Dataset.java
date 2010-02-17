@@ -39,6 +39,8 @@ import com.hp.hpl.jena.rdf.model.SimpleSelector;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -65,6 +67,7 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.converters.ArffSaver;
 
 /**
  *
@@ -308,7 +311,7 @@ import weka.core.Instances;
         InputProcessor<OntObject> p1 = new InputProcessor<OntObject>();
         DatasetBuilder p2 = new DatasetBuilder();
         InstancesProcessor p3 = new InstancesProcessor();
-        AbstractFilter filter1 = new AttributeCleanup(new ATTRIBUTE_TYPE[] {ATTRIBUTE_TYPE.string, ATTRIBUTE_TYPE.nominal});
+        AbstractFilter filter1 = new AttributeCleanup(new ATTRIBUTE_TYPE[] {ATTRIBUTE_TYPE.string});
         AbstractFilter filter = new SimpleMVHFilter();
 
         Pipeline pipe = new Pipeline();
@@ -318,8 +321,8 @@ import weka.core.Instances;
         pipe.add(filter1);
         pipe.add(filter);
 
-        Instances data = (Instances) pipe.process(new URI("http://localhost/8"));
-        System.out.println(data);
+        Instances data = (Instances) pipe.process(new URI("http://localhost/9"));
+        
     }
 }
 

@@ -92,4 +92,11 @@ public class ServerFolders {
     public static final String images =
             resources + "/images";
 
+    /**
+     * Folder where temporary files are stored (e.g. arff files during the
+     * SVM or SVC training procedure)
+     */
+    public static final String temp =
+            home + "/temp";
+
 }

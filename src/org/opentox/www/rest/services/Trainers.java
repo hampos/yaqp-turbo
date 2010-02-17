@@ -33,13 +33,71 @@
 
 package org.opentox.www.rest.services;
 
+import org.opentox.ontology.components.Algorithm;
+import org.opentox.ontology.util.YaqpAlgorithms;
+import org.opentox.qsar.interfaces.JTrainer;
+import org.opentox.qsar.processors.trainers.regression.SVMTrainer;
+
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
 public enum Trainers {
-    svm,
-    mlr,
-    svc;
+    mlr("mlr", SVMTrainer.class, YaqpAlgorithms.MLR),
+    svm("svm", SVMTrainer.class, YaqpAlgorithms.MLR),
+    svc("svc", SVMTrainer.class, YaqpAlgorithms.MLR);
+    private Class trainer;
+    private Algorithm algorithmEntity;
+    private String name;
+
+    private Trainers(String name, Class<? extends JTrainer> trainer, Algorithm algorithmEntity) {
+        this.name = name;
+        this.trainer = trainer;
+        this.algorithmEntity = algorithmEntity;
+    }
+
+
+    /**
+     * An algorithm component including metadata about the algorithm and other information
+     * which can be used to produce a publishable representation of the algorithm (e.g. RDF,
+     * PDF etc).
+     * @return
+     *      The algorithm component
+     */
+    public Algorithm getAlgorithmEntity() {
+        return algorithmEntity;
+    }
+
+    /**
+     * The name of the algortithm as it will appear on the web under /algorithm
+     * @return
+     *      Name of algorithm
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * The class responsible for the training of models invoked upon POST
+     * requests from clients.
+     * @return
+     *      Trainer
+     */
+    public Class getTrainer() {
+        return trainer;
+    }
+
+
+    /**
+     * This is equivalent to {@link Trainers#getName() getName()}.
+     * @return
+     *      Name of the algorithm.
+     */
+    @Override
+    public String toString(){
+        return getName();
+    }
+
+
 }

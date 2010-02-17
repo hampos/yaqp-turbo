@@ -59,7 +59,6 @@ import org.opentox.ontology.data.DatasetBuilder;
 import org.opentox.ontology.processors.InstancesProcessor;
 import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
-import org.opentox.ontology.util.vocabulary.ConstantParameters;
 import org.opentox.qsar.exceptions.QSARException;
 import org.opentox.qsar.processors.filters.AttributeCleanup;
 import org.opentox.qsar.processors.filters.AttributeCleanup.ATTRIBUTE_TYPE;
@@ -80,27 +79,12 @@ import weka.core.Instances;
 @SuppressWarnings({"unchecked"})
 public class MLRTrainer extends WekaTrainer {
 
-    /**
-     * The URI of the prediction feature (class attribute or target attribute) accoeding
-     * to which the training is carried out.
-     */
-    private String predictionFeature = null;
-    /**
-     * URI of the training dataset
-     */
-    private String datasetUri = null;
-    /**
-     * Uniformly Unique Identifier used to identify the file path of the produced
-     * model. This ID is stored in the database as well.
-     */
-    private UUID uuid;
     private static final String PMMLIntro =
             "<PMML version=\"3.2\" "
             + " xmlns=\"http://www.dmg.org/PMML-3_2\"  "
             + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n"
             + " <Header copyright=\"Copyleft (c) OpenTox - An Open Source "
             + "Predictive Toxicology Framework, http://www.opentox.org, 2009\" />\n";
-
 
     /**
      * <p>Construct a new MLR trainer which is initialized with a set of parameters as
@@ -136,30 +120,16 @@ public class MLRTrainer extends WekaTrainer {
      *      <code>prediction_feature</code>).
      */
     public MLRTrainer(YaqpForm form) throws QSARException {
-        this.datasetUri = form.getFirstValue(ConstantParameters.dataset_uri);
-        this.predictionFeature = form.getFirstValue(ConstantParameters.prediction_feature);
-        System.out.println(predictionFeature);
-        if (datasetUri == null ) throw new QSARException(Cause.XQM500, "The parameter "+ConstantParameters.dataset_uri+" was not specified");
-        if (predictionFeature == null ) throw new QSARException(Cause.XQM501, "The parameter "+ConstantParameters.prediction_feature+" was not specified");
-        Map<String, AlgorithmParameter> m = new HashMap<String, AlgorithmParameter>(2);
-        try {
-            m.put(ConstantParameters.prediction_feature, new AlgorithmParameter(new URI(this.predictionFeature)));
-        } catch (URISyntaxException ex) {
-            throw new QSARException(Cause.XQM711, "Invalid URI for prediction feature {" + predictionFeature + "}", ex);
-        }
-        try {
-            m.put(ConstantParameters.dataset_uri, new AlgorithmParameter(new URI(this.datasetUri)));
-        } catch (URISyntaxException ex) {
-            throw new QSARException(Cause.XQM712, "Invalid URI for dataset {" + datasetUri + "}", ex);
-        }
-        uuid = UUID.randomUUID();
+        super(form);
     }
 
     /**
-     * <p>Construct a new MLR trainer which is initialized with a set of parameters. Some
+     * <p>This is an auxiliary constructor for MLR Trainer, mainly from testing purposes
+     * and is equivalent to {@link MLRTrainer#MLRTrainer(org.opentox.www.rest.components.YaqpForm) }.
+     * Construct a new MLR trainer which is initialized with a set of parameters. Some
      * checks are done regarding the consisteny of the parameters. The mandatory parameters
      * one has to specidy are the <code>prediction_feature</code> and the <code>
-     * dataset_uri</code> which should be posted by the client to the training resoruce.
+     * dataset_uri</code> which should be posted by the client to the training resource.
      * </p>
      * @param parameters
      *      Set of parameters as a Map&lt;String,{@link  AlgorithmParameter }&gt;.
@@ -189,29 +159,6 @@ public class MLRTrainer extends WekaTrainer {
      */
     public MLRTrainer(Map<String, AlgorithmParameter> parameters) throws QSARException {
         super(parameters);
-        /* Retrieve the parameter prediction-feature */
-        try {
-            predictionFeature = getParameters().get(ConstantParameters.prediction_feature).paramValue.toString();
-            new URI(predictionFeature);
-        } catch (URISyntaxException ex) {
-            throw new QSARException(Cause.XQM200, "The prediction feature you provided is not a valid URI : {" + predictionFeature + "}", ex);
-        } catch (NullPointerException ex) {
-            String message = "MLR model cannot be trained because you "
-                    + "did not provide the parameter " + ConstantParameters.prediction_feature;
-            throw new NullPointerException(message);
-        }
-        /* Retrieve the parameter dataset_uri */
-        try {
-            datasetUri = getParameters().get(ConstantParameters.dataset_uri).paramValue.toString();
-            new URI(datasetUri);
-        } catch (URISyntaxException ex) {
-            throw new QSARException(Cause.XQM201, "The dataset_uri parameter you provided is not a valid URI {" + datasetUri + "}", ex);
-        } catch (NullPointerException ex) {
-            String message = "MLR model cannot be trained because you "
-                    + "did not provide the parameter " + ConstantParameters.dataset_uri;
-            throw new NullPointerException(message);
-        }
-        uuid = UUID.randomUUID();
     }
 
     /**
@@ -221,7 +168,6 @@ public class MLRTrainer extends WekaTrainer {
      */
     public MLRTrainer() {
         super();
-        uuid = UUID.randomUUID();
     }
 
     /**
@@ -258,11 +204,6 @@ public class MLRTrainer extends WekaTrainer {
             throw new NullPointerException("Cannot train an "
                     + "MLR model without a training dataset");
         }
-        if (data.attribute(predictionFeature) == null) {
-            throw new QSARException(Cause.XQM202,
-                    "The prediction feature you provided is not a valid numeric attribute of the dataset :{"
-                    + predictionFeature + "}");
-        }
         /* The incoming dataset always has the first attribute set to 
         'compound_uri' which is of type "String". This is removed at the
         begining of the training procedure */
@@ -271,20 +212,25 @@ public class MLRTrainer extends WekaTrainer {
         data = filter.filter(data);
         SimpleMVHFilter fil = new SimpleMVHFilter();
         data = fil.filter(data);
+        if (data.attribute(predictionFeature) == null) {
+            throw new QSARException(Cause.XQM202,
+                    "The prediction feature you provided is not a valid numeric attribute of the dataset :{"
+                    + predictionFeature + "}");
+        }
         data.setClass(data.attribute(predictionFeature.toString()));
         LinearRegression linreg = new LinearRegression();
         String[] linRegOptions = {"-S", "1", "-C"};
         try {
             linreg.setOptions(linRegOptions);
             linreg.buildClassifier(data);
-        } catch (Exception ex) {// illegal options or could not build the classifier!
+        } catch (final Exception ex) {// illegal options or could not build the classifier!
             String message = "MLR Model could not be trained";
             YaqpLogger.LOG.log(new Trace(getClass(), message + " :: " + ex));
             throw new QSARException(Cause.XQM1, message, ex);
         }
         try {
             generatePMML(linreg, data);
-        } catch (YaqpIOException ex) {
+        } catch (final YaqpIOException ex) {
             String message = "Could not generate PMML representation for MLR model :: " + ex;
             throw new QSARException(Cause.XQM2, message, ex);
         }
@@ -295,7 +241,7 @@ public class MLRTrainer extends WekaTrainer {
             Feature f = new Feature(data.attribute(i).name());
             try {
                 f = (Feature) WriterHandler.add(f);
-            } catch (YaqpException ex) {
+            } catch (final YaqpException ex) {
             }
             if (data.classIndex() != i) {
                 independentFeatures.add(f);
@@ -305,7 +251,7 @@ public class MLRTrainer extends WekaTrainer {
         Feature predictedFeature = dependentFeature;
         try {
             WriterHandler.add(dependentFeature);
-        } catch (YaqpException ex) {
+        } catch (final YaqpException ex) {
         }
 
         try {
@@ -322,7 +268,7 @@ public class MLRTrainer extends WekaTrainer {
                 System.out.println("Exception Caught!" + ex);
             }
             return model;
-        } catch (YaqpException ex) {
+        } catch (final YaqpException ex) {
             throw new QSARException();
         }
 

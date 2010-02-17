@@ -31,12 +31,20 @@
  */
 package org.opentox.qsar.processors.trainers;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Processor;
 import org.opentox.ontology.components.QSARModel;
 import org.opentox.ontology.util.AlgorithmParameter;
+import org.opentox.ontology.util.vocabulary.ConstantParameters;
+import org.opentox.qsar.exceptions.QSARException;
 import org.opentox.qsar.interfaces.JTrainer;
+import org.opentox.www.rest.components.YaqpForm;
 
 /**
  *
@@ -47,14 +55,73 @@ public abstract class AbstractTrainer<Input> extends Processor<Input, QSARModel>
 
     private Map<String, AlgorithmParameter> parameters;
 
+     /**
+     * The URI of the prediction feature (class attribute or target attribute) accoeding
+     * to which the training is carried out.
+     */
+    protected String predictionFeature = null;
+    /**
+     * URI of the training dataset
+     */
+    protected String datasetUri = null;
+    /**
+     * Uniformly Unique Identifier used to identify the file path of the produced
+     * model. This ID is stored in the database as well.
+     */
+    protected UUID uuid;
+
     public AbstractTrainer() {
         super();
+        uuid = UUID.randomUUID();
     }
 
-    public AbstractTrainer(Map<String, AlgorithmParameter> parameters) {
+    public AbstractTrainer(final Map<String, AlgorithmParameter> parameters) throws QSARException {
         if (parameters==null) throw new NullPointerException("You provided 'null' as set " +
                 "of parameters in a trainer");
         this.parameters = parameters;
+        /* Retrieve the parameter prediction-feature */
+        try {
+            predictionFeature = getParameters().get(ConstantParameters.prediction_feature).paramValue.toString();
+            new URI(predictionFeature);
+        } catch (URISyntaxException ex) {
+            throw new QSARException(Cause.XQM200, "The prediction feature you provided is not a valid URI : {" + predictionFeature + "}", ex);
+        } catch (NullPointerException ex) {
+            String message = "MLR model cannot be trained because you "
+                    + "did not provide the parameter " + ConstantParameters.prediction_feature;
+            throw new NullPointerException(message);
+        }
+        /* Retrieve the parameter dataset_uri */
+        try {
+            datasetUri = getParameters().get(ConstantParameters.dataset_uri).paramValue.toString();
+            new URI(datasetUri);
+        } catch (URISyntaxException ex) {
+            throw new QSARException(Cause.XQM201, "The dataset_uri parameter you provided is not a valid URI {" + datasetUri + "}", ex);
+        } catch (NullPointerException ex) {
+            String message = "MLR model cannot be trained because you "
+                    + "did not provide the parameter " + ConstantParameters.dataset_uri;
+            throw new NullPointerException(message);
+        }
+        uuid = UUID.randomUUID();
+    }
+
+    public AbstractTrainer(YaqpForm form) throws QSARException{
+        if (form == null) throw new NullPointerException("The provided form must not be null");
+        this.datasetUri = form.getFirstValue(ConstantParameters.dataset_uri);
+        this.predictionFeature = form.getFirstValue(ConstantParameters.prediction_feature);
+        if (datasetUri == null ) throw new QSARException(Cause.XQM500, "The parameter "+ConstantParameters.dataset_uri+" was not specified");
+        if (predictionFeature == null ) throw new QSARException(Cause.XQM501, "The parameter "+ConstantParameters.prediction_feature+" was not specified");
+        Map<String, AlgorithmParameter> m = new HashMap<String, AlgorithmParameter>(2);
+        try {
+            m.put(ConstantParameters.prediction_feature, new AlgorithmParameter(new URI(this.predictionFeature)));
+        } catch (URISyntaxException ex) {
+            throw new QSARException(Cause.XQM711, "Invalid URI for prediction feature {" + predictionFeature + "}", ex);
+        }
+        try {
+            m.put(ConstantParameters.dataset_uri, new AlgorithmParameter(new URI(this.datasetUri)));
+        } catch (URISyntaxException ex) {
+            throw new QSARException(Cause.XQM712, "Invalid URI for dataset {" + datasetUri + "}", ex);
+        }
+        uuid = UUID.randomUUID();
     }
     
 
@@ -62,7 +129,7 @@ public abstract class AbstractTrainer<Input> extends Processor<Input, QSARModel>
         return parameters;
     }
 
-    public void setParameters(Map<String, AlgorithmParameter> parameters) {
+    public void setParameters(final Map<String, AlgorithmParameter> parameters) {
         this.parameters = parameters;
     }
 
