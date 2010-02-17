@@ -31,9 +31,11 @@
  */
 package org.opentox.db.handlers;
 
+import java.lang.String;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
+import java.util.Map;
 import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.exceptions.DbException;
@@ -42,10 +44,13 @@ import org.opentox.db.processors.DbPipeline;
 import org.opentox.db.queries.HyperResult;
 import org.opentox.db.queries.QueryFood;
 import org.opentox.db.table.collection.QSARModelsTable;
+import org.opentox.db.table.collection.SupportVecTable;
 import org.opentox.db.util.Page;
 import org.opentox.db.util.PrepStmt;
+import org.opentox.db.util.SQLDataTypes;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.util.AlgorithmMeta;
+import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.ontology.util.vocabulary.ConstantParameters;
 import org.opentox.util.logging.YaqpLogger;
@@ -59,10 +64,10 @@ import static org.opentox.core.exceptions.Cause.*;
  */
 public class ReaderHandler {
 
-    private static final String baseURI =
-            "http://" + Configuration.getProperties().getProperty("server.domainName")
-            + ":" + Configuration.getProperties().getProperty("server.port");
-
+//    private static final String baseURI =
+//            "http://" + Configuration.getProperties().getProperty("server.domainName")
+//            + ":" + Configuration.getProperties().getProperty("server.port");
+//
 
 
     /**
@@ -454,8 +459,27 @@ public class ReaderHandler {
         if(prototype == null){
              throw new NullPointerException("QSARModel prototype provided is null");
          }
+
+        if (prototype.getParams() == null){
+            throw new NullPointerException("Are you nuts?! You provided a model with a null parameter set");
+        }
+
+        DbPipeline<QueryFood,HyperResult> pipeline;
+
+        Map<String, AlgorithmParameter> testMap = prototype.getParams();
+        if ((testMap.get(ConstantParameters.gamma) != null && testMap.get(ConstantParameters.gamma).paramValue != null)
+                || (testMap.get(ConstantParameters.cacheSize) != null && testMap.get(ConstantParameters.cacheSize).paramValue != null)
+                || (testMap.get(ConstantParameters.coeff0) != null && testMap.get(ConstantParameters.coeff0).paramValue != null)
+                || (testMap.get(ConstantParameters.cost) != null && testMap.get(ConstantParameters.cost).paramValue != null)
+                || (testMap.get(ConstantParameters.epsilon) != null && testMap.get(ConstantParameters.epsilon).paramValue != null)
+                || (testMap.get(ConstantParameters.kernel) != null && testMap.get(ConstantParameters.kernel).paramValue != null)
+                || (testMap.get(ConstantParameters.tolerance) != null && testMap.get(ConstantParameters.tolerance).paramValue != null)) {
+            pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODEL);
+        } else {
+            pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODEL_ALL);
+        }
+        
         ComponentList<QSARModel> modelList = new ComponentList<QSARModel>();
-        DbPipeline<QueryFood,HyperResult> pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODEL);
 
 
         QueryFood food = new QueryFood(
@@ -471,28 +495,65 @@ public class ReaderHandler {
                     {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
                     {"DATASET_URI", fixNull(prototype.getDataset())},
 
-//                    {"GAMMA_MIN", Float.toString( (Float)  prototype.getParams().get("GAMMA_MIN").paramValue )},
-//                    {"GAMMA_MAX", Float.toString( (Float)  prototype.getParams().get("GAMMA_MAX").paramValue )},
-//                    {"EPSILON_MIN", Float.toString( (Float)  prototype.getParams().get("EPSILON").paramValue )},
-//                    {"EPSILON_MAX", Float.toString( (Float)  prototype.getParams().get("EPSILON").paramValue )},
-//                    {"COST_MIN", Float.toString( (Float)  prototype.getParams().get("COST").paramValue )},
-//                    {"COST_MAX", Float.toString( (Float)  prototype.getParams().get("COST").paramValue )},
-//                    {"COEFF0_MIN", Float.toString( (Float)  prototype.getParams().get("COEFF0").paramValue )},
-//                    {"COEFF0_MAX", Float.toString( (Float)  prototype.getParams().get("COEFF0").paramValue )},
-//                    {"TOLERANCE_MIN", Float.toString( (Float)  prototype.getParams().get("TOLERANCE").paramValue )},
-//                    {"TOLERANCE_MAX", Float.toString( (Float)  prototype.getParams().get("TOLERANCE").paramValue )},
-//                    {"CACHESIZE_MIN", Integer.toString( (Integer)  prototype.getParams().get("CACHESIZE").paramValue )},
-//                    {"CACHESIZE_MAX", Integer.toString( (Integer)  prototype.getParams().get("CACHESIZE").paramValue )},
-//                    {"KERNEL", fixNull( (String) prototype.getParams().get("KERNEL").paramValue )},
-//                    {"DEGREE_MIN", Integer.toString( (Integer)  prototype.getParams().get("DEGREE").paramValue )},
-//                    {"DEGREE_MAX", Integer.toString( (Integer)  prototype.getParams().get("DEGREE").paramValue )},
-//
+                    {SupportVecTable.GAMMA.getColumnName()+"_MIN",
+                             fixParam(SupportVecTable.GAMMA.getColumnName()+"_MIN" ,
+                             SupportVecTable.GAMMA.getColumnType(), prototype.getParams())},
+                    {SupportVecTable.GAMMA.getColumnName()+"_MAX",
+                             fixParam(SupportVecTable.GAMMA.getColumnName()+"_MAX" ,
+                             SupportVecTable.GAMMA.getColumnType(), prototype.getParams())},
 
+                    {SupportVecTable.EPSILON.getColumnName()+"_MIN",
+                             fixParam(SupportVecTable.EPSILON.getColumnName()+"_MIN" ,
+                             SupportVecTable.EPSILON.getColumnType(), prototype.getParams())},
+                    {SupportVecTable.EPSILON.getColumnName()+"_MAX",
+                             fixParam(SupportVecTable.EPSILON.getColumnName()+"_MAX" ,
+                             SupportVecTable.EPSILON.getColumnType(), prototype.getParams())},
+
+                    {SupportVecTable.COST.getColumnName()+"_MIN",
+                             fixParam(SupportVecTable.COST.getColumnName()+"_MIN" ,
+                             SupportVecTable.COST.getColumnType(), prototype.getParams())},
+                    {SupportVecTable.COST.getColumnName()+"_MAX",
+                             fixParam(SupportVecTable.COST.getColumnName()+"_MAX" ,
+                             SupportVecTable.COST.getColumnType(), prototype.getParams())},
+
+                    {SupportVecTable.COEFF0.getColumnName()+"_MIN",
+                             fixParam(SupportVecTable.COEFF0.getColumnName()+"_MIN" ,
+                             SupportVecTable.COEFF0.getColumnType(), prototype.getParams())},
+                    {SupportVecTable.COEFF0.getColumnName()+"_MAX",
+                             fixParam(SupportVecTable.COEFF0.getColumnName()+"_MAX" ,
+                             SupportVecTable.COEFF0.getColumnType(), prototype.getParams())},
+
+                    {SupportVecTable.TOLERANCE.getColumnName()+"_MIN",
+                             fixParam(SupportVecTable.TOLERANCE.getColumnName()+"_MIN" ,
+                             SupportVecTable.TOLERANCE.getColumnType(), prototype.getParams())},
+                    {SupportVecTable.TOLERANCE.getColumnName()+"_MAX",
+                             fixParam(SupportVecTable.TOLERANCE.getColumnName()+"_MAX" ,
+                             SupportVecTable.TOLERANCE.getColumnType(), prototype.getParams())},
+
+                    {SupportVecTable.CACHESIZE.getColumnName()+"_MIN",
+                             fixParam(SupportVecTable.CACHESIZE.getColumnName()+"_MIN" ,
+                             SupportVecTable.CACHESIZE.getColumnType(), prototype.getParams())},
+                    {SupportVecTable.CACHESIZE.getColumnName()+"_MAX",
+                             fixParam(SupportVecTable.CACHESIZE.getColumnName()+"_MAX" ,
+                             SupportVecTable.CACHESIZE.getColumnType(), prototype.getParams())},
+
+                    {SupportVecTable.KERNEL.getColumnName(),
+                             fixParam(SupportVecTable.KERNEL.getColumnName(),
+                             SupportVecTable.KERNEL.getColumnType(), prototype.getParams())},
+
+                    {SupportVecTable.DEGREE.getColumnName()+"_MIN",
+                             fixParam(SupportVecTable.DEGREE.getColumnName()+"_MIN" ,
+                             SupportVecTable.DEGREE.getColumnType(), prototype.getParams())},
+                    {SupportVecTable.DEGREE.getColumnName()+"_MAX",
+                             fixParam(SupportVecTable.DEGREE.getColumnName()+"_MAX" ,
+                             SupportVecTable.DEGREE.getColumnType(), prototype.getParams())},
 
                     {"OFFSET", page.getOffset()},
                     {"ROWS", page.getRows()}
         });
         HyperResult result = null;
+
+           
         try {
                 result = pipeline.process(food);
                 for (int i = 1; i <= result.getSize(); i++) {
@@ -509,6 +570,7 @@ public class ReaderHandler {
                     modelList.add(model);
                 }         
         } catch (YaqpException ex) {
+            System.out.println(ex);
             throw new DbException(XDH7, "Could not get QSARModels from Database", ex);
         }
         return modelList;
@@ -527,15 +589,51 @@ public class ReaderHandler {
         }
         return in;
     }
-    private static String fixNull(Float f) {
-        if (f == null) {
-            return Float.toString(Float.MAX_VALUE);
+    private static String fixParam(String name, SQLDataTypes type, Map<String,AlgorithmParameter> params) {
+        if(type.equals(SQLDataTypes.Float())){
+            if (params.get(name.toLowerCase()) != null && params.get(name.toLowerCase()).paramValue != null){
+                return Double.toString((Double)params.get(name.toLowerCase()).paramValue);
+            }else if(name.endsWith("_MIN")){
+                if( params.get(name.toLowerCase().substring(0, name.length()-"_MIN".length())) != null
+                        && params.get(name.toLowerCase().substring(0, name.length()-"_MIN".length())).paramValue != null){
+                    return Double.toString((Double)params.get(name.toLowerCase().substring(0, name.length()-"_MIN".length())).paramValue);
+
+                }
+                return Double.toString(0);
+            }else if(name.endsWith("_MAX")){
+                if( params.get(name.toLowerCase().substring(0, name.length()-"_MAX".length())) != null
+                        && params.get(name.toLowerCase().substring(0, name.length()-"_MAX".length())).paramValue != null){
+                    return Double.toString((Double)params.get(name.toLowerCase().substring(0, name.length()-"_MAX".length())).paramValue);
+                }
+                return Double.toString(Integer.MAX_VALUE);
+            }
+        } else if(type.equals(SQLDataTypes.Int())){
+            if (params.get(name.toLowerCase()) != null && params.get(name.toLowerCase()).paramValue != null){
+                return Integer.toString((Integer)params.get(name.toLowerCase()).paramValue);
+            }else if(name.endsWith("_MIN")){
+                if( params.get(name.toLowerCase().substring(0, name.length()-"_MIN".length())) != null
+                        && params.get(name.toLowerCase().substring(0, name.length()-"_MIN".length())).paramValue != null){
+                    return Integer.toString((Integer)params.get(name.toLowerCase().substring(0, name.length()-"_MIN".length())).paramValue);
+                }
+                return Integer.toString(0);
+            }else if(name.endsWith("_MAX")){
+                if( params.get(name.toLowerCase().substring(0, name.length()-"_MAX".length())) != null
+                        && params.get(name.toLowerCase().substring(0, name.length()-"_MAX".length())) != null){
+                    return Integer.toString((Integer)params.get(name.toLowerCase().substring(0, name.length()-"_MAX".length())).paramValue);
+                }
+                return Integer.toString(Integer.MAX_VALUE);
+            }
+        } else if(type.toString().contains("VARCHAR")){
+            if (params.get(name.toLowerCase()) != null && params.get(name.toLowerCase()).paramValue != null){
+                return fixNull((String) params.get(name.toLowerCase()).paramValue);
+            }
+            return fixNull(null);
         }
-        return Float.toString(f);
+        throw new IllegalArgumentException("Wrong parameters given");
     }
 
 
- 
+
 
 
 

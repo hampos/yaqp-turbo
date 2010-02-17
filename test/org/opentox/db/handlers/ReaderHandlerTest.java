@@ -31,6 +31,8 @@
 package org.opentox.db.handlers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -42,7 +44,9 @@ import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
+import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
+import org.opentox.ontology.util.vocabulary.ConstantParameters;
 import static org.junit.Assert.*;
 
 /**
@@ -194,7 +198,15 @@ public class ReaderHandlerTest {
     public void getQSARMods() throws DbException{
         System.out.println("---------------- search QSARModels ------------");
         QSARModel model = new QSARModel();
-        ComponentList<QSARModel> models = ReaderHandler.searchQSARModels(new QSARModel(), new Page(0,0));
+        Map<String,AlgorithmParameter> map = new HashMap<String,AlgorithmParameter>();
+        
+        //AlgorithmParameter<Double> p = map.get("gamma");
+        AlgorithmParameter p = new AlgorithmParameter(1.5);
+
+        map.put("gamma_min", p);
+
+        model.setParams(map);
+        ComponentList<QSARModel> models = ReaderHandler.searchQSARModels(model, new Page(0,0));
         for (QSARModel m : models.getComponentList()){
             System.out.println(m.getId());
             System.out.println(m.getDependentFeature());
