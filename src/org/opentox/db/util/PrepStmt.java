@@ -399,10 +399,10 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("UID_MIN", Integer.class),
         new QueryParam("UID_MAX", Integer.class),
         new QueryParam("URI", String.class),
-        new QueryParam("O                    PolyKernel linear_kernel = new PolyKernel();FFSET", Integer.class),
+        new QueryParam("OFFSET", Integer.class),
         new QueryParam("ROWS", Integer.class)
     }),
-
+//PolyKernel linear_kernel = new PolyKernel();
     SEARCH_FEATURE_SKROUTZ("SELECT UID FROM " + FeaturesTable.TABLE.getTableName() + " " +
             "WHERE UID >= ? AND UID <= ? " +
             "AND URI LIKE ? " +
@@ -420,9 +420,11 @@ public enum PrepStmt implements JPrepStmt {
      *
      * Get all prediction models from the database.
      */
-    SEARCH_QSAR_MODEL("SELECT * FROM " + QSARModelsTable.TABLE.getTableName()+ " " +
-            "WHERE UID >= ? " +
-            "AND UID <= ? " +
+    SEARCH_QSAR_MODEL("SELECT * FROM " + QSARModelsTable.TABLE.getTableName() +
+            " RIGHT JOIN " + SupportVecTable.TABLE.getTableName() + " ON "
+            + QSARModelsTable.TABLE.getTableName() +".UID=" +SupportVecTable.TABLE.getTableName()+".UID "+
+            "WHERE " + QSARModelsTable.TABLE.getTableName() +".UID >= ? " +
+            "AND " + QSARModelsTable.TABLE.getTableName() +".UID <= ? " +
             "AND CODE LIKE ? " +
             "AND PREDICTION_FEATURE >= ? " +
             "AND PREDICTION_FEATURE <= ? " +
@@ -430,7 +432,23 @@ public enum PrepStmt implements JPrepStmt {
             "AND DEPENDENT_FEATURE <= ? " +
             "AND ALGORITHM LIKE ? " +
             "AND CREATED_BY LIKE ? " +
-            "AND DATASET_URI LIKE ? "+
+            "AND DATASET_URI LIKE ? " +
+
+//            "AND GAMMA >= ? " +
+//            "AND GAMMA <= ? " +
+//            "AND EPSILON >= ? " +
+//            "AND EPSILON <= ? " +
+//            "AND COST >= ? " +
+//            "AND COST <= ? " +
+//            "AND COEFF0 >= ? " +
+//            "AND COEFF0 <= ? " +
+//            "AND TOLERANCE >= ? " +
+//            "AND TOLERANCE <= ? " +
+//            "AND CACHESIZE >= ? " +
+//            "AND CACHESIZE <= ? " +
+//            "AND KERNEL LIKE ? " +
+//            "AND DEGREE >= ? " +
+//            "AND DEGREE <= ? " +
             getPagingQuery(),
             new QueryParam[]{
                 new QueryParam("UID_MIN", Integer.class),
@@ -443,6 +461,22 @@ public enum PrepStmt implements JPrepStmt {
                 new QueryParam("ALGORITHM", String.class),
                 new QueryParam("CREATED_BY", String.class),
                 new QueryParam("DATASET_URI", String.class),
+
+//                new QueryParam("GAMMA_MIN", Float.class),
+//                new QueryParam("GAMMA_MAX", Float.class),
+//                new QueryParam("EPSILON_MIN", Float.class),
+//                new QueryParam("EPSILON_MAX", Float.class),
+//                new QueryParam("COST_MIN", Float.class),
+//                new QueryParam("COST_MAX", Float.class),
+//                new QueryParam("COEFF0_MIN", Float.class),
+//                new QueryParam("COEFF0_MAX", Float.class),
+//                new QueryParam("TOLERANCE_MIN", Float.class),
+//                new QueryParam("TOLERANCE_MAX", Float.class),
+//                new QueryParam("CACHESIZE_MIN", Integer.class),
+//                new QueryParam("CACHESIZE_MAX", Integer.class),
+//                new QueryParam("KERNEL", String.class),
+//                new QueryParam("DEGREE_MIN", Integer.class),
+//                new QueryParam("DEGREE_MAX", Integer.class),
 
                 new QueryParam("OFFSET", Integer.class),
                 new QueryParam("ROWS", Integer.class)
@@ -515,7 +549,7 @@ public enum PrepStmt implements JPrepStmt {
      *
      * Get all SVM models
      */
-    GET_SVM_MODELS("SELECT * FROM " + SupportVecTable.TABLE.getTableName(), null),
+    GET_SUP_VEC("SELECT * FROM " + SupportVecTable.TABLE.getTableName(), null),
     /**
      *
      * Get all SVC models.
@@ -528,6 +562,7 @@ public enum PrepStmt implements JPrepStmt {
     new QueryParam[]{
         new QueryParam("MODEL_UID", Integer.class)
     });
+
     
     /**
      * The SQL command for the preparation of the statement.

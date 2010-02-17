@@ -33,10 +33,7 @@ package org.opentox.db.handlers;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.exceptions.DbException;
@@ -44,11 +41,13 @@ import org.opentox.ontology.components.*;
 import org.opentox.db.processors.DbPipeline;
 import org.opentox.db.queries.HyperResult;
 import org.opentox.db.queries.QueryFood;
+import org.opentox.db.table.collection.QSARModelsTable;
+import org.opentox.db.util.Page;
 import org.opentox.db.util.PrepStmt;
-import org.opentox.io.util.ServerList;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.util.AlgorithmMeta;
 import org.opentox.ontology.util.YaqpAlgorithms;
+import org.opentox.ontology.util.vocabulary.ConstantParameters;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.*;
 import static org.opentox.core.exceptions.Cause.*;
@@ -77,7 +76,7 @@ public class ReaderHandler {
 
 
      public static ComponentList<UserGroup>
-             searchUserGroup(UserGroup prototype, int pageSize, int pageNum) throws DbException {
+             searchUserGroup(UserGroup prototype, Page page) throws DbException {
 
          if(prototype == null){
              throw new NullPointerException("UserGroup prototype provided is null");
@@ -97,18 +96,12 @@ public class ReaderHandler {
                     {"ALGORITHM_AUTH", fixNull(prototype.getAlgorithmAuth())},
                     {"USER_GROUP_AUTH", fixNull(prototype.getUserGroupAuth())},
                     {"MAX_MODELS_MIN", Integer.toString(prototype.getMinModels())},
-                    {"MAX_MODELS_MAX", Integer.toString(prototype.getMaxModels())}
+                    {"MAX_MODELS_MAX", Integer.toString(prototype.getMaxModels())},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
         });       
-        if(pageSize <= 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else if(pageNum < 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(pageSize));
-        } else {
-            food.add("OFFSET", Integer.toString(pageNum*pageSize));
-            food.add("ROWS", Integer.toString(pageSize));
-        }
+        
         try {
             result = pipeline.process(food);
             for (int i = 1; i <= result.getSize() ; i++) {
@@ -125,7 +118,7 @@ public class ReaderHandler {
     }
 
     public static ComponentList<UserGroup>
-             searchUserGroupSkroutz(UserGroup prototype, int pageSize, int pageNum) throws DbException {
+             searchUserGroupSkroutz(UserGroup prototype, Page page) throws DbException {
         if(prototype == null){
              throw new NullPointerException("UserGroup prototype provided is null");
          }
@@ -144,18 +137,11 @@ public class ReaderHandler {
                     {"ALGORITHM_AUTH", fixNull(prototype.getAlgorithmAuth())},
                     {"USER_GROUP_AUTH", fixNull(prototype.getUserGroupAuth())},
                     {"MAX_MODELS_MIN", Integer.toString(prototype.getMinModels())},
-                    {"MAX_MODELS_MAX", Integer.toString(prototype.getMaxModels())}
+                    {"MAX_MODELS_MAX", Integer.toString(prototype.getMaxModels())},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
         });
-        if(pageSize <= 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else if(pageNum < 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(pageSize));
-        } else {
-            food.add("OFFSET", Integer.toString(pageNum*pageSize));
-            food.add("ROWS", Integer.toString(pageSize));
-        }
         try {
             result = pipeline.process(food);
             for (int i = 1; i < result.getSize() + 1; i++) {
@@ -219,7 +205,7 @@ public class ReaderHandler {
      */
     // TODO: Change array list to Component list
      public static ComponentList<User>
-             searchUser(User prototype, int pageSize, int pageNum) throws DbException {
+             searchUser(User prototype, Page page) throws DbException {
          if(prototype == null){
              throw new NullPointerException("User prototype provided is null");
          }
@@ -247,17 +233,11 @@ public class ReaderHandler {
                     {"ADDRESS", fixNull(prototype.getAddress())},
                     {"ORGANIZATION", fixNull(prototype.getOrganization())},
                     {"WEBPAGE", fixNull(prototype.getWebpage())},
-                    {"ROLE", fixNull(prototype.getUserGroup().getName())},});
-        if(pageSize <= 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else if(pageNum < 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(pageSize));
-        } else {
-            food.add("OFFSET", Integer.toString(pageNum*pageSize));
-            food.add("ROWS", Integer.toString(pageSize));
-        }
+                    {"ROLE", fixNull(prototype.getUserGroup().getName())},
+                    
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
+        });
         try {
             result = pipeline.process(food);
             for (int i = 1; i <= result.getSize(); i++) {
@@ -265,7 +245,7 @@ public class ReaderHandler {
                 User user = new User(it.next(), it.next(), it.next(), it.next(),
                         it.next(), it.next(), it.next(),
                         it.next(), it.next(), it.next(), it.next(),
-                        searchUserGroup(new UserGroup(it.next()),0,0).get(0)
+                        searchUserGroup(new UserGroup(it.next()), new Page(0,0)).get(0)
                         );
                 userList.add(user);
             }
@@ -277,7 +257,7 @@ public class ReaderHandler {
     }
 
      public static ComponentList<User>
-             searchUserSkroutz(User prototype, int pageSize, int pageNum) throws DbException {
+             searchUserSkroutz(User prototype, Page page) throws DbException {
          if(prototype == null){
              throw new NullPointerException("User prototype provided is null");
          }
@@ -305,18 +285,11 @@ public class ReaderHandler {
                     {"ADDRESS", fixNull(prototype.getAddress())},
                     {"ORGANIZATION", fixNull(prototype.getOrganization())},
                     {"WEBPAGE", fixNull(prototype.getWebpage())},
-                    {"ROLE", fixNull(prototype.getUserGroup().getName())}
+                    {"ROLE", fixNull(prototype.getUserGroup().getName())},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
         });
-        if(pageSize <= 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else if(pageNum < 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(pageSize));
-        } else {
-            food.add("OFFSET", Integer.toString(pageNum*pageSize));
-            food.add("ROWS", Integer.toString(pageSize));
-        }
         try {
             result = pipeline.process(food);
             for (int i = 1; i <= result.getSize(); i++) {
@@ -324,7 +297,7 @@ public class ReaderHandler {
                 User user = new User(it.next(), it.next(), it.next(), it.next(),
                         it.next(), it.next(), it.next(),
                         it.next(), it.next(), it.next(), it.next(),
-                        searchUserGroup(new UserGroup(it.next()),0,0).get(0)
+                        searchUserGroup(new UserGroup(it.next()), new Page(0,0)).get(0)
                         );
                 userList.add(user);
             }
@@ -340,7 +313,7 @@ public class ReaderHandler {
 
 
      public static ComponentList<AlgorithmOntology>
-             searchAlgorithmOntology(AlgorithmOntology prototype, int pageSize, int pageNum) throws YaqpOntException, DbException {
+             searchAlgorithmOntology(AlgorithmOntology prototype, Page page) throws YaqpOntException, DbException {
          if(prototype == null){
              throw new NullPointerException("AlgorithmOntology prototype provided is null");
          }
@@ -352,17 +325,10 @@ public class ReaderHandler {
                 new String[][]{
                     {"NAME", fixNull(prototype.getName())},
                     {"URI", fixNull(prototype.getUri())},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
         });
-        if(pageSize <= 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else if(pageNum < 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(pageSize));
-        } else {
-            food.add("OFFSET", Integer.toString(pageNum*pageSize));
-            food.add("ROWS", Integer.toString(pageSize));
-        }
         try {
             result = pipeline.process(food);
             for (int i = 1; i <= result.getSize() ; i++) {
@@ -380,7 +346,7 @@ public class ReaderHandler {
 
 
      public static ComponentList<AlgorithmOntology>
-             searchAlgorithmOntologySkroutz(AlgorithmOntology prototype, int pageSize, int pageNum) throws YaqpOntException, DbException {
+             searchAlgorithmOntologySkroutz(AlgorithmOntology prototype, Page page) throws YaqpOntException, DbException {
          if(prototype == null){
              throw new NullPointerException("AlgorithmOntology prototype provided is null");
          }
@@ -392,17 +358,10 @@ public class ReaderHandler {
                 new String[][]{
                     {"NAME", fixNull(prototype.getName())},
                     {"URI", fixNull(prototype.getUri())},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
         });
-        if(pageSize <= 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else if(pageNum < 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(pageSize));
-        } else {
-            food.add("OFFSET", Integer.toString(pageNum*pageSize));
-            food.add("ROWS", Integer.toString(pageSize));
-        }
         try {
             result = pipeline.process(food);
             for (int i = 1; i <= result.getSize() ; i++) {
@@ -421,7 +380,7 @@ public class ReaderHandler {
 
 
      public static ComponentList<Feature>
-             searchFeature(Feature prototype, int pageSize, int pageNum) throws DbException {
+             searchFeature(Feature prototype, Page page) throws DbException {
          if(prototype == null){
              throw new NullPointerException("Feature prototype provided is null");
          }
@@ -434,18 +393,11 @@ public class ReaderHandler {
                 new String[][]{
                     {"UID_MIN", Integer.toString(prototype.getMinId())},
                     {"UID_MAX", Integer.toString(prototype.getMaxId())},
-                    {"URI", fixNull(prototype.getURI())}
+                    {"URI", fixNull(prototype.getURI())},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
         });
-        if(pageSize <= 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else if(pageNum < 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(pageSize));
-        } else {
-            food.add("OFFSET", Integer.toString(pageNum*pageSize));
-            food.add("ROWS", Integer.toString(pageSize));
-        }
         try {
             result = pipeline.process(food);
             for (int i = 1; i <= result.getSize() ; i++) {
@@ -461,7 +413,7 @@ public class ReaderHandler {
 
 
      public static ComponentList<Feature>
-             searchFeatureSkroutz(Feature prototype, int pageSize, int pageNum) throws DbException {
+             searchFeatureSkroutz(Feature prototype, Page page) throws DbException {
          if(prototype == null){
              throw new NullPointerException("Feature prototype provided is null");
          }
@@ -474,18 +426,11 @@ public class ReaderHandler {
                 new String[][]{
                     {"UID_MIN", Integer.toString(prototype.getMinId())},
                     {"UID_MAX", Integer.toString(prototype.getMaxId())},
-                    {"URI", fixNull(prototype.getURI())}
+                    {"URI", fixNull(prototype.getURI())},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
         });
-        if(pageSize <= 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else if(pageNum < 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(pageSize));
-        } else {
-            food.add("OFFSET", Integer.toString(pageNum*pageSize));
-            food.add("ROWS", Integer.toString(pageSize));
-        }
         try {
             result = pipeline.process(food);
             for (int i = 1; i <= result.getSize() ; i++) {
@@ -501,16 +446,17 @@ public class ReaderHandler {
 
 
 
-        /**
+     /**
      *
      * @return
      */
-    public static ComponentList<QSARModel> searchQSARModels(QSARModel prototype, int pageSize, int pageNum) throws DbException {
+    public static ComponentList<QSARModel> searchQSARModels(QSARModel prototype, Page page) throws DbException {
         if(prototype == null){
              throw new NullPointerException("QSARModel prototype provided is null");
          }
         ComponentList<QSARModel> modelList = new ComponentList<QSARModel>();
         DbPipeline<QueryFood,HyperResult> pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODEL);
+
 
         QueryFood food = new QueryFood(
                 new String[][]{
@@ -524,17 +470,28 @@ public class ReaderHandler {
                     {"ALGORITHM", fixNull(prototype.getAlgorithm().getMeta().getName())},
                     {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
                     {"DATASET_URI", fixNull(prototype.getDataset())},
+
+//                    {"GAMMA_MIN", Float.toString( (Float)  prototype.getParams().get("GAMMA_MIN").paramValue )},
+//                    {"GAMMA_MAX", Float.toString( (Float)  prototype.getParams().get("GAMMA_MAX").paramValue )},
+//                    {"EPSILON_MIN", Float.toString( (Float)  prototype.getParams().get("EPSILON").paramValue )},
+//                    {"EPSILON_MAX", Float.toString( (Float)  prototype.getParams().get("EPSILON").paramValue )},
+//                    {"COST_MIN", Float.toString( (Float)  prototype.getParams().get("COST").paramValue )},
+//                    {"COST_MAX", Float.toString( (Float)  prototype.getParams().get("COST").paramValue )},
+//                    {"COEFF0_MIN", Float.toString( (Float)  prototype.getParams().get("COEFF0").paramValue )},
+//                    {"COEFF0_MAX", Float.toString( (Float)  prototype.getParams().get("COEFF0").paramValue )},
+//                    {"TOLERANCE_MIN", Float.toString( (Float)  prototype.getParams().get("TOLERANCE").paramValue )},
+//                    {"TOLERANCE_MAX", Float.toString( (Float)  prototype.getParams().get("TOLERANCE").paramValue )},
+//                    {"CACHESIZE_MIN", Integer.toString( (Integer)  prototype.getParams().get("CACHESIZE").paramValue )},
+//                    {"CACHESIZE_MAX", Integer.toString( (Integer)  prototype.getParams().get("CACHESIZE").paramValue )},
+//                    {"KERNEL", fixNull( (String) prototype.getParams().get("KERNEL").paramValue )},
+//                    {"DEGREE_MIN", Integer.toString( (Integer)  prototype.getParams().get("DEGREE").paramValue )},
+//                    {"DEGREE_MAX", Integer.toString( (Integer)  prototype.getParams().get("DEGREE").paramValue )},
+//
+
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
         });
-        if(pageSize <= 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else if(pageNum < 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(pageSize));
-        } else {
-            food.add("OFFSET", Integer.toString(pageNum*pageSize));
-            food.add("ROWS", Integer.toString(pageSize));
-        }
         HyperResult result = null;
         try {
                 result = pipeline.process(food);
@@ -543,10 +500,10 @@ public class ReaderHandler {
                     QSARModel model = new QSARModel();
                     model.setId(Integer.parseInt(it.next()));
                     model.setCode(it.next());
-                    model.setPredictionFeature(searchFeature(new Feature(Integer.parseInt(it.next())), 0, 0).get(0));
-                    model.setDependentFeature(searchFeature(new Feature(Integer.parseInt(it.next())), 0, 0).get(0));
+                    model.setPredictionFeature(searchFeature(new Feature(Integer.parseInt(it.next())), new Page(0,0)).get(0));
+                    model.setDependentFeature(searchFeature(new Feature(Integer.parseInt(it.next())), new Page(0,0)).get(0));
                     model.setAlgorithm(getAlgorithm(it.next()));
-                    model.setUser(searchUser(new User(it.next()), 0, 0).get(0));
+                    model.setUser(searchUser(new User(it.next()), new Page(0,0)).get(0));
                     model.setDataset(it.next());
                     model.setIndependentFeatures(getIndepFeatures(model).getComponentList());
                     modelList.add(model);
@@ -569,6 +526,12 @@ public class ReaderHandler {
             return "%%";
         }
         return in;
+    }
+    private static String fixNull(Float f) {
+        if (f == null) {
+            return Float.toString(Float.MAX_VALUE);
+        }
+        return Float.toString(f);
     }
 
 
@@ -648,7 +611,7 @@ public class ReaderHandler {
      * @throws YaqpOntException
      */
     public static ComponentList<AlgorithmOntology>
-            getAlgOntRelation(Algorithm prototype, int pageSize, int pageNum) throws YaqpOntException, DbException {
+            getAlgOntRelation(Algorithm prototype, Page page) throws YaqpOntException, DbException {
         if(prototype == null){
              throw new NullPointerException("Algorithm prototype provided is null");
          }
@@ -658,18 +621,11 @@ public class ReaderHandler {
 
         QueryFood food = new QueryFood(
                 new String[][]{
-                    {"ALGORITHM", prototype.getMeta().getName()}
-                });
-        if(pageSize <= 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else if(pageNum < 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(pageSize));
-        } else {
-            food.add("OFFSET", Integer.toString(pageNum*pageSize));
-            food.add("ROWS", Integer.toString(pageSize));
-        }
+                    {"ALGORITHM", prototype.getMeta().getName()},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
+        });
         HyperResult result = null;
         try {
             result = pipeline.process(food);
@@ -686,7 +642,7 @@ public class ReaderHandler {
     }
 
     // TODO: Fix the following code and then perform tons of tests!
-    public static ComponentList<Algorithm> getOntAlgRelation(AlgorithmOntology prototype, int pageSize, int pageNum) throws DbException {
+    public static ComponentList<Algorithm> getOntAlgRelation(AlgorithmOntology prototype, Page page) throws DbException {
         if(prototype == null){
              throw new NullPointerException("AlgorithmOntology prototype provided is null");
          }
@@ -696,18 +652,11 @@ public class ReaderHandler {
 
         QueryFood food = new QueryFood(
                 new String[][]{
-                    {"ONTOLOGY", prototype.getName()}
-                });
-        if(pageSize <= 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(Integer.MAX_VALUE));
-        } else if(pageNum < 0){
-            food.add("OFFSET", Integer.toString(0));
-            food.add("ROWS", Integer.toString(pageSize));
-        } else {
-            food.add("OFFSET", Integer.toString(pageNum*pageSize));
-            food.add("ROWS", Integer.toString(pageSize));
-        }
+                    {"ONTOLOGY", prototype.getName()},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
+        });
         HyperResult result = null;
         try {
             result = pipeline.process(food);

@@ -59,6 +59,7 @@ import org.opentox.db.table.collection.SupportVecTable;
 import org.opentox.db.table.collection.UserAuthTable;
 import org.opentox.db.table.collection.UsersTable;
 import org.opentox.db.util.EmailSupervisor;
+import org.opentox.db.util.Page;
 import org.opentox.db.util.PrepStmt;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.ontology.exceptions.ImproperEntityException;
@@ -336,7 +337,7 @@ import org.opentox.util.logging.levels.*;
         } catch (DbException ex) {
             if (ex.getCode() == Cause.XDB800) {
                 try {
-                    feature.setId(ReaderHandler.searchFeature(new Feature(feature.getURI()) , 0 , 0).get(0).getID());
+                    feature.setId(ReaderHandler.searchFeature(new Feature(feature.getURI()) , new Page(0,0)).get(0).getID());
                 } catch (DbException ex1) {// in this case feature failed to be added but is not in the DB either!
                     throw new DbException(Cause.XDB3238, "Error ");
                 }
