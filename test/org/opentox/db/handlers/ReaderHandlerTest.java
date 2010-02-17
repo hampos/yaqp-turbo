@@ -37,6 +37,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opentox.db.exceptions.DbException;
+import org.opentox.db.util.Page;
 import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.ontology.exceptions.YaqpOntException;
@@ -81,7 +82,7 @@ public class ReaderHandlerTest {
     public void searchForUser() throws DbException{
         System.out.println("-- serch user - test 1 --");
         User prototype = new User();
-        ComponentList<User> list = ReaderHandler.searchUser(prototype,0,0);
+        ComponentList<User> list = ReaderHandler.searchUser(prototype, new Page(0,0));
         for (User user : list.getComponentList()){
             System.out.println(user);
         }
@@ -95,7 +96,7 @@ public class ReaderHandlerTest {
     public void searchUser_size() throws DbException{
         System.out.println("-- serch user - test 2 --");
         User prototype = new User();
-        ComponentList<User> list = ReaderHandler.searchUser(prototype,1,0);
+        ComponentList<User> list = ReaderHandler.searchUser(prototype,new Page(1,0));
         assertTrue(list.getComponentList().size() == 1);
     }
 
@@ -105,7 +106,7 @@ public class ReaderHandlerTest {
         System.out.println("-- serch user - test 3 --");
         User prototype = new User();
         prototype.setEmail("unknown@user.mail.tnt");
-        ComponentList<User> list = ReaderHandler.searchUser(prototype,1,0);
+        ComponentList<User> list = ReaderHandler.searchUser(prototype,new Page(1,0));
         assertTrue(list.getComponentList().size() == 0);
     }
 
@@ -114,7 +115,7 @@ public class ReaderHandlerTest {
         System.out.println("-- serch user - test 3 --");
         User prototype = new User();
         prototype.setUserName("mitsos");
-        ComponentList<User> list = ReaderHandler.searchUser(prototype,1,0);
+        ComponentList<User> list = ReaderHandler.searchUser(prototype,new Page(1,0));
         assertTrue(list.getComponentList().size() == 0);
     }
 
@@ -129,7 +130,7 @@ public class ReaderHandlerTest {
         System.out.println("-- serch user - test 4 --");
         User prototype = null;
         try{
-        ComponentList<User> list = ReaderHandler.searchUser(prototype,0,0);
+        ComponentList<User> list = ReaderHandler.searchUser(prototype,new Page(0,0));
         } catch (Exception ex){
             assertTrue(ex instanceof NullPointerException);
         }
@@ -138,7 +139,7 @@ public class ReaderHandlerTest {
     @Test
     public void getAlgorithmOntologiesTest() throws YaqpOntException, DbException {
         System.out.println("-- check whether all ontologies are in the DB --");
-        ComponentList<AlgorithmOntology> algont = ReaderHandler.searchAlgorithmOntology(new AlgorithmOntology(), 0, 0);
+        ComponentList<AlgorithmOntology> algont = ReaderHandler.searchAlgorithmOntology(new AlgorithmOntology(), new Page(0,0));
         assertEquals(algont.getComponentList().size(), OTAlgorithmTypes.getAllAlgorithmTypes().size());
 
     }
@@ -146,7 +147,7 @@ public class ReaderHandlerTest {
     @Test
     public void getUserGroupsTest() throws DbException {
         System.out.println("-- user groups page size --");
-        ComponentList<UserGroup> userGroups = ReaderHandler.searchUserGroup(new UserGroup(), 1, 0);
+        ComponentList<UserGroup> userGroups = ReaderHandler.searchUserGroup(new UserGroup(), new Page(1,0));
         ArrayList<UserGroup> list = userGroups.getComponentList();
         assertEquals(list.size(), 1);
     }
@@ -155,7 +156,7 @@ public class ReaderHandlerTest {
     @Test
     public void getAlgOntRelationTest() throws YaqpOntException, DbException {
         System.out.println("---------------- search for ontologies for given algorithm ------------");
-        ComponentList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation(new Algorithm(YaqpAlgorithms.mlr_metadata()),0,0);
+        ComponentList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation(new Algorithm(YaqpAlgorithms.mlr_metadata()),new Page(0,0));
         for(AlgorithmOntology ont : ontologies.getComponentList()){
             System.out.println(ont);
         }
@@ -165,7 +166,7 @@ public class ReaderHandlerTest {
     public void getOntAlgRelationTest() throws Exception {
         System.out.println("---------------- search for algorithms for given ontology ------------");
         AlgorithmOntology ontology = new AlgorithmOntology("Regression");
-        ComponentList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology,0,0);
+        ComponentList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology,new Page(0,0));
         for(Algorithm alg : algorithms.getComponentList()){
             System.out.println(alg);
         }
@@ -183,7 +184,7 @@ public class ReaderHandlerTest {
     @Test
     public void getFeaturesTest() throws DbException {
         System.out.println("---------------- search features ------------");
-        ComponentList<Feature> features = ReaderHandler.searchFeature(new Feature(), 0, 0);
+        ComponentList<Feature> features = ReaderHandler.searchFeature(new Feature(), new Page(0,0));
         for(Feature f : features.getComponentList()){
             System.out.println(f);
         }
@@ -192,7 +193,8 @@ public class ReaderHandlerTest {
         @Test
     public void getQSARMods() throws DbException{
         System.out.println("---------------- search QSARModels ------------");
-        ComponentList<QSARModel> models = ReaderHandler.searchQSARModels(new QSARModel(), 0, 0);
+        QSARModel model = new QSARModel();
+        ComponentList<QSARModel> models = ReaderHandler.searchQSARModels(new QSARModel(), new Page(0,0));
         for (QSARModel m : models.getComponentList()){
             System.out.println(m.getId());
             System.out.println(m.getDependentFeature());

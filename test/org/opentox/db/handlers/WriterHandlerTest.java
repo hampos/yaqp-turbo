@@ -47,6 +47,7 @@ import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
 import org.opentox.db.exceptions.BadEmailException;
 import org.opentox.db.exceptions.DuplicateKeyException;
+import org.opentox.db.util.Page;
 import org.opentox.db.util.TheDbConnector;
 import static org.junit.Assert.*;
 import org.opentox.ontology.exceptions.ImproperEntityException;
@@ -421,7 +422,7 @@ public class WriterHandlerTest {
         try {
             User prot = new User();
             prot.setUserName("%ik%");
-            User u = ReaderHandler.searchUser(prot,0,0).get(0);
+            User u = ReaderHandler.searchUser(prot,new Page(0,0)).get(0);
             Task t = new Task(java.util.UUID.randomUUID().toString(), u, YaqpAlgorithms.SVC, 1000);
             assertEquals(WriterHandler.addTask(t), t);
         } catch (DbException ex) {
@@ -448,7 +449,7 @@ public class WriterHandlerTest {
         System.out.println("task - test 3");
         try {
             User prot = new User();
-            User u = ReaderHandler.searchUser(prot,0,0).get(0);
+            User u = ReaderHandler.searchUser(prot,new Page(0,0)).get(0);
             Task t = new Task(java.util.UUID.randomUUID().toString(), u, null, 1000);
             assertEquals(WriterHandler.addTask(t), t);
         } catch (DbException ex) {
@@ -461,7 +462,7 @@ public class WriterHandlerTest {
         System.out.println("task - test 4");
         try {
             User prot = new User();
-            User u = ReaderHandler.searchUser(prot,0,0).get(0);
+            User u = ReaderHandler.searchUser(prot,new Page(0,0)).get(0);
             Task t = new Task(java.util.UUID.randomUUID().toString(), u, YaqpAlgorithms.SVC, 0);
             assertEquals(WriterHandler.addTask(t), t);
         } catch (DbException ex) {
@@ -473,8 +474,8 @@ public class WriterHandlerTest {
     public void addQSARModel() throws ImproperEntityException {
         System.out.println("QSAR Model - test 1");
         try {
-            User u = ReaderHandler.searchUser(new User(),0,0).get(0);
-            Feature f = ReaderHandler.searchFeature(new Feature(null),0,0).get(0);
+            User u = ReaderHandler.searchUser(new User(),new Page(0,0)).get(0);
+            Feature f = ReaderHandler.searchFeature(new Feature(null),new Page(0,0)).get(0);
             ArrayList<Feature> lf = new ArrayList<Feature>();
             lf.add(f);
             QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.MLR, u, null, "dataset1", QSARModel.ModelStatus.UNDER_DEVELOPMENT);
@@ -513,7 +514,7 @@ public class WriterHandlerTest {
     public void addQSARNewFeatures() throws ImproperEntityException {
         System.out.println("QSAR Model - test 4");
         try {
-            User u = ReaderHandler.searchUser(new User(),0,0).get(0);
+            User u = ReaderHandler.searchUser(new User(),new Page(0,0)).get(0);
             Feature f1 = new Feature("http://example.org/feature/1");
             Feature f2 = new Feature("http://example.org/feature/2");
             Feature f3 = new Feature("http://example.org/feature/3");
@@ -536,7 +537,7 @@ public class WriterHandlerTest {
     public void addsvmModel() {
         System.out.println("SVM Model - test 1");
         try {
-            User u = ReaderHandler.searchUser(new User(),0,0).get(1);
+            User u = ReaderHandler.searchUser(new User(),new Page(0,0)).get(1);
             Feature f = new Feature(-1, "http://chung.net/feature/666");
             ArrayList<Feature> lf = new ArrayList<Feature>();
             lf.add(f);
@@ -557,7 +558,7 @@ public class WriterHandlerTest {
     public void addsvmModel_badParams() {
         System.out.println("SVM Model - test 2");
         try {
-            User u = ReaderHandler.searchUser(new User(),0,0).get(1);
+            User u = ReaderHandler.searchUser(new User(),new Page(0,0)).get(1);
             Feature f = new Feature(-1, "http://chung.net/feature/666");
             ArrayList<Feature> lf = new ArrayList<Feature>();
             lf.add(f);
@@ -580,7 +581,7 @@ public class WriterHandlerTest {
     public void addsvmModel_missing() {
         System.out.println("SVM Model - test 2");
         try {
-            User u = ReaderHandler.searchUser(new User(),0,0).get(1);
+            User u = ReaderHandler.searchUser(new User(),new Page(0,0)).get(1);
             Feature f = new Feature(-1, "http://chung.net/feature/666");
             ArrayList<Feature> lf = new ArrayList<Feature>();
             lf.add(f);
@@ -601,7 +602,7 @@ public class WriterHandlerTest {
     @Test
     public void addmlrModel() throws DbException, ImproperEntityException, YaqpException {
         System.out.println("MLR Model - test 1");
-        User u = ReaderHandler.searchUser(new User(),0,0).get(0);
+        User u = ReaderHandler.searchUser(new User(),new Page(0,0)).get(0);
         //u.setEmail("john@foo.goo.gr");
         Feature f = new Feature(-1, "http://chung.net/feature/666");
         ArrayList<Feature> lf = new ArrayList<Feature>();
@@ -675,7 +676,7 @@ public class WriterHandlerTest {
         try {
             User prot = new User();
             prot.setEmail("john%");
-            User u = ReaderHandler.searchUser(prot,0,0).get(0);
+            User u = ReaderHandler.searchUser(prot,new Page(0,0)).get(0);
             OmegaModel om = new OmegaModel("dset50", java.util.UUID.randomUUID().toString(), u);
             assertTrue(WriterHandler.addOmega(om).getId() > 0);
         } catch (DbException ex) {
