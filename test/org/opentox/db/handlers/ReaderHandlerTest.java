@@ -52,6 +52,7 @@ import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
+import org.opentox.ontology.util.vocabulary.ConstantParameters;
 import static org.junit.Assert.*;
 
 /**
@@ -203,12 +204,62 @@ public class ReaderHandlerTest {
         //AlgorithmParameter<Double> p = map.get("gamma");
         AlgorithmParameter p = new AlgorithmParameter(2.5);
 
-//        map.put("gamma_max", p);
-//
-//        model.setParams(map);
-        
-        ComponentList<QSARModel> models = ReaderHandler.searchQSARModels(model, new Page());
+        map.put("gamma_max", p);
+
+        model.setParams(map);
+        //model.setId(109);
+        //model.setModelStatus(QSARModel.ModelStatus.UNDER_DEVELOPMENT);
+        ComponentList<QSARModel> models = ReaderHandler.searchQSARModel(model, new Page());
         for (QSARModel m : models.getComponentList()) {
+            System.out.println(m.getId());
+            System.out.println(m.getDependentFeature());
+            System.out.println(m.getParams().get("gamma").paramValue);
+        }
+    }
+
+    @Test
+    public void getQSARModsSkroutz() throws DbException {
+        System.out.println("---------------- search QSARModels SKROUTZ------------");
+        QSARModel model = new QSARModel();
+        Map<String, AlgorithmParameter> map = new HashMap<String, AlgorithmParameter>();
+
+        //AlgorithmParameter<Double> p = map.get("gamma");
+        AlgorithmParameter p = new AlgorithmParameter(2.5);
+
+        map.put("gamma_max", p);
+
+      //  model.setParams(map);
+        //model.setId(109);
+        model.setMinId(2);
+        //model.setModelStatus(QSARModel.ModelStatus.UNDER_DEVELOPMENT);
+        ComponentList<QSARModel> models = ReaderHandler.searchQSARModelSkroutz(model, new Page());
+        for (QSARModel m : models.getComponentList()) {
+            System.out.println(m.getId());
+        }
+    }
+
+    @Test
+    public void getOmega() throws DbException {
+        System.out.println("---------------- search OMEGA ------------");
+
+        OmegaModel model = new OmegaModel();
+        ComponentList<OmegaModel> models = ReaderHandler.searchOmega(model, new Page());
+        for (OmegaModel m : models.getComponentList()) {
+            System.out.println(m.getId());
+            System.out.println(m.getCode());
+            System.out.println(m.getUser().getFirstName());
+            System.out.println(m.getDataset());
+            System.out.println(m.getTimestamp());
+        }
+    }
+
+    @Test
+    public void getOmegaSkroutz() throws DbException {
+        System.out.println("---------------- search OMEGA SKROUTZ ------------");
+
+        OmegaModel model = new OmegaModel();
+        ComponentList<OmegaModel> models = ReaderHandler.searchOmegaSkroutz(model, new Page());
+        for (OmegaModel m : models.getComponentList()) {
             System.out.println(m.getId());
             System.out.println(m.getCode());
         }

@@ -95,7 +95,20 @@ public class Algorithm extends YaqpComponent {
         this.metadata = metadata;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if(obj instanceof Algorithm){
+            Algorithm alg = (Algorithm) obj;
+            return this.getMeta().getName().equals(alg.getMeta().getName());
+        }else return false;       
+    }
 
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 79 * hash + (this.metadata != null ? this.metadata.hashCode() : 0);
+        return hash;
+    }
 
     @Override
     public String toString() {
