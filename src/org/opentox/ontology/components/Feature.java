@@ -33,17 +33,29 @@ package org.opentox.ontology.components;
 
 import com.hp.hpl.jena.datatypes.xsd.XSDDatatype;
 import com.hp.hpl.jena.ontology.Individual;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.SimpleSelector;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.DC;
+import com.hp.hpl.jena.vocabulary.OWL;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import static org.opentox.core.exceptions.Cause.*;
 import org.opentox.core.exceptions.YaqpException;
+import org.opentox.io.exceptions.YaqpIOException;
+import org.opentox.io.processors.InputProcessor;
 import org.opentox.io.publishable.JSONObject;
+import org.opentox.io.publishable.OntObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
-import org.opentox.ontology.exceptions.ImproperEntityException;
+import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.namespaces.OTClass;
+import org.opentox.ontology.namespaces.OTObjectProperties;
+import org.opentox.ontology.util.Meta;
 
 /**
  *
@@ -52,10 +64,25 @@ import org.opentox.ontology.namespaces.OTClass;
  */
 public class Feature extends YaqpComponent {
 
+    /**
+     * URI of the feature
+     */
     private String uri = null;
+    /**
+     * Local yaqp ID of the feature related to the database.
+     */
     private int id;
-
-    private int _minId = Integer.MIN_VALUE, _maxId = Integer.MAX_VALUE;
+    /**
+     * Metadata about the feature...
+     */
+    private Meta meta = new Meta();
+    /**
+     * Min and Max value for the ID (useful when this component is used as
+     * a prototype for database searching).
+     */
+    private int
+            _minId = Integer.MIN_VALUE,
+            _maxId = Integer.MAX_VALUE;
 
     public Feature() {
         super();
@@ -117,6 +144,16 @@ public class Feature extends YaqpComponent {
         this.uri = _name;
     }
 
+    public Meta getMeta() {
+        return meta;
+    }
+
+    public void setMeta(Meta meta) {
+        this.meta = meta;
+    }
+
+
+
     @Override
     public String toString() {
         String feature = "";
@@ -136,23 +173,46 @@ public class Feature extends YaqpComponent {
         rdf.includeOntClass(OTClass.Feature);
         rdf.createAnnotationProperty(DC.identifier.getURI());
 
-        Individual feature = rdf.createIndividual(uri, OTClass.Feature.getOntClass(rdf));
-        feature.addProperty(DC.identifier, rdf.createTypedLiteral(uri, XSDDatatype.XSDanyURI));
+        Individual feaTure = rdf.createIndividual(uri, OTClass.Feature.getOntClass(rdf));
+
+
+        if (this.uri!=null && !this.uri.equals("")) feaTure.addProperty(DC.identifier, rdf.createTypedLiteral(uri, XSDDatatype.XSDanyURI));
+        if (!this.getMeta().title.equals("")) feaTure.addProperty(DC.title, rdf.createTypedLiteral(this.getMeta().title, XSDDatatype.XSDstring));
+        if (!this.getMeta().creator.equals("")) feaTure.addProperty(DC.creator, rdf.createTypedLiteral(this.getMeta().creator, XSDDatatype.XSDstring));
+
+        if (getMeta().sameAs!=null && getMeta().sameAs.size()>0){
+            ArrayList<String> sameAs_list = getMeta().sameAs;
+            for (String remoteFeature_uri : sameAs_list){
+                try {
+                    URI sameAsuri = new URI(remoteFeature_uri);
+                    InputProcessor<OntObject> featureDownloader = new InputProcessor<OntObject>();
+                    OntObject featureObject = featureDownloader.process(sameAsuri);
+                    RDFObject remoteModel = new RDFObject( featureObject   );
+                    StmtIterator it = remoteModel.listStatements(new SimpleSelector(remoteModel.createResource(remoteFeature_uri), OWL.sameAs, (Resource)null));
+
+                    while (it.hasNext()){
+                        feaTure.addProperty(OWL.sameAs, it.next().getObject().toString());
+                    }
+                    
+                } catch (YaqpIOException ex) {
+                    System.out.println(ex);
+                } catch (URISyntaxException ex) { /* What should I do??? */  System.out.println(ex);}
+            }
+        }
+
         /** The result validates as OWL-DL **/
         return rdf;
     }
 
-    @Override
-    public TurtleObject getTurtle() {
-        TurtleObject rdf = new TurtleObject();
-        rdf.includeOntClass(OTClass.Feature);
-        rdf.createAnnotationProperty(DC.identifier.getURI());
-
-        Individual feature = rdf.createIndividual(uri, OTClass.Feature.getOntClass(rdf));
-        feature.addProperty(DC.identifier, rdf.createTypedLiteral(uri, XSDDatatype.XSDanyURI));
-        /** The result validates as OWL-DL **/
-        return rdf;
+    public static void main(String... args) throws YaqpIOException{
+        Feature f = new Feature();
+        Meta m = new Meta();
+        m.sameAs.add("http://apps.ideaconsult.net:8180/ambit2/feature/20665");
+        m.title="Prediction Feature for the model http://opentox.ntua.gr:3030/model/451";
+        f.setMeta(m);
+        f.getRDF().publish(new YaqpIOStream(System.out));
     }
+
 
     @Override
     public JSONObject getJson() {

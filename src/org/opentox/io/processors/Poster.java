@@ -33,9 +33,13 @@ package org.opentox.io.processors;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
+import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.io.interfaces.JPublishable;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.util.ServerList;
@@ -43,7 +47,6 @@ import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.util.YaqpAlgorithms;
 import org.restlet.Client;
 import org.restlet.Response;
-import org.restlet.data.MediaType;
 import org.restlet.data.Protocol;
 import org.restlet.data.Status;
 import org.restlet.representation.OutputRepresentation;
@@ -56,6 +59,21 @@ import org.restlet.representation.OutputRepresentation;
 public class Poster
         extends AbstractIOProcessor<JPublishable, Response>
 {
+
+    private String whereToPost = "";
+
+
+    public Poster(String whereToPost) throws YaqpIOException {
+        try{
+            new URI(whereToPost);
+            this.whereToPost = whereToPost;
+        } catch (URISyntaxException ex){
+            throw new YaqpIOException(Cause.XIO5050,
+                    "Invalid URI parameter : {"+whereToPost+"}" , ex);
+        }
+    }
+
+
 
     public Response handle(final JPublishable objectToPost) throws YaqpException {
 
@@ -75,12 +93,10 @@ public class Poster
         int N_RETRIES =5, i=0;
         boolean success = false;
 
-
         Response response = new Response(null);
 
-
         while (!success && i < N_RETRIES){
-             response = cli.post(ServerList.ambit+"/feature", rep);
+             response = cli.post(whereToPost, rep);
              success = (response.getStatus().equals(Status.SUCCESS_OK));
              i++;
         }
@@ -90,7 +106,7 @@ public class Poster
 
     public static void main(String... args) throws YaqpException{
         RDFObject rdf = YaqpAlgorithms.MLR.getRDF();
-        Poster p = new Poster();
+        Poster p = new Poster(ServerList.ambit+"/feature");
         System.out.println(p.handle(rdf).toString());
     }
 

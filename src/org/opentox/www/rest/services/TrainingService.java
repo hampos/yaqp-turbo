@@ -46,6 +46,7 @@ import org.opentox.ontology.processors.InstancesProcessor;
 import org.opentox.ontology.util.vocabulary.ConstantParameters;
 import org.opentox.qsar.exceptions.QSARException;
 import org.opentox.qsar.interfaces.JTrainer;
+import org.opentox.qsar.processors.QSARModelDBWriter;
 import org.opentox.qsar.processors.trainers.WekaTrainer;
 import org.opentox.www.rest.components.YaqpForm;
 import org.restlet.data.MediaType;
@@ -135,10 +136,15 @@ public class TrainingService implements Callable<Representation> {
             throw new IllegalArgumentException("The class you provided is not a valid training class");
         }
 
+        QSARModelDBWriter m_writter = new QSARModelDBWriter();
+
+        trainingPipe.add(m_writter);
+
         final QSARModel model = (QSARModel) trainingPipe.process(new URI(form.getFirstValue(ConstantParameters.dataset_uri)));
 
         return new StringRepresentation(
-                  "CODE                   :" + model.getCode() + "\n"
+                 "ID                      :" + model.getId() + "\n"
+                + "CODE                   :" + model.getCode() + "\n"
                 + "DATASET                :" + model.getDataset() + "\n"
                 + "ALGORITHM              :" + model.getAlgorithm().getMeta().getName() + "\n"
                 + "DEPENDENT FEATURE      :" + model.getDependentFeature().getURI() + "\n"

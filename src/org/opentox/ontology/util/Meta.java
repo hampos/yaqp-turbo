@@ -41,7 +41,8 @@ import org.opentox.ontology.util.vocabulary.Audience;
 import org.restlet.data.MediaType;
 
 /**
- * Meta Data in general based on the Dublin Core Metadata Modeling ontology.
+ * Meta Data in general based on the Dublin Core Metadata Modeling ontology along with
+ * some other useful metadata such as <code>owl:sameAs</code> and <code>rdfs:seeAlso</code>.
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
@@ -153,17 +154,21 @@ public class Meta implements Serializable {
     public Locale language = Locale.ENGLISH;
     /**
      *
+     * <p>
      * An entity primarily responsible for making the resource.
      * Examples of a Creator include a person, an organization, or a
      * service. Typically, the name of a Creator should be used to indicate
      * the entity.
+     * </p>
      */
     public String creator = source;
     /**
      *
+     * <p>
      * An entity responsible for making the resource available. Examples of a Publisher
      * include a person, an organization, or a service. Typically, the name of a
      * Publisher should be used to indicate the entity.
+     * </p>
      */
     public String publisher = source;
     /**
@@ -173,6 +178,7 @@ public class Meta implements Serializable {
     public String contributor = relation;
     /**
      *
+     * <p>
      * The spatial or temporal topic of the resource, the spatial applicability
      * of the resource, or the jurisdiction under which the resource is relevant.
      * Spatial topic and spatial applicability may be a named place or a location
@@ -182,8 +188,35 @@ public class Meta implements Serializable {
      * is to use a controlled vocabulary such as the Thesaurus of Geographic
      * Names [TGN]. Where appropriate, named places or time periods can be used
      * in preference to numeric identifiers such as sets of coordinates or date ranges.
+     * </p>
      *
-     * [TGN] http://www.getty.edu/research/tools/vocabulary/tgn/index.html
+     * @see [TGN] http://www.getty.edu/research/tools/vocabulary/tgn/index.html
      */
     public String coverage = "";
+
+
+    /**
+     *
+     * The property rdfs:seeAlso specifies a resource that might provide additional
+     * information about the subject resource. This property may be specialized using
+     * rdfs:subPropertyOf to more precisely indicate the nature of the information the
+     * object resource has about the subject resource. The object and the subject
+     * resources are constrained only to be instances of the class rdfs:Resource.
+     */
+    public ArrayList<String> seeAlso = new ArrayList<String>();
+
+    /**
+     * owl:sameAs property.
+     * <p>
+     * (Documentation copied here from
+     * <a href = "http://www.w3.org/TR/owl-ref/#sameAs-def">W3C Reference</a>
+     * for the Ontology Web Language (OWL) )</p>
+     * </p>
+     * The built-in OWL property owl:sameAs links an individual to an individual.
+     * Such an owl:sameAs statement indicates that two URI references actually
+     * refer to the same thing: the individuals have the same "identity".
+     * </p>
+     *
+     */
+    public ArrayList<String> sameAs = new ArrayList<String>();
 }
