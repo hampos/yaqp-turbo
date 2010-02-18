@@ -45,6 +45,9 @@ public final class Page {
         this.pageNum = pageNum;
     }
 
+    public Page(){
+    }
+
     public int getPageNum() {
         return pageNum;
     }

@@ -250,7 +250,7 @@ public class ReaderHandler {
                 User user = new User(it.next(), it.next(), it.next(), it.next(),
                         it.next(), it.next(), it.next(),
                         it.next(), it.next(), it.next(), it.next(),
-                        searchUserGroup(new UserGroup(it.next()), new Page(0,0)).get(0)
+                        searchUserGroup(new UserGroup(it.next()), new Page()).get(0)
                         );
                 userList.add(user);
             }
@@ -302,7 +302,7 @@ public class ReaderHandler {
                 User user = new User(it.next(), it.next(), it.next(), it.next(),
                         it.next(), it.next(), it.next(),
                         it.next(), it.next(), it.next(), it.next(),
-                        searchUserGroup(new UserGroup(it.next()), new Page(0,0)).get(0)
+                        searchUserGroup(new UserGroup(it.next()), new Page()).get(0)
                         );
                 userList.add(user);
             }
@@ -463,24 +463,9 @@ public class ReaderHandler {
         if (prototype.getParams() == null){
             throw new NullPointerException("Are you nuts?! You provided a model with a null parameter set");
         }
-
-        DbPipeline<QueryFood,HyperResult> pipeline;
-
-        Map<String, AlgorithmParameter> testMap = prototype.getParams();
-        if ((testMap.get(ConstantParameters.gamma) != null && testMap.get(ConstantParameters.gamma).paramValue != null)
-                || (testMap.get(ConstantParameters.cacheSize) != null && testMap.get(ConstantParameters.cacheSize).paramValue != null)
-                || (testMap.get(ConstantParameters.coeff0) != null && testMap.get(ConstantParameters.coeff0).paramValue != null)
-                || (testMap.get(ConstantParameters.cost) != null && testMap.get(ConstantParameters.cost).paramValue != null)
-                || (testMap.get(ConstantParameters.epsilon) != null && testMap.get(ConstantParameters.epsilon).paramValue != null)
-                || (testMap.get(ConstantParameters.kernel) != null && testMap.get(ConstantParameters.kernel).paramValue != null)
-                || (testMap.get(ConstantParameters.tolerance) != null && testMap.get(ConstantParameters.tolerance).paramValue != null)) {
-            pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODEL);
-        } else {
-            pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODEL_ALL);
-        }
-        
         ComponentList<QSARModel> modelList = new ComponentList<QSARModel>();
-
+        HyperResult result = null;
+        DbPipeline<QueryFood,HyperResult> pipeline;
 
         QueryFood food = new QueryFood(
                 new String[][]{
@@ -493,67 +478,32 @@ public class ReaderHandler {
                     {"DEP_FEATURE_MAX", Integer.toString(prototype.getDependentFeature().getMaxId())},
                     {"ALGORITHM", fixNull(prototype.getAlgorithm().getMeta().getName())},
                     {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
-                    {"DATASET_URI", fixNull(prototype.getDataset())},
-
-                    {SupportVecTable.GAMMA.getColumnName()+"_MIN",
-                             fixParam(SupportVecTable.GAMMA.getColumnName()+"_MIN" ,
-                             SupportVecTable.GAMMA.getColumnType(), prototype.getParams())},
-                    {SupportVecTable.GAMMA.getColumnName()+"_MAX",
-                             fixParam(SupportVecTable.GAMMA.getColumnName()+"_MAX" ,
-                             SupportVecTable.GAMMA.getColumnType(), prototype.getParams())},
-
-                    {SupportVecTable.EPSILON.getColumnName()+"_MIN",
-                             fixParam(SupportVecTable.EPSILON.getColumnName()+"_MIN" ,
-                             SupportVecTable.EPSILON.getColumnType(), prototype.getParams())},
-                    {SupportVecTable.EPSILON.getColumnName()+"_MAX",
-                             fixParam(SupportVecTable.EPSILON.getColumnName()+"_MAX" ,
-                             SupportVecTable.EPSILON.getColumnType(), prototype.getParams())},
-
-                    {SupportVecTable.COST.getColumnName()+"_MIN",
-                             fixParam(SupportVecTable.COST.getColumnName()+"_MIN" ,
-                             SupportVecTable.COST.getColumnType(), prototype.getParams())},
-                    {SupportVecTable.COST.getColumnName()+"_MAX",
-                             fixParam(SupportVecTable.COST.getColumnName()+"_MAX" ,
-                             SupportVecTable.COST.getColumnType(), prototype.getParams())},
-
-                    {SupportVecTable.COEFF0.getColumnName()+"_MIN",
-                             fixParam(SupportVecTable.COEFF0.getColumnName()+"_MIN" ,
-                             SupportVecTable.COEFF0.getColumnType(), prototype.getParams())},
-                    {SupportVecTable.COEFF0.getColumnName()+"_MAX",
-                             fixParam(SupportVecTable.COEFF0.getColumnName()+"_MAX" ,
-                             SupportVecTable.COEFF0.getColumnType(), prototype.getParams())},
-
-                    {SupportVecTable.TOLERANCE.getColumnName()+"_MIN",
-                             fixParam(SupportVecTable.TOLERANCE.getColumnName()+"_MIN" ,
-                             SupportVecTable.TOLERANCE.getColumnType(), prototype.getParams())},
-                    {SupportVecTable.TOLERANCE.getColumnName()+"_MAX",
-                             fixParam(SupportVecTable.TOLERANCE.getColumnName()+"_MAX" ,
-                             SupportVecTable.TOLERANCE.getColumnType(), prototype.getParams())},
-
-                    {SupportVecTable.CACHESIZE.getColumnName()+"_MIN",
-                             fixParam(SupportVecTable.CACHESIZE.getColumnName()+"_MIN" ,
-                             SupportVecTable.CACHESIZE.getColumnType(), prototype.getParams())},
-                    {SupportVecTable.CACHESIZE.getColumnName()+"_MAX",
-                             fixParam(SupportVecTable.CACHESIZE.getColumnName()+"_MAX" ,
-                             SupportVecTable.CACHESIZE.getColumnType(), prototype.getParams())},
-
-                    {SupportVecTable.KERNEL.getColumnName(),
-                             fixParam(SupportVecTable.KERNEL.getColumnName(),
-                             SupportVecTable.KERNEL.getColumnType(), prototype.getParams())},
-
-                    {SupportVecTable.DEGREE.getColumnName()+"_MIN",
-                             fixParam(SupportVecTable.DEGREE.getColumnName()+"_MIN" ,
-                             SupportVecTable.DEGREE.getColumnType(), prototype.getParams())},
-                    {SupportVecTable.DEGREE.getColumnName()+"_MAX",
-                             fixParam(SupportVecTable.DEGREE.getColumnName()+"_MAX" ,
-                             SupportVecTable.DEGREE.getColumnType(), prototype.getParams())},
-
-                    {"OFFSET", page.getOffset()},
-                    {"ROWS", page.getRows()}
+                    {"DATASET_URI", fixNull(prototype.getDataset())}
         });
-        HyperResult result = null;
 
-           
+        if (prototype.hasVec()) {
+            pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODEL);
+            food.add("GAMMA_MIN", Double.toString((Double) prototype.getParams().get(ConstantParameters.gamma+"_min").paramValue));
+            food.add("GAMMA_MAX", Double.toString((Double) prototype.getParams().get(ConstantParameters.gamma+"_max").paramValue));
+            food.add("EPSILON_MIN", Double.toString((Double) prototype.getParams().get(ConstantParameters.epsilon+"_min").paramValue));
+            food.add("EPSILON_MAX", Double.toString((Double) prototype.getParams().get(ConstantParameters.epsilon+"_max").paramValue));
+            food.add("COST_MIN", Double.toString((Double) prototype.getParams().get(ConstantParameters.cost+"_min").paramValue));
+            food.add("COST_MAX", Double.toString((Double) prototype.getParams().get(ConstantParameters.cost+"_max").paramValue));
+            food.add("COEFF0_MIN", Double.toString((Double) prototype.getParams().get(ConstantParameters.coeff0+"_min").paramValue));
+            food.add("COEFF0_MAX", Double.toString((Double) prototype.getParams().get(ConstantParameters.coeff0+"_max").paramValue));
+            food.add("TOLERANCE_MIN", Double.toString((Double) prototype.getParams().get(ConstantParameters.tolerance+"_min").paramValue));
+            food.add("TOLERANCE_MAX", Double.toString((Double) prototype.getParams().get(ConstantParameters.tolerance+"_max").paramValue));
+            food.add("CACHESIZE_MIN", Integer.toString((Integer) prototype.getParams().get(ConstantParameters.cacheSize+"_min").paramValue));
+            food.add("CACHESIZE_MAX", Integer.toString((Integer) prototype.getParams().get(ConstantParameters.cacheSize+"_max").paramValue));
+            food.add("KERNEL", (String) prototype.getParams().get(ConstantParameters.kernel).paramValue);
+            food.add("DEGREE_MIN", Integer.toString((Integer) prototype.getParams().get(ConstantParameters.degree+"_min").paramValue));
+            food.add("DEGREE_MAX", Integer.toString((Integer) prototype.getParams().get(ConstantParameters.degree+"_max").paramValue));
+        } else {
+            pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODEL_ALL);                
+        }
+        food.add("OFFSET", page.getOffset());
+        food.add("ROWS", page.getRows());
+
         try {
                 result = pipeline.process(food);
                 for (int i = 1; i <= result.getSize(); i++) {
@@ -561,10 +511,10 @@ public class ReaderHandler {
                     QSARModel model = new QSARModel();
                     model.setId(Integer.parseInt(it.next()));
                     model.setCode(it.next());
-                    model.setPredictionFeature(searchFeature(new Feature(Integer.parseInt(it.next())), new Page(0,0)).get(0));
-                    model.setDependentFeature(searchFeature(new Feature(Integer.parseInt(it.next())), new Page(0,0)).get(0));
+                    model.setPredictionFeature(searchFeature(new Feature(Integer.parseInt(it.next())), new Page()).get(0));
+                    model.setDependentFeature(searchFeature(new Feature(Integer.parseInt(it.next())), new Page()).get(0));
                     model.setAlgorithm(getAlgorithm(it.next()));
-                    model.setUser(searchUser(new User(it.next()), new Page(0,0)).get(0));
+                    model.setUser(searchUser(new User(it.next()), new Page()).get(0));
                     model.setDataset(it.next());
                     model.setIndependentFeatures(getIndepFeatures(model).getComponentList());
                     modelList.add(model);
@@ -584,153 +534,33 @@ public class ReaderHandler {
      * <code>%%</code> otherwise.
      */
     private static String fixNull(String in) {
-        if (in == null) {
+        if (in == null || in.equals("")) {
             return "%%";
         }
         return in;
     }
-    private static String fixParam(String name, SQLDataTypes type, Map<String,AlgorithmParameter> params) {
-        if(type.equals(SQLDataTypes.Float())){
-            if (params.get(name.toLowerCase()) != null && params.get(name.toLowerCase()).paramValue != null){
-                return Double.toString((Double)params.get(name.toLowerCase()).paramValue);
-            }else if(name.endsWith("_MIN")){
-                if( params.get(name.toLowerCase().substring(0, name.length()-"_MIN".length())) != null
-                        && params.get(name.toLowerCase().substring(0, name.length()-"_MIN".length())).paramValue != null){
-                    return Double.toString((Double)params.get(name.toLowerCase().substring(0, name.length()-"_MIN".length())).paramValue);
 
-                }
-                return Double.toString(0);
-            }else if(name.endsWith("_MAX")){
-                if( params.get(name.toLowerCase().substring(0, name.length()-"_MAX".length())) != null
-                        && params.get(name.toLowerCase().substring(0, name.length()-"_MAX".length())).paramValue != null){
-                    return Double.toString((Double)params.get(name.toLowerCase().substring(0, name.length()-"_MAX".length())).paramValue);
-                }
-                return Double.toString(Integer.MAX_VALUE);
-            }
-        } else if(type.equals(SQLDataTypes.Int())){
-            if (params.get(name.toLowerCase()) != null && params.get(name.toLowerCase()).paramValue != null){
-                return Integer.toString((Integer)params.get(name.toLowerCase()).paramValue);
-            }else if(name.endsWith("_MIN")){
-                if( params.get(name.toLowerCase().substring(0, name.length()-"_MIN".length())) != null
-                        && params.get(name.toLowerCase().substring(0, name.length()-"_MIN".length())).paramValue != null){
-                    return Integer.toString((Integer)params.get(name.toLowerCase().substring(0, name.length()-"_MIN".length())).paramValue);
-                }
-                return Integer.toString(0);
-            }else if(name.endsWith("_MAX")){
-                if( params.get(name.toLowerCase().substring(0, name.length()-"_MAX".length())) != null
-                        && params.get(name.toLowerCase().substring(0, name.length()-"_MAX".length())) != null){
-                    return Integer.toString((Integer)params.get(name.toLowerCase().substring(0, name.length()-"_MAX".length())).paramValue);
-                }
-                return Integer.toString(Integer.MAX_VALUE);
-            }
-        } else if(type.toString().contains("VARCHAR")){
-            if (params.get(name.toLowerCase()) != null && params.get(name.toLowerCase()).paramValue != null){
-                return fixNull((String) params.get(name.toLowerCase()).paramValue);
-            }
-            return fixNull(null);
+    public static ComponentList<AlgorithmOntology> getAlgOntRelation(Algorithm prototype, Page page) throws YaqpOntException, DbException {
+        if (prototype == null) {
+            throw new NullPointerException("Algorithm prototype provided is null");
         }
-        throw new IllegalArgumentException("Wrong parameters given");
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    public static ArrayList<MLRModel> getMLRModels() throws DbException{
-//        if (getMLRModelsPipeline == null) {
-//            getMLRModelsPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_MLR_MODELS);
-//        }
-//        HyperResult result = null;
-//        try {
-//            result = getMLRModelsPipeline.process(null);
-//        } catch (YaqpException ex) {
-//            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get MLRModels from database"));
-//        }
-//        ArrayList<MLRModel> models = new ArrayList<MLRModel>();
-//        for (int i = 1; i < result.getSize() + 1; i++) {
-//            Iterator<String> it = result.getColumnIterator(i);
-//            MLRModel model = new MLRModel(Integer.parseInt(it.next()), it.next(), it.next(),
-//                    searchFeature(Integer.parseInt(it.next())), searchFeature(Integer.parseInt(it.next())),
-//                    getAlgorithm(it.next()), searchUsers(it.next()), it.next(), it.next());
-//            model.setIndependentFeatures(getIndepFeatures(model));
-//            models.add(model);
-//        }
-//        return models;
-//    }
-//    public static ArrayList<Task> getTasks() throws DbException {
-//        if (getTasksPipeline == null) {
-//            getTasksPipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_TASKS);
-//        }
-//        HyperResult result = null;
-//        try {
-//            result = getTasksPipeline.process(null);
-//        } catch (YaqpException ex) {
-//            YaqpLogger.LOG.log(new Debug(ReaderHandler.class, "Could not get Tasks from database"));
-//        }
-//        ArrayList<Task> tasks = new ArrayList<Task>();
-//        for (int i = 1; i < result.getSize() + 1; i++) {
-//            Iterator<String> it = result.getColumnIterator(i);
-//            Task task = new Task(Integer.parseInt(it.next()), it.next(), it.next(),
-//                    Task.STATUS.valueOf(it.next()), searchUsers(it.next()), getAlgorithm(it.next()), Integer.parseInt(it.next()),
-//                    it.next(), it.next(), it.next());
-//            tasks.add(task);
-//        }
-//        return tasks;
-//    }
-
-
-
-
-    /**
-     * ****************************************************************************
-     * ----------------------------------------------------------------------------
-     *                      GET QUERIES
-     * ----------------------------------------------------------------------------
-     * ****************************************************************************
-     */
-
-
-
-
-      /**
-     * Name-based database search for algorithms.
-     * @param algorithmName
-     * @return
-     * @throws YaqpOntException
-     */
-    public static ComponentList<AlgorithmOntology>
-            getAlgOntRelation(Algorithm prototype, Page page) throws YaqpOntException, DbException {
-        if(prototype == null){
-             throw new NullPointerException("Algorithm prototype provided is null");
-         }
         ComponentList<AlgorithmOntology> ontList = new ComponentList<AlgorithmOntology>();
-        DbPipeline<QueryFood,HyperResult> pipeline =
+        DbPipeline<QueryFood, HyperResult> pipeline =
                 new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALGORITHM_ONTOLOGY_RELATION);
 
         QueryFood food = new QueryFood(
                 new String[][]{
                     {"ALGORITHM", prototype.getMeta().getName()},
-
                     {"OFFSET", page.getOffset()},
                     {"ROWS", page.getRows()}
-        });
+                });
         HyperResult result = null;
         try {
             result = pipeline.process(food);
-            for (int i = 1; i <= result.getSize() ; i++) {
-            Iterator<String> it = result.getColumnIterator(i);
-            AlgorithmOntology algont = new AlgorithmOntology(it.next());
-            ontList.add(algont);
+            for (int i = 1; i <= result.getSize(); i++) {
+                Iterator<String> it = result.getColumnIterator(i);
+                AlgorithmOntology algont = new AlgorithmOntology(it.next());
+                ontList.add(algont);
             }
         } catch (YaqpException ex) {
             String message = "Could not get Algorithm-Ontology Relations from database";

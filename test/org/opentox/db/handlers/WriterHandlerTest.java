@@ -544,11 +544,14 @@ public class WriterHandlerTest {
             QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "http://dataset.com/1", null);
             Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
             params.putAll(ConstantParameters.SVMParams());
-            m.setParams(params);
+            //m.setParams(ConstantParameters.SVMParams());
+            m.setParams(new HashMap<String, AlgorithmParameter>());
             WriterHandler.add(m);
         } catch (DbException ex) {
+            System.out.println(ex);
             fail();
         } catch (ImproperEntityException ex) {
+            System.out.println(ex);
             fail();
         }
     }
@@ -628,6 +631,7 @@ public class WriterHandlerTest {
         } catch (DbException ex) {
             assertTrue(ex.getCode() == Cause.XDB7701);
         } catch (ImproperEntityException ex) {
+            System.out.println(ex);
             fail();
         }
     }
