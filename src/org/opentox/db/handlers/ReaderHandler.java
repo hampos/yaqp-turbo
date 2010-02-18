@@ -626,6 +626,78 @@ public class ReaderHandler {
         return modelList;
     }
 
+    public static ComponentList<OmegaModel> searchOmega(OmegaModel prototype, Page page) throws DbException{
+        if(prototype == null){
+             throw new NullPointerException("QSARModel prototype provided is null");
+         }
+        ComponentList<OmegaModel> modelList = new ComponentList<OmegaModel>();
+        HyperResult result = null;
+        DbPipeline<QueryFood,HyperResult> pipeline = new DbPipeline<QueryFood,HyperResult>(PrepStmt.SEARCH_OMEGA);
+
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"UID_MIN", Integer.toString(prototype.getMinId())},
+                    {"UID_MAX", Integer.toString(prototype.getMaxId())},
+                    {"CODE", fixNull(prototype.getCode())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
+                    {"DATASET_URI", fixNull(prototype.getDataset())},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
+        });
+        try {
+                result = pipeline.process(food);
+                for (int i = 1; i <= result.getSize(); i++) {
+                    Iterator<String> it = result.getColumnIterator(i);
+                    OmegaModel model = new OmegaModel();
+                    model.setId(Integer.parseInt(it.next()));
+                    model.setCode(it.next());
+                    model.setUser(searchUser(new User(it.next()), new Page()).get(0));
+                    model.setDataset(it.next());
+                    model.setTimestamp(it.next());
+                    modelList.add(model);
+                }
+        } catch (YaqpException ex) {
+            System.out.println(ex);
+            throw new DbException(XDH7, "Could not get OmegaModels from Database", ex);
+        }
+        return modelList;
+    }
+
+    public static ComponentList<OmegaModel> searchOmegaSkroutz(OmegaModel prototype, Page page) throws DbException{
+        if(prototype == null){
+             throw new NullPointerException("QSARModel prototype provided is null");
+         }
+        ComponentList<OmegaModel> modelList = new ComponentList<OmegaModel>();
+        HyperResult result = null;
+        DbPipeline<QueryFood,HyperResult> pipeline = new DbPipeline<QueryFood,HyperResult>(PrepStmt.SEARCH_OMEGA_SKROUTZ);
+
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"UID_MIN", Integer.toString(prototype.getMinId())},
+                    {"UID_MAX", Integer.toString(prototype.getMaxId())},
+                    {"CODE", fixNull(prototype.getCode())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
+                    {"DATASET_URI", fixNull(prototype.getDataset())},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
+        });
+        try {
+                result = pipeline.process(food);
+                for (int i = 1; i <= result.getSize(); i++) {
+                    Iterator<String> it = result.getColumnIterator(i);
+                    OmegaModel model = new OmegaModel();
+                    model.setId(Integer.parseInt(it.next()));
+                    modelList.add(model);
+                }
+        } catch (YaqpException ex) {
+            System.out.println(ex);
+            throw new DbException(XDH7, "Could not get OmegaModels from Database", ex);
+        }
+        return modelList;
+    }
+
 
     /**
      * Auxiliary method.

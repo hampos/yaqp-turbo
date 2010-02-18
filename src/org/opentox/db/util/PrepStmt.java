@@ -592,6 +592,43 @@ public enum PrepStmt implements JPrepStmt {
                 new QueryParam("ROWS", Integer.class)
             }),
 
+    SEARCH_OMEGA("SELECT * FROM " + OmegaTable.TABLE.getTableName() + " " +
+            "WHERE UID BETWEEN ? AND ? " +
+            "AND CODE LIKE ? " +
+            "AND CREATED_BY LIKE ? " +
+            "AND DATASET_URI LIKE ? " +
+            getPagingQuery(),
+
+            new QueryParam[]{
+                new QueryParam("UID_MIN", Integer.class),
+                new QueryParam("UID_MAX", Integer.class),
+                new QueryParam("CODE", String.class),
+                new QueryParam("CREATED_BY", String.class),
+                new QueryParam("DATASET_URI", String.class),
+                
+                new QueryParam("OFFSET", Integer.class),
+                new QueryParam("ROWS", Integer.class)
+          }),
+
+     SEARCH_OMEGA_SKROUTZ("SELECT UID FROM " + OmegaTable.TABLE.getTableName() + " " +
+            "WHERE UID BETWEEN ? AND ? " +
+            "AND CODE LIKE ? " +
+            "AND CREATED_BY LIKE ? " +
+            "AND DATASET_URI LIKE ? " +
+            getPagingQuery(),
+
+            new QueryParam[]{
+                new QueryParam("UID_MIN", Integer.class),
+                new QueryParam("UID_MAX", Integer.class),
+                new QueryParam("CODE", String.class),
+                new QueryParam("CREATED_BY", String.class),
+                new QueryParam("DATASET_URI", String.class),
+
+                new QueryParam("OFFSET", Integer.class),
+                new QueryParam("ROWS", Integer.class)
+          }),
+
+
     SEARCH_TASK("SELECT * FROM " + TasksTable.TABLE.getTableName() +
             ""
             , null),

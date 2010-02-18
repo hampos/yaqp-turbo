@@ -47,21 +47,34 @@ import org.opentox.io.publishable.TurtleObject;
  */
 public class OmegaModel extends YaqpComponent {
 
-    private String dataset_uri;
-    private String code;
-    private User user;
+    private String dataset_uri = null;
+    private String code = null;
+    private User user = new User();
+    private String timestamp = null;
     private int id = 0;
+    private int _minId = Integer.MIN_VALUE, _maxId = Integer.MAX_VALUE;
+
 
     public OmegaModel() {
         super();
     }
 
     public OmegaModel(String dataset_uri, String code, User user) {
-        super();
         this.dataset_uri = dataset_uri;
         this.code = code;
         this.user = user;
     }
+
+    public OmegaModel(int id, String code, User user, String dataset_uri, String timestamp ) {
+        this.id=id;
+        this._maxId = id;
+        this._minId = id;
+        this.dataset_uri = dataset_uri;
+        this.code = code;
+        this.user = user;
+        this.timestamp = timestamp;
+    }
+
 
     public String getCode() {
         return code;
@@ -85,6 +98,8 @@ public class OmegaModel extends YaqpComponent {
 
     public void setId(int id) {
         this.id = id;
+        this._maxId = id;
+        this._minId = id;
     }
 
     public User getUser() {
@@ -94,6 +109,33 @@ public class OmegaModel extends YaqpComponent {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public int getMaxId() {
+        return _maxId;
+    }
+
+    public void setMaxId(int _maxId) {
+        this._maxId = _maxId;
+    }
+
+    public int getMinId() {
+        return _minId;
+    }
+
+    public void setMinId(int _minId) {
+        this._minId = _minId;
+    }
+
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    
+
 
     @Override
     public PDFObject getPDF() {
