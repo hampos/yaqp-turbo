@@ -52,7 +52,6 @@ import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
-import org.opentox.ontology.util.vocabulary.ConstantParameters;
 import static org.junit.Assert.*;
 
 /**
@@ -204,14 +203,14 @@ public class ReaderHandlerTest {
         //AlgorithmParameter<Double> p = map.get("gamma");
         AlgorithmParameter p = new AlgorithmParameter(2.5);
 
-        map.put("gamma_max", p);
-
-        model.setParams(map);
-        model.setId(109);
+//        map.put("gamma_max", p);
+//
+//        model.setParams(map);
+        
         ComponentList<QSARModel> models = ReaderHandler.searchQSARModels(model, new Page());
         for (QSARModel m : models.getComponentList()) {
             System.out.println(m.getId());
-            System.out.println(m.getDependentFeature());
+            System.out.println(m.getCode());
         }
     }
 
