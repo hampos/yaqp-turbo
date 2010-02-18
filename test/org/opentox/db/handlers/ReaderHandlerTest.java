@@ -30,6 +30,12 @@
  */
 package org.opentox.db.handlers;
 
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -77,17 +83,16 @@ public class ReaderHandlerTest {
     public void tearDown() {
     }
 
-
     /**
      * Get all users - check if it works
      * @throws DbException
      */
     @Test
-    public void searchForUser() throws DbException{
+    public void searchForUser() throws DbException {
         System.out.println("-- serch user - test 1 --");
         User prototype = new User();
-        ComponentList<User> list = ReaderHandler.searchUser(prototype, new Page(0,0));
-        for (User user : list.getComponentList()){
+        ComponentList<User> list = ReaderHandler.searchUser(prototype, new Page(0, 0));
+        for (User user : list.getComponentList()) {
             System.out.println(user);
         }
     }
@@ -97,45 +102,42 @@ public class ReaderHandlerTest {
      * @throws DbException
      */
     @Test
-    public void searchUser_size() throws DbException{
+    public void searchUser_size() throws DbException {
         System.out.println("-- serch user - test 2 --");
         User prototype = new User();
-        ComponentList<User> list = ReaderHandler.searchUser(prototype,new Page(1,0));
+        ComponentList<User> list = ReaderHandler.searchUser(prototype, new Page(1, 0));
         assertTrue(list.getComponentList().size() == 1);
     }
 
-
     @Test
-    public void unknownEmail() throws DbException{
+    public void unknownEmail() throws DbException {
         System.out.println("-- serch user - test 3 --");
         User prototype = new User();
         prototype.setEmail("unknown@user.mail.tnt");
-        ComponentList<User> list = ReaderHandler.searchUser(prototype,new Page(1,0));
+        ComponentList<User> list = ReaderHandler.searchUser(prototype, new Page(1, 0));
         assertTrue(list.getComponentList().size() == 0);
     }
 
     @Test
-    public void unknownName() throws DbException{
+    public void unknownName() throws DbException {
         System.out.println("-- serch user - test 3 --");
         User prototype = new User();
         prototype.setUserName("mitsos");
-        ComponentList<User> list = ReaderHandler.searchUser(prototype,new Page(1,0));
+        ComponentList<User> list = ReaderHandler.searchUser(prototype, new Page(1, 0));
         assertTrue(list.getComponentList().size() == 0);
     }
-
-
 
     /**
      * Assure that null prototype throws NPE.
      * @throws DbException
      */
     @Test
-    public void searchNullUser() throws DbException{
+    public void searchNullUser() throws DbException {
         System.out.println("-- serch user - test 4 --");
         User prototype = null;
-        try{
-        ComponentList<User> list = ReaderHandler.searchUser(prototype,new Page(0,0));
-        } catch (Exception ex){
+        try {
+            ComponentList<User> list = ReaderHandler.searchUser(prototype, new Page(0, 0));
+        } catch (Exception ex) {
             assertTrue(ex instanceof NullPointerException);
         }
     }
@@ -143,7 +145,7 @@ public class ReaderHandlerTest {
     @Test
     public void getAlgorithmOntologiesTest() throws YaqpOntException, DbException {
         System.out.println("-- check whether all ontologies are in the DB --");
-        ComponentList<AlgorithmOntology> algont = ReaderHandler.searchAlgorithmOntology(new AlgorithmOntology(), new Page(0,0));
+        ComponentList<AlgorithmOntology> algont = ReaderHandler.searchAlgorithmOntology(new AlgorithmOntology(), new Page(0, 0));
         assertEquals(algont.getComponentList().size(), OTAlgorithmTypes.getAllAlgorithmTypes().size());
 
     }
@@ -151,17 +153,16 @@ public class ReaderHandlerTest {
     @Test
     public void getUserGroupsTest() throws DbException {
         System.out.println("-- user groups page size --");
-        ComponentList<UserGroup> userGroups = ReaderHandler.searchUserGroup(new UserGroup(), new Page(1,0));
+        ComponentList<UserGroup> userGroups = ReaderHandler.searchUserGroup(new UserGroup(), new Page(1, 0));
         ArrayList<UserGroup> list = userGroups.getComponentList();
         assertEquals(list.size(), 1);
     }
 
-
     @Test
     public void getAlgOntRelationTest() throws YaqpOntException, DbException {
         System.out.println("---------------- search for ontologies for given algorithm ------------");
-        ComponentList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation(new Algorithm(YaqpAlgorithms.mlr_metadata()),new Page(0,0));
-        for(AlgorithmOntology ont : ontologies.getComponentList()){
+        ComponentList<AlgorithmOntology> ontologies = ReaderHandler.getAlgOntRelation(new Algorithm(YaqpAlgorithms.mlr_metadata()), new Page(0, 0));
+        for (AlgorithmOntology ont : ontologies.getComponentList()) {
             System.out.println(ont);
         }
     }
@@ -170,8 +171,8 @@ public class ReaderHandlerTest {
     public void getOntAlgRelationTest() throws Exception {
         System.out.println("---------------- search for algorithms for given ontology ------------");
         AlgorithmOntology ontology = new AlgorithmOntology("Regression");
-        ComponentList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology,new Page(0,0));
-        for(Algorithm alg : algorithms.getComponentList()){
+        ComponentList<Algorithm> algorithms = ReaderHandler.getOntAlgRelation(ontology, new Page(0, 0));
+        for (Algorithm alg : algorithms.getComponentList()) {
             System.out.println(alg);
         }
     }
@@ -180,7 +181,7 @@ public class ReaderHandlerTest {
     public void getAlgorithmsTest() throws DbException {
         System.out.println("---------------- get all algorithms ------------");
         ComponentList<Algorithm> algorithms = ReaderHandler.getAlgorithms();
-        for(Algorithm alg : algorithms.getComponentList()){
+        for (Algorithm alg : algorithms.getComponentList()) {
             System.out.println(alg);
         }
     }
@@ -188,49 +189,76 @@ public class ReaderHandlerTest {
     @Test
     public void getFeaturesTest() throws DbException {
         System.out.println("---------------- search features ------------");
-        ComponentList<Feature> features = ReaderHandler.searchFeature(new Feature(), new Page(0,0));
-        for(Feature f : features.getComponentList()){
+        ComponentList<Feature> features = ReaderHandler.searchFeature(new Feature(), new Page(0, 0));
+        for (Feature f : features.getComponentList()) {
             System.out.println(f);
         }
     }
 
-        @Test
-    public void getQSARMods() throws DbException{
+    @Test
+    public void getQSARMods() throws DbException {
         System.out.println("---------------- search QSARModels ------------");
         QSARModel model = new QSARModel();
-        Map<String,AlgorithmParameter> map = new HashMap<String,AlgorithmParameter>();
-        
-        //AlgorithmParameter<Double> p = map.get("gamma");
-        AlgorithmParameter p = new AlgorithmParameter(1.5);
+        Map<String, AlgorithmParameter> map = new HashMap<String, AlgorithmParameter>();
 
-        map.put("gamma_min", p);
+        //AlgorithmParameter<Double> p = map.get("gamma");
+        AlgorithmParameter p = new AlgorithmParameter(2.5);
+
+        map.put("gamma_max", p);
 
         model.setParams(map);
-        ComponentList<QSARModel> models = ReaderHandler.searchQSARModels(model, new Page(0,0));
-        for (QSARModel m : models.getComponentList()){
+        model.setId(109);
+        ComponentList<QSARModel> models = ReaderHandler.searchQSARModels(model, new Page());
+        for (QSARModel m : models.getComponentList()) {
             System.out.println(m.getId());
             System.out.println(m.getDependentFeature());
         }
     }
 
 
-//   @Test
-//    public void getMLRModelsTest() throws DbException{
-//        ArrayList<MLRModel> models = ReaderHandler.getMLRModels();
-//        Iterator<MLRModel> it = models.iterator();
-//        while(it.hasNext()){
-//            System.out.println(it.next());
-//        }
-//    }
 
-   // @Test
-//    public void getTasksTest() throws DbException{
-//        ArrayList<Task> tasks = ReaderHandler.getTasks();
-//        Iterator<Task> it = tasks.iterator();
-//        while(it.hasNext()){
-//            System.out.println(it.next());
-//        }
-//    }
+
+    //@Test
+    public void testoftest() throws SQLException {
+        Connection con = TheDbConnector.DB.getConnection();
+        String query = "select * from qsar_models left outer join svm_models on qsar_models.uid=svm_models.uid where gamma between ? and ?";
+
+        PreparedStatement p = con.prepareStatement(query);
+//        p.setNull(1, java.sql.Types.DOUBLE);
+//        p.setNull(2, java.sql.Types.DOUBLE);
+        p.setDouble(1, 0.5);
+        p.setDouble(2, 2.5);
+        ResultSet rs = p.executeQuery();
+
+
+        ResultSetMetaData rsmd = rs.getMetaData();
+
+        while (rs.next()) {
+            for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
+                System.out.println(rs.getString(col_index + 1));
+            }
+        }
+
+        rs.close();
+    }
+
+            //   @Test
+    //    public void getMLRModelsTest() throws DbException{
+    //        ArrayList<MLRModel> models = ReaderHandler.getMLRModels();
+    //        Iterator<MLRModel> it = models.iterator();
+    //        while(it.hasNext()){
+    //            System.out.println(it.next());
+    //        }
+    //    }
+    // @Test
+    //    public void getTasksTest() throws DbException{
+    //        ArrayList<Task> tasks = ReaderHandler.getTasks();
+    //        Iterator<Task> it = tasks.iterator();
+    //        while(it.hasNext()){
+    //            System.out.println(it.next());
+    //        }
+    //    }
+
 }
 
 

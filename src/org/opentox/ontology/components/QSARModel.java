@@ -85,6 +85,11 @@ public class QSARModel extends YaqpComponent {
     private String dataset = null;
     private ModelStatus modelStatus = ModelStatus.UNDER_DEVELOPMENT;
 
+    private boolean hasVec = false;
+    private double doubleMax = 10000000.0;
+
+
+
     public enum ModelStatus {
 
         APPROVED {
@@ -149,8 +154,10 @@ public class QSARModel extends YaqpComponent {
         this.id = id;
         this._maxId = id;
         this._minId = id;
-        this.params = tuningParams;
+        this.params = checkParams(tuningParams);
     }
+
+    
 
     public int getMaxId() {
         return _maxId;
@@ -255,7 +262,11 @@ public class QSARModel extends YaqpComponent {
     }
 
     public void setParams(Map<String, AlgorithmParameter> params) {
-        this.params = params;
+        this.params = checkParams(params);
+    }
+
+    public boolean hasVec(){
+        return hasVec;
     }
 
 //    public ArrayList<AlgorithmParameter> getTuningParams() {
@@ -366,5 +377,158 @@ public class QSARModel extends YaqpComponent {
         } catch (URISyntaxException ex) {
             throw new YaqpException(Cause.XTC743, "Improper URI", ex);
         }
+    }
+
+
+
+    private Map<String, AlgorithmParameter> initParams() {
+        Map<String,AlgorithmParameter> newParams = new HashMap<String,AlgorithmParameter>();
+        newParams.put(ConstantParameters.gamma+"_min", new AlgorithmParameter(0.0));
+        newParams.put(ConstantParameters.gamma+"_max", new AlgorithmParameter(doubleMax));
+
+        newParams.put(ConstantParameters.epsilon+"_min", new AlgorithmParameter(0.0));
+        newParams.put(ConstantParameters.epsilon+"_max", new AlgorithmParameter(doubleMax));
+
+        newParams.put(ConstantParameters.cost+"_min", new AlgorithmParameter(0.0));
+        newParams.put(ConstantParameters.cost+"_max", new AlgorithmParameter(doubleMax));
+
+        newParams.put(ConstantParameters.coeff0+"_min", new AlgorithmParameter(0.0));
+        newParams.put(ConstantParameters.coeff0+"_max", new AlgorithmParameter(doubleMax));
+
+        newParams.put(ConstantParameters.tolerance+"_min", new AlgorithmParameter(0.0));
+        newParams.put(ConstantParameters.tolerance+"_max", new AlgorithmParameter(doubleMax));
+
+        newParams.put(ConstantParameters.cacheSize+"_min", new AlgorithmParameter(0));
+        newParams.put(ConstantParameters.cacheSize+"_max", new AlgorithmParameter(Integer.MAX_VALUE));
+
+        newParams.put(ConstantParameters.kernel, new AlgorithmParameter("%%"));
+
+        newParams.put(ConstantParameters.degree+"_min", new AlgorithmParameter(0));
+        newParams.put(ConstantParameters.degree+"_max", new AlgorithmParameter(Integer.MAX_VALUE));
+
+        return newParams;
+    }
+
+    private Map<String,AlgorithmParameter> checkParams(Map<String,AlgorithmParameter> params){
+        Map<String,AlgorithmParameter> newParams = initParams();
+
+        if ((params.get(ConstantParameters.gamma) != null && params.get(ConstantParameters.gamma).paramValue != null)){
+            newParams.put(ConstantParameters.gamma, params.get(ConstantParameters.gamma));
+            newParams.put(ConstantParameters.gamma+"_min", params.get(ConstantParameters.gamma));
+            newParams.put(ConstantParameters.gamma+"_max", params.get(ConstantParameters.gamma));
+            hasVec = true;
+        }else{
+            if ((params.get(ConstantParameters.gamma+"_min") != null && params.get(ConstantParameters.gamma+"_min").paramValue != null)){
+                newParams.put(ConstantParameters.gamma+"_min", params.get(ConstantParameters.gamma+"_min"));
+                hasVec = true;
+            }
+            if ((params.get(ConstantParameters.gamma+"_max") != null && params.get(ConstantParameters.gamma+"_max").paramValue != null)){
+                newParams.put(ConstantParameters.gamma+"_max", params.get(ConstantParameters.gamma+"_max"));
+                hasVec = true;
+            }
+        }
+
+        if ((params.get(ConstantParameters.epsilon) != null && params.get(ConstantParameters.epsilon).paramValue != null)){
+            newParams.put(ConstantParameters.epsilon, params.get(ConstantParameters.epsilon));
+            newParams.put(ConstantParameters.epsilon+"_min", params.get(ConstantParameters.epsilon));
+            newParams.put(ConstantParameters.epsilon+"_max", params.get(ConstantParameters.epsilon));
+            hasVec = true;
+        }else{
+            if ((params.get(ConstantParameters.epsilon+"_min") != null && params.get(ConstantParameters.epsilon+"_min").paramValue != null)){
+                newParams.put(ConstantParameters.epsilon+"_min", params.get(ConstantParameters.epsilon+"_min"));
+                hasVec = true;
+            }
+            if ((params.get(ConstantParameters.epsilon+"_max") != null && params.get(ConstantParameters.epsilon+"_max").paramValue != null)){
+                newParams.put(ConstantParameters.epsilon+"_max", params.get(ConstantParameters.epsilon+"_max"));
+                hasVec = true;
+            }
+        }
+
+        if ((params.get(ConstantParameters.cost) != null && params.get(ConstantParameters.cost).paramValue != null)){
+            newParams.put(ConstantParameters.cost, params.get(ConstantParameters.cost));
+            newParams.put(ConstantParameters.cost+"_min", params.get(ConstantParameters.cost));
+            newParams.put(ConstantParameters.cost+"_max", params.get(ConstantParameters.cost));
+            hasVec = true;
+        }else{
+            if ((params.get(ConstantParameters.cost+"_min") != null && params.get(ConstantParameters.cost+"_min").paramValue != null)){
+                newParams.put(ConstantParameters.cost+"_min", params.get(ConstantParameters.cost+"_min"));
+                hasVec = true;
+            }
+            if ((params.get(ConstantParameters.cost+"_max") != null && params.get(ConstantParameters.cost+"_max").paramValue != null)){
+                newParams.put(ConstantParameters.cost+"_max", params.get(ConstantParameters.cost+"_max"));
+                hasVec = true;
+            }
+        }
+
+        if ((params.get(ConstantParameters.coeff0) != null && params.get(ConstantParameters.coeff0).paramValue != null)){
+            newParams.put(ConstantParameters.coeff0, params.get(ConstantParameters.coeff0));
+            newParams.put(ConstantParameters.coeff0+"_min", params.get(ConstantParameters.coeff0));
+            newParams.put(ConstantParameters.coeff0+"_max", params.get(ConstantParameters.coeff0));
+            hasVec = true;
+        }else{
+            if ((params.get(ConstantParameters.coeff0+"_min") != null && params.get(ConstantParameters.coeff0+"_min").paramValue != null)){
+                newParams.put(ConstantParameters.coeff0+"_min", params.get(ConstantParameters.coeff0+"_min"));
+                hasVec = true;
+            }
+            if ((params.get(ConstantParameters.coeff0+"_max") != null && params.get(ConstantParameters.coeff0+"_max").paramValue != null)){
+                newParams.put(ConstantParameters.coeff0+"_max", params.get(ConstantParameters.coeff0+"_max"));
+                hasVec = true;
+            }
+        }
+
+        if ((params.get(ConstantParameters.cacheSize) != null && params.get(ConstantParameters.cacheSize).paramValue != null)){
+            newParams.put(ConstantParameters.cacheSize, params.get(ConstantParameters.cacheSize));
+            newParams.put(ConstantParameters.cacheSize+"_min", params.get(ConstantParameters.cacheSize));
+            newParams.put(ConstantParameters.cacheSize+"_max", params.get(ConstantParameters.cacheSize));
+            hasVec = true;
+        }else{
+            if ((params.get(ConstantParameters.cacheSize+"_min") != null && params.get(ConstantParameters.cacheSize+"_min").paramValue != null)){
+                newParams.put(ConstantParameters.cacheSize+"_min", params.get(ConstantParameters.cacheSize+"_min"));
+                hasVec = true;
+            }
+            if ((params.get(ConstantParameters.cacheSize+"_max") != null && params.get(ConstantParameters.cacheSize+"_max").paramValue != null)){
+                newParams.put(ConstantParameters.cacheSize+"_max", params.get(ConstantParameters.cacheSize+"_max"));
+                hasVec = true;
+            }
+        }
+
+        if ((params.get(ConstantParameters.tolerance) != null && params.get(ConstantParameters.tolerance).paramValue != null)){
+            newParams.put(ConstantParameters.tolerance, params.get(ConstantParameters.tolerance));
+            newParams.put(ConstantParameters.tolerance+"_min", params.get(ConstantParameters.tolerance));
+            newParams.put(ConstantParameters.tolerance+"_max", params.get(ConstantParameters.tolerance));
+            hasVec = true;
+        }else{
+            if ((params.get(ConstantParameters.tolerance+"_min") != null && params.get(ConstantParameters.tolerance+"_min").paramValue != null)){
+                newParams.put(ConstantParameters.tolerance+"_min", params.get(ConstantParameters.tolerance+"_min"));
+                hasVec = true;
+            }
+            if ((params.get(ConstantParameters.tolerance+"_max") != null && params.get(ConstantParameters.tolerance+"_max").paramValue != null)){
+                newParams.put(ConstantParameters.tolerance+"_max", params.get(ConstantParameters.tolerance+"_max"));
+                hasVec = true;
+            }
+        }
+
+        if ((params.get(ConstantParameters.degree) != null && params.get(ConstantParameters.degree).paramValue != null)){
+            newParams.put(ConstantParameters.degree, params.get(ConstantParameters.degree));
+            newParams.put(ConstantParameters.degree+"_min", params.get(ConstantParameters.degree));
+            newParams.put(ConstantParameters.degree+"_max", params.get(ConstantParameters.degree));
+            hasVec = true;
+        }else{
+            if ((params.get(ConstantParameters.degree+"_min") != null && params.get(ConstantParameters.degree+"_min").paramValue != null)){
+                newParams.put(ConstantParameters.degree+"_min", params.get(ConstantParameters.degree+"_min"));
+                hasVec = true;
+            }
+            if ((params.get(ConstantParameters.degree+"_max") != null && params.get(ConstantParameters.degree+"_max").paramValue != null)){
+                newParams.put(ConstantParameters.degree+"_max", params.get(ConstantParameters.degree+"_max"));
+                hasVec = true;
+            }
+        }
+
+        if ((params.get(ConstantParameters.kernel) != null && params.get(ConstantParameters.kernel).paramValue != null)){
+            newParams.put(ConstantParameters.kernel, params.get(ConstantParameters.kernel));
+            hasVec = true;
+        }
+
+        return newParams;
     }
 }

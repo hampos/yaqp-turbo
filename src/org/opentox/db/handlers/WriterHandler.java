@@ -363,6 +363,9 @@ import org.opentox.util.logging.levels.*;
         if (algorithm.getMeta() == null) {
             throw new NullPointerException("Cannot add an algorithm with unknown metadata");
         }
+        if (algorithm.getMeta().getName()==null || algorithm.getMeta().getName().equals("")){
+            throw new DbException(Cause.XDB3235, "Specify the name of the algorithm");
+        }
         if (algorithm.getMeta().getName() == null) {
             throw new DbException(Cause.XDB3235, "Specify the name of the algorithm");
         }
@@ -575,12 +578,20 @@ import org.opentox.util.logging.levels.*;
         // CHECK IF ALL NECESSARY PARAMETERS ARE PROVIDED. IF SOME ARE NOT,
         // USE THE DEFAULT VALUES PROVIDED IN ConstantParameters.SVMParams().
         Map<String, AlgorithmParameter> params = model.getParams();
-        if (!params.containsKey(ConstantParameters.gamma)) params.put(ConstantParameters.gamma, ConstantParameters.SVMParams().get(ConstantParameters.gamma));
+        if (!params.containsKey(ConstantParameters.gamma)) {          
+            params.put(ConstantParameters.gamma, ConstantParameters.SVMParams().get(ConstantParameters.gamma));
+        }
         if (!params.containsKey(ConstantParameters.cost)) params.put(ConstantParameters.cost, ConstantParameters.SVMParams().get(ConstantParameters.cost));
         if (!params.containsKey(ConstantParameters.coeff0)) params.put(ConstantParameters.coeff0, ConstantParameters.SVMParams().get(ConstantParameters.coeff0));
         if (!params.containsKey(ConstantParameters.degree)) params.put(ConstantParameters.degree, ConstantParameters.SVMParams().get(ConstantParameters.degree));
         if (!params.containsKey(ConstantParameters.epsilon)) params.put(ConstantParameters.epsilon, ConstantParameters.SVMParams().get(ConstantParameters.epsilon));
-        if (!params.containsKey(ConstantParameters.kernel)) params.put(ConstantParameters.kernel, ConstantParameters.SVMParams().get(ConstantParameters.kernel));
+
+        if (
+                !params.containsKey(ConstantParameters.kernel)
+                || (params.containsKey(ConstantParameters.kernel) && params.get(ConstantParameters.kernel).paramValue.toString().equals("%%"))
+                )
+            params.put(ConstantParameters.kernel, ConstantParameters.SVMParams().get(ConstantParameters.kernel));
+
         if (!params.containsKey(ConstantParameters.cacheSize)) params.put(ConstantParameters.cacheSize, ConstantParameters.SVMParams().get(ConstantParameters.cacheSize));
         if (!params.containsKey(ConstantParameters.tolerance)) params.put(ConstantParameters.tolerance, ConstantParameters.SVMParams().get(ConstantParameters.tolerance));
         model.setParams(params);
@@ -599,6 +610,7 @@ import org.opentox.util.logging.levels.*;
         for (Entry e : model.getParams().entrySet()) {
             String pName = e.getKey().toString();
             AlgorithmParameter algParam = (AlgorithmParameter) e.getValue();
+                        System.err.println(pName+" -- "+algParam.paramValue.toString());
             food.add(pName.toUpperCase(), algParam.paramValue.toString());
         }
 

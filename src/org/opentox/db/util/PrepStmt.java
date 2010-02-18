@@ -416,6 +416,35 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("ROWS", Integer.class)
     }),
 
+
+    SEARCH_QSAR_MODEL_ALL(
+            "SELECT * FROM " + QSARModelsTable.TABLE.getTableName()
+            + " LEFT OUTER JOIN " + SupportVecTable.TABLE.getTableName() + " ON "
+            + QSARModelsTable.TABLE.getTableName() + ".UID=" + SupportVecTable.TABLE.getTableName() + ".UID "
+            + " WHERE " + QSARModelsTable.TABLE.getTableName() + ".UID BETWEEN ? AND ? "
+            + "AND CODE LIKE ? "
+            + "AND PREDICTION_FEATURE BETWEEN ? AND ? "
+            + "AND DEPENDENT_FEATURE BETWEEN ? AND ? "
+            + "AND ALGORITHM LIKE ? "
+            + "AND CREATED_BY LIKE ? "
+            + "AND DATASET_URI LIKE ? "
+            + getPagingQuery(),
+            new QueryParam[]{
+                new QueryParam("UID_MIN", Integer.class),
+                new QueryParam("UID_MAX", Integer.class),
+                new QueryParam("CODE", String.class),
+                new QueryParam("PRED_FEATURE_MIN", Integer.class),
+                new QueryParam("PRED_FEATURE_MAX", Integer.class),
+                new QueryParam("DEP_FEATURE_MIN", Integer.class),
+                new QueryParam("DEP_FEATURE_MAX", Integer.class),
+                new QueryParam("ALGORITHM", String.class),
+                new QueryParam("CREATED_BY", String.class),
+                new QueryParam("DATASET_URI", String.class),
+
+                new QueryParam("OFFSET", Integer.class),
+                new QueryParam("ROWS", Integer.class)
+            }),
+
     /**
      *
      * Get all prediction models from the database.
@@ -423,34 +452,23 @@ public enum PrepStmt implements JPrepStmt {
     SEARCH_QSAR_MODEL("SELECT * FROM " + QSARModelsTable.TABLE.getTableName() +
             " LEFT OUTER JOIN " + SupportVecTable.TABLE.getTableName() + " ON "
             + QSARModelsTable.TABLE.getTableName() +".UID=" +SupportVecTable.TABLE.getTableName()+".UID "+
-            "WHERE " + QSARModelsTable.TABLE.getTableName() +".UID >= ? " +
-            "AND " + QSARModelsTable.TABLE.getTableName() +".UID <= ? " +
-            "AND CODE LIKE ? " +
-            "AND PREDICTION_FEATURE >= ? " +
-            "AND PREDICTION_FEATURE <= ? " +
-            "AND DEPENDENT_FEATURE >= ? " +
-            "AND DEPENDENT_FEATURE <= ? " +
-            "AND ALGORITHM LIKE ? " +
-            "AND CREATED_BY LIKE ? " +
-            "AND DATASET_URI LIKE ? " +
+           "WHERE " + QSARModelsTable.TABLE.getTableName() + ".UID BETWEEN ? AND ? "
+            + "AND CODE LIKE ? "
+            + "AND PREDICTION_FEATURE BETWEEN ? AND ? "
+            + "AND DEPENDENT_FEATURE BETWEEN ? AND ? "
+            + "AND ALGORITHM LIKE ? "
+            + "AND CREATED_BY LIKE ? "
+            + "AND DATASET_URI LIKE ? "
+            + "AND GAMMA BETWEEN ? AND ? "
+            + "AND EPSILON BETWEEN ? AND ? "
+            + "AND COST BETWEEN ? AND ? "
+            + "AND COEFF0 BETWEEN ? AND ? "
+            + "AND TOLERANCE BETWEEN ? AND ? "
+            + "AND CACHESIZE BETWEEN ? AND ? "
+            + "AND KERNEL LIKE ? "
+            + "AND DEGREE BETWEEN ? AND ? "
+    + getPagingQuery(),
 
-            "AND GAMMA >= ? " +
-            "AND GAMMA <= ? " +
-            "AND EPSILON >= ? " +
-            "AND EPSILON <= ? " +
-            "AND COST >= ? " +
-            "AND COST <= ? " +
-            "AND COEFF0 >= ? " +
-            "AND COEFF0 <= ? " +
-            "AND TOLERANCE >= ? " +
-            "AND TOLERANCE <= ? " +
-            "AND CACHESIZE >= ? " +
-            "AND CACHESIZE <= ? " +
-            "AND KERNEL LIKE ? " +
-            "AND DEGREE >= ? " +
-            "AND DEGREE <= ? " +
-            
-            getPagingQuery(),
             new QueryParam[]{
                 new QueryParam("UID_MIN", Integer.class),
                 new QueryParam("UID_MAX", Integer.class),
@@ -483,68 +501,7 @@ public enum PrepStmt implements JPrepStmt {
                 new QueryParam("ROWS", Integer.class)
             }),
 
-    SEARCH_QSAR_MODEL_ALL("SELECT * FROM " + QSARModelsTable.TABLE.getTableName() +
-            " LEFT OUTER JOIN " + SupportVecTable.TABLE.getTableName() + " ON "
-            + QSARModelsTable.TABLE.getTableName() +".UID=" +SupportVecTable.TABLE.getTableName()+".UID "+
-            "WHERE " + QSARModelsTable.TABLE.getTableName() +".UID >= ? " +
-            "AND " + QSARModelsTable.TABLE.getTableName() +".UID <= ? " +
-            "AND CODE LIKE ? " +
-            "AND PREDICTION_FEATURE >= ? " +
-            "AND PREDICTION_FEATURE <= ? " +
-            "AND DEPENDENT_FEATURE >= ? " +
-            "AND DEPENDENT_FEATURE <= ? " +
-            "AND ALGORITHM LIKE ? " +
-            "AND CREATED_BY LIKE ? " +
-            "AND DATASET_URI LIKE ? " +
-
-            "AND GAMMA >= ? " +
-            "AND GAMMA <= ? " +
-            "AND EPSILON >= ? " +
-            "AND EPSILON <= ? " +
-            "AND COST >= ? " +
-            "AND COST <= ? " +
-            "AND COEFF0 >= ? " +
-            "AND COEFF0 <= ? " +
-            "AND TOLERANCE >= ? " +
-            "AND TOLERANCE <= ? " +
-            "AND CACHESIZE >= ? " +
-            "AND CACHESIZE <= ? " +
-            "AND KERNEL LIKE ? " +
-            "AND DEGREE >= ? " +
-            "AND DEGREE <= ? " +
-            "OR KERNEL is NULL " +
-            getPagingQuery(),
-            new QueryParam[]{
-                new QueryParam("UID_MIN", Integer.class),
-                new QueryParam("UID_MAX", Integer.class),
-                new QueryParam("CODE", String.class),
-                new QueryParam("PRED_FEATURE_MIN", Integer.class),
-                new QueryParam("PRED_FEATURE_MAX", Integer.class),
-                new QueryParam("DEP_FEATURE_MIN", Integer.class),
-                new QueryParam("DEP_FEATURE_MAX", Integer.class),
-                new QueryParam("ALGORITHM", String.class),
-                new QueryParam("CREATED_BY", String.class),
-                new QueryParam("DATASET_URI", String.class),
-
-                new QueryParam("GAMMA_MIN", Double.class),
-                new QueryParam("GAMMA_MAX", Double.class),
-                new QueryParam("EPSILON_MIN", Double.class),
-                new QueryParam("EPSILON_MAX", Double.class),
-                new QueryParam("COST_MIN", Double.class),
-                new QueryParam("COST_MAX", Double.class),
-                new QueryParam("COEFF0_MIN", Double.class),
-                new QueryParam("COEFF0_MAX", Double.class),
-                new QueryParam("TOLERANCE_MIN", Double.class),
-                new QueryParam("TOLERANCE_MAX", Double.class),
-                new QueryParam("CACHESIZE_MIN", Integer.class),
-                new QueryParam("CACHESIZE_MAX", Integer.class),
-                new QueryParam("KERNEL", String.class),
-                new QueryParam("DEGREE_MIN", Integer.class),
-                new QueryParam("DEGREE_MAX", Integer.class),
-
-                new QueryParam("OFFSET", Integer.class),
-                new QueryParam("ROWS", Integer.class)
-            }),
+    
 
     SEARCH_TASK("SELECT * FROM " + TasksTable.TABLE.getTableName() +
             ""
