@@ -582,7 +582,7 @@ public class WriterHandlerTest {
 
     @Test
     public void addsvmModel_missing() {
-        System.out.println("SVM Model - test 2");
+        System.out.println("SVM Model - test 3");
         try {
             User u = ReaderHandler.searchUser(new User(),new Page(0,0)).get(1);
             Feature f = new Feature(-1, "http://chung.net/feature/666");
@@ -595,6 +595,31 @@ public class WriterHandlerTest {
             m = (QSARModel) WriterHandler.add(m);
             assertTrue(m.getId()>0);
         } catch (DbException ex) {
+            fail();
+        } catch (ImproperEntityException ex) {
+            System.out.println(ex);
+            fail();
+        }
+    }
+
+    @Test
+    public void addsvmModelKernel() {
+        System.out.println("SVM Model - test 4");
+        try {
+            User u = ReaderHandler.searchUser(new User(),new Page(0,0)).get(1);
+            Feature f = new Feature(-1, "http://chung.net/feature/666");
+            ArrayList<Feature> lf = new ArrayList<Feature>();
+            lf.add(f);
+            QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.SVM, u, null, "http://dataset.com/1", null);
+            Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
+            params.putAll(ConstantParameters.SVMParams());
+            //m.setParams(ConstantParameters.SVMParams());
+            params.put(ConstantParameters.kernel, params.get(ConstantParameters.kernel).updateParamValue("LINEAR"));
+            System.out.println( params.get(ConstantParameters.kernel).paramValue.toString());
+            m.setParams(params);
+            WriterHandler.add(m);
+        } catch (DbException ex) {
+            System.out.println(ex);
             fail();
         } catch (ImproperEntityException ex) {
             System.out.println(ex);

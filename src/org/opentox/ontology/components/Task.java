@@ -48,27 +48,10 @@ import org.opentox.ontology.namespaces.OTClass;
  */
 public class Task extends YaqpComponent {
 
-    @Override
-    protected String getTag() {
-        User u;
-        return "task";
-    }
-
-    @Override
-    public URI uri() throws YaqpException {
-        String superUri = super.uri().toString();
-        try {
-            return new URI(superUri + "/" + getName());
-        } catch (URISyntaxException ex) {
-            throw new YaqpException(Cause.XTC743, "Improper URI", ex);
-        }
-    }
-
     /**
      * The possible statuses a task can have.
      */
     public static enum STATUS {
-
         /**
          * The task is still running. Waiting for completion.
          */
@@ -82,38 +65,65 @@ public class Task extends YaqpComponent {
          */
         CANCELLED
     };
-    private String name;
-    private STATUS taskStatus;
-    private String result, startStamp, endStamp;
+    private String name = null;
+    private STATUS taskStatus = null;
+    private String result = null,
+            startStamp = null,
+            endStamp = null;
     private int httpStatus;
-    private User user;
-    private Algorithm algorithm;
-    private int duration_sec;
+    private int _httpStatusMin = 0, _httpStatusMax = 1000;
+    private int duration = 1000;
+    private int _durationMin = 0, _durationMax = Integer.MAX_VALUE;
+    private User user = new User();
+    private Algorithm algorithm = new Algorithm();
+
+    
 
     public Task() {
-        setStatus(STATUS.RUNNING);
-        httpStatus = 202;
+        //setTaskStatus(STATUS.RUNNING);
+        //httpStatus = 202;
     }
 
     public Task(String name, STATUS taskStatus, User user, Algorithm algorithm, int httpStatus,
-            String result, String startStamp, String endStamp, int duration_sec) {
+            String result, String startStamp, String endStamp, int duration) {
         this.name = name;
-        this.taskStatus = taskStatus;
-        this.user = user;
-        this.algorithm = algorithm;
+        if(taskStatus != null){
+            this.taskStatus = taskStatus;
+        }else {
+            this.taskStatus = STATUS.RUNNING;
+        }
+        if(user != null){
+            this.user = user;
+        }else {
+            this.user = new User();
+        }
+        if(algorithm != null){
+            this.algorithm = algorithm;
+        }else {
+            this.algorithm = new Algorithm();
+        }
         this.httpStatus = httpStatus;
+        this._httpStatusMin = httpStatus;
+        this._httpStatusMax = httpStatus;
+
         this.result = result;
         this.startStamp = startStamp;
         this.endStamp = endStamp;
+
+        this.duration = duration;
+        this._durationMax = duration;
+        this._durationMin = duration;
     }
 
-    public Task(String name, User user, Algorithm algorithm, int duration_sec) {
+    public Task(String name, User user, Algorithm algorithm, int duration) {
         this.name = name;
         this.user = user;
         this.algorithm = algorithm;
         this.httpStatus = 202;
-        this.duration_sec = duration_sec;
-        setStatus(STATUS.RUNNING);
+        this._httpStatusMin = httpStatus;
+        this._httpStatusMax = httpStatus;
+        this.duration = duration;
+        setTaskStatus(STATUS.RUNNING);
     }
 
     /**
@@ -149,7 +159,11 @@ public class Task extends YaqpComponent {
     }
 
     public void setTaskStatus(STATUS taskStatus) {
-        this.taskStatus = taskStatus;
+        if(taskStatus != null){
+            this.taskStatus = taskStatus;
+        }else {
+            this.taskStatus = STATUS.RUNNING;
+        }
     }
 
     public User getUser() {
@@ -163,6 +177,8 @@ public class Task extends YaqpComponent {
     public int getHttpStatus() {
         return httpStatus;
     }
+
+
 
     /**
      * The result from a completed task. If the status of the task is yet
@@ -178,6 +194,8 @@ public class Task extends YaqpComponent {
 
     public void setHttpStatus(int httpStatus) {
         this.httpStatus = httpStatus;
+        this._httpStatusMin = httpStatus;
+        this._httpStatusMax = httpStatus;
     }
 
     public void setResult(String result) {
@@ -188,17 +206,53 @@ public class Task extends YaqpComponent {
         return name;
     }
 
-    public STATUS getStatus() {
-        return taskStatus;
-    }
-
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setStatus(STATUS status) {
-        this.taskStatus = status;
+    
+    public int getDuration() {
+        return duration;
     }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+        this._durationMax = duration;
+        this._durationMin = duration;
+    }
+
+    public int getDurationMax() {
+        return _durationMax;
+    }
+
+    public void setDurationMax(int _durationMax) {
+        this._durationMax = _durationMax;
+    }
+
+    public int getDurationMin() {
+        return _durationMin;
+    }
+
+    public void setDurationMin(int _durationMin) {
+        this._durationMin = _durationMin;
+    }
+
+    public int getHttpStatusMax() {
+        return _httpStatusMax;
+    }
+
+    public void setHttpStatusMax(int _httpStatusMax) {
+        this._httpStatusMax = _httpStatusMax;
+    }
+
+    public int getHttpStatusMin() {
+        return _httpStatusMin;
+    }
+
+    public void setHttpStatusMin(int _httpStatusMin) {
+        this._httpStatusMin = _httpStatusMin;
+    }
+
 
     @Override
     public PDFObject getPDF() {
@@ -223,19 +277,11 @@ public class Task extends YaqpComponent {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public int getDuration_sec() {
-        return duration_sec;
-    }
-
-    public void setDuration_sec(int duration_sec) {
-        this.duration_sec = duration_sec;
-    }
-
     @Override
     public String toString() {
         String task = "-- Task --\n";
         task += "NAME              : " + getName() + "\n";
-        task += "STATUS            : " + getStatus() + "\n";
+        task += "STATUS            : " + getTaskStatus() + "\n";
         task += "USER              : " + getUser().getEmail() + "\n";
         task += "ALGORITHM         : " + getAlgorithm().getMeta().getName() + "\n";
         task += "HTTP STATUS       : " + getHttpStatus() + "\n";
@@ -243,5 +289,21 @@ public class Task extends YaqpComponent {
         task += "START TIME        : " + getStartStamp() + "\n";
         task += "END TIME          : " + getEndStamp();
         return task;
+    }
+
+        @Override
+    protected String getTag() {
+        User u;
+        return "task";
+    }
+
+    @Override
+    public URI uri() throws YaqpException {
+        String superUri = super.uri().toString();
+        try {
+            return new URI(superUri + "/" + getName());
+        } catch (URISyntaxException ex) {
+            throw new YaqpException(Cause.XTC743, "Improper URI", ex);
+        }
     }
 }

@@ -46,6 +46,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.util.Page;
+import org.opentox.db.util.PrepStmt;
 import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.ontology.exceptions.YaqpOntException;
@@ -202,9 +203,9 @@ public class ReaderHandlerTest {
         Map<String, AlgorithmParameter> map = new HashMap<String, AlgorithmParameter>();
 
         //AlgorithmParameter<Double> p = map.get("gamma");
-        AlgorithmParameter p = new AlgorithmParameter(2.5);
+        AlgorithmParameter p = new AlgorithmParameter("LINEAR");
 
-        map.put("gamma_max", p);
+        map.put("kernel", p);
 
         model.setParams(map);
         //model.setId(109);
@@ -263,6 +264,27 @@ public class ReaderHandlerTest {
             System.out.println(m.getId());
             System.out.println(m.getCode());
         }
+    }
+
+    @Test
+    public void getTasks() throws DbException {
+        System.out.println("---------------- search TASK ------------");
+
+        Task task = new Task();
+        User u = new User();
+
+        u.setEmail("john@foo.goo.gr");
+        //task.setUser(ReaderHandler.searchUser(u, new Page()).get(0));
+       // System.out.println(ReaderHandler.searchUser(u, new Page()).get(0));
+        task.setUser(u);
+        ComponentList<Task> tasks = ReaderHandler.searchTask(task, new Page());
+        for (Task t : tasks.getComponentList()) {
+            System.out.println(t.getName());
+            System.out.println(t.getUser().getEmail());
+            System.out.println(t.getAlgorithm().getMeta().getName());
+        }
+
+       // System.out.println(PrepStmt.SEARCH_TASK.getSql());
     }
 
 

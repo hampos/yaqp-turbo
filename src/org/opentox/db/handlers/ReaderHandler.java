@@ -478,7 +478,7 @@ public class ReaderHandler {
                     {"DEP_FEATURE_MIN", Integer.toString(prototype.getDependentFeature().getMinId())},
                     {"DEP_FEATURE_MAX", Integer.toString(prototype.getDependentFeature().getMaxId())},
                     {"ALGORITHM", fixNull(prototype.getAlgorithm().getMeta().getName())},
-                    {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getEmail())},
                     {"DATASET_URI", fixNull(prototype.getDataset())},
                     {"STATUS", fixNull(prototype.getModelStatus())}
         });
@@ -583,7 +583,7 @@ public class ReaderHandler {
                     {"DEP_FEATURE_MIN", Integer.toString(prototype.getDependentFeature().getMinId())},
                     {"DEP_FEATURE_MAX", Integer.toString(prototype.getDependentFeature().getMaxId())},
                     {"ALGORITHM", fixNull(prototype.getAlgorithm().getMeta().getName())},
-                    {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getEmail())},
                     {"DATASET_URI", fixNull(prototype.getDataset())},
                     {"STATUS", fixNull(prototype.getModelStatus())}
         });
@@ -639,7 +639,7 @@ public class ReaderHandler {
                     {"UID_MIN", Integer.toString(prototype.getMinId())},
                     {"UID_MAX", Integer.toString(prototype.getMaxId())},
                     {"CODE", fixNull(prototype.getCode())},
-                    {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getEmail())},
                     {"DATASET_URI", fixNull(prototype.getDataset())},
 
                     {"OFFSET", page.getOffset()},
@@ -677,7 +677,7 @@ public class ReaderHandler {
                     {"UID_MIN", Integer.toString(prototype.getMinId())},
                     {"UID_MAX", Integer.toString(prototype.getMaxId())},
                     {"CODE", fixNull(prototype.getCode())},
-                    {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getEmail())},
                     {"DATASET_URI", fixNull(prototype.getDataset())},
 
                     {"OFFSET", page.getOffset()},
@@ -696,6 +696,52 @@ public class ReaderHandler {
             throw new DbException(XDH7, "Could not get OmegaModels from Database", ex);
         }
         return modelList;
+    }
+
+    public static ComponentList<Task> searchTask(Task prototype, Page page) throws DbException{
+        if(prototype == null){
+             throw new NullPointerException("QSARModel prototype provided is null");
+         }
+        ComponentList<Task> taskList = new ComponentList<Task>();
+        HyperResult result = null;
+        DbPipeline<QueryFood,HyperResult> pipeline = new DbPipeline<QueryFood,HyperResult>(PrepStmt.SEARCH_TASK);
+
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"NAME", fixNull(prototype.getName())},
+                    {"STATUS", fixNull(prototype.getTaskStatus())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getEmail())},
+                    {"ALGORITHM", fixNull(prototype.getAlgorithm().getMeta().getName())},
+                    {"HTTPSTATUS_MIN", Integer.toString(prototype.getHttpStatusMin())},
+                    {"HTTPSTATUS_MAX", Integer.toString(prototype.getHttpStatusMax())},
+                    {"RESULT", fixNull(prototype.getResult())},
+                    {"DURATION_MIN", Integer.toString(prototype.getDurationMin())},
+                    {"DURATION_MAX", Integer.toString(prototype.getDurationMax())},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
+        });
+        try {
+                result = pipeline.process(food);
+                for (int i = 1; i <= result.getSize(); i++) {
+                    Iterator<String> it = result.getColumnIterator(i);
+                    Task task = new Task();
+                    task.setName(it.next());
+                    task.setTaskStatus(Task.STATUS.valueOf(it.next()));
+                    task.setUser(searchUser(new User(it.next()), new Page()).get(0));
+                    task.setAlgorithm(getAlgorithm(it.next()));
+                    task.setHttpStatus(Integer.parseInt(it.next()));
+                    task.setResult(it.next());
+                    task.setStartStamp(it.next());
+                    task.setEndStamp(it.next());
+                    task.setDuration(Integer.parseInt(it.next()));
+                    taskList.add(task);
+                }
+        } catch (YaqpException ex) {
+            System.out.println(ex);
+            throw new DbException(XDH7, "Could not get OmegaModels from Database", ex);
+        }
+        return taskList;
     }
 
 

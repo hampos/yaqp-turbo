@@ -189,12 +189,13 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("URI", String.class)
     }),
     ADD_TASK("INSERT INTO " + TasksTable.TABLE.getTableName()
-    + " (NAME, CREATED_BY, ALGORITHM, DURATION ) VALUES (?,?,?,?)",
+    + " (NAME, CREATED_BY, ALGORITHM, DURATION, RESULT ) VALUES (?,?,?,?,?)",
     new QueryParam[]{
         new QueryParam("NAME", String.class),
         new QueryParam("CREATED_BY", String.class),
         new QueryParam("ALGORITHM", String.class),
-        new QueryParam("DURATION", Integer.class)
+        new QueryParam("DURATION", Integer.class),
+        new QueryParam("RESULT", String.class),
     }),
     /**
      *
@@ -629,9 +630,33 @@ public enum PrepStmt implements JPrepStmt {
           }),
 
 
-    SEARCH_TASK("SELECT * FROM " + TasksTable.TABLE.getTableName() +
-            ""
-            , null),
+    SEARCH_TASK("SELECT * FROM " + TasksTable.TABLE.getTableName() +" "+
+            "WHERE NAME LIKE ? " +
+            "AND STATUS LIKE ? " +
+            "AND CREATED_BY LIKE ? " +
+            "AND ALGORITHM LIKE ? " +
+            "AND HTTPSTATUS BETWEEN ? AND ? " +
+            "AND RESULT LIKE ? " +
+//            "AND STARTSTAMP LIKE ? " +
+//            "AND ENDSTAMP LIKE ? " +
+            "AND DURATION BETWEEN ? AND ? " +
+       //     "OR RESULT IS NULL " +
+            getPagingQuery(),
+
+       new QueryParam[]{
+                new QueryParam("NAME", String.class),
+                new QueryParam("STATUS", String.class),
+                new QueryParam("CREATED_BY", String.class),
+                new QueryParam("ALGORITHM", String.class),
+                new QueryParam("HTTPSTATUS_MIN", Integer.class),
+                new QueryParam("HTTPSTATUS_MAX", Integer.class),
+                new QueryParam("RESULT", String.class),
+                new QueryParam("DURATION_MIN", Integer.class),
+                new QueryParam("DURATION_MAX", Integer.class),
+
+                new QueryParam("OFFSET", Integer.class),
+                new QueryParam("ROWS", Integer.class)
+          }),
 
 
 
