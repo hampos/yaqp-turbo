@@ -83,10 +83,11 @@ public class QSARModel extends YaqpComponent {
     private User user = new User();
     private String timestamp = null;
     private String dataset = null;
-    private ModelStatus modelStatus = ModelStatus.UNDER_DEVELOPMENT;
+    private ModelStatus modelStatus = null;
 
     private boolean hasVec = false;
-    private double doubleMax = 10000000.0;
+    private final double doubleMax = (double)Integer.MAX_VALUE;
+    
 
 
 
@@ -105,7 +106,7 @@ public class QSARModel extends YaqpComponent {
 
             @Override
             public String toString() {
-                return "UNDER DEVELOPMENT";
+                return "UNDER_DEVELOPMENT";
             }
 
             ;
@@ -135,7 +136,11 @@ public class QSARModel extends YaqpComponent {
         this.user = user;
         this.timestamp = timestamp;
         this.dataset = dataset;
-        this.modelStatus = modelStatus;
+        if( modelStatus != null){
+            this.modelStatus = modelStatus;
+        }else{
+            this.modelStatus = ModelStatus.UNDER_DEVELOPMENT;
+        }
     }
 
     public QSARModel(

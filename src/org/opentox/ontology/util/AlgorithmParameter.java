@@ -85,6 +85,11 @@ public class AlgorithmParameter<E extends Object> implements Serializable {
         this.paramScope = paramScope;
     }
 
+    public AlgorithmParameter updateParamValue(E paramValue){
+        this.paramValue = paramValue;
+        return this;
+    }
+
     
     private XSDDatatype javaXsdRelation(E o) {
         

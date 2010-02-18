@@ -152,7 +152,7 @@ public final class QSARModelsTable {
         TableColumn status = new TableColumn(_STATUS);
         status.setColumnType(SQLDataTypes.VarChar(STATUS_SIZE));
         status.setDefaultValue(DEFAULT_STATUS);
-        status.setConstraint(CONSTRAINT_STATUS, _STATUS + " IN ('UNDER DEVELOPMENT','APPROVED')");
+        status.setConstraint(CONSTRAINT_STATUS, _STATUS + " IN ('UNDER_DEVELOPMENT','APPROVED')");
         return status;
     }
 }

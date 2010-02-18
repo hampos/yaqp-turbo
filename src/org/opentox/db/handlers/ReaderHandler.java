@@ -34,6 +34,7 @@ package org.opentox.db.handlers;
 import java.lang.String;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import org.opentox.config.Configuration;
@@ -455,7 +456,7 @@ public class ReaderHandler {
      *
      * @return
      */
-    public static ComponentList<QSARModel> searchQSARModels(QSARModel prototype, Page page) throws DbException {
+    public static ComponentList<QSARModel> searchQSARModel(QSARModel prototype, Page page) throws DbException {
         if(prototype == null){
              throw new NullPointerException("QSARModel prototype provided is null");
          }
@@ -478,7 +479,8 @@ public class ReaderHandler {
                     {"DEP_FEATURE_MAX", Integer.toString(prototype.getDependentFeature().getMaxId())},
                     {"ALGORITHM", fixNull(prototype.getAlgorithm().getMeta().getName())},
                     {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
-                    {"DATASET_URI", fixNull(prototype.getDataset())}
+                    {"DATASET_URI", fixNull(prototype.getDataset())},
+                    {"STATUS", fixNull(prototype.getModelStatus())}
         });
 
         if (prototype.hasVec()) {
@@ -515,10 +517,108 @@ public class ReaderHandler {
                     model.setDependentFeature(searchFeature(new Feature(Integer.parseInt(it.next())), new Page()).get(0));
                     model.setAlgorithm(getAlgorithm(it.next()));
                     model.setUser(searchUser(new User(it.next()), new Page()).get(0));
+                    model.setTimestamp(it.next());
                     model.setDataset(it.next());
                     model.setIndependentFeatures(getIndepFeatures(model).getComponentList());
+                    model.setModelStatus(QSARModel.ModelStatus.valueOf(it.next()));
+                    Map<String,AlgorithmParameter> params = null;
+                    if(model.getAlgorithm().equals(YaqpAlgorithms.SVC)){
+                        if( model.getId() != Integer.parseInt(it.next())){
+                            throw new RuntimeException("Wrong pairing between QSAR and SVC models - this shouldn't have happened. ever.");
+                        }
+                        params = ConstantParameters.SVMParams();
+                        params.put(ConstantParameters.gamma, params.get(ConstantParameters.gamma).updateParamValue(Double.parseDouble(it.next())));
+                        it.next();
+                        params.put(ConstantParameters.cost, params.get(ConstantParameters.cost).updateParamValue(Double.parseDouble(it.next())));
+                        params.put(ConstantParameters.coeff0, params.get(ConstantParameters.coeff0).updateParamValue(Double.parseDouble(it.next())));
+                        params.put(ConstantParameters.tolerance, params.get(ConstantParameters.tolerance).updateParamValue(Double.parseDouble(it.next())));
+                        params.put(ConstantParameters.cacheSize, params.get(ConstantParameters.cacheSize).updateParamValue(Integer.parseInt(it.next())));
+                        params.put(ConstantParameters.kernel, params.get(ConstantParameters.kernel).updateParamValue(it.next()));
+                        params.put(ConstantParameters.degree, params.get(ConstantParameters.degree).updateParamValue(Integer.parseInt(it.next())));
+                    }else if( model.getAlgorithm().equals(YaqpAlgorithms.SVM)){
+                        if( model.getId() != Integer.parseInt(it.next())){
+                            throw new RuntimeException("Wrong pairing between QSAR and SVC models - this shouldn't have happened. ever.");
+                        }
+                        params = ConstantParameters.SVMParams();
+                        params.put(ConstantParameters.gamma, params.get(ConstantParameters.gamma).updateParamValue(Double.parseDouble(it.next())));
+                        params.put(ConstantParameters.epsilon, params.get(ConstantParameters.epsilon).updateParamValue(Double.parseDouble(it.next())));
+                        params.put(ConstantParameters.cost, params.get(ConstantParameters.cost).updateParamValue(Double.parseDouble(it.next())));
+                        params.put(ConstantParameters.coeff0, params.get(ConstantParameters.coeff0).updateParamValue(Double.parseDouble(it.next())));
+                        params.put(ConstantParameters.tolerance, params.get(ConstantParameters.tolerance).updateParamValue(Double.parseDouble(it.next())));
+                        params.put(ConstantParameters.cacheSize, params.get(ConstantParameters.cacheSize).updateParamValue(Integer.parseInt(it.next())));
+                        params.put(ConstantParameters.kernel, params.get(ConstantParameters.kernel).updateParamValue(it.next()));
+                        params.put(ConstantParameters.degree, params.get(ConstantParameters.degree).updateParamValue(Integer.parseInt(it.next())));
+                    }else if( model.getAlgorithm().equals(YaqpAlgorithms.MLR) ){
+                        params = new HashMap<String,AlgorithmParameter>();
+                    }
+                    model.setParams(params);
                     modelList.add(model);
                 }         
+        } catch (YaqpException ex) {
+            System.out.println(ex);
+            throw new DbException(XDH7, "Could not get QSARModels from Database", ex);
+        }
+        return modelList;
+    }
+
+
+    public static ComponentList<QSARModel> searchQSARModelSkroutz(QSARModel prototype, Page page) throws DbException {
+        if(prototype == null){
+             throw new NullPointerException("QSARModel prototype provided is null");
+         }
+        if (prototype.getParams() == null){
+            throw new NullPointerException("Are you nuts?! You provided a model with a null parameter set");
+        }
+        ComponentList<QSARModel> modelList = new ComponentList<QSARModel>();
+        HyperResult result = null;
+        DbPipeline<QueryFood,HyperResult> pipeline;
+
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"UID_MIN", Integer.toString(prototype.getMinId())},
+                    {"UID_MAX", Integer.toString(prototype.getMaxId())},
+                    {"CODE", fixNull(prototype.getCode())},
+                    {"PRED_FEATURE_MIN", Integer.toString(prototype.getPredictionFeature().getMinId())},
+                    {"PRED_FEATURE_MAX", Integer.toString(prototype.getPredictionFeature().getMaxId())},
+                    {"DEP_FEATURE_MIN", Integer.toString(prototype.getDependentFeature().getMinId())},
+                    {"DEP_FEATURE_MAX", Integer.toString(prototype.getDependentFeature().getMaxId())},
+                    {"ALGORITHM", fixNull(prototype.getAlgorithm().getMeta().getName())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
+                    {"DATASET_URI", fixNull(prototype.getDataset())},
+                    {"STATUS", fixNull(prototype.getModelStatus())}
+        });
+
+        if (prototype.hasVec()) {
+            pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODEL);
+            food.add("GAMMA_MIN", Double.toString((Double) prototype.getParams().get(ConstantParameters.gamma+"_min").paramValue));
+            food.add("GAMMA_MAX", Double.toString((Double) prototype.getParams().get(ConstantParameters.gamma+"_max").paramValue));
+            food.add("EPSILON_MIN", Double.toString((Double) prototype.getParams().get(ConstantParameters.epsilon+"_min").paramValue));
+            food.add("EPSILON_MAX", Double.toString((Double) prototype.getParams().get(ConstantParameters.epsilon+"_max").paramValue));
+            food.add("COST_MIN", Double.toString((Double) prototype.getParams().get(ConstantParameters.cost+"_min").paramValue));
+            food.add("COST_MAX", Double.toString((Double) prototype.getParams().get(ConstantParameters.cost+"_max").paramValue));
+            food.add("COEFF0_MIN", Double.toString((Double) prototype.getParams().get(ConstantParameters.coeff0+"_min").paramValue));
+            food.add("COEFF0_MAX", Double.toString((Double) prototype.getParams().get(ConstantParameters.coeff0+"_max").paramValue));
+            food.add("TOLERANCE_MIN", Double.toString((Double) prototype.getParams().get(ConstantParameters.tolerance+"_min").paramValue));
+            food.add("TOLERANCE_MAX", Double.toString((Double) prototype.getParams().get(ConstantParameters.tolerance+"_max").paramValue));
+            food.add("CACHESIZE_MIN", Integer.toString((Integer) prototype.getParams().get(ConstantParameters.cacheSize+"_min").paramValue));
+            food.add("CACHESIZE_MAX", Integer.toString((Integer) prototype.getParams().get(ConstantParameters.cacheSize+"_max").paramValue));
+            food.add("KERNEL", (String) prototype.getParams().get(ConstantParameters.kernel).paramValue);
+            food.add("DEGREE_MIN", Integer.toString((Integer) prototype.getParams().get(ConstantParameters.degree+"_min").paramValue));
+            food.add("DEGREE_MAX", Integer.toString((Integer) prototype.getParams().get(ConstantParameters.degree+"_max").paramValue));
+        } else {
+            pipeline = new DbPipeline<QueryFood, HyperResult>(PrepStmt.SEARCH_QSAR_MODEL_ALL);
+        }
+        food.add("OFFSET", page.getOffset());
+        food.add("ROWS", page.getRows());
+
+        try {
+                result = pipeline.process(food);
+                for (int i = 1; i <= result.getSize(); i++) {
+                    Iterator<String> it = result.getColumnIterator(i);
+                    QSARModel model = new QSARModel();
+                    model.setId(Integer.parseInt(it.next()));
+                    modelList.add(model);
+                }
         } catch (YaqpException ex) {
             System.out.println(ex);
             throw new DbException(XDH7, "Could not get QSARModels from Database", ex);
@@ -533,11 +633,11 @@ public class ReaderHandler {
      * @return returns <code>in</code> (the input string) if it is not null, or
      * <code>%%</code> otherwise.
      */
-    private static String fixNull(String in) {
-        if (in == null || in.equals("")) {
+    private static String fixNull(Object in) {
+        if (in == null || in.toString().equals("")) {
             return "%%";
         }
-        return in;
+        return in.toString();
     }
 
     public static ComponentList<AlgorithmOntology> getAlgOntRelation(Algorithm prototype, Page page) throws YaqpOntException, DbException {

@@ -207,11 +207,33 @@ public class ReaderHandlerTest {
         map.put("gamma_max", p);
 
         model.setParams(map);
-        model.setId(109);
-        ComponentList<QSARModel> models = ReaderHandler.searchQSARModels(model, new Page());
+        //model.setId(109);
+        //model.setModelStatus(QSARModel.ModelStatus.UNDER_DEVELOPMENT);
+        ComponentList<QSARModel> models = ReaderHandler.searchQSARModel(model, new Page());
         for (QSARModel m : models.getComponentList()) {
             System.out.println(m.getId());
             System.out.println(m.getDependentFeature());
+            System.out.println(m.getParams().get("gamma").paramValue);
+        }
+    }
+
+    @Test
+    public void getQSARModsSkroutz() throws DbException {
+        System.out.println("---------------- search QSARModels SKROUTZ------------");
+        QSARModel model = new QSARModel();
+        Map<String, AlgorithmParameter> map = new HashMap<String, AlgorithmParameter>();
+
+        //AlgorithmParameter<Double> p = map.get("gamma");
+        AlgorithmParameter p = new AlgorithmParameter(2.5);
+
+        map.put("gamma_max", p);
+
+      //  model.setParams(map);
+        //model.setId(109);
+        //model.setModelStatus(QSARModel.ModelStatus.UNDER_DEVELOPMENT);
+        ComponentList<QSARModel> models = ReaderHandler.searchQSARModelSkroutz(model, new Page());
+        for (QSARModel m : models.getComponentList()) {
+            System.out.println(m.getId());
         }
     }
 
