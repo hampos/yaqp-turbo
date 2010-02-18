@@ -35,10 +35,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.config.ServerFolders;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.ontology.components.Feature;
@@ -48,17 +44,12 @@ import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.ontology.util.vocabulary.ConstantParameters;
 import org.opentox.qsar.exceptions.QSARException;
-import org.opentox.qsar.processors.filters.AttributeCleanup;
-import org.opentox.qsar.processors.filters.AttributeCleanup.ATTRIBUTE_TYPE;
-import org.opentox.qsar.processors.filters.SimpleMVHFilter;
-import org.opentox.qsar.processors.trainers.WekaTrainer;
 import org.opentox.www.rest.components.YaqpForm;
 import weka.classifiers.Evaluation;
 import weka.classifiers.functions.SMO;
 import weka.classifiers.functions.supportVector.Kernel;
 import weka.classifiers.functions.supportVector.PolyKernel;
 import weka.classifiers.functions.supportVector.RBFKernel;
-import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.converters.ArffSaver;
 
@@ -67,7 +58,7 @@ import weka.core.converters.ArffSaver;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public final class SVCTrainer extends WekaTrainer {
+public final class SVCTrainer extends WekaClassifier {
 
     /**
      * The parameter gamma
@@ -137,11 +128,11 @@ public final class SVCTrainer extends WekaTrainer {
             }
             if (gamma <= 0) {
                 throw new QSARException(
-                        Cause.XQSVM3002, "The parameter gamma must be strictly positive. "
+                        Cause.XQReg3002, "The parameter gamma must be strictly positive. "
                         + "You provided the illegal value: {" + gamma + "}");
             }
         } catch (final NumberFormatException ex) {
-            throw new QSARException(Cause.XQSVM3001, "Parameter gamma should be numeric. "
+            throw new QSARException(Cause.XQReg3001, "Parameter gamma should be numeric. "
                     + "You provided the illegal value : {" + form.getFirstValue(ConstantParameters.gamma) + "}", ex);
         }
         putParameter(ConstantParameters.gamma, new AlgorithmParameter((double) gamma));
@@ -153,11 +144,11 @@ public final class SVCTrainer extends WekaTrainer {
             }
             if (cost <= 0) {
                 throw new QSARException(
-                        Cause.XQSVM3004, "The parameter " + ConstantParameters.cost + " must be strictly positive. "
+                        Cause.XQReg3004, "The parameter " + ConstantParameters.cost + " must be strictly positive. "
                         + "You provided the illegal value: {" + cost + "}");
             }
         } catch (final NumberFormatException ex) {
-            throw new QSARException(Cause.XQSVM3003, "Parameter " + ConstantParameters.cost + " should be numeric. "
+            throw new QSARException(Cause.XQReg3003, "Parameter " + ConstantParameters.cost + " should be numeric. "
                     + "You provided the illegal "
                     + "value : {" + form.getFirstValue(ConstantParameters.cost) + "}", ex);
         }
@@ -169,7 +160,7 @@ public final class SVCTrainer extends WekaTrainer {
                 this.coeff0 = Double.parseDouble(form.getFirstValue(ConstantParameters.coeff0));
             }
         } catch (final NumberFormatException ex) {
-            throw new QSARException(Cause.XQSVM3007, "Parameter " + ConstantParameters.coeff0 + " should be numeric. "
+            throw new QSARException(Cause.XQReg3007, "Parameter " + ConstantParameters.coeff0 + " should be numeric. "
                     + "You provided the illegal "
                     + "value : {" + form.getFirstValue(ConstantParameters.coeff0) + "}", ex);
         }
@@ -182,7 +173,7 @@ public final class SVCTrainer extends WekaTrainer {
                 this.cacheSize = Integer.parseInt(form.getFirstValue(ConstantParameters.cacheSize));
             }
         } catch (final NumberFormatException ex) {
-            throw new QSARException(Cause.XQSVM3008, "Parameter " + ConstantParameters.cacheSize + " should be integer. "
+            throw new QSARException(Cause.XQReg3008, "Parameter " + ConstantParameters.cacheSize + " should be integer. "
                     + "You provided the illegal "
                     + "value : {" + form.getFirstValue(ConstantParameters.cacheSize) + "}", ex);
         }
@@ -195,7 +186,7 @@ public final class SVCTrainer extends WekaTrainer {
                 this.degree = Integer.parseInt(form.getFirstValue(ConstantParameters.degree));
             }
         } catch (final NumberFormatException ex) {
-            throw new QSARException(Cause.XQSVM3009, "Parameter " + ConstantParameters.degree + " should be integer. "
+            throw new QSARException(Cause.XQReg3009, "Parameter " + ConstantParameters.degree + " should be integer. "
                     + "You provided the illegal "
                     + "value : {" + form.getFirstValue(ConstantParameters.degree) + "}", ex);
         }
@@ -209,12 +200,12 @@ public final class SVCTrainer extends WekaTrainer {
             }
             if (tolerance < 1E-6) {
                 throw new QSARException(
-                        Cause.XQSVM3011, "The parameter " + ConstantParameters.tolerance + " must be greater that 1E-6. "
+                        Cause.XQReg3011, "The parameter " + ConstantParameters.tolerance + " must be greater that 1E-6. "
                         + "You provided the illegal value: {"
                         + tolerance + "}");
             }
         } catch (final NumberFormatException ex) {
-            throw new QSARException(Cause.XQSVM3010, "Parameter " + ConstantParameters.tolerance + " should be numeric. "
+            throw new QSARException(Cause.XQReg3010, "Parameter " + ConstantParameters.tolerance + " should be numeric. "
                     + "You provided the illegal value : {" + form.getFirstValue(ConstantParameters.tolerance) + "}", ex);
         }
         putParameter(ConstantParameters.tolerance, new AlgorithmParameter(tolerance));
@@ -225,7 +216,7 @@ public final class SVCTrainer extends WekaTrainer {
         if (form.getFirstValue(ConstantParameters.kernel) != null) {
             this.kernel = form.getFirstValue(ConstantParameters.kernel).toUpperCase();
             if (!kernel.equals("RBF") && !kernel.equals("LINEAR") && !kernel.equals("POLYNOMIAL")) {
-                throw new QSARException(Cause.XQSVM3012, "The available kernels are [RBF; LINEAR; POLYNOMIAL]. Note that "
+                throw new QSARException(Cause.XQReg3012, "The available kernels are [RBF; LINEAR; POLYNOMIAL]. Note that "
                         + "this parameter is not case-sensitive, i.e. rbf is the same as RbF. However you provided "
                         + "the illegal value : {" + kernel + "}");
             }
@@ -236,68 +227,7 @@ public final class SVCTrainer extends WekaTrainer {
     }/* End of constructor */
 
 
-    public QSARModel train(Instances data) throws QSARException {
-        /*
-         * TODO: In case a client choses a non-nominal feature for the classifier,
-         * provide a list of some available nominal features.
-         */
-
-        if (data == null) {
-            throw new NullPointerException("Cannot train an SVC model without data");
-        }
-
-        /* The incoming dataset always has the first attribute set to
-        'compound_uri' which is of type "String". This is removed at the
-        begining of the training procedure */
-        AttributeCleanup filter = new AttributeCleanup(ATTRIBUTE_TYPE.string);
-        // NOTE: Removal of string attributes should be always performed prior to any kind of training!
-        data = filter.filter(data);
-
-        SimpleMVHFilter fil = new SimpleMVHFilter();
-        data = fil.filter(data);
-
-        // CHECK IF THE GIVEN URI IS AN ATTRIBUTE OF THE DATASET
-        Attribute classAttribute = data.attribute(predictionFeature);
-        if (classAttribute == null) {
-            throw new QSARException(Cause.XQM202,
-                    "The prediction feature you provided is not a valid numeric attribute of the dataset :{"
-                    + predictionFeature + "}");
-        }
-
-        // CHECK IF THE DATASET CONTAINS ANY NOMINAL ATTRIBUTES
-        if (!data.checkForAttributeType(Attribute.NOMINAL)) {
-            throw new QSARException(Cause.XQSVC4040, "Improper dataset! The dataset you provided has no "
-                    + "nominal features therefore classification models cannot be built.");
-        }
-
-        // CHECK WHETHER THE CLASS ATTRIBUTE IS NOMINAL
-        if (!classAttribute.isNominal()) {
-            StringBuilder list_of_nominal_features = new StringBuilder();
-
-            int j = 0;
-            for (int i = 0; i < data.numAttributes() && j < 10; i++) {
-                if (data.attribute(i).isNominal()) {
-                    j++;
-                    list_of_nominal_features.append(data.attribute(i).name() + "\n");
-                }
-                System.out.println(data.attribute(i).type());
-            }
-
-            throw new QSARException(Cause.XQSVC4041, "The prediction feature you provided "
-                    + "is not a nominal. Here is a list of some nominal features in the dataset you might "
-                    + "be interested in :\n" + list_of_nominal_features.toString());
-        }
-
-        // CHECK IF THE RANGE OF THE CLASS ATTRIBUTE IS NON-UNARY
-        Enumeration nominalValues = classAttribute.enumerateValues();
-        String v = nominalValues.nextElement().toString();
-        if (!nominalValues.hasMoreElements()){
-            throw new QSARException(Cause.XQSVC4042, "This classifier cannot handle unary nominal classes, that is " +
-                    "nominal class attributes whose range includes only one value. Singleton value : {"+v+"}");
-        }
-
-        // SET THE CLASS ATTRIBUTE OF THE DATASET
-        data.setClass(classAttribute);
+    public QSARModel train(Instances data) throws QSARException {        
 
         // GET A UUID AND DEFINE THE TEMPORARY FILE WHERE THE TRAINING DATA
         // ARE STORED IN ARFF FORMAT PRIOR TO TRAINING.
@@ -365,7 +295,7 @@ public final class SVCTrainer extends WekaTrainer {
             Evaluation.evaluateModel(classifier, generalOptions);
         } catch (final Exception ex) {
             tempFile.delete();
-            throw new QSARException(Cause.XQSVM350, "Unexpected condition while trying to train "
+            throw new QSARException(Cause.XQReg350, "Unexpected condition while trying to train "
                     + "a support vector classification model. Possible explanation : {" + ex.getMessage() + "}", ex);
         }
 

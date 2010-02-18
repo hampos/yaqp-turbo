@@ -84,7 +84,7 @@ public abstract class AbstractTrainer<Input> extends Processor<Input, QSARModel>
             predictionFeature = getParameters().get(ConstantParameters.prediction_feature).paramValue.toString();
             new URI(predictionFeature);
         } catch (URISyntaxException ex) {
-            throw new QSARException(Cause.XQM200, "The prediction feature you provided is not a valid URI : {" + predictionFeature + "}", ex);
+            throw new QSARException(Cause.XQReg200, "The prediction feature you provided is not a valid URI : {" + predictionFeature + "}", ex);
         } catch (NullPointerException ex) {
             String message = "MLR model cannot be trained because you "
                     + "did not provide the parameter " + ConstantParameters.prediction_feature;
@@ -95,7 +95,7 @@ public abstract class AbstractTrainer<Input> extends Processor<Input, QSARModel>
             datasetUri = getParameters().get(ConstantParameters.dataset_uri).paramValue.toString();
             new URI(datasetUri);
         } catch (URISyntaxException ex) {
-            throw new QSARException(Cause.XQM201, "The dataset_uri parameter you provided is not a valid URI {" + datasetUri + "}", ex);
+            throw new QSARException(Cause.XQReg201, "The dataset_uri parameter you provided is not a valid URI {" + datasetUri + "}", ex);
         } catch (NullPointerException ex) {
             String message = "MLR model cannot be trained because you "
                     + "did not provide the parameter " + ConstantParameters.dataset_uri;
@@ -108,17 +108,17 @@ public abstract class AbstractTrainer<Input> extends Processor<Input, QSARModel>
         if (form == null) throw new NullPointerException("The provided form must not be null");
         this.datasetUri = form.getFirstValue(ConstantParameters.dataset_uri);
         this.predictionFeature = form.getFirstValue(ConstantParameters.prediction_feature);
-        if (datasetUri == null ) throw new QSARException(Cause.XQM500, "The parameter "+ConstantParameters.dataset_uri+" was not specified");
-        if (predictionFeature == null ) throw new QSARException(Cause.XQM501, "The parameter "+ConstantParameters.prediction_feature+" was not specified");
+        if (datasetUri == null ) throw new QSARException(Cause.XQReg500, "The parameter "+ConstantParameters.dataset_uri+" was not specified");
+        if (predictionFeature == null ) throw new QSARException(Cause.XQReg501, "The parameter "+ConstantParameters.prediction_feature+" was not specified");
         try {
             putParameter(ConstantParameters.prediction_feature, new AlgorithmParameter(new URI(this.predictionFeature)));
         } catch (URISyntaxException ex) {
-            throw new QSARException(Cause.XQM711, "Invalid URI for prediction feature {" + predictionFeature + "}", ex);
+            throw new QSARException(Cause.XQReg711, "Invalid URI for prediction feature {" + predictionFeature + "}", ex);
         }
         try {
             putParameter(ConstantParameters.dataset_uri, new AlgorithmParameter(new URI(this.datasetUri)));
         } catch (URISyntaxException ex) {
-            throw new QSARException(Cause.XQM712, "Invalid URI for dataset {" + datasetUri + "}", ex);
+            throw new QSARException(Cause.XQReg712, "Invalid URI for dataset {" + datasetUri + "}", ex);
         }
         uuid = UUID.randomUUID();
     }
@@ -136,9 +136,12 @@ public abstract class AbstractTrainer<Input> extends Processor<Input, QSARModel>
         this.parameters.put(paramName, parameter);
     }
 
+    public abstract Input preprocessData(Input data) throws QSARException;
+
     public QSARModel process(Input data) throws YaqpException {
         if (data == null) throw new NullPointerException("Cannot training a model if " +
                 "no input (training) data are provided");
-        return train(data);
+
+        return train(preprocessData(data));
     }
 }
