@@ -78,7 +78,7 @@ import weka.core.Instances;
  * @author Charalampos Chomenides
  */
 @SuppressWarnings({"unchecked"})
-public class MLRTrainer extends WekaTrainer {
+public class MLRTrainer extends WekaRegressor {
 
     private static final String PMMLIntro =
             "<PMML version=\"3.2\" "
@@ -107,10 +107,10 @@ public class MLRTrainer extends WekaTrainer {
      * </thead>
      * <tbody>
      * <tr>
-     * <td>XQM200</td><td>The <code>prediction_feature</code> you provided is not a valid URI</td>
+     * <td>XQReg200</td><td>The <code>prediction_feature</code> you provided is not a valid URI</td>
      * </tr>
      * <tr>
-     * <td>XQM201</td><td>The <code>dataset_uri</code> you provided is not a valid URI</td>
+     * <td>XQReg201</td><td>The <code>dataset_uri</code> you provided is not a valid URI</td>
      * </tr>
      * </tbody>
      * </table>
@@ -145,10 +145,10 @@ public class MLRTrainer extends WekaTrainer {
      * </thead>
      * <tbody>
      * <tr>
-     * <td>XQM200</td><td>The <code>prediction_feature</code> you provided is not a valid URI</td>
+     * <td>XQReg200</td><td>The <code>prediction_feature</code> you provided is not a valid URI</td>
      * </tr>
      * <tr>
-     * <td>XQM201</td><td>The <code>dataset_uri</code> you provided is not a valid URI</td>
+     * <td>XQReg201</td><td>The <code>dataset_uri</code> you provided is not a valid URI</td>
      * </tr>
      * </tbody>
      * </table>
@@ -186,13 +186,13 @@ public class MLRTrainer extends WekaTrainer {
      * </thead>
      * <tbody>
      * <tr>
-     * <td>XQM1</td><td>Could not train the an model</td>
+     * <td>XQReg1</td><td>Could not train the an model</td>
      * </tr>
      * <tr>
-     * <td>XQM2</td><td>Could not generate PMML representation for the model</td>
+     * <td>XQReg2</td><td>Could not generate PMML representation for the model</td>
      * </tr>
      * <tr>
-     * <td>XQM202</td><td>The prediction feature you provided is not a valid numeric attribute of the dataset</td>
+     * <td>XQReg202</td><td>The prediction feature you provided is not a valid numeric attribute of the dataset</td>
      * </tr>
      * </tbody>
      * </table>
@@ -201,23 +201,7 @@ public class MLRTrainer extends WekaTrainer {
      *      In case the provided training data is null.
      */
     public QSARModel train(Instances data) throws QSARException {
-        if (data == null) {
-            throw new NullPointerException("Cannot train an "
-                    + "MLR model without a training dataset");
-        }
-        /* The incoming dataset always has the first attribute set to 
-        'compound_uri' which is of type "String". This is removed at the
-        begining of the training procedure */
-        AttributeCleanup filter = new AttributeCleanup(ATTRIBUTE_TYPE.string);
-        // NOTE: Removal of string attributes should be always performed prior to any kind of training!
-        data = filter.filter(data);
-        SimpleMVHFilter fil = new SimpleMVHFilter();
-        data = fil.filter(data);
-        if (data.attribute(predictionFeature) == null) {
-            throw new QSARException(Cause.XQM202,
-                    "The prediction feature you provided is not a valid numeric attribute of the dataset :{"
-                    + predictionFeature + "}");
-        }
+     
         data.setClass(data.attribute(predictionFeature.toString()));
         LinearRegression linreg = new LinearRegression();
         String[] linRegOptions = {"-S", "1", "-C"};
@@ -227,13 +211,13 @@ public class MLRTrainer extends WekaTrainer {
         } catch (final Exception ex) {// illegal options or could not build the classifier!
             String message = "MLR Model could not be trained";
             YaqpLogger.LOG.log(new Trace(getClass(), message + " :: " + ex));
-            throw new QSARException(Cause.XQM1, message, ex);
+            throw new QSARException(Cause.XQReg1, message, ex);
         }
         try {
             generatePMML(linreg, data);
         } catch (final YaqpIOException ex) {
             String message = "Could not generate PMML representation for MLR model :: " + ex;
-            throw new QSARException(Cause.XQM2, message, ex);
+            throw new QSARException(Cause.XQReg2, message, ex);
         }
 
         ArrayList<Feature> independentFeatures = new ArrayList<Feature>();
@@ -333,7 +317,7 @@ public class MLRTrainer extends WekaTrainer {
             writer.flush();
             writer.close();
         } catch (IOException ex) {
-            throw new YaqpIOException(Cause.XQM3, "Could not write data to PMML file :" + uuid.toString(), ex);
+            throw new YaqpIOException(Cause.XQReg3, "Could not write data to PMML file :" + uuid.toString(), ex);
         }
     }
     // </editor-fold>
@@ -348,7 +332,7 @@ public class MLRTrainer extends WekaTrainer {
         final Map<String, AlgorithmParameter> params = new HashMap<String, AlgorithmParameter>();
         params.put("prediction_feature", new AlgorithmParameter<String>(ServerList.ambit + "/feature/11954"));
         params.put("dataset_uri", new AlgorithmParameter<String>("http://localhost/6"));
-        final WekaTrainer p6 = new MLRTrainer(params);
+        final WekaRegressor p6 = new MLRTrainer(params);
 
         final Pipeline pipe = new Pipeline();
         pipe.add(p1);

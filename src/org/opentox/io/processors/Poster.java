@@ -31,11 +31,68 @@
  */
 package org.opentox.io.processors;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.opentox.core.exceptions.YaqpException;
+import org.opentox.io.interfaces.JPublishable;
+import org.opentox.io.publishable.RDFObject;
+import org.opentox.io.util.ServerList;
+import org.opentox.io.util.YaqpIOStream;
+import org.opentox.ontology.util.YaqpAlgorithms;
+import org.restlet.Client;
+import org.restlet.Response;
+import org.restlet.data.MediaType;
+import org.restlet.data.Protocol;
+import org.restlet.data.Status;
+import org.restlet.representation.OutputRepresentation;
+
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class Poster //        extends Processor<Object, Object>
+public class Poster
+        extends AbstractIOProcessor<JPublishable, Response>
 {
+
+    public Response handle(final JPublishable objectToPost) throws YaqpException {
+
+        OutputRepresentation rep = new OutputRepresentation(objectToPost.getMediaType()) {
+
+            @Override
+            public void write(OutputStream outputStream) throws IOException {
+                try {
+                    objectToPost.publish(new YaqpIOStream(outputStream));
+                } catch (YaqpException ex) {
+                    Logger.getLogger(Poster.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+
+        Client cli = new Client(Protocol.HTTP);
+        int N_RETRIES =5, i=0;
+        boolean success = false;
+
+
+        Response response = new Response(null);
+
+
+        while (!success && i < N_RETRIES){
+             response = cli.post(ServerList.ambit+"/feature", rep);
+             success = (response.getStatus().equals(Status.SUCCESS_OK));
+             i++;
+        }
+
+        return response;
+    }
+
+    public static void main(String... args) throws YaqpException{
+        RDFObject rdf = YaqpAlgorithms.MLR.getRDF();
+        Poster p = new Poster();
+        System.out.println(p.handle(rdf).toString());
+    }
+
+
 }
