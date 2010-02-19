@@ -47,7 +47,6 @@ import org.opentox.db.queries.QueryFood;
 import org.opentox.db.util.Page;
 import org.opentox.db.util.PrepStmt;
 import org.opentox.ontology.exceptions.ImproperEntityException;
-import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.util.AlgorithmMeta;
 import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
@@ -75,9 +74,9 @@ public class ReaderHandler {
      * must be casted as the required component.
      * @throws DbException
      * @throws ImproperEntityException
-     * @throws YaqpOntException
      */
-    public static ComponentList<YaqpComponent> search(YaqpComponent component, Page page, boolean Skroutz) throws DbException, ImproperEntityException, YaqpOntException {
+    public static ComponentList<YaqpComponent> search(YaqpComponent component, Page page, boolean Skroutz)
+            throws DbException, ImproperEntityException {
         if (component == null) {
             throw new NullPointerException("Cannot read a null component from the database");
         }
@@ -391,7 +390,7 @@ public class ReaderHandler {
 
      /**
      * Searches for Users in the database for a given User prototype in Skroutz Mode,
-     * and returns the users that match that prototype, filled only with email variable.
+     * and returns the users that match that prototype, filled only with their username.
      * @param prototype a valid User prototype
      * @param page the required database page
      * @return ComponentList of User that contains the required users.
@@ -436,11 +435,8 @@ public class ReaderHandler {
             result = pipeline.process(food);
             for (int i = 1; i <= result.getSize(); i++) {
                 Iterator<String> it = result.getColumnIterator(i);
-                User user = new User(it.next(), it.next(), it.next(), it.next(),
-                        it.next(), it.next(), it.next(),
-                        it.next(), it.next(), it.next(), it.next(),
-                        searchUserGroup(new UserGroup(it.next()), new Page()).get(0)
-                        );
+                User user = new User();
+                user.setUserName(it.next());
                 userList.add(user);
             }
         } catch (YaqpException ex) {
@@ -461,7 +457,7 @@ public class ReaderHandler {
      * @see ReaderHandler#searchAlgorithmOntologySkroutz(org.opentox.ontology.components.AlgorithmOntology, org.opentox.db.util.Page)
      */
      protected static ComponentList<AlgorithmOntology>
-             searchAlgorithmOntology(AlgorithmOntology prototype, Page page) throws YaqpOntException, DbException {
+             searchAlgorithmOntology(AlgorithmOntology prototype, Page page) throws DbException {
          if(prototype == null){
              throw new NullPointerException("AlgorithmOntology prototype provided is null");
          }
@@ -504,7 +500,7 @@ public class ReaderHandler {
      * @see ReaderHandler#searchAlgorithmOntology(org.opentox.ontology.components.AlgorithmOntology, org.opentox.db.util.Page)
      */
      protected static ComponentList<AlgorithmOntology>
-             searchAlgorithmOntologySkroutz(AlgorithmOntology prototype, Page page) throws YaqpOntException, DbException {
+             searchAlgorithmOntologySkroutz(AlgorithmOntology prototype, Page page) throws DbException {
          if(prototype == null){
              throw new NullPointerException("AlgorithmOntology prototype provided is null");
          }
@@ -1029,7 +1025,7 @@ public class ReaderHandler {
      * @throws DbException
      * @see ReaderHandler#getOntAlgRelation(org.opentox.ontology.components.AlgorithmOntology, org.opentox.db.util.Page)
      */
-    protected static ComponentList<AlgorithmOntology> getAlgOntRelation(Algorithm prototype, Page page) throws YaqpOntException, DbException {
+    protected static ComponentList<AlgorithmOntology> getAlgOntRelation(Algorithm prototype, Page page) throws  DbException {
         if (prototype == null) {
             throw new NullPointerException("Algorithm prototype provided is null");
         }

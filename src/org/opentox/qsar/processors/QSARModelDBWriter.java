@@ -45,6 +45,7 @@ import org.opentox.db.util.Page;
 import org.opentox.ontology.components.QSARModel;
 import org.opentox.ontology.components.User;
 import org.opentox.ontology.components.YaqpComponent;
+import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Warning;
 
@@ -62,9 +63,11 @@ public class QSARModelDBWriter extends Processor<QSARModel, QSARModel>{
 
     public QSARModelDBWriter() {
         try {
-            user = ReaderHandler.searchUser(new User(), new Page(1, 0)).get(0);
+            user = (User) ReaderHandler.search(new User(), new Page(1, 0), false).get(0);
         } catch (DbException ex) {
             YaqpLogger.LOG.log(new Warning(getClass(), "No users found in the database!!!"));
+        } catch (ImproperEntityException ex){
+
         }
     }
 
