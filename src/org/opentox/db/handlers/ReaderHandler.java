@@ -64,7 +64,20 @@ import static org.opentox.core.exceptions.Cause.*;
 public class ReaderHandler {
 
 
-    public static ComponentList<YaqpComponent> Search(YaqpComponent component, Page page, boolean Skroutz) throws DbException, ImproperEntityException, YaqpOntException {
+    /**
+     * Global Search function. Provided a valid YaqpComponent prototype
+     * the handler will search in the database and return a ComponentList that
+     * contains all components that matched the prototype.
+     * @param component  valid YaqpComponent
+     * @param page the requested database page
+     * @param Skroutz activate Skroutz mode (returns component primary key only)
+     * @return ComponentList of YaqpComponent. Each element of the list
+     * must be casted as the required component.
+     * @throws DbException
+     * @throws ImproperEntityException
+     * @throws YaqpOntException
+     */
+    public static ComponentList<YaqpComponent> search(YaqpComponent component, Page page, boolean Skroutz) throws DbException, ImproperEntityException, YaqpOntException {
         if (component == null) {
             throw new NullPointerException("Cannot read a null component from the database");
         }
@@ -165,6 +178,7 @@ public class ReaderHandler {
         return result;
     }
 
+
     /**
      * ****************************************************************************
      * ----------------------------------------------------------------------------
@@ -175,7 +189,17 @@ public class ReaderHandler {
 
 
 
-     public static ComponentList<UserGroup>
+    /**
+     * Searches for User Groups in the database for a given UserGroup prototype
+     * and returns the groups that match that prototype.
+     * @param prototype a valid UserGroup prototype
+     * @param page the required database page
+     * @return ComponentList of UserGroup that contains the required groups
+     * @throws DbException
+     * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+     * @see ReaderHandler#searchUserGroupSkroutz(org.opentox.ontology.components.UserGroup, org.opentox.db.util.Page)
+     */
+     protected static ComponentList<UserGroup>
              searchUserGroup(UserGroup prototype, Page page) throws DbException {
          if(prototype == null){
              throw new NullPointerException("UserGroup prototype provided is null");
@@ -216,7 +240,17 @@ public class ReaderHandler {
         return groupList;
     }
 
-    public static ComponentList<UserGroup>
+     /**
+     * Searches for User Groups in the database for a given UserGroup prototype in Skroutz Mode,
+     * and returns the groups that match that prototype, filled only with group name variable.
+     * @param prototype a valid UserGroup prototype
+     * @param page the required database page
+     * @return ComponentList of UserGroup that contains the required groups.
+     * @throws DbException
+      * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+      * @see ReaderHandler#searchUserGroup(org.opentox.ontology.components.UserGroup, org.opentox.db.util.Page)
+     */
+    protected static ComponentList<UserGroup>
              searchUserGroupSkroutz(UserGroup prototype, Page page) throws DbException {
         if(prototype == null){
              throw new NullPointerException("UserGroup prototype provided is null");
@@ -301,8 +335,9 @@ public class ReaderHandler {
      * @return List of users meeting the specifications of the search criteria or
      * an empty list if no such user was found.
      * @throws DbException In case the search cannot be performed.
+     * @see ReaderHandler#searchUserSkroutz(org.opentox.ontology.components.User, org.opentox.db.util.Page)
      */
-     public static ComponentList<User>
+     protected static ComponentList<User>
              searchUser(User prototype, Page page) throws DbException {
          if(prototype == null){
              throw new NullPointerException("User prototype provided is null");
@@ -354,7 +389,16 @@ public class ReaderHandler {
         return userList;
     }
 
-     public static ComponentList<User>
+     /**
+     * Searches for Users in the database for a given User prototype in Skroutz Mode,
+     * and returns the users that match that prototype, filled only with email variable.
+     * @param prototype a valid User prototype
+     * @param page the required database page
+     * @return ComponentList of User that contains the required users.
+     * @throws DbException
+      * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+     */
+     protected static ComponentList<User>
              searchUserSkroutz(User prototype, Page page) throws DbException {
          if(prototype == null){
              throw new NullPointerException("User prototype provided is null");
@@ -406,11 +450,17 @@ public class ReaderHandler {
         return userList;
     }
 
-
-
-
-
-     public static ComponentList<AlgorithmOntology>
+     /**
+     * Searches for Algorithm Ontologies in the database for a given AlgorithmOntology prototype
+     * and returns the ontologies that match that prototype.
+     * @param prototype a valid AlgorithmOntology prototype
+     * @param page the required database page
+     * @return ComponentList of AlgorithmOntology that contains the required ontologies
+     * @throws DbException
+     * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+     * @see ReaderHandler#searchAlgorithmOntologySkroutz(org.opentox.ontology.components.AlgorithmOntology, org.opentox.db.util.Page)
+     */
+     protected static ComponentList<AlgorithmOntology>
              searchAlgorithmOntology(AlgorithmOntology prototype, Page page) throws YaqpOntException, DbException {
          if(prototype == null){
              throw new NullPointerException("AlgorithmOntology prototype provided is null");
@@ -443,7 +493,17 @@ public class ReaderHandler {
     }
 
 
-     public static ComponentList<AlgorithmOntology>
+     /**
+     * Searches for Algorithm Ontologies in the database for a given AlgorithmOntology prototype in Skroutz mode,
+     * and returns the ontologies that match that prototype, filled with ontology name value only.
+     * @param prototype a valid AlgorithmOntology prototype
+     * @param page the required database page
+     * @return ComponentList of AlgorithmOntology that contains the required ontologies
+     * @throws DbException
+     * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+     * @see ReaderHandler#searchAlgorithmOntology(org.opentox.ontology.components.AlgorithmOntology, org.opentox.db.util.Page)
+     */
+     protected static ComponentList<AlgorithmOntology>
              searchAlgorithmOntologySkroutz(AlgorithmOntology prototype, Page page) throws YaqpOntException, DbException {
          if(prototype == null){
              throw new NullPointerException("AlgorithmOntology prototype provided is null");
@@ -475,9 +535,17 @@ public class ReaderHandler {
         return ontList;
     }
 
-
-
-     public static ComponentList<Feature>
+     /**
+     * Searches for Features in the database for a given Feature prototype
+     * and returns the features that match that prototype.
+     * @param prototype a valid Features prototype
+     * @param page the required database page
+     * @return ComponentList of Feature that contains the required features
+     * @throws DbException
+     * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+     * @see ReaderHandler#searchFeatureSkroutz(org.opentox.ontology.components.Feature, org.opentox.db.util.Page)
+     */
+     protected static ComponentList<Feature>
              searchFeature(Feature prototype, Page page) throws DbException {
          if(prototype == null){
              throw new NullPointerException("Feature prototype provided is null");
@@ -509,8 +577,17 @@ public class ReaderHandler {
         return featureList;
     }
 
-
-     public static ComponentList<Feature>
+     /**
+     * Searches for Features in the database for a given Feature prototype in Skroutz Mode,
+     * and returns the features that match that prototype, filled with feature id value only.
+     * @param prototype a valid Features prototype
+     * @param page the required database page
+     * @return ComponentList of Feature that contains the required features
+     * @throws DbException
+     * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+     * @see ReaderHandler#searchFeature(org.opentox.ontology.components.Feature, org.opentox.db.util.Page)
+     */
+     protected static ComponentList<Feature>
              searchFeatureSkroutz(Feature prototype, Page page) throws DbException {
          if(prototype == null){
              throw new NullPointerException("Feature prototype provided is null");
@@ -543,12 +620,20 @@ public class ReaderHandler {
     }
 
 
-
      /**
-     *
-     * @return
+     * Searches for QSARModels in the database for a given QSARModel prototype
+     * and returns the models that match that prototype. If the prototype does not
+      * contain SupportedVector parameters the search will be performed on all
+      * QSARModels in the database. If the prototype contains SupportedVector parameters
+      * the search will be narrowed for SVM-SVC related models only.
+     * @param prototype a valid QSARModel prototype
+     * @param page the required database page
+     * @return ComponentList of QSARModel that contains the required models
+     * @throws DbException
+     * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+     * @see ReaderHandler#searchQSARModelSkroutz(org.opentox.ontology.components.QSARModel, org.opentox.db.util.Page)
      */
-    public static ComponentList<QSARModel> searchQSARModel(QSARModel prototype, Page page) throws DbException {
+    protected static ComponentList<QSARModel> searchQSARModel(QSARModel prototype, Page page) throws DbException {
         if(prototype == null){
              throw new NullPointerException("QSARModel prototype provided is null");
          }
@@ -653,8 +738,20 @@ public class ReaderHandler {
         return modelList;
     }
 
-
-    public static ComponentList<QSARModel> searchQSARModelSkroutz(QSARModel prototype, Page page) throws DbException {
+    /**
+     * Searches for QSARModels in the database for a given QSARModel prototype in Skroutz mode,
+     * and returns the models that match that prototype, filled with model id value only.
+      * If the prototype does not contain SupportedVector parameters the search will be performed on all
+      * QSARModels in the database. If the prototype contains SupportedVector parameters
+      * the search will be narrowed for SVM-SVC related models only.
+     * @param prototype a valid QSARModel prototype
+     * @param page the required database page
+     * @return ComponentList of QSARModel that contains the required models
+     * @throws DbException
+     * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+     * @see ReaderHandler#searchQSARModel(org.opentox.ontology.components.QSARModel, org.opentox.db.util.Page)
+     */
+    protected static ComponentList<QSARModel> searchQSARModelSkroutz(QSARModel prototype, Page page) throws DbException {
         if(prototype == null){
              throw new NullPointerException("QSARModel prototype provided is null");
          }
@@ -718,7 +815,17 @@ public class ReaderHandler {
         return modelList;
     }
 
-    public static ComponentList<OmegaModel> searchOmega(OmegaModel prototype, Page page) throws DbException{
+    /**
+     * Searches for Omega Models in the database for a given omega prototype
+     * and returns the models that match that prototype.
+     * @param prototype a valid OmegaModel prototype
+     * @param page the required database page
+     * @return ComponentList of OmegaModel that contains the required models
+     * @throws DbException
+     * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+     * @see ReaderHandler#searchOmegaSkroutz(org.opentox.ontology.components.OmegaModel, org.opentox.db.util.Page)
+     */
+    protected static ComponentList<OmegaModel> searchOmega(OmegaModel prototype, Page page) throws DbException{
         if(prototype == null){
              throw new NullPointerException("QSARModel prototype provided is null");
          }
@@ -756,7 +863,17 @@ public class ReaderHandler {
         return modelList;
     }
 
-    public static ComponentList<OmegaModel> searchOmegaSkroutz(OmegaModel prototype, Page page) throws DbException{
+    /**
+     * Searches for Omega Models in the database for a given omega prototype in Skroutz Mode,
+     * and returns the models that match that prototype, filled with model id value only.
+     * @param prototype a valid OmegaModel prototype
+     * @param page the required database page
+     * @return ComponentList of OmegaModel that contains the required models
+     * @throws DbException
+     * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+     * @see ReaderHandler#searchOmega(org.opentox.ontology.components.OmegaModel, org.opentox.db.util.Page)
+     */
+    protected static ComponentList<OmegaModel> searchOmegaSkroutz(OmegaModel prototype, Page page) throws DbException{
         if(prototype == null){
              throw new NullPointerException("QSARModel prototype provided is null");
          }
@@ -790,7 +907,17 @@ public class ReaderHandler {
         return modelList;
     }
 
-    public static ComponentList<Task> searchTask(Task prototype, Page page) throws DbException{
+    /**
+     * Searches for Tasks in the database for a given task prototype
+     * and returns the tasks that match that prototype.
+     * @param prototype a valid OmegaModel prototype
+     * @param page the required database page
+     * @return ComponentList of Task that contains the required tasks
+     * @throws DbException
+     * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+     * @see ReaderHandler#searchTaskSkroutz(org.opentox.ontology.components.Task, org.opentox.db.util.Page)
+     */
+    protected static ComponentList<Task> searchTask(Task prototype, Page page) throws DbException{
         if(prototype == null){
              throw new NullPointerException("QSARModel prototype provided is null");
          }
@@ -836,7 +963,17 @@ public class ReaderHandler {
         return taskList;
     }
 
-    public static ComponentList<Task> searchTaskSkroutz(Task prototype, Page page) throws DbException{
+    /**
+     * Searches for Tasks in the database for a given task prototype in Skroutz Mode,
+     * and returns the tasks that match that prototype, filled with task name value only.
+     * @param prototype a valid OmegaModel prototype
+     * @param page the required database page
+     * @return ComponentList of Task that contains the required tasks
+     * @throws DbException
+     * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
+     * @see ReaderHandler#searchTask(org.opentox.ontology.components.Task, org.opentox.db.util.Page)
+     */
+    protected static ComponentList<Task> searchTaskSkroutz(Task prototype, Page page) throws DbException{
         if(prototype == null){
              throw new NullPointerException("QSARModel prototype provided is null");
          }
@@ -884,7 +1021,15 @@ public class ReaderHandler {
      * ****************************************************************************
      */
 
-    public static ComponentList<AlgorithmOntology> getAlgOntRelation(Algorithm prototype, Page page) throws YaqpOntException, DbException {
+    /**
+     * Gets all Ontology relations for a given Algorithm prototype.
+     * @param prototype a valid Algorithm prototype
+     * @param page the required database page
+     * @return ComponentList of AlgorithmOntology that contains the required ontologies
+     * @throws DbException
+     * @see ReaderHandler#getOntAlgRelation(org.opentox.ontology.components.AlgorithmOntology, org.opentox.db.util.Page)
+     */
+    protected static ComponentList<AlgorithmOntology> getAlgOntRelation(Algorithm prototype, Page page) throws YaqpOntException, DbException {
         if (prototype == null) {
             throw new NullPointerException("Algorithm prototype provided is null");
         }
@@ -913,8 +1058,15 @@ public class ReaderHandler {
         return ontList;
     }
 
-    // TODO: Fix the following code and then perform tons of tests!
-    public static ComponentList<Algorithm> getOntAlgRelation(AlgorithmOntology prototype, Page page) throws DbException {
+    /**
+     * Gets all Algorithms that relate to a given Ontology.
+     * @param prototype a valid AlgorithmOntology prototype
+     * @param page the required database page
+     * @return ComponentList of Algorithm that contains the required algorithms
+     * @throws DbException
+     * @see ReaderHandler#getAlgOntRelation(org.opentox.ontology.components.Algorithm, org.opentox.db.util.Page)
+     */
+    protected static ComponentList<Algorithm> getOntAlgRelation(AlgorithmOntology prototype, Page page) throws DbException {
         if(prototype == null){
              throw new NullPointerException("AlgorithmOntology prototype provided is null");
          }
@@ -964,8 +1116,13 @@ public class ReaderHandler {
         return algList;
     }
 
-
-    public static ComponentList<Algorithm> getAlgorithms() throws DbException {
+    /**
+     * Gets all Algorithms supported by YAQP from the database.
+     * @return ComponentList of Algorithm that contains the required algorithms
+     * @throws DbException
+     * @see ReaderHandler#getAlgorithm(java.lang.String)
+     */
+    protected static ComponentList<Algorithm> getAlgorithms() throws DbException {
         ComponentList<Algorithm> algorithmList = new ComponentList<Algorithm>();
         DbPipeline<QueryFood,HyperResult> pipeline =
                 new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_ALGORITHMS);
@@ -1004,8 +1161,14 @@ public class ReaderHandler {
         return algorithmList;
     }
 
-
-    public static Algorithm getAlgorithm(String name) throws DbException {
+    /**
+     * Gets a specific Algorithm from the database for a give algorithm name.
+     * @param name The name of the Algorithm to be retrieved.
+     * @return an Algorithm component
+     * @throws DbException
+     * @see ReaderHandler#getAlgorithms()
+     */
+    protected static Algorithm getAlgorithm(String name) throws DbException {
         AlgorithmMeta meta = null;
         Algorithm algorithm = null;
             Class<?> c = YaqpAlgorithms.class;
@@ -1030,7 +1193,14 @@ public class ReaderHandler {
         throw new DbException(XDH6, "No such Algorithm :" + name);
     }
 
-    public static ComponentList<Feature> getIndepFeatures(QSARModel model) throws DbException{
+    /**
+     * Gets all independent features for given QSARModel
+     * @param model A valid QSARModel
+     * @return ComponentList of Feature that contains the required features
+     * @throws DbException
+     * @see ReaderHandler#searchFeature(org.opentox.ontology.components.Feature, org.opentox.db.util.Page)
+     */
+    protected static ComponentList<Feature> getIndepFeatures(QSARModel model) throws DbException{
         ComponentList<Feature> featureList = new ComponentList<Feature>();
          DbPipeline<QueryFood,HyperResult> pipeline =  new DbPipeline<QueryFood, HyperResult>(PrepStmt.GET_INDEP_FEATURES);
 
@@ -1054,14 +1224,10 @@ public class ReaderHandler {
     }
 
 
-
-
-
-
     /**
      * Auxiliary method.
      * @param in some string
-     * @return returns <code>in</code> (the input string) if it is not null, or
+     * @return returns <code>in</code> (the input string) if it is not null and not empty, or
      * <code>%%</code> otherwise.
      */
     private static String fixNull(Object in) {

@@ -204,7 +204,7 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("RESULT", String.class),
     }),
     /**
-     *
+     * Add a new Omega Model in the database.
      */
     ADD_OMEGA_MODEL("INSERT INTO "+OmegaTable.TABLE.getTableName()+" (CODE, CREATED_BY, DATASET_URI) VALUES (?,?,?)",
     new QueryParam[]{

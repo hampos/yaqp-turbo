@@ -306,12 +306,20 @@ public class ReaderHandlerTest {
         System.out.println("----------------------  SEARCH ------------------");
 
         Task task = new Task();
-        ComponentList<YaqpComponent> tasks = ReaderHandler.Search(task, null, false);
+        ComponentList<YaqpComponent> tasks = ReaderHandler.search(task, null, false);
         for (YaqpComponent y : tasks.getComponentList()) {
             Task t = (Task)y;
             System.out.println(t.getName());
             System.out.println(t.getUser().getEmail());
             System.out.println(t.getAlgorithm().getMeta().getName());
+        }
+
+        User prototype = new User();
+        prototype.setFirstName("mike");
+        ComponentList<YaqpComponent> list = ReaderHandler.search(prototype, new Page(), false);
+        for (YaqpComponent y : list.getComponentList()) {
+            User user = (User)y;
+            System.out.println(user);
         }
     }
 
