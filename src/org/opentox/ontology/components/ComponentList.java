@@ -54,18 +54,6 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent implem
 
     private ArrayList<H> componentList = new ArrayList<H>();
 
-//    public void add(H component){
-//        componentList.add(component);
-//    }
-
-//    public void addAll(Collection<H> componentList){
-//        componentList.addAll(componentList);
-//    }
-
-//    public void clearList(){
-//        componentList.clear();
-//    }
-
     public ArrayList<H> getComponentList() {
         return componentList;
     }
