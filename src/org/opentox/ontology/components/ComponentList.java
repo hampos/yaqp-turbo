@@ -36,6 +36,9 @@ package org.opentox.ontology.components;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
@@ -47,21 +50,21 @@ import org.opentox.io.publishable.UriListObject;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class ComponentList<H extends YaqpComponent> extends YaqpComponent {
+public class ComponentList<H extends YaqpComponent> extends YaqpComponent implements List<H>{
 
     private ArrayList<H> componentList = new ArrayList<H>();
 
-    public void add(H component){
-        componentList.add(component);
-    }
+//    public void add(H component){
+//        componentList.add(component);
+//    }
 
-    public void addAll(Collection<H> componentList){
-        componentList.addAll(componentList);
-    }
+//    public void addAll(Collection<H> componentList){
+//        componentList.addAll(componentList);
+//    }
 
-    public void clearList(){
-        componentList.clear();
-    }
+//    public void clearList(){
+//        componentList.clear();
+//    }
 
     public ArrayList<H> getComponentList() {
         return componentList;
@@ -70,12 +73,6 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent {
     public void setComponentList(ArrayList<H> componentList) {
         this.componentList = componentList;
     }
-
-    public H get(int i){
-        return componentList.get(i);
-    }
-
-
 
     @Override
     public PDFObject getPDF() {
@@ -103,6 +100,106 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent {
             uriList.add(component.uri());
         }
         return new UriListObject(uriList);
+    }
+
+    public int size() {
+        return componentList.size();
+    }
+
+    public boolean isEmpty() {
+        return componentList.isEmpty();
+    }
+
+    public boolean contains(H o) {
+        return componentList.contains(o);
+    }
+
+    public Iterator<H> iterator() {
+        return componentList.iterator();
+    }
+
+    public Object[] toArray() {
+        return componentList.toArray();
+    }
+
+    public <T> T[] toArray(T[] a) {
+        return componentList.toArray(a);
+    }
+
+    public boolean add(H e) {
+        return componentList.add(e);
+    }
+
+    public boolean remove(H o) {
+        return componentList.remove(o);
+    }
+
+    public boolean containsAll(Collection<?> c) {
+        return componentList.containsAll(c);
+    }
+
+    public boolean addAll(Collection<? extends H> c) {
+        return componentList.addAll(c);
+    }
+
+    public boolean addAll(int index, Collection<? extends H> c) {
+        return componentList.addAll(index, c);
+    }
+
+    public H get(int i){
+        return componentList.get(i);
+    }
+
+    public boolean removeAll(Collection<?> c) {
+        return componentList.removeAll(c);
+    }
+
+    public boolean retainAll(Collection<?> c) {
+        return componentList.retainAll(c);
+    }
+
+    public void clear() {
+         componentList.clear();
+    }
+
+    public H set(int index, H element) {
+        return componentList.set(index, element);
+    }
+
+    public void add(int index, H element) {
+        componentList.add(index, element);
+    }
+
+    public H remove(int index) {
+        return componentList.remove(index);
+    }
+
+    public int indexOf(Object o) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public int lastIndexOf(Object o) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public ListIterator<H> listIterator() {
+        return componentList.listIterator();
+    }
+
+    public ListIterator<H> listIterator(int index) {
+        return componentList.listIterator(index);
+    }
+
+    public List<H> subList(int fromIndex, int toIndex) {
+        return componentList.subList(fromIndex, toIndex);
+    }
+
+    public boolean contains(Object o) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    public boolean remove(Object o) {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

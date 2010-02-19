@@ -613,7 +613,6 @@ import org.opentox.util.logging.levels.*;
                         System.err.println(pName+" -- "+algParam.paramValue.toString());
             food.add(pName.toUpperCase(), algParam.paramValue.toString());
         }
-
         try {
             addSupportVectorPipeline.process(food);
         } catch (DbException ex) {
@@ -655,7 +654,7 @@ import org.opentox.util.logging.levels.*;
         if (task == null) {
             throw new NullPointerException("Cannot add a null task in the database");
         }
-        if (task.getDuration_sec() < 0) {
+        if (task.getDuration() < 0) {
             throw new DbException(Cause.XDB4001, "You provided a negative duration for a task");
         }
         if (task.getName() == null) {
@@ -678,7 +677,8 @@ import org.opentox.util.logging.levels.*;
                     {"NAME", task.getName()},
                     {"CREATED_BY", task.getUser().getEmail()},
                     {"ALGORITHM", task.getAlgorithm().getMeta().getName()},
-                    {"DURATION", Integer.toString(task.getDuration_sec())}
+                    {"DURATION", Integer.toString(task.getDuration())},
+                    {"RESULT", ""}
                 });
         try {
             addTaskPipeline.process(food);

@@ -155,15 +155,18 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("CREATED_BY", String.class),
         new QueryParam("DATASET_URI", String.class),
         new QueryParam("STATUS", String.class)
-}),
+    }),
+    /**
+     * Add independent features for a specific model in the database.
+     */
     ADD_INDEP_FEATURE_RELATION("INSERT INTO " + IndFeatRelationTable.TABLE.getTableName()
     + " (MODEL_UID, FEATURE_UID) VALUES (?,?)",
     new QueryParam[]{
         new QueryParam("MODEL_UID", Integer.class),
         new QueryParam("FEATURE_UID", Integer.class)
-}),
+    }),
     /**
-     *
+     * Add extra SVM or SVC model parameters in the database.
      */
     ADD_SUPPORT_VECTOR("INSERT INTO " + SupportVecTable.TABLE.getTableName()
     + " (UID, GAMMA, EPSILON, COST, COEFF0, TOLERANCE, CACHESIZE, KERNEL, DEGREE ) "
@@ -188,13 +191,17 @@ public enum PrepStmt implements JPrepStmt {
     new QueryParam[]{
         new QueryParam("URI", String.class)
     }),
+    /**
+     * Add a new task in the database.
+     */
     ADD_TASK("INSERT INTO " + TasksTable.TABLE.getTableName()
-    + " (NAME, CREATED_BY, ALGORITHM, DURATION ) VALUES (?,?,?,?)",
+    + " (NAME, CREATED_BY, ALGORITHM, DURATION, RESULT ) VALUES (?,?,?,?,?)",
     new QueryParam[]{
         new QueryParam("NAME", String.class),
         new QueryParam("CREATED_BY", String.class),
         new QueryParam("ALGORITHM", String.class),
-        new QueryParam("DURATION", Integer.class)
+        new QueryParam("DURATION", Integer.class),
+        new QueryParam("RESULT", String.class),
     }),
     /**
      *
@@ -216,7 +223,10 @@ public enum PrepStmt implements JPrepStmt {
 
 
     /**
-     * Get a specific user group.
+     * Searches in the UserGroup table for user groups that comply to the
+     * specified parameters. If a parameter is not specified it will be ignored
+     * in the search.
+     * @return All information available on the specified User Groups
      */
     SEARCH_USER_GROUP("SELECT * FROM " + UserAuthTable.TABLE.getTableName() + " WHERE " +
             "NAME LIKE ? " +
@@ -244,6 +254,12 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("ROWS", Integer.class)
     }),
 
+    /**
+     * Searches in the UserGroup table for user groups that comply to the
+     * specified parameters. If a parameter is not specified it will be ignored
+     * in the search.
+     * @return Only NAME column of the specified User Groups
+     */
     SEARCH_USER_GROUP_SKROUTZ("SELECT NAME FROM " + UserAuthTable.TABLE.getTableName() + " WHERE " +
             "NAME LIKE ? " +
             "AND USER_LEVEL >= ? " +
@@ -270,7 +286,10 @@ public enum PrepStmt implements JPrepStmt {
     }),
 
     /**
-     * Get a set of users for a given search criterion.
+     * Searches in the Users table for users that comply to the
+     * specified User and UserGroup parameters. If a parameter is not specified it will be ignored
+     * in the search.
+     * @return All information available on the specified Users
      */
     SEARCH_USER("SELECT " + UsersTable.TABLE.getTableName() + ".* FROM "
             + UsersTable.TABLE.getTableName() + " "
@@ -320,6 +339,12 @@ public enum PrepStmt implements JPrepStmt {
     }),
 
 
+    /**
+     * Searches in the Users table for users that comply to the
+     * specified User and UserGroup parameters. If a parameter is not specified it will be ignored
+     * in the search.
+     * @return Only EMAIL column of the specified Users
+     */
     SEARCH_USER_SKROUTZ("SELECT " + UsersTable.TABLE.getTableName() + ".USERNAME FROM "
             + UsersTable.TABLE.getTableName() + " "
     + "INNER JOIN " + UserAuthTable.TABLE.getTableName() + " "
@@ -368,6 +393,12 @@ public enum PrepStmt implements JPrepStmt {
     }),
 
 
+    /**
+     * Searches in the AlgorithmOntologies table for ontologies that comply to the
+     * specified parameters. If a parameter is not specified it will be ignored
+     * in the search.
+     * @return All information available on the specified Ontologies
+     */
     SEARCH_ALGORITHM_ONTOLOGY("SELECT * FROM " + AlgOntTable.TABLE.getTableName() + " " +
             "WHERE NAME LIKE ? " +
             "AND URI LIKE ? " +
@@ -379,6 +410,12 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("ROWS", Integer.class),
     }),
 
+    /**
+     * Searches in the AlgorithmOntologies table for ontologies that comply to the
+     * specified parameters. If a parameter is not specified it will be ignored
+     * in the search.
+     * @return Only NAME column of the specified Ontologies
+     */
     SEARCH_ALGORITHM_ONTOLOGY_SKROUTZ("SELECT NAME FROM " + AlgOntTable.TABLE.getTableName() + " " +
             "WHERE NAME LIKE ? " +
             "AND URI LIKE ? " +
@@ -390,6 +427,12 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("ROWS", Integer.class),
     }),
 
+    /**
+     * Searches in the Features table for features that comply to the
+     * specified parameters. If a parameter is not specified it will be ignored
+     * in the search.
+     * @return All information available on the specified features
+     */
     SEARCH_FEATURE("SELECT * FROM " + FeaturesTable.TABLE.getTableName() + " " +
             "WHERE UID >= ? AND UID <= ? " +
             "AND URI LIKE ? " +
@@ -402,7 +445,13 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("OFFSET", Integer.class),
         new QueryParam("ROWS", Integer.class)
     }),
-//PolyKernel linear_kernel = new PolyKernel();
+
+    /**
+     * Searches in the Features table for features that comply to the
+     * specified parameters. If a parameter is not specified it will be ignored
+     * in the search.
+     * @return Only UID column of the specified features
+     */
     SEARCH_FEATURE_SKROUTZ("SELECT UID FROM " + FeaturesTable.TABLE.getTableName() + " " +
             "WHERE UID >= ? AND UID <= ? " +
             "AND URI LIKE ? " +
@@ -417,6 +466,12 @@ public enum PrepStmt implements JPrepStmt {
     }),
 
 
+    /**
+     * Searches in the QSARModels and SVMModels tables for models that comply to the
+     * specified QSARModel parameters. If a parameter is not specified it will be ignored
+     * in the search.
+     * @return All information available on the specified models
+     */
     SEARCH_QSAR_MODEL_ALL(
             "SELECT * FROM " + QSARModelsTable.TABLE.getTableName()
             + " LEFT OUTER JOIN " + SupportVecTable.TABLE.getTableName() + " ON "
@@ -447,7 +502,12 @@ public enum PrepStmt implements JPrepStmt {
                 new QueryParam("ROWS", Integer.class)
             }),
 
-
+    /**
+     * Searches in the QSARModels and SVMModels tables for models that comply to the
+     * specified QSARModel parameters. If a parameter is not specified it will be ignored
+     * in the search.
+     * @return Only UID column of the specified models
+     */
     SEARCH_QSAR_MODEL_ALL_SKROUTZ(
             "SELECT " + QSARModelsTable.TABLE.getTableName() + ".UID" +" FROM " + QSARModelsTable.TABLE.getTableName()
             + " LEFT OUTER JOIN " + SupportVecTable.TABLE.getTableName() + " ON "
@@ -479,8 +539,10 @@ public enum PrepStmt implements JPrepStmt {
             }),
 
     /**
-     *
-     * Get all prediction models from the database.
+     * Searches in the QSARModels and SVMModels tables for models that comply to the
+     * specified QSARModel and SVMModel parameters. If a parameter is not specified
+     * it will be ignored in the search.
+     * @return All information available on the specified models
      */
     SEARCH_QSAR_MODEL("SELECT * FROM " + QSARModelsTable.TABLE.getTableName() +
             " LEFT OUTER JOIN " + SupportVecTable.TABLE.getTableName() + " ON "
@@ -537,6 +599,12 @@ public enum PrepStmt implements JPrepStmt {
                 new QueryParam("ROWS", Integer.class)
             }),
 
+     /**
+     * Searches in the QSARModels and SVMModels tables for models that comply to the
+     * specified QSARModel and SVMModel parameters. If a parameter is not specified
+     * it will be ignored in the search.
+     * @return Only UID column of the specified models
+     */
     SEARCH_QSAR_MODEL_SKROUTZ("SELECT " + QSARModelsTable.TABLE.getTableName() + ".UID" +" FROM " + QSARModelsTable.TABLE.getTableName() +
             " LEFT OUTER JOIN " + SupportVecTable.TABLE.getTableName() + " ON "
             + QSARModelsTable.TABLE.getTableName() +".UID=" +SupportVecTable.TABLE.getTableName()+".UID "+
@@ -592,6 +660,12 @@ public enum PrepStmt implements JPrepStmt {
                 new QueryParam("ROWS", Integer.class)
             }),
 
+     /**
+     * Searches in the Omega table for models that comply to the
+     * specified parameters. If a parameter is not specified
+     * it will be ignored in the search.
+     * @return All information available on the specified models
+     */
     SEARCH_OMEGA("SELECT * FROM " + OmegaTable.TABLE.getTableName() + " " +
             "WHERE UID BETWEEN ? AND ? " +
             "AND CODE LIKE ? " +
@@ -610,6 +684,12 @@ public enum PrepStmt implements JPrepStmt {
                 new QueryParam("ROWS", Integer.class)
           }),
 
+     /**
+     * Searches in the Omega table for models that comply to the
+     * specified parameters. If a parameter is not specified
+     * it will be ignored in the search.
+     * @return Only UID column of the specified models
+     */
      SEARCH_OMEGA_SKROUTZ("SELECT UID FROM " + OmegaTable.TABLE.getTableName() + " " +
             "WHERE UID BETWEEN ? AND ? " +
             "AND CODE LIKE ? " +
@@ -629,9 +709,67 @@ public enum PrepStmt implements JPrepStmt {
           }),
 
 
-    SEARCH_TASK("SELECT * FROM " + TasksTable.TABLE.getTableName() +
-            ""
-            , null),
+    /**
+     * Searches in the Tasks table for tasks that comply to the
+     * specified parameters. If a parameter is not specified
+     * it will be ignored in the search.
+     * @return All information available on the specified tasks
+     */
+    SEARCH_TASK("SELECT * FROM " + TasksTable.TABLE.getTableName() +" "+
+            "WHERE NAME LIKE ? " +
+            "AND STATUS LIKE ? " +
+            "AND CREATED_BY LIKE ? " +
+            "AND ALGORITHM LIKE ? " +
+            "AND HTTPSTATUS BETWEEN ? AND ? " +
+            "AND RESULT LIKE ? " +
+            "AND DURATION BETWEEN ? AND ? " +
+            getPagingQuery(),
+
+       new QueryParam[]{
+                new QueryParam("NAME", String.class),
+                new QueryParam("STATUS", String.class),
+                new QueryParam("CREATED_BY", String.class),
+                new QueryParam("ALGORITHM", String.class),
+                new QueryParam("HTTPSTATUS_MIN", Integer.class),
+                new QueryParam("HTTPSTATUS_MAX", Integer.class),
+                new QueryParam("RESULT", String.class),
+                new QueryParam("DURATION_MIN", Integer.class),
+                new QueryParam("DURATION_MAX", Integer.class),
+
+                new QueryParam("OFFSET", Integer.class),
+                new QueryParam("ROWS", Integer.class)
+          }),
+
+     /**
+     * Searches in the Tasks table for tasks that comply to the
+     * specified parameters. If a parameter is not specified
+     * it will be ignored in the search.
+     * @return Only NAME column of the specified tasks
+     */
+     SEARCH_TASK_SKROUTZ("SELECT NAME FROM " + TasksTable.TABLE.getTableName() +" "+
+            "WHERE NAME LIKE ? " +
+            "AND STATUS LIKE ? " +
+            "AND CREATED_BY LIKE ? " +
+            "AND ALGORITHM LIKE ? " +
+            "AND HTTPSTATUS BETWEEN ? AND ? " +
+            "AND RESULT LIKE ? " +
+            "AND DURATION BETWEEN ? AND ? " +
+            getPagingQuery(),
+
+       new QueryParam[]{
+                new QueryParam("NAME", String.class),
+                new QueryParam("STATUS", String.class),
+                new QueryParam("CREATED_BY", String.class),
+                new QueryParam("ALGORITHM", String.class),
+                new QueryParam("HTTPSTATUS_MIN", Integer.class),
+                new QueryParam("HTTPSTATUS_MAX", Integer.class),
+                new QueryParam("RESULT", String.class),
+                new QueryParam("DURATION_MIN", Integer.class),
+                new QueryParam("DURATION_MAX", Integer.class),
+
+                new QueryParam("OFFSET", Integer.class),
+                new QueryParam("ROWS", Integer.class)
+          }),
 
 
 
@@ -642,8 +780,6 @@ public enum PrepStmt implements JPrepStmt {
      * ----------------------------------------------------------------------------
      * ****************************************************************************
      */
-
-
     
     
     /**
@@ -665,7 +801,7 @@ public enum PrepStmt implements JPrepStmt {
     }),
     /**
      *
-     * Retrieve all algorithms that hava a certain ontological type.
+     * Retrieve all algorithms that have a certain ontological type.
      */
     GET_ONTOLOGY_ALGORITHM_RELATION("SELECT " + AlgorithmsTable.TABLE.getTableName() + ".*"
             + " FROM " + AlgorithmsTable.TABLE.getTableName()
@@ -685,23 +821,10 @@ public enum PrepStmt implements JPrepStmt {
      */
     GET_ALGORITHMS("SELECT * FROM " + AlgorithmsTable.TABLE.getTableName(), new QueryParam[]{}),
     
-    /**
-     *
-     * Get all MLR models.
-     */
-    //    GET_MLR_MODELS("SELECT "+QSARModels().getTableName()+".* , "+MlrModels().getTableName()+".DATASET FROM "+QSARModels().getTableName()+" INNER JOIN "+MlrModels().getTableName()
-    //            +" ON "+QSARModels().getTableName()+".UID="+MlrModels().getTableName()+".UID",null),
-    /**
-     *
-     * Get all SVM models
-     */
-    GET_SUP_VEC("SELECT * FROM " + SupportVecTable.TABLE.getTableName(), null),
-    /**
-     *
-     * Get all SVC models.
-     */
-    //    GET_SVC_MODELS("SELECT * FROM "+SvcModels().getTableName(), null),
 
+    /**
+     * Retrieve all Independent Features for a given model uid.
+     */
     GET_INDEP_FEATURES("SELECT " + FeaturesTable.TABLE.getTableName() + ".*"
     + " FROM " + FeaturesTable.TABLE.getTableName() + " INNER JOIN " + IndFeatRelationTable.TABLE.getTableName()
     + " ON UID=FEATURE_UID" + " WHERE MODEL_UID=?",
@@ -716,6 +839,11 @@ public enum PrepStmt implements JPrepStmt {
     private String sql;
     private QueryParam[] parameters;
 
+    /**
+     * The paging query extension adds to every query the ability to
+     * get a specific page from the database, given an Offset and a
+     * number of Rows to get.
+     */
     private static final String pagingQuery = " OFFSET ? ROWS FETCH NEXT ? ROWS ONLY ";
 
     private PrepStmt(String SQL, QueryParam[] pl) {

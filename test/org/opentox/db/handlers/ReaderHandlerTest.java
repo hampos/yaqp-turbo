@@ -46,8 +46,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.util.Page;
+import org.opentox.db.util.PrepStmt;
 import org.opentox.ontology.components.*;
 import org.opentox.db.util.TheDbConnector;
+import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.util.AlgorithmParameter;
@@ -202,9 +204,9 @@ public class ReaderHandlerTest {
         Map<String, AlgorithmParameter> map = new HashMap<String, AlgorithmParameter>();
 
         //AlgorithmParameter<Double> p = map.get("gamma");
-        AlgorithmParameter p = new AlgorithmParameter(2.5);
+        AlgorithmParameter p = new AlgorithmParameter("LINEAR");
 
-        map.put("gamma_max", p);
+        map.put("kernel", p);
 
         model.setParams(map);
         //model.setId(109);
@@ -265,49 +267,55 @@ public class ReaderHandlerTest {
         }
     }
 
+    @Test
+    public void getTasks() throws DbException {
+        System.out.println("---------------- search TASK ------------");
 
+        Task task = new Task();
+        User u = new User();
 
-
-    //@Test
-    public void testoftest() throws SQLException {
-        Connection con = TheDbConnector.DB.getConnection();
-        String query = "select * from qsar_models left outer join svm_models on qsar_models.uid=svm_models.uid where gamma between ? and ?";
-
-        PreparedStatement p = con.prepareStatement(query);
-//        p.setNull(1, java.sql.Types.DOUBLE);
-//        p.setNull(2, java.sql.Types.DOUBLE);
-        p.setDouble(1, 0.5);
-        p.setDouble(2, 2.5);
-        ResultSet rs = p.executeQuery();
-
-
-        ResultSetMetaData rsmd = rs.getMetaData();
-
-        while (rs.next()) {
-            for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
-                System.out.println(rs.getString(col_index + 1));
-            }
+        u.setEmail("john@foo.goo.gr");
+        task.setUser(u);
+        ComponentList<Task> tasks = ReaderHandler.searchTask(task, new Page());
+        for (Task t : tasks.getComponentList()) {
+            System.out.println(t.getName());
+            System.out.println(t.getUser().getEmail());
+            System.out.println(t.getAlgorithm().getMeta().getName());
         }
-
-        rs.close();
     }
 
-            //   @Test
-    //    public void getMLRModelsTest() throws DbException{
-    //        ArrayList<MLRModel> models = ReaderHandler.getMLRModels();
-    //        Iterator<MLRModel> it = models.iterator();
-    //        while(it.hasNext()){
-    //            System.out.println(it.next());
-    //        }
-    //    }
-    // @Test
-    //    public void getTasksTest() throws DbException{
-    //        ArrayList<Task> tasks = ReaderHandler.getTasks();
-    //        Iterator<Task> it = tasks.iterator();
-    //        while(it.hasNext()){
-    //            System.out.println(it.next());
-    //        }
-    //    }
+    @Test
+    public void getTasksSkroutz() throws DbException {
+        System.out.println("---------------- search TASK SKROUTZ------------");
+
+        Task task = new Task();
+        User u = new User();
+
+        u.setEmail("john@foo.goo.gr");
+        task.setUser(u);
+        ComponentList<Task> tasks = ReaderHandler.searchTaskSkroutz(task, new Page());
+        for (Task t : tasks.getComponentList()) {
+            System.out.println(t.getName());
+            System.out.println(t.getUser().getEmail());
+            System.out.println(t.getAlgorithm().getMeta().getName());
+        }
+    }
+
+    @Test
+    public void SEARCH() throws DbException, ImproperEntityException, YaqpOntException {
+        System.out.println("----------------------  SEARCH ------------------");
+
+        Task task = new Task();
+        ComponentList<YaqpComponent> tasks = ReaderHandler.Search(task, null, false);
+        for (YaqpComponent y : tasks.getComponentList()) {
+            Task t = (Task)y;
+            System.out.println(t.getName());
+            System.out.println(t.getUser().getEmail());
+            System.out.println(t.getAlgorithm().getMeta().getName());
+        }
+    }
+
+
 
 }
 

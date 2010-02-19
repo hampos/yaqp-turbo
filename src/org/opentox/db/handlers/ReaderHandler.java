@@ -37,18 +37,16 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import org.opentox.config.Configuration;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.ontology.components.*;
 import org.opentox.db.processors.DbPipeline;
 import org.opentox.db.queries.HyperResult;
 import org.opentox.db.queries.QueryFood;
-import org.opentox.db.table.collection.QSARModelsTable;
-import org.opentox.db.table.collection.SupportVecTable;
 import org.opentox.db.util.Page;
 import org.opentox.db.util.PrepStmt;
-import org.opentox.db.util.SQLDataTypes;
+import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.util.AlgorithmMeta;
 import org.opentox.ontology.util.AlgorithmParameter;
@@ -65,11 +63,107 @@ import static org.opentox.core.exceptions.Cause.*;
  */
 public class ReaderHandler {
 
-//    private static final String baseURI =
-//            "http://" + Configuration.getProperties().getProperty("server.domainName")
-//            + ":" + Configuration.getProperties().getProperty("server.port");
-//
 
+    public static ComponentList<YaqpComponent> Search(YaqpComponent component, Page page, boolean Skroutz) throws DbException, ImproperEntityException, YaqpOntException {
+        if (component == null) {
+            throw new NullPointerException("Cannot read a null component from the database");
+        }
+        if (page == null){
+            page = new Page();
+        }
+        ComponentList<YaqpComponent> result = new ComponentList<YaqpComponent>();
+        if (component instanceof User) {// search User
+            ComponentList<User> list;
+            if(Skroutz){
+                list = searchUserSkroutz((User)component,page);
+            }else{
+                list = searchUser((User)component,page);
+            }
+            Iterator<User> it = list.iterator();
+            while(it.hasNext()){
+                result.add(it.next());
+            }
+        } else if (component instanceof UserGroup) {// search UserGroup
+            ComponentList<UserGroup> list;
+            if(Skroutz){
+                list = searchUserGroupSkroutz((UserGroup)component,page);
+            }else{
+                list = searchUserGroup((UserGroup)component,page);
+            }
+            Iterator<UserGroup> it = list.iterator();
+            while(it.hasNext()){
+                result.add(it.next());
+            }
+        } else if (component instanceof Feature) {// search Feature
+            ComponentList<Feature> list;
+            if(Skroutz){
+                list = searchFeatureSkroutz((Feature)component,page);
+            }else{
+                list = searchFeature((Feature)component,page);
+            }
+            Iterator<Feature> it = list.iterator();
+            while(it.hasNext()){
+                result.add(it.next());
+            }
+        } else if (component instanceof QSARModel) {// search QSARModel
+            ComponentList<QSARModel> list;
+            if(Skroutz){
+                list = searchQSARModelSkroutz((QSARModel)component,page);
+            }else{
+                list = searchQSARModel((QSARModel)component,page);
+            }
+            Iterator<QSARModel> it = list.iterator();
+            while(it.hasNext()){
+                result.add(it.next());
+            }
+        } else if (component instanceof OmegaModel) {// search OmegaModel
+            ComponentList<OmegaModel> list;
+            if(Skroutz){
+                list = searchOmegaSkroutz((OmegaModel)component,page);
+            }else{
+                list = searchOmega((OmegaModel)component,page);
+            }
+            Iterator<OmegaModel> it = list.iterator();
+            while(it.hasNext()){
+                result.add(it.next());
+            }
+        } else if (component instanceof AlgorithmOntology) {// search AlgorithmOntology
+            ComponentList<AlgorithmOntology> list;
+            if(Skroutz){
+                list = searchAlgorithmOntologySkroutz((AlgorithmOntology)component,page);
+            }else{
+                list = searchAlgorithmOntology((AlgorithmOntology)component,page);
+            }
+            Iterator<AlgorithmOntology> it = list.iterator();
+            while(it.hasNext()){
+                result.add(it.next());
+            }
+        } else if (component instanceof Task) {// search task
+            ComponentList<Task> list;
+            if(Skroutz){
+                list = searchTaskSkroutz((Task)component,page);
+            }else{
+                list = searchTask((Task)component,page);
+            }
+            Iterator<Task> it = list.iterator();
+            while(it.hasNext()){
+                result.add(it.next());
+            }
+        } else if (component instanceof Algorithm) {// get algorithms
+            ComponentList<Algorithm> list = getAlgorithms();
+            Iterator<Algorithm> it = list.iterator();
+            while(it.hasNext()){
+                result.add(it.next());
+            }
+        } else {// This component cannot be added in the database
+            String message = "This component cannot be found in the "
+                    + "database because it cannot be cast to any of the recognizable "
+                    + "datatypes ";
+            YaqpLogger.LOG.log(new Debug(WriterHandler.class, message));
+            throw new ImproperEntityException(Cause.XIE0, message);
+        }
+        return result;
+    }
 
     /**
      * ****************************************************************************
@@ -83,7 +177,6 @@ public class ReaderHandler {
 
      public static ComponentList<UserGroup>
              searchUserGroup(UserGroup prototype, Page page) throws DbException {
-
          if(prototype == null){
              throw new NullPointerException("UserGroup prototype provided is null");
          }
@@ -209,7 +302,6 @@ public class ReaderHandler {
      * an empty list if no such user was found.
      * @throws DbException In case the search cannot be performed.
      */
-    // TODO: Change array list to Component list
      public static ComponentList<User>
              searchUser(User prototype, Page page) throws DbException {
          if(prototype == null){
@@ -478,7 +570,7 @@ public class ReaderHandler {
                     {"DEP_FEATURE_MIN", Integer.toString(prototype.getDependentFeature().getMinId())},
                     {"DEP_FEATURE_MAX", Integer.toString(prototype.getDependentFeature().getMaxId())},
                     {"ALGORITHM", fixNull(prototype.getAlgorithm().getMeta().getName())},
-                    {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getEmail())},
                     {"DATASET_URI", fixNull(prototype.getDataset())},
                     {"STATUS", fixNull(prototype.getModelStatus())}
         });
@@ -583,7 +675,7 @@ public class ReaderHandler {
                     {"DEP_FEATURE_MIN", Integer.toString(prototype.getDependentFeature().getMinId())},
                     {"DEP_FEATURE_MAX", Integer.toString(prototype.getDependentFeature().getMaxId())},
                     {"ALGORITHM", fixNull(prototype.getAlgorithm().getMeta().getName())},
-                    {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getEmail())},
                     {"DATASET_URI", fixNull(prototype.getDataset())},
                     {"STATUS", fixNull(prototype.getModelStatus())}
         });
@@ -639,7 +731,7 @@ public class ReaderHandler {
                     {"UID_MIN", Integer.toString(prototype.getMinId())},
                     {"UID_MAX", Integer.toString(prototype.getMaxId())},
                     {"CODE", fixNull(prototype.getCode())},
-                    {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getEmail())},
                     {"DATASET_URI", fixNull(prototype.getDataset())},
 
                     {"OFFSET", page.getOffset()},
@@ -677,7 +769,7 @@ public class ReaderHandler {
                     {"UID_MIN", Integer.toString(prototype.getMinId())},
                     {"UID_MAX", Integer.toString(prototype.getMaxId())},
                     {"CODE", fixNull(prototype.getCode())},
-                    {"CREATED_BY", fixNull(prototype.getUser().getUserName())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getEmail())},
                     {"DATASET_URI", fixNull(prototype.getDataset())},
 
                     {"OFFSET", page.getOffset()},
@@ -698,19 +790,99 @@ public class ReaderHandler {
         return modelList;
     }
 
+    public static ComponentList<Task> searchTask(Task prototype, Page page) throws DbException{
+        if(prototype == null){
+             throw new NullPointerException("QSARModel prototype provided is null");
+         }
+        ComponentList<Task> taskList = new ComponentList<Task>();
+        HyperResult result = null;
+        DbPipeline<QueryFood,HyperResult> pipeline = new DbPipeline<QueryFood,HyperResult>(PrepStmt.SEARCH_TASK);
+
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"NAME", fixNull(prototype.getName())},
+                    {"STATUS", fixNull(prototype.getTaskStatus())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getEmail())},
+                    {"ALGORITHM", fixNull(prototype.getAlgorithm().getMeta().getName())},
+                    {"HTTPSTATUS_MIN", Integer.toString(prototype.getHttpStatusMin())},
+                    {"HTTPSTATUS_MAX", Integer.toString(prototype.getHttpStatusMax())},
+                    {"RESULT", fixNull(prototype.getResult())},
+                    {"DURATION_MIN", Integer.toString(prototype.getDurationMin())},
+                    {"DURATION_MAX", Integer.toString(prototype.getDurationMax())},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
+        });
+        try {
+                result = pipeline.process(food);
+                for (int i = 1; i <= result.getSize(); i++) {
+                    Iterator<String> it = result.getColumnIterator(i);
+                    Task task = new Task();
+                    task.setName(it.next());
+                    task.setTaskStatus(Task.STATUS.valueOf(it.next()));
+                    task.setUser(searchUser(new User(it.next()), new Page()).get(0));
+                    task.setAlgorithm(getAlgorithm(it.next()));
+                    task.setHttpStatus(Integer.parseInt(it.next()));
+                    task.setResult(it.next());
+                    task.setStartStamp(it.next());
+                    task.setEndStamp(it.next());
+                    task.setDuration(Integer.parseInt(it.next()));
+                    taskList.add(task);
+                }
+        } catch (YaqpException ex) {
+            System.out.println(ex);
+            throw new DbException(XDH7, "Could not get OmegaModels from Database", ex);
+        }
+        return taskList;
+    }
+
+    public static ComponentList<Task> searchTaskSkroutz(Task prototype, Page page) throws DbException{
+        if(prototype == null){
+             throw new NullPointerException("QSARModel prototype provided is null");
+         }
+        ComponentList<Task> taskList = new ComponentList<Task>();
+        HyperResult result = null;
+        DbPipeline<QueryFood,HyperResult> pipeline = new DbPipeline<QueryFood,HyperResult>(PrepStmt.SEARCH_TASK_SKROUTZ);
+
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"NAME", fixNull(prototype.getName())},
+                    {"STATUS", fixNull(prototype.getTaskStatus())},
+                    {"CREATED_BY", fixNull(prototype.getUser().getEmail())},
+                    {"ALGORITHM", fixNull(prototype.getAlgorithm().getMeta().getName())},
+                    {"HTTPSTATUS_MIN", Integer.toString(prototype.getHttpStatusMin())},
+                    {"HTTPSTATUS_MAX", Integer.toString(prototype.getHttpStatusMax())},
+                    {"RESULT", fixNull(prototype.getResult())},
+                    {"DURATION_MIN", Integer.toString(prototype.getDurationMin())},
+                    {"DURATION_MAX", Integer.toString(prototype.getDurationMax())},
+
+                    {"OFFSET", page.getOffset()},
+                    {"ROWS", page.getRows()}
+        });
+        try {
+                result = pipeline.process(food);
+                for (int i = 1; i <= result.getSize(); i++) {
+                    Iterator<String> it = result.getColumnIterator(i);
+                    Task task = new Task();
+                    task.setName(it.next());
+                    taskList.add(task);
+                }
+        } catch (YaqpException ex) {
+            System.out.println(ex);
+            throw new DbException(XDH7, "Could not get OmegaModels from Database", ex);
+        }
+        return taskList;
+    }
+
+
 
     /**
-     * Auxiliary method.
-     * @param in some string
-     * @return returns <code>in</code> (the input string) if it is not null, or
-     * <code>%%</code> otherwise.
+     * ****************************************************************************
+     * ----------------------------------------------------------------------------
+     *                      GET QUERIES
+     * ----------------------------------------------------------------------------
+     * ****************************************************************************
      */
-    private static String fixNull(Object in) {
-        if (in == null || in.toString().equals("")) {
-            return "%%";
-        }
-        return in.toString();
-    }
 
     public static ComponentList<AlgorithmOntology> getAlgOntRelation(Algorithm prototype, Page page) throws YaqpOntException, DbException {
         if (prototype == null) {
@@ -879,6 +1051,24 @@ public class ReaderHandler {
             throw new DbException(XDH8, message, ex);
         }
         return featureList;
+    }
+
+
+
+
+
+
+    /**
+     * Auxiliary method.
+     * @param in some string
+     * @return returns <code>in</code> (the input string) if it is not null, or
+     * <code>%%</code> otherwise.
+     */
+    private static String fixNull(Object in) {
+        if (in == null || in.toString().equals("")) {
+            return "%%";
+        }
+        return in.toString();
     }
 
 }
