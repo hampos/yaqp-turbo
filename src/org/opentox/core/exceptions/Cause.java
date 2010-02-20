@@ -74,7 +74,7 @@ public enum Cause {
     XDH110, XDH111, XDH112,
 
     // IMPROPER ENTITY:
-    XIE0, XIE1, XIE2,
+    XIE0, XIE1, XIE2, XIE790,
 
     // ONTOLOGICAL:
     XONT0, XONT1, XONT2, XONT3, XONT4, XONT5, XONT6, XONT7, XONT8, XONT9,
@@ -91,7 +91,7 @@ public enum Cause {
 
     // QSAR - Regression
     XQReg0, XQReg00, XQReg000, XQReg1, XQReg2, XQReg3, XQReg4,
-    XQReg200, XQReg201, XQReg202,
+    XQReg200, XQReg201, XQReg202, XQReg203,
     XQReg500, XQReg501,
     XQReg711, XQReg712,
     XQReg120, XQReg121, XQReg350,
@@ -102,6 +102,10 @@ public enum Cause {
     XQC4040, XQC4041, XQC4042, XQC4043, XQC4044, XQC4045,
 
     // QSAR - Filters
-    XQF1, XQF11, XQF111, XQF212, XQF535, XQF913, XQF412
+    XQF1, XQF11, XQF111, XQF212, XQF535, XQF913, XQF412,
+
+    // Prediction
+    XQPred630, XQPred631, XQPred632, XQPred633, XQPred634, XQPred635, XQPred636, XQPred637,
+    XQPred638, XQPred639, XQPred640, XQPred641, XQPred642, XQPred643, XQPred644, XQPred645;
             
 }

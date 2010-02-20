@@ -308,6 +308,7 @@ public class WriterHandlerTest {
             WriterHandler.add(YaqpAlgorithms.MLR);
             WriterHandler.add(YaqpAlgorithms.SVM);
             WriterHandler.add(YaqpAlgorithms.SVC);
+            WriterHandler.add(YaqpAlgorithms.NAIVE_BAYES);
         } catch (Throwable thr) {
             System.out.println(thr);
             fail("SHOULD NOT HAVE FAILED!");
@@ -487,6 +488,7 @@ public class WriterHandlerTest {
         }
     }
 
+
     @Test
     public void addNullQSAR() {
         System.out.println("QSAR Model - test 2");
@@ -532,6 +534,25 @@ public class WriterHandlerTest {
             fail("SHOULDN'T HAVE FAILED!");
         }
     }
+
+
+     @Test
+    public void addNaiveBayesModel() throws ImproperEntityException {
+        System.out.println("QSAR Model - test 5");
+        try {
+            User u = ReaderHandler.searchUser(new User(),new Page(0,0)).get(0);
+            Feature f = ReaderHandler.searchFeature(new Feature(null),new Page(0,0)).get(0);
+            ArrayList<Feature> lf = new ArrayList<Feature>();
+            lf.add(f);
+            QSARModel m = new QSARModel(java.util.UUID.randomUUID().toString(), f, f, lf, YaqpAlgorithms.NAIVE_BAYES, u, null, "dataset1", QSARModel.ModelStatus.UNDER_DEVELOPMENT);
+            m = (QSARModel) WriterHandler.add(m);
+            assertTrue(m.getId() > 0);
+        } catch (DbException ex) {
+            System.out.println(ex);
+            fail("SHOULDN'T HAVE FAILED!");
+        }
+    }
+
 
     @Test
     public void addsvmModel() {

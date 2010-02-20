@@ -111,7 +111,6 @@ public abstract class WekaClassifier extends WekaTrainer {
                     j++;
                     list_of_nominal_features.append(data.attribute(i).name() + "\n");
                 }
-                System.out.println(data.attribute(i).type());
             }
 
             throw new QSARException(Cause.XQC4041, "The prediction feature you provided "

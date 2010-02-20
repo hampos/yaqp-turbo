@@ -45,6 +45,8 @@ import static org.opentox.core.exceptions.Cause.*;
  */
 public class RDFObject extends OntObject {
 
+    public static final MediaType media = MediaType.APPLICATION_RDF_XML;
+
     public RDFObject() {
         super();
     }
@@ -78,6 +80,6 @@ public class RDFObject extends OntObject {
 
     @Override
     public MediaType getMediaType() {
-        return MediaType.APPLICATION_RDF_XML;
+        return media;
     }
 }

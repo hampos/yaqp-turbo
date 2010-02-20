@@ -39,6 +39,7 @@ import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.io.publishable.UriListObject;
 import org.opentox.ontology.namespaces.OTClass;
 
 /**
@@ -47,6 +48,11 @@ import org.opentox.ontology.namespaces.OTClass;
  * @author Charalampos Chomenides
  */
 public class Task extends YaqpComponent {
+
+    @Override
+    public UriListObject getUriList() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
     /**
      * The possible statuses a task can have.

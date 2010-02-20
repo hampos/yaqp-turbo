@@ -29,56 +29,76 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.io.publishable;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import java.io.OutputStream;
-import org.opentox.io.exceptions.YaqpIOException;
-import org.opentox.io.util.YaqpIOStream;
-import org.restlet.data.MediaType;
-import static org.opentox.core.exceptions.Cause.*;
+package org.opentox.www.rest.components;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class TurtleObject extends OntObject {
+public final class URITemplate {
 
-    public static final MediaType media = MediaType.APPLICATION_RDF_TURTLE;
 
-    public TurtleObject() {
-        super();
+    private String base;
+    private String primaryKey;
+    private String metaKey;
+
+    private static final String separator = "/";
+
+
+    public URITemplate(String base, String primaryKey, String metaKey) {
+        this.base = base;
+        this.primaryKey = primaryKey;
+        this.metaKey = metaKey;
     }
 
-    public TurtleObject(Model other) {
-        super(other);
+    public String getBase() {
+        return base;
     }
 
-    public TurtleObject(OntObject other) {
-        super(other);
+    public void setBase(String base) {
+        this.base = base;
     }
 
-    public TurtleObject(YaqpIOStream ioStream) {
-        super(ioStream);
+    public String getMetaKey() {
+        return metaKey;
     }
 
-    public void publish(YaqpIOStream stream) throws YaqpIOException {
-        if (stream == null) {
-            throw new NullPointerException("Cannot publish an RDF document to a null stream");
-        }
-        try {
-            this.write((OutputStream) stream.getStream(), "TURTLE");
-        } catch (ClassCastException ex) {
-            throw new ClassCastException("The stream you provided is not a valid stream for publishing "
-                    + "an TTL document but it does not seem to be null either.");
-        } catch (Exception ex) {
-            throw new YaqpIOException(XTTL700, "Cannot write the TTL document to this stream", ex);
-        }
+    public void setMetaKey(String metaKey) {
+        this.metaKey = metaKey;
+    }
+
+    public String getPrimaryKey() {
+        return primaryKey;
+    }
+
+    public void setPrimaryKey(String primaryKey) {
+        this.primaryKey = primaryKey;
     }
 
     @Override
-    public MediaType getMediaType() {
-        return media;
+    public String toString() {
+        String string = separator;
+        if (base!=null){
+            string += base;
+            if (primaryKey!=null){
+                string += separator+inCurledBrackets(primaryKey);
+                if (metaKey!=null){
+                    string += separator+inCurledBrackets(metaKey);
+                }
+            }
+        }
+        return string;
     }
+
+    private String inCurledBrackets(String in){
+        return "{"+in+"}";
+    }
+
+    public static void main(String[] args){
+        URITemplate template = new URITemplate("algorithm", "algorithm_id", null);
+        System.out.println(template.getPrimaryKey());
+    }
+    
+
 }

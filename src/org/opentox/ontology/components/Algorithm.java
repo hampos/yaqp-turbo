@@ -52,10 +52,14 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
+import org.opentox.io.publishable.UriListObject;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.ontology.namespaces.OTClass;
@@ -67,6 +71,7 @@ import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.ontology.util.vocabulary.Audience;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Warning;
+import org.opentox.www.rest.resources.AlgorithmResource;
 import org.restlet.data.MediaType;
 import static org.opentox.core.exceptions.Cause.*;
 
@@ -361,5 +366,17 @@ public class Algorithm extends YaqpComponent {
 
     protected String getTag(){
         return "algorithm";
+    }
+
+    @Override
+    public UriListObject getUriList() {
+        ArrayList<URI > uriList = new ArrayList<URI>(1);
+        try {
+            uriList.add(uri());
+            return new UriListObject(uriList);
+        } catch (YaqpException ex) {
+            return null;
+        }
+
     }
 }

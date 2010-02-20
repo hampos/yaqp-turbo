@@ -44,25 +44,21 @@ import org.opentox.ontology.components.User;
 import org.opentox.ontology.data.DatasetBuilder;
 import org.opentox.ontology.processors.InstancesProcessor;
 import org.opentox.ontology.util.vocabulary.ConstantParameters;
-import org.opentox.qsar.exceptions.QSARException;
 import org.opentox.qsar.interfaces.JTrainer;
 import org.opentox.qsar.processors.QSARModelDBWriter;
 import org.opentox.qsar.processors.trainers.WekaTrainer;
 import org.opentox.www.rest.components.YaqpForm;
 import org.restlet.data.MediaType;
-import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class TrainingService implements Callable<Representation> {
+public class TrainingService implements Callable<QSARModel> {
 
     private YaqpForm form;
     private User user;
-    private MediaType outputMedia;
     private Class<? extends JTrainer> trainer;
     private WekaTrainer wt;
 
@@ -92,7 +88,6 @@ public class TrainingService implements Callable<Representation> {
         if (outputMedia == null) outputMedia = MediaType.TEXT_PLAIN;
         this.form = form;
         this.user = user;
-        this.outputMedia = outputMedia;
         this.trainer = trainer;
 
     }
@@ -109,52 +104,38 @@ public class TrainingService implements Callable<Representation> {
      *      This is considered to be a programmatic error or bug of the code and should
      *      not be returned.
      */
-    public Representation call() throws Exception {
+    public QSARModel call() throws Exception {
+
         InputProcessor p1 = new InputProcessor();
         DatasetBuilder p2 = new DatasetBuilder();
         InstancesProcessor p3 = new InstancesProcessor();
 
-        Pipeline trainingPipe = new Pipeline();
-        trainingPipe.add(p1);
-        trainingPipe.add(p2);
-        trainingPipe.add(p3);
-        
-        if (WekaTrainer.class.isAssignableFrom(trainer) || JTrainer.class.isAssignableFrom(trainer)){
+        Pipeline trainingPipe = new Pipeline(p1,p2,p3);
+
+        if (WekaTrainer.class.isAssignableFrom(trainer) || JTrainer.class.isAssignableFrom(trainer)) {
             final Constructor<? extends JTrainer> constructor = trainer.getConstructor(YaqpForm.class);
-            try{
-            wt = (WekaTrainer) constructor.newInstance(form);
-            }catch (final InvocationTargetException ex){
-                if (ex.getCause() instanceof YaqpException){
+            try {
+                wt = (WekaTrainer) constructor.newInstance(form);
+            } catch (final InvocationTargetException ex) {
+                if (ex.getCause() instanceof YaqpException) {
                     YaqpException cause = (YaqpException) ex.getCause();
-                    throw cause;
+                    throw cause != null ? cause : ex;
                 }
                 throw ex;
-                
             }
             trainingPipe.add(wt);
-        }else {
+        } else {
             throw new IllegalArgumentException("The class you provided is not a valid training class");
         }
 
-        QSARModelDBWriter m_writter = new QSARModelDBWriter();
-
+        final QSARModelDBWriter m_writter = new QSARModelDBWriter();
         trainingPipe.add(m_writter);
 
-        final QSARModel model = (QSARModel) trainingPipe.process(new URI(form.getFirstValue(ConstantParameters.dataset_uri)));
-
-        return new StringRepresentation(
-                 "ID                      :" + model.getId() + "\n"
-                + "CODE                   :" + model.getCode() + "\n"
-                + "DATASET                :" + model.getDataset() + "\n"
-                + "ALGORITHM              :" + model.getAlgorithm().getMeta().getName() + "\n"
-                + "DEPENDENT FEATURE      :" + model.getDependentFeature().getURI() + "\n"
-                + "AN INDEPENDENT FEATURE :" + model.getIndependentFeatures().get(2).getURI() + "\n"
-                //+ "GAMMA                  :" + model.getParams().get(ConstantParameters.gamma).paramValue.toString() + "\n"
-                + "MODEL STATUS           :" + model.getModelStatus().toString() + "\n"
-                );
-
+        return (QSARModel) trainingPipe.process(new URI(form.getFirstValue(ConstantParameters.dataset_uri)));
 
     }
+
+
 
 
 }

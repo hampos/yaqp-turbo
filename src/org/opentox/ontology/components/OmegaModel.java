@@ -39,6 +39,7 @@ import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.io.publishable.UriListObject;
 
 /**
  *
@@ -170,5 +171,10 @@ public class OmegaModel extends YaqpComponent {
         } catch (URISyntaxException ex) {
             throw new YaqpException(Cause.XTC743, "Improper URI", ex);
         }
+    }
+
+    @Override
+    public UriListObject getUriList() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

@@ -71,6 +71,8 @@ public class PDFObject implements JPublishable {
     private static final String kinkyDesignLogo = ServerFolders.images + "/kd_logo.png";
     private static final String yaqpLogo = ServerFolders.images + "/yaqp_logo.png";
 
+    public static final MediaType media = MediaType.APPLICATION_PDF;
+
     public PDFObject() {
     }
 
@@ -159,6 +161,6 @@ public class PDFObject implements JPublishable {
     }
 
     public MediaType getMediaType() {
-        return MediaType.APPLICATION_PDF;
+        return media;
     }
 }

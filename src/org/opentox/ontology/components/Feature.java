@@ -52,6 +52,7 @@ import org.opentox.io.publishable.OntObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.io.publishable.UriListObject;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.namespaces.OTClass;
 import org.opentox.ontology.namespaces.OTObjectProperties;
@@ -232,5 +233,10 @@ public class Feature extends YaqpComponent {
     @Override
     protected String getTag() {
         return "feature";
+    }
+
+    @Override
+    public UriListObject getUriList() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

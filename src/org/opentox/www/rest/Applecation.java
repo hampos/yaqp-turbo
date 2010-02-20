@@ -36,6 +36,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import org.opentox.www.rest.components.YaqpApplication;
 import org.opentox.www.rest.resources.AlgorithmResource;
+import org.opentox.www.rest.resources.AlgorithmsResource;
+import org.opentox.www.rest.resources.ModelsResource;
 import org.restlet.Context;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
@@ -56,7 +58,11 @@ final public class Applecation extends YaqpApplication {
     @Override
     public Restlet createInboundRoot() {
         Router router = new YaqpRouter(this.getContext().createChildContext());
-        router.attach(AlgorithmResource.key, AlgorithmResource.class);
+        router.attach(AlgorithmResource.template.toString(), AlgorithmResource.class);
+        router.attach(AlgorithmsResource.template.toString(), AlgorithmsResource.class);
+        router.attach(ModelsResource.template.toString(), ModelsResource.class);
+
+
         return router;
     }
 }

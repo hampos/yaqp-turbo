@@ -226,7 +226,6 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the UserGroup table for user groups that comply to the
      * specified parameters. If a parameter is not specified it will be ignored
      * in the search.
-     * @return All information available on the specified User Groups
      */
     SEARCH_USER_GROUP("SELECT * FROM " + UserAuthTable.TABLE.getTableName() + " WHERE " +
             "NAME LIKE ? " +
@@ -258,7 +257,6 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the UserGroup table for user groups that comply to the
      * specified parameters. If a parameter is not specified it will be ignored
      * in the search.
-     * @return Only NAME column of the specified User Groups
      */
     SEARCH_USER_GROUP_SKROUTZ("SELECT NAME FROM " + UserAuthTable.TABLE.getTableName() + " WHERE " +
             "NAME LIKE ? " +
@@ -289,7 +287,7 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the Users table for users that comply to the
      * specified User and UserGroup parameters. If a parameter is not specified it will be ignored
      * in the search.
-     * @return All information available on the specified Users
+     * Returns all available information on the specified Users
      */
     SEARCH_USER("SELECT " + UsersTable.TABLE.getTableName() + ".* FROM "
             + UsersTable.TABLE.getTableName() + " "
@@ -343,7 +341,7 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the Users table for users that comply to the
      * specified User and UserGroup parameters. If a parameter is not specified it will be ignored
      * in the search.
-     * @return Only EMAIL column of the specified Users
+     * Returns Only EMAIL column of the specified Users
      */
     SEARCH_USER_SKROUTZ("SELECT " + UsersTable.TABLE.getTableName() + ".USERNAME FROM "
             + UsersTable.TABLE.getTableName() + " "
@@ -397,7 +395,7 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the AlgorithmOntologies table for ontologies that comply to the
      * specified parameters. If a parameter is not specified it will be ignored
      * in the search.
-     * @return All information available on the specified Ontologies
+     * Returns all available information on the specified Ontologies
      */
     SEARCH_ALGORITHM_ONTOLOGY("SELECT * FROM " + AlgOntTable.TABLE.getTableName() + " " +
             "WHERE NAME LIKE ? " +
@@ -431,7 +429,7 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the Features table for features that comply to the
      * specified parameters. If a parameter is not specified it will be ignored
      * in the search.
-     * @return All information available on the specified features
+     * Returns all information available on the specified features
      */
     SEARCH_FEATURE("SELECT * FROM " + FeaturesTable.TABLE.getTableName() + " " +
             "WHERE UID >= ? AND UID <= ? " +
@@ -450,7 +448,7 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the Features table for features that comply to the
      * specified parameters. If a parameter is not specified it will be ignored
      * in the search.
-     * @return Only UID column of the specified features
+     * Returns Only UID column of the specified features
      */
     SEARCH_FEATURE_SKROUTZ("SELECT UID FROM " + FeaturesTable.TABLE.getTableName() + " " +
             "WHERE UID >= ? AND UID <= ? " +
@@ -470,7 +468,7 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the QSARModels and SVMModels tables for models that comply to the
      * specified QSARModel parameters. If a parameter is not specified it will be ignored
      * in the search.
-     * @return All information available on the specified models
+     * Returns all information available on the specified models
      */
     SEARCH_QSAR_MODEL_ALL(
             "SELECT * FROM " + QSARModelsTable.TABLE.getTableName()
@@ -506,7 +504,7 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the QSARModels and SVMModels tables for models that comply to the
      * specified QSARModel parameters. If a parameter is not specified it will be ignored
      * in the search.
-     * @return Only UID column of the specified models
+     * Returns Only UID column of the specified models
      */
     SEARCH_QSAR_MODEL_ALL_SKROUTZ(
             "SELECT " + QSARModelsTable.TABLE.getTableName() + ".UID" +" FROM " + QSARModelsTable.TABLE.getTableName()
@@ -542,7 +540,7 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the QSARModels and SVMModels tables for models that comply to the
      * specified QSARModel and SVMModel parameters. If a parameter is not specified
      * it will be ignored in the search.
-     * @return All information available on the specified models
+     * Returns all information available on the specified models
      */
     SEARCH_QSAR_MODEL("SELECT * FROM " + QSARModelsTable.TABLE.getTableName() +
             " LEFT OUTER JOIN " + SupportVecTable.TABLE.getTableName() + " ON "
@@ -603,7 +601,7 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the QSARModels and SVMModels tables for models that comply to the
      * specified QSARModel and SVMModel parameters. If a parameter is not specified
      * it will be ignored in the search.
-     * @return Only UID column of the specified models
+     * Returns Only UID column of the specified models
      */
     SEARCH_QSAR_MODEL_SKROUTZ("SELECT " + QSARModelsTable.TABLE.getTableName() + ".UID" +" FROM " + QSARModelsTable.TABLE.getTableName() +
             " LEFT OUTER JOIN " + SupportVecTable.TABLE.getTableName() + " ON "
@@ -664,7 +662,7 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the Omega table for models that comply to the
      * specified parameters. If a parameter is not specified
      * it will be ignored in the search.
-     * @return All information available on the specified models
+     * Returns all information available on the specified models
      */
     SEARCH_OMEGA("SELECT * FROM " + OmegaTable.TABLE.getTableName() + " " +
             "WHERE UID BETWEEN ? AND ? " +
@@ -688,7 +686,7 @@ public enum PrepStmt implements JPrepStmt {
      * Searches in the Omega table for models that comply to the
      * specified parameters. If a parameter is not specified
      * it will be ignored in the search.
-     * @return Only UID column of the specified models
+     * Returns Only UID column of the specified models
      */
      SEARCH_OMEGA_SKROUTZ("SELECT UID FROM " + OmegaTable.TABLE.getTableName() + " " +
             "WHERE UID BETWEEN ? AND ? " +

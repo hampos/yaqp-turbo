@@ -44,12 +44,14 @@ import org.restlet.data.MediaType;
  */
 public class JSONObject implements JPublishable {
 
+    protected static final MediaType media = MediaType.APPLICATION_JSON;
+
     public void publish(YaqpIOStream stream) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public MediaType getMediaType() {
-        return MediaType.APPLICATION_JSON;
+        return media;
     }
 
 }

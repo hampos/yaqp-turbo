@@ -155,8 +155,6 @@ import weka.core.converters.ArffSaver;
         }
         dataSetIterator.close();
 
-        System.out.println(relationName);
-
 
 
         //  POPULATE THE MAP WHICH CORRELATES RESOURCES TO WEKA DATA TYPES

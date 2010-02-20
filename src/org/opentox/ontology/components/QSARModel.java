@@ -40,12 +40,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
+import org.opentox.io.publishable.UriListObject;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.namespaces.OTClass;
 import org.opentox.ontology.namespaces.OTObjectProperties;
@@ -77,9 +80,7 @@ public class QSARModel extends YaqpComponent {
 
     private boolean hasVec = false;
     private final double doubleMax = (double)Integer.MAX_VALUE;
-    
-
-
+   
 
     public enum ModelStatus {
 
@@ -526,4 +527,19 @@ public class QSARModel extends YaqpComponent {
 
         return newParams;
     }
+
+
+    @Override
+    public UriListObject getUriList() {
+        ArrayList<URI> uriList = new ArrayList<URI>(1);
+        try {
+            uriList.add(uri());
+            return new UriListObject(uriList);
+        } catch (YaqpException ex) {
+            return null;
+        }
+    }
+
+
+
 }

@@ -29,15 +29,13 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-package org.opentox.io.publishable;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.URI;
-import java.util.ArrayList;
+
+package org.opentox.io.processors;
+
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.interfaces.JPublishable;
-import org.opentox.io.util.YaqpIOStream;
+import org.opentox.ontology.components.YaqpComponent;
 import org.restlet.data.MediaType;
 
 /**
@@ -45,39 +43,21 @@ import org.restlet.data.MediaType;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class UriListObject implements JPublishable {
+public final class Publisher extends AbstractIOProcessor<YaqpComponent, JPublishable>{
 
-    private ArrayList<URI> uriList;
-    public static final MediaType media = MediaType.TEXT_URI_LIST;
-
-    public UriListObject() {
+    private MediaType media;
+    
+    private Publisher(){
+        
+    }
+    
+    public Publisher(MediaType media){
+        this.media = media;
     }
 
-    public UriListObject(ArrayList<URI> list) {
-        this.uriList = list;
+    public JPublishable handle(YaqpComponent i) throws YaqpException {
+        return i.getPublishable(media);
     }
 
-    public void publish(YaqpIOStream stream) {
-        OutputStream outputStream = (OutputStream) stream.getStream();
-        final String NEWLINE = "\n";
-        for (final URI uri : uriList) {
-            String s = uri.toString()+NEWLINE;
-            byte[] byte_array = new byte[s.length()];
-            s.getBytes(0, s.length(), byte_array, 0);
-            try {
-                outputStream.write(byte_array);
-                outputStream.flush();
-            } catch (IOException ex) {
-                System.err.println(ex);
-            }
-        }
 
-
-
-
-    }
-
-    public MediaType getMediaType() {
-        return media;
-    }
 }

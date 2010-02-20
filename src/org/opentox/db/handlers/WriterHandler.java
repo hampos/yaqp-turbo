@@ -564,7 +564,10 @@ import org.opentox.util.logging.levels.*;
         if (algorithmName.equals(YaqpAlgorithms.SVM.getMeta().getName())
                 || algorithmName.equals(YaqpAlgorithms.SVC.getMeta().getName())) {
             return addSuppVectModel(model);
-        } else if (algorithmName.equals(YaqpAlgorithms.MLR.getMeta().getName())) {
+        } else if (
+                algorithmName.equals(YaqpAlgorithms.MLR.getMeta().getName())
+                || algorithmName.equals(YaqpAlgorithms.NAIVE_BAYES.getMeta().getName())
+                ) {
             int new_id = addQSARModel(model);
             model.setId(new_id);
             return model;
@@ -610,7 +613,6 @@ import org.opentox.util.logging.levels.*;
         for (Entry e : model.getParams().entrySet()) {
             String pName = e.getKey().toString();
             AlgorithmParameter algParam = (AlgorithmParameter) e.getValue();
-                        System.err.println(pName+" -- "+algParam.paramValue.toString());
             food.add(pName.toUpperCase(), algParam.paramValue.toString());
         }
         try {

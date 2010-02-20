@@ -37,6 +37,7 @@ import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.io.publishable.UriListObject;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
 import org.opentox.util.logging.YaqpLogger;
@@ -147,5 +148,10 @@ public class AlgorithmOntology extends YaqpComponent {
     @Override
     protected String getTag() {
         return "ontology";
+    }
+
+    @Override
+    public UriListObject getUriList() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

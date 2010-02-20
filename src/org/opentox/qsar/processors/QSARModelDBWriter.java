@@ -33,8 +33,6 @@
 
 package org.opentox.qsar.processors;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Processor;

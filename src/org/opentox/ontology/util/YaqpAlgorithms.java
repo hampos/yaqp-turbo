@@ -37,6 +37,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.config.Configuration;
 import org.opentox.ontology.components.Algorithm;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
@@ -76,7 +78,37 @@ public class YaqpAlgorithms {
     public static final Algorithm MLR = new Algorithm(mlr_metadata());
     public static final Algorithm SVM = new Algorithm(svm_metadata());
     public static final Algorithm SVC = new Algorithm(svc_metadata());
+    public static final Algorithm NAIVE_BAYES = new Algorithm(naiveBayes_metadata());
 
+
+    /**
+     * Returns an algorithm (from the set of algorithms listed in {@link YaqpAlgorithms }
+     * given its name. The search is not case sensitive, so <code>getByName("mlr")</code>
+     * will return the same as <code>getByName("MLR")</code>.
+     * @param name
+     *      The name of the algorithm (not case-sensitive).
+     * @return
+     *      The algorithm as a componente, that is an object containing all metadata
+     *      concerning the algorithm entity into consideration. Returns <code>null</code>
+     *      if the algorithm is not found.
+     */
+    public static final Algorithm getByName(String name){
+        YaqpAlgorithms o = new YaqpAlgorithms();
+        Field[] fields =  o.getClass().getFields();
+        for (int i=0;i<fields.length;i++){
+            try {
+                Algorithm a = (Algorithm) fields[i].get(o);
+                if (a.getMeta().getName().equalsIgnoreCase(name)) return a;
+            } catch (IllegalArgumentException ex) {
+                //Logger.getLogger(YaqpAlgorithms.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IllegalAccessException ex) {
+               // Logger.getLogger(YaqpAlgorithms.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        return null;
+    }
+
+    
     /**
      * Get a complete list of available algorithms on the server.
      * @return
@@ -210,6 +242,51 @@ public class YaqpAlgorithms {
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             meta.date = formatter.parse("2010-01-01");
+        } catch (ParseException ex) {
+            YaqpLogger.LOG.log(new Warning(YaqpAlgorithms.class, "(" + uri + ") Wrong date : " + ex));
+            meta.date = new Date(System.currentTimeMillis());
+        }
+
+        return meta;
+    }
+
+
+    public static AlgorithmMeta naiveBayes_metadata() {
+        String name = "naiveBayes";
+        String uri = "http://" + Configuration.getProperties().getProperty("server.domainName") + ":"
+                + Configuration.getProperties().getProperty("server.port") + "/algorithm/" + name;
+        AlgorithmMeta meta = new AlgorithmMeta(uri);
+        meta.setName(name);
+        meta.setParameters(new HashMap<String, AlgorithmParameter>());
+        meta.title = "Naive Bayes Classifier";
+        // TODO: Provide a reference for SVM Regression
+        meta.description =
+                "Naive Bayes Classifier is a simple probabilistic classifier based on "
+                + "applying Bayes' theorem with strong (naive) independence assumptions."
+                + "A more descriptive term for the underlying probability model would be \"independent feature model\""
+                + "In simple terms, a naive Bayes classifier assumes that the presence (or absence) "
+                + "of a particular feature of a class is unrelated to the presence (or absence) "
+                + "of any other feature. Even though these features depend on the existence of the other features, "
+                + "a naive Bayes classifier considers all of these properties to independently contribute to the "
+                + "probability that this fruit is an apple." 
+                + "This implementation relies on the weka implementation for the Naive Bayes Classifier " +
+                "(weka.classifiers.bayes.NaiveBayes).";
+        meta.subject =
+                "bayes classifier, independent feature model, ";
+        meta.format.add(MediaType.APPLICATION_RDF_XML);
+        meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
+        meta.format.add(MediaType.TEXT_RDF_N3);
+        meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
+        meta.format.add(MediaType.APPLICATION_XML);
+        meta.identifier = uri;
+        meta.type = "http://purl.org/dc/dcmitype/Service";
+        meta.audience.addAll(Audience.AllExpert);
+        meta.provenance = "Updated vesrion from yaqp version 1.3.6 to yaqp-turbo version 1.0";
+        meta.setAlgorithmType(OTAlgorithmTypes.Classification);
+
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            meta.date = formatter.parse("2010-02-01");
         } catch (ParseException ex) {
             YaqpLogger.LOG.log(new Warning(YaqpAlgorithms.class, "(" + uri + ") Wrong date : " + ex));
             meta.date = new Date(System.currentTimeMillis());

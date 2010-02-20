@@ -57,6 +57,7 @@ import static org.opentox.core.exceptions.Cause.*;
 
 /**
  *
+ * Handles all read operations from the database.
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
@@ -67,13 +68,23 @@ public class ReaderHandler {
      * Global Search function. Provided a valid YaqpComponent prototype
      * the handler will search in the database and return a ComponentList that
      * contains all components that matched the prototype.
-     * @param component  valid YaqpComponent
-     * @param page the requested database page
-     * @param Skroutz activate Skroutz mode (returns component primary key only)
-     * @return ComponentList of YaqpComponent. Each element of the list
-     * must be casted as the required component.
+     * @param component  
+     *      valid YaqpComponent to be used a prototype for the searching operation
+     * @param page
+     *      The requested database page
+     * @param Skroutz 
+     *      activate Skroutz mode (returns component primary key only) ommiting rest
+     *      of the information.
+     * @return 
+     *      ComponentList consisting of YaqpComponent objects .
      * @throws DbException
+     *      In case it is impossible to retreive the requested information from the database
+     *      due to communication errors.
      * @throws ImproperEntityException
+     *      In case the provided prototype is improper as a search prototype.
+     * @throws NullPointerException
+     *      In case the provided prototype or the the Page is <code>null</code>
+     * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page) search users
      */
     public static ComponentList<YaqpComponent> search(YaqpComponent component, Page page, boolean Skroutz)
             throws DbException, ImproperEntityException {
@@ -330,10 +341,15 @@ public class ReaderHandler {
      * u.setUserGroup(new UserGroup(null, 10));
      * </pre>
      * This will return a list of users belonging to a group with level=10.
-     * @param search_prototype The prototype for the search.
-     * @return List of users meeting the specifications of the search criteria or
-     * an empty list if no such user was found.
-     * @throws DbException In case the search cannot be performed.
+     * @param prototype 
+     *          The prototype for the search.
+     * @param page
+     *          The requested page from the database.
+     * @return
+     *          List of users meeting the specifications of the search criteria or
+     *          an empty list if no such user was found.
+     * @throws DbException
+     *          In case the search cannot be performed.
      * @see ReaderHandler#searchUserSkroutz(org.opentox.ontology.components.User, org.opentox.db.util.Page)
      */
      protected static ComponentList<User>
@@ -721,7 +737,7 @@ public class ReaderHandler {
                         params.put(ConstantParameters.cacheSize, params.get(ConstantParameters.cacheSize).updateParamValue(Integer.parseInt(it.next())));
                         params.put(ConstantParameters.kernel, params.get(ConstantParameters.kernel).updateParamValue(it.next()));
                         params.put(ConstantParameters.degree, params.get(ConstantParameters.degree).updateParamValue(Integer.parseInt(it.next())));
-                    }else if( model.getAlgorithm().equals(YaqpAlgorithms.MLR) ){
+                    }else if( model.getAlgorithm().equals(YaqpAlgorithms.MLR) || model.getAlgorithm().equals(YaqpAlgorithms.NAIVE_BAYES)){
                         params = new HashMap<String,AlgorithmParameter>();
                     }
                     model.setParams(params);

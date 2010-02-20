@@ -202,7 +202,7 @@ public class MLRTrainer extends WekaRegressor {
      */
     public QSARModel train(Instances data) throws QSARException {
      
-        data.setClass(data.attribute(predictionFeature.toString()));
+        
         LinearRegression linreg = new LinearRegression();
         String[] linRegOptions = {"-S", "1", "-C"};
         try {

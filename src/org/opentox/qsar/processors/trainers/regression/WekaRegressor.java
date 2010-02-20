@@ -44,6 +44,7 @@ import org.opentox.qsar.processors.filters.SimpleMVHFilter;
 import org.opentox.qsar.processors.trainers.AbstractTrainer;
 import org.opentox.qsar.processors.trainers.WekaTrainer;
 import org.opentox.www.rest.components.YaqpForm;
+import weka.core.Attribute;
 import weka.core.Instances;
 
 /**
@@ -78,15 +79,54 @@ public abstract class WekaRegressor extends WekaTrainer {
         AttributeCleanup filter = new AttributeCleanup(ATTRIBUTE_TYPE.string);
         // NOTE: Removal of string attributes should be always performed prior to any kind of training!
         data = filter.filter(data);
-        SimpleMVHFilter fil = new SimpleMVHFilter();
+        SimpleMVHFilter fil = new SimpleMVHFilter();        
         data = fil.filter(data);
-        if (data.attribute(predictionFeature) == null) {
+
+        /*
+         * Do some checks for the prediction feature...
+         */
+        // CHECK IF THE PREDICTION FEATURE EXISTS
+        // IF IT DOESN'T PROVIDE A LIST OF SOME NUMERIC FEATURES IN THE DATASET
+        Attribute classAttribute = data.attribute(predictionFeature);
+        if (classAttribute == null) {
+            String message =
+                    "The prediction feature you provided is is not included in the  dataset :{"
+                    + predictionFeature + "}. "+attributeHint(data);
+
             throw new QSARException(Cause.XQReg202,
-                    "The prediction feature you provided is not a valid numeric attribute of the dataset :{"
-                    + predictionFeature + "}");
+                    message);
         }
+
+        // CHECK IF THE PREDICTION FEATURE IS NUMERIC:
+        // IF IT DOESN'T PROVIDE A LIST OF SOME NUMERIC FEATURES IN THE DATASET
+        if (classAttribute.type()!=Attribute.NUMERIC){
+            String message =
+                    "The prediction feature you provided is not numeric : " +
+                    "{"+predictionFeature+"}. "+attributeHint(data);
+            throw new QSARException(Cause.XQReg203, message);
+        }
+
+
+        data.setClass(data.attribute(predictionFeature.toString()));
+        
         return data;
 
+    }
+
+    private String attributeHint(Instances data){
+        final String NEWLINE = "\n";
+        String hint = "Available features :"+NEWLINE;
+        final int MAX_ROWS = 5;
+        int jndex=0;        
+        Attribute temp;
+        for (int i=0;i<data.numAttributes() && jndex < MAX_ROWS;i++){
+            temp = data.attribute(i);
+            if (temp.type()==Attribute.NUMERIC){
+                hint += temp.name()+NEWLINE;
+                jndex ++;
+            }
+        }
+        return hint;
     }
 
 

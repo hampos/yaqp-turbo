@@ -247,10 +247,8 @@ final public class SVMTrainer extends WekaRegressor {
 
         // NOTE: The checks (check if data is null and if the prediction feature is
         //       acceptable are found in WekaRegressor. The method preprocessData(Instances)
-        //       does this job.
+        //       does this job.        
 
-        // SET THE CLASS ATTRIBUTE!
-        data.setClass(data.attribute(predictionFeature));
 
         // GET A UUID AND DEFINE THE TEMPORARY FILE WHERE THE TRAINING DATA
         // ARE STORED IN ARFF FORMAT PRIOR TO TRAINING.

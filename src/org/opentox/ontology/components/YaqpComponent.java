@@ -31,24 +31,21 @@
  */
 package org.opentox.ontology.components;
 
-import com.hp.hpl.jena.vocabulary.OWL;
-import com.itextpdf.text.Document;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
+import org.opentox.io.exceptions.YaqpIOException;
+import org.opentox.io.interfaces.JPublishable;
 import org.opentox.io.publishable.JSONObject;
-import org.opentox.io.publishable.OntObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.io.publishable.UriListObject;
 import org.opentox.ontology.exceptions.ImproperEntityException;
-import org.opentox.ontology.namespaces.OTClass;
-import org.opentox.ontology.namespaces.YaqpOntEntity;
+import org.restlet.data.MediaType;
 
 /**
  *
@@ -58,6 +55,23 @@ import org.opentox.ontology.namespaces.YaqpOntEntity;
 public abstract class YaqpComponent implements Serializable {
 
     public YaqpComponent() {
+    }
+
+    public JPublishable getPublishable(MediaType mediatype) throws ImproperEntityException{
+
+        if (mediatype.equals(PDFObject.media)){
+            return getPDF();
+        } else if (mediatype.equals(RDFObject.media)){
+            return getRDF();
+        } else if (mediatype.equals(TurtleObject.media)){
+            return getTurtle();
+        } else if (mediatype.equals(UriListObject.media)){
+            return getUriList();
+        } else {
+            throw new ImproperEntityException(Cause.XIE790,
+                    "This media type is not supported : {"+mediatype+"}");
+        }
+        
     }
 
     /**
@@ -76,6 +90,8 @@ public abstract class YaqpComponent implements Serializable {
      * @return JSONObject for the component.
      */
     public abstract JSONObject getJson();
+
+    public abstract UriListObject getUriList();
 
     /**
      * A publishable version of the component in TURTLE (TTL) format as an

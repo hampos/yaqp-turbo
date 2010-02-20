@@ -32,8 +32,14 @@
 package org.opentox.www.rest.components;
 
 import java.util.Collection;
+import org.restlet.data.CharacterSet;
+import org.restlet.data.Language;
 import org.restlet.data.MediaType;
+import org.restlet.data.Status;
+import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
+import org.restlet.resource.ResourceException;
 import org.restlet.resource.ServerResource;
 
 /**
@@ -57,4 +63,24 @@ public abstract class YaqpResource extends ServerResource {
         }
 
     }
+
+    @Override
+    protected Representation post(Representation entity, Variant variant) throws ResourceException {
+        getResponse().setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+        String message = "POST method is not allowed on this URI. Please check the API documentation and do not repeat this request.\n";
+        return new StringRepresentation(message, MediaType.TEXT_PLAIN, Language.ENGLISH, CharacterSet.UTF_8);
+    }
+
+    @Override
+    protected Representation delete(Variant variant) throws ResourceException {
+        getResponse().setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+        String message = "DELETE method is not allowed on this URI. Please check the API documentation and do not repeat this request.\n";
+        return new StringRepresentation(message, MediaType.TEXT_PLAIN, Language.ENGLISH, CharacterSet.UTF_8);
+    }
+
+    protected Representation sendMessage(String message){
+        return new StringRepresentation(message, MediaType.TEXT_PLAIN, Language.ENGLISH, CharacterSet.UTF_8);
+    }
+
+
 }

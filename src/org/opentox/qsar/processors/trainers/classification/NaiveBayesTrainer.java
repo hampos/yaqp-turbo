@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.Map;
 import org.opentox.config.ServerFolders;
 import org.opentox.core.exceptions.Cause;
@@ -45,15 +44,9 @@ import org.opentox.ontology.components.QSARModel.ModelStatus;
 import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.qsar.exceptions.QSARException;
-import org.opentox.qsar.processors.filters.AttributeCleanup;
-import org.opentox.qsar.processors.filters.AttributeCleanup.ATTRIBUTE_TYPE;
-import org.opentox.qsar.processors.filters.SimpleMVHFilter;
-import org.opentox.qsar.processors.trainers.WekaTrainer;
 import org.opentox.www.rest.components.YaqpForm;
-import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.NaiveBayes;
-import weka.core.Attribute;
 import weka.core.Instances;
 import weka.core.converters.ArffSaver;
 
@@ -124,7 +117,7 @@ public class NaiveBayesTrainer extends WekaClassifier {
 
         model.setParams(getParameters());
         model.setCode(uuid.toString());
-        model.setAlgorithm(YaqpAlgorithms.SVM);
+        model.setAlgorithm(YaqpAlgorithms.NAIVE_BAYES);
         model.setDataset(datasetUri);
         model.setModelStatus(ModelStatus.UNDER_DEVELOPMENT);
 

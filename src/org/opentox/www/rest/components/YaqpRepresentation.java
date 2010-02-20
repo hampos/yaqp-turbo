@@ -33,8 +33,7 @@
 
 package org.opentox.www.rest.components;
 
-import java.io.IOException;
-import java.io.OutputStream;
+
 import org.restlet.data.MediaType;
 import org.restlet.representation.OutputRepresentation;
 
@@ -46,15 +45,11 @@ import org.restlet.representation.OutputRepresentation;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class YaqpRepresentation extends OutputRepresentation{
+public abstract class YaqpRepresentation extends OutputRepresentation{
 
     public YaqpRepresentation(MediaType mediaType) {
         super(mediaType);
     }
 
-    @Override
-    public void write(OutputStream outputStream) throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
     
 }

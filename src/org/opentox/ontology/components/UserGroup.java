@@ -46,6 +46,7 @@ import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.TurtleObject;
+import org.opentox.io.publishable.UriListObject;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Warning;
 
@@ -255,6 +256,11 @@ public class UserGroup extends YaqpComponent {
         } catch (URISyntaxException ex){
             throw new YaqpException(Cause.XTC743, "Improper URI", ex);
         }
+    }
+
+    @Override
+    public UriListObject getUriList() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
 }

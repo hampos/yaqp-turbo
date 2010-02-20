@@ -79,4 +79,11 @@ public class YaqpException extends Exception {
         this.cause = cause;
         this.explanation = explanation;
     }
+
+    @Override
+    public String toString() {
+        return "(" + getCode() + ") - " + getExplanation();
+    }
+
+
 }

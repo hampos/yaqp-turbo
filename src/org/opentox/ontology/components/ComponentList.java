@@ -39,11 +39,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
 import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.UriListObject;
+import org.opentox.ontology.util.YaqpAlgorithms;
 
 /**
  *
@@ -69,8 +72,13 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent implem
 
     @Override
     public RDFObject getRDF() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        RDFObject rdf = new RDFObject();
+        for (YaqpComponent comp : this){
+            if (comp!= null) rdf = new RDFObject( rdf.union(comp.getRDF()) );
+        }
+        return rdf;
     }
+
 
     @Override
     public JSONObject getJson() {
@@ -82,10 +90,14 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent implem
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
-    public UriListObject getUriList() throws YaqpException{
+    public UriListObject getUriList() {
         ArrayList<URI> uriList = new ArrayList<URI>();
         for (H component : componentList){
-            uriList.add(component.uri());
+            try {
+                uriList.add(component.uri());
+            } catch (YaqpException ex) {
+                //Logger.getLogger(ComponentList.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
         return new UriListObject(uriList);
     }

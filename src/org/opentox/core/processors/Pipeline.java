@@ -65,6 +65,24 @@ public class Pipeline<Input, Output, P extends JProcessor<Input, Output>>
     }
 
     /**
+     * Construct a new pipeline providing a sequence of processors.
+     * @param processors
+     *      A sequence of processor nested in a pipeline.
+     */
+    public Pipeline(P... processors){
+        this();
+        for (P p : processors){
+            this.add(p);
+        }
+    }
+
+    public void addProcessors(P... processors){
+        for (P p : processors){
+            add(p);
+        }
+    }
+
+    /**
      *
      *
      * This method processes the input data to produce some output,

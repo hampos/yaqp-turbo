@@ -31,6 +31,7 @@
  */
 package org.opentox.www.rest.components;
 
+
 import org.restlet.Application;
 import org.restlet.Context;
 import org.restlet.routing.Router;
@@ -47,6 +48,7 @@ public class YaqpApplication extends Application {
         setName("YAQP Services");
         setOwner("part of the OpenTox project - http://opentox.org");
         setAuthor("kinkyDesign");
+
     }
 
     final public class YaqpRouter extends Router {
@@ -55,7 +57,7 @@ public class YaqpApplication extends Application {
             super(context);
             setDefaultMatchingMode(Template.MODE_STARTS_WITH);
             setRoutingMode(Router.MODE_BEST_MATCH);
-
+            
         }
     }
 }

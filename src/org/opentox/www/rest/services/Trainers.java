@@ -36,6 +36,9 @@ package org.opentox.www.rest.services;
 import org.opentox.ontology.components.Algorithm;
 import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.qsar.interfaces.JTrainer;
+import org.opentox.qsar.processors.trainers.classification.NaiveBayesTrainer;
+import org.opentox.qsar.processors.trainers.classification.SVCTrainer;
+import org.opentox.qsar.processors.trainers.regression.MLRTrainer;
 import org.opentox.qsar.processors.trainers.regression.SVMTrainer;
 
 /**
@@ -44,9 +47,11 @@ import org.opentox.qsar.processors.trainers.regression.SVMTrainer;
  * @author Charalampos Chomenides
  */
 public enum Trainers {
-    mlr("mlr", SVMTrainer.class, YaqpAlgorithms.MLR),
-    svm("svm", SVMTrainer.class, YaqpAlgorithms.MLR),
-    svc("svc", SVMTrainer.class, YaqpAlgorithms.MLR);
+    mlr("mlr", MLRTrainer.class, YaqpAlgorithms.MLR),
+    svm("svm", SVMTrainer.class, YaqpAlgorithms.SVM),
+    svc("svc", SVCTrainer.class, YaqpAlgorithms.SVC),
+    naiveBayes("naiveBayes", NaiveBayesTrainer.class, YaqpAlgorithms.NAIVE_BAYES);
+
     private Class trainer;
     private Algorithm algorithmEntity;
     private String name;
