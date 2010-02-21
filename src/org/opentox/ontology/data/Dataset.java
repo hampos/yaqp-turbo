@@ -51,6 +51,7 @@ import org.opentox.core.exceptions.Cause;
 import org.opentox.core.processors.Pipeline;
 import org.opentox.io.processors.InputProcessor;
 import org.opentox.io.publishable.OntObject;
+import org.opentox.io.publishable.RDFObject;
 import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.exceptions.YaqpOntException;
 import org.opentox.ontology.namespaces.OTClass;
@@ -299,7 +300,6 @@ import weka.core.Instances;
         return atts;
     }
 
-    
     public static void main(String[] args) throws Exception {
 
         InputProcessor<OntObject> p1 = new InputProcessor<OntObject>();
@@ -317,6 +317,10 @@ import weka.core.Instances;
 
         Instances data = (Instances) pipe.process(new URI("http://localhost/9"));
         
+    }
+
+    public RDFObject getRDF(){
+        return new RDFObject(oo);
     }
 }
 

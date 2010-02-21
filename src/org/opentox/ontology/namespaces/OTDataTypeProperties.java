@@ -37,6 +37,10 @@ public class OTDataTypeProperties extends YaqpOntEntity {
     public OTDataTypeProperties(Resource resource) {
         super(resource);
     }
+
+    public Property getProperty(OntObject o){
+        return o.getProperty(getURI());
+    }
     /**
      *
      * A value.

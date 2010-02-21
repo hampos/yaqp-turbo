@@ -43,8 +43,10 @@ import org.opentox.db.exceptions.DbException;
 import org.opentox.db.handlers.ReaderHandler;
 import org.opentox.db.util.Page;
 import org.opentox.io.processors.InputProcessor;
+import org.opentox.io.processors.OutputProcessor;
 import org.opentox.ontology.components.QSARModel;
 import org.opentox.ontology.components.User;
+import org.opentox.ontology.data.Dataset;
 import org.opentox.ontology.data.DatasetBuilder;
 import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.processors.InstancesProcessor;
@@ -104,16 +106,16 @@ public class PredictionService implements Callable<Representation> {
         try {
             model = (QSARModel) ( ReaderHandler.search(prototype, new Page(), false).getFirst() );
             trainingPipe.add(new SimplePredictor(model));
-            trainingPipe.process(new URI(dset));
+            trainingPipe.add(new DatasetBuilder());
+
+            Dataset ds = (Dataset) trainingPipe.process(new URI(dset));
+            return new OutputProcessor().handle(ds.getRDF());
         } catch (URISyntaxException ex) {
             throw new QSARException(Cause.XQPred635, "The dataset uri you provided is not a valid uri :{"+dset, ex);
         } catch (YaqpException ex) {
            throw ex;
         }
-        
-
-            
-        return new StringRepresentation("haha");
+                   
     }
 }
 

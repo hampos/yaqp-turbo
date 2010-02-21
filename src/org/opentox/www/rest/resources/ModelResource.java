@@ -153,10 +153,9 @@ public class ModelResource extends YaqpResource {
 
         PredictionService service;
         try {
-            service = new PredictionService(new YaqpForm(entity), model_id, new User(), SimplePredictor.class, variant.getMediaType());
-            service.call();
+            service = new PredictionService(new YaqpForm(entity), model_id, new User(), SimplePredictor.class, variant.getMediaType());            
             getResponse().setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
-            return sendMessage("under construction"  + NEWLINE);
+            return service.call();
         } catch (final QSARException ex) {
             return sendMessage(ex.toString() + NEWLINE);
         } catch (Exception ex) {

@@ -144,8 +144,7 @@ public final class SimplePredictor extends WekaPredictor {
 
         } catch (Exception ex) {    }
 
-        System.out.println(predictions);
-        return data;
+        return predictions;
     }
 
 

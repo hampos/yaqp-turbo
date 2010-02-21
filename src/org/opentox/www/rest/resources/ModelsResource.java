@@ -46,13 +46,12 @@ import org.opentox.ontology.components.YaqpComponent;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Fatal;
 import org.opentox.www.rest.components.URITemplate;
-import org.opentox.www.rest.components.YaqpForm;
 import org.opentox.www.rest.components.YaqpRepresentation;
 import org.opentox.www.rest.components.YaqpResource;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
-import org.restlet.data.Reference;
 import org.restlet.data.Status;
+import org.restlet.data.Tag;
 import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
@@ -80,15 +79,15 @@ public class ModelsResource extends YaqpResource {
                 MediaType.APPLICATION_RDF_TURTLE
                 
                 );
-        Form queryForm = getReference().getQueryAsForm();
+        final Form queryForm = getReference().getQueryAsForm();
         int pageIndex = 0 ;
         int pagesize = 0;
         try{
             pageIndex = Integer.parseInt(queryForm.getFirstValue(PAGENUM)) - 1;            
-        } catch (NumberFormatException ex){/* do nothing */}
+        } catch (final NumberFormatException ex){/* do nothing */}
         try{
             pagesize = Integer.parseInt(queryForm.getFirstValue(PAGESIZE));
-        } catch (NumberFormatException ex){/* do nothing */}
+        } catch (final NumberFormatException ex){/* do nothing */}
         page = new Page(pagesize, pageIndex);
     }
 
@@ -106,8 +105,9 @@ public class ModelsResource extends YaqpResource {
             final OutputProcessor representer = new OutputProcessor();
             final Pipeline pipe = new Pipeline(publisher, representer);
             YaqpRepresentation rep = (YaqpRepresentation) pipe.process(list);
+            rep.setTag(Tag.parse("thisIsaTaG"));
             return rep;
-        } catch (YaqpException ex) {
+        } catch (final YaqpException ex) {
             YaqpLogger.LOG.log(new Fatal(getClass(), "Fatal error while retrieving models from the DB : "+ex));
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
             return sendMessage("Internal Server Error");

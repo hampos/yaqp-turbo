@@ -52,9 +52,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
@@ -71,7 +68,6 @@ import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.ontology.util.vocabulary.Audience;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Warning;
-import org.opentox.www.rest.resources.AlgorithmResource;
 import org.restlet.data.MediaType;
 import static org.opentox.core.exceptions.Cause.*;
 
