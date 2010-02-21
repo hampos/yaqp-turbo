@@ -33,6 +33,7 @@ package org.opentox;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.opentox.config.Configuration;
 import org.opentox.db.util.TheDbConnector;
 import org.opentox.util.monitoring.Jennifer;
 import org.opentox.www.rest.Applecation;
@@ -99,20 +100,22 @@ public class YAQP {
 
 
         System.out.print("* Loading Services           : ");
-        fancyPrint("--..-..-.-.--.-.--..--..-....\t [ DONE ]\n", 10);
-        fancyPrint("*\n* Server is up and accepts connections on port 3000!\n*\n", 10);
+        fancyPrint("--..-..-.-.--.-.--..--..-....\t ", 10);
     }
 
     
     private static final void startHttpServer() throws Exception{
          Logger L = Logger.getLogger("grizzly");
-        L.setLevel(Level.ALL);
+         L.setLevel(Level.SEVERE);
+         int PORT = Configuration.PORT;
         YaqpApplication application = new Applecation();
         Component component = new Component();
-        component.getServers().add(Protocol.HTTP, 3000);
+        component.getServers().add(Protocol.HTTP, PORT);
         application.setContext(component.getContext().createChildContext());
         component.getDefaultHost().attach("", application);
         component.start();
+        System.out.print("[ DONE ] \n");
+        fancyPrint("*\n* Server is up and accepts connections on port " + PORT + "!\n*\n", 10);
     }
 
     public static void main(String args[]) throws Exception {

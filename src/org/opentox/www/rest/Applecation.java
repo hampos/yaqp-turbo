@@ -31,8 +31,10 @@
  */
 package org.opentox.www.rest;
 
+import com.sun.grizzly.util.LoggingFormatter;
 import java.io.IOException;
 import java.util.logging.FileHandler;
+import java.util.logging.Formatter;
 import java.util.logging.Level;
 import org.opentox.www.rest.components.YaqpApplication;
 import org.opentox.www.rest.resources.AlgorithmResource;
@@ -52,18 +54,21 @@ final public class Applecation extends YaqpApplication {
 
     public Applecation() throws IOException {
         super();
-        Context.getCurrentLogger().addHandler(new FileHandler("application.log", true));
-        Context.getCurrentLogger().setLevel(Level.ALL);
+        FileHandler fh = new FileHandler("application.log", true);
+        Formatter formatter = new LoggingFormatter();
+        fh.setFormatter(formatter);
+        Context.getCurrentLogger().addHandler(fh);
+        Context.getCurrentLogger().setLevel(Level.SEVERE);
     }
 
     @Override
     public Restlet createInboundRoot() {
         Router router = new YaqpRouter(this.getContext().createChildContext());
+
         router.attach(AlgorithmResource.template.toString(), AlgorithmResource.class);
         router.attach(AlgorithmsResource.template.toString(), AlgorithmsResource.class);
         router.attach(ModelsResource.template.toString(), ModelsResource.class);
         router.attach(ModelResource.template.toString(), ModelResource.class);
-
 
         return router;
     }

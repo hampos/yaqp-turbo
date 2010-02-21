@@ -36,16 +36,31 @@ package org.opentox.ontology.data;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Processor;
 import org.opentox.io.publishable.OntObject;
+import weka.core.Instances;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class DatasetBuilder extends Processor<OntObject, Dataset>{
+public class DatasetBuilder extends Processor<Object, Dataset>{
 
-    public Dataset process(OntObject data) throws YaqpException {
-        return new Dataset((OntObject) data);
+    /**
+     *
+     * @param data
+     * @return
+     * @throws YaqpException
+     * @throws IllegalArgumentException
+     *      In case the provided dataset object is not an instance of OntObject
+     *      or {@link weka.core.Instances Instances}
+     */
+    public Dataset process(Object data) throws YaqpException {
+        if (data instanceof OntObject){
+            return DatasetFactory.getDataset((OntObject)data);
+        } else if (data instanceof Instances){
+            return DatasetFactory.getDataset((Instances)data);
+        }
+        throw new IllegalArgumentException("Dataset could not be built");
     }
 
 }

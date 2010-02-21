@@ -65,7 +65,7 @@ public class AlgorithmsResource extends YaqpResource {
     @Override
     protected void doInit() throws ResourceException {
         super.doInit();
-        initialize(
+        initialize(                
                 MediaType.APPLICATION_RDF_XML,
                 MediaType.APPLICATION_RDF_TURTLE,
                 MediaType.TEXT_URI_LIST

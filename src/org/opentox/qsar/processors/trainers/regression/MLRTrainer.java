@@ -301,7 +301,7 @@ public class MLRTrainer extends WekaRegressor {
         pmml.append("<?xml version=\"1.0\" ?>");
         pmml.append(PMMLIntro);
         pmml.append("<Model ID=\"" + uuid.toString() + "\" Name=\"MLR Model\">\n");
-        pmml.append("<AlgorithmID href=\"" + Configuration.baseUri + "/algorithm/mlr\"/>\n");
+        pmml.append("<AlgorithmID href=\"" + Configuration.BASE_URI + "/algorithm/mlr\"/>\n");
         pmml.append("<DatasetID href=\"" + datasetUri + "\"/>\n");
         pmml.append("<AlgorithmParameters />\n");
         pmml.append("<FeatureDefinitions>\n");

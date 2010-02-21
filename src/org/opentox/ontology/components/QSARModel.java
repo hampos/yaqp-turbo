@@ -275,7 +275,8 @@ public class QSARModel extends YaqpComponent {
     // TODO: Implement this method ASAP (due for Feb 17)!
     @Override
     public PDFObject getPDF() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        PDFObject pdf = new PDFObject();
+        return pdf;
     }
 
     // TODO: Implement this method ASAP (due for Feb 17)!

@@ -1,14 +1,3 @@
-/**
- * 
- * This package contains all necessary ontological entities used in YAQP. For example
- * <code>org.opentox.ontology.components.Algorithm</code> and <code>org.opentox.ontology.components.QSARModel</code>
- * contain all necassary information about an algorithm and a QSARModel respectively (see documentation therein
- * for extra information). All entities subclass YaqpComponent which contains methods for the
- * conversion of these entities in publishable objects like PDF or RDF which in turn are
- * streamed to the client upon request.
- */
-package org.opentox.ontology.components;
-
 /*
  *
  * YAQP - Yet Another QSAR Project:
@@ -16,7 +5,7 @@ package org.opentox.ontology.components;
  * features of chemical compounds become available on the Web. Yaqp is developed
  * under OpenTox (http://opentox.org) which is an FP7-funded EU research project.
  * This project was developed at the Automatic Control Lab in the Chemical Engineering
- * School of National Technical University of Athens. Please read README for more
+ * School of the National Technical University of Athens. Please read README for more
  * information.
  *
  * Copyright (C) 2009-2010 Pantelis Sopasakis & Charalampos Chomenides
@@ -40,3 +29,27 @@ package org.opentox.ontology.components;
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
+
+
+package org.opentox.ontology.data;
+
+import org.opentox.io.publishable.OntObject;
+import weka.core.Instances;
+
+/**
+ *
+ * @author Pantelis Sopasakis
+ * @author Charalampos Chomenides
+ */
+public class DatasetFactory {
+
+    public static Dataset getDataset(OntObject data){
+        return new Dataset(data);
+    }
+
+    public static Dataset getDataset(Instances data){
+        OntObject oo = null;
+        return getDataset(oo);
+    }
+
+}

@@ -39,13 +39,20 @@ import org.opentox.db.handlers.ReaderHandler;
 import org.opentox.db.util.Page;
 import org.opentox.io.processors.OutputProcessor;
 import org.opentox.io.processors.Publisher;
+import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.components.ComponentList;
 import org.opentox.ontology.components.QSARModel;
 import org.opentox.ontology.components.YaqpComponent;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.Fatal;
 import org.opentox.www.rest.components.URITemplate;
+import org.opentox.www.rest.components.YaqpForm;
 import org.opentox.www.rest.components.YaqpRepresentation;
 import org.opentox.www.rest.components.YaqpResource;
+import org.restlet.data.Form;
 import org.restlet.data.MediaType;
+import org.restlet.data.Reference;
+import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
@@ -59,34 +66,52 @@ public class ModelsResource extends YaqpResource {
 
     public static final URITemplate template = new URITemplate("model", null, null);
 
+    private static final String PAGESIZE = "pagesize";
+    private static final String PAGENUM = "page";
+
+    private Page page;
+
     @Override
     protected void doInit() throws ResourceException {
         super.doInit();
         initialize(
+                MediaType.TEXT_URI_LIST,
                 MediaType.APPLICATION_RDF_XML,
-                MediaType.APPLICATION_RDF_TURTLE,
-                MediaType.TEXT_URI_LIST);
+                MediaType.APPLICATION_RDF_TURTLE
+                
+                );
+        Form queryForm = getReference().getQueryAsForm();
+        int pageIndex = 0 ;
+        int pagesize = 0;
+        try{
+            pageIndex = Integer.parseInt(queryForm.getFirstValue(PAGENUM)) - 1;            
+        } catch (NumberFormatException ex){/* do nothing */}
+        try{
+            pagesize = Integer.parseInt(queryForm.getFirstValue(PAGESIZE));
+        } catch (NumberFormatException ex){/* do nothing */}
+        page = new Page(pagesize, pageIndex);
     }
 
     @Override
     protected Representation get(final Variant variant) throws ResourceException {
-        final MediaType media = variant.getMediaType();
-        System.out.println(media.toString());
+        final MediaType requestMediaType = variant.getMediaType();
         boolean retrieveAllInformation = true;
         try {
-            if (media.isCompatible(MediaType.TEXT_ALL)
-                    && !media.equals(MediaType.TEXT_RDF_N3) && !media.equals(MediaType.TEXT_RDF_NTRIPLES)) {
+            if (requestMediaType.isCompatible(MediaType.TEXT_ALL)
+                    && !requestMediaType.equals(MediaType.TEXT_RDF_N3) && !requestMediaType.equals(MediaType.TEXT_RDF_NTRIPLES)) {
                 retrieveAllInformation = false;
             }
-            ComponentList<YaqpComponent> list = ReaderHandler.search(new QSARModel(), new Page(), !retrieveAllInformation);
-            final Publisher publisher = new Publisher(variant.getMediaType());
+            ComponentList<YaqpComponent> list = ReaderHandler.search(new QSARModel(), page, !retrieveAllInformation);
+            final Publisher publisher = new Publisher(requestMediaType);
             final OutputProcessor representer = new OutputProcessor();
             final Pipeline pipe = new Pipeline(publisher, representer);
             YaqpRepresentation rep = (YaqpRepresentation) pipe.process(list);
             return rep;
         } catch (YaqpException ex) {
-            Logger.getLogger(ModelsResource.class.getName()).log(Level.SEVERE, null, ex);
+            YaqpLogger.LOG.log(new Fatal(getClass(), "Fatal error while retrieving models from the DB : "+ex));
+            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+            return sendMessage("Internal Server Error");
         }
-        return super.get(variant);
+        
     }
 }

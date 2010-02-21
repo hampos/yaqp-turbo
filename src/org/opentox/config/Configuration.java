@@ -44,7 +44,9 @@ public class Configuration {
 
     private static Properties properties = null;
 
-    public static final String baseUri = "http://"+getProperties().getProperty("server.domainName")+":"+getProperties().getProperty("server.port");
+    public static final String BASE_URI = "http://"+getProperties().getProperty("server.domainName")+":"+getProperties().getProperty("server.port");
+    public static final int PORT = Integer.parseInt(getProperties().getProperty("server.port"));
+
 
     public static Properties getProperties() {
         if (properties == null) {

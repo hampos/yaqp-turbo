@@ -108,7 +108,7 @@ public abstract class YaqpComponent implements Serializable {
 
     public URI uri() throws YaqpException{
         try {
-            return new URI(Configuration.baseUri + "/" + getTag());
+            return new URI(Configuration.BASE_URI + "/" + getTag());
         } catch (URISyntaxException ex) {
             throw new YaqpException(Cause.XTC743, "Invalid URI", ex);
         }

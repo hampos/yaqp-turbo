@@ -71,6 +71,9 @@ public class OutputProcessor
                     i.publish(new YaqpIOStream(outputStream));
                 } catch (YaqpException ex) {
                     //
+                }finally{
+                    outputStream.flush();
+                    outputStream.close();
                 }
             }
         };

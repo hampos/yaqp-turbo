@@ -129,7 +129,7 @@ public class AlgorithmResource extends YaqpResource {
             getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
             String message =
                     "You have requested an algorithm which does not exist (" + algorithmName + "). You can"
-                    + "get a complete list of all available algorithms at " + Configuration.baseUri + "/algorithm"+NEWLINE;
+                    + "get a complete list of all available algorithms at " + Configuration.BASE_URI + "/algorithm"+NEWLINE;
             return sendMessage(message);
         }
         final Publisher publisher = new Publisher(variant.getMediaType());

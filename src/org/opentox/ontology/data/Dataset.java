@@ -299,8 +299,7 @@ import weka.core.Instances;
         return atts;
     }
 
-
-
+    
     public static void main(String[] args) throws Exception {
 
         InputProcessor<OntObject> p1 = new InputProcessor<OntObject>();
