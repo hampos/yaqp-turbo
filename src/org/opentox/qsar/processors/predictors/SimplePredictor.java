@@ -121,20 +121,9 @@ public final class SimplePredictor extends WekaPredictor {
                         double clsLabel = cls.classifyInstance(dataClone.instance(i));
                         predictionInstance.setValue(targetAttribute, clsLabel);
                     }else if (targetAttribute.type() == Attribute.NOMINAL) {
-
-                        long start = System.currentTimeMillis();
                         double[] clsLable = cls.distributionForInstance(dataClone.instance(i));
-                        System.out.println(System.currentTimeMillis()-start);
-
-                        start = System.currentTimeMillis();
                         int indexForNominalElement = maxInArray(clsLable).getPosition();
-                        System.out.println(System.currentTimeMillis()-start);
-
-                        start = System.currentTimeMillis();
                         Enumeration nominalValues = targetAttribute.enumerateValues();
-                        System.out.println(System.currentTimeMillis()-start);
-
-                        start = System.currentTimeMillis();
                         int counter = 0;
                         String nomValue = "";
                         while (nominalValues.hasMoreElements()) {
@@ -144,8 +133,6 @@ public final class SimplePredictor extends WekaPredictor {
                             }
                             counter++;
                         }
-                        System.out.println(System.currentTimeMillis()-start);
-                        System.out.println(nomValue);
                         predictionInstance.setValue(targetAttribute, nomValue);
 
                         predictionInstance.setValue(targetAttribute, cls.classifyInstance(dataClone.instance(i)));
