@@ -110,7 +110,7 @@ public final class SimplePredictor extends WekaPredictor {
         
         Instance predictionInstance = new Instance(2);
         try {
-            final Classifier cls = (Classifier) SerializationHelper.read(filePath);
+            final Classifier cls = (Classifier) SerializationHelper.read( filePath );
 
             for (int i = 0; i < data.numInstances(); i++) {
                 try {
