@@ -32,6 +32,7 @@
 package org.opentox.qsar.processors.trainers.regression;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -69,11 +70,16 @@ import org.opentox.qsar.processors.trainers.WekaTrainer;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Trace;
 import org.opentox.www.rest.components.YaqpForm;
+import weka.classifiers.Evaluation;
 import weka.classifiers.functions.LinearRegression;
 import weka.core.Instances;
+import weka.core.converters.ArffSaver;
 
 /**
- * 
+ *
+ * This MLR Trainer accepts the training data as instances and produces a model file
+ * which is saved in the corresponding folder on the server for weka serialized models.
+ * What is more, a PMML file is generated and stored as well. 
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
@@ -201,8 +207,31 @@ public class MLRTrainer extends WekaRegressor {
      *      In case the provided training data is null.
      */
     public QSARModel train(Instances data) throws QSARException {
-     
-        
+
+        System.out.println(data);
+
+        // GET A UUID AND DEFINE THE TEMPORARY FILE WHERE THE TRAINING DATA
+        // ARE STORED IN ARFF FORMAT PRIOR TO TRAINING.
+        final String rand = java.util.UUID.randomUUID().toString();
+        final String temporaryFilePath = ServerFolders.temp +"/"+rand+ ".arff";
+        final File tempFile = new File(temporaryFilePath);
+
+        // SAVE THE DATA IN THE TEMPORARY FILE
+        try {
+            ArffSaver dataSaver = new ArffSaver();
+            dataSaver.setInstances(data);
+            dataSaver.setDestination(new FileOutputStream(tempFile));
+            dataSaver.writeBatch();
+        }
+        catch (final IOException ex) {
+            tempFile.delete();
+            throw new RuntimeException("Unexpected condition while trying to save the " +
+                    "dataset in a temporary ARFF file", ex);
+        }
+
+
+
+             
         LinearRegression linreg = new LinearRegression();
         String[] linRegOptions = {"-S", "1", "-C"};
         try {
@@ -213,12 +242,29 @@ public class MLRTrainer extends WekaRegressor {
             YaqpLogger.LOG.log(new Trace(getClass(), message + " :: " + ex));
             throw new QSARException(Cause.XQReg1, message, ex);
         }
+
+
         try {
             generatePMML(linreg, data);
         } catch (final YaqpIOException ex) {
             String message = "Could not generate PMML representation for MLR model :: " + ex;
             throw new QSARException(Cause.XQReg2, message, ex);
         }
+
+        // PERFORM THE TRAINING
+        String[] generalOptions = {
+            "-c", Integer.toString(data.classIndex() + 1),
+            "-t", temporaryFilePath,
+            /// Save the model in the following directory
+            "-d", ServerFolders.models_weka + "/" + uuid};
+        try {
+            Evaluation.evaluateModel(linreg, generalOptions);
+        } catch (final Exception ex) {
+            tempFile.delete();
+            throw new QSARException(Cause.XQReg350, "Unexpected condition while trying to train "
+                    + "an SVM model. Possible explanation : {" + ex.getMessage() + "}", ex);
+        }
+
 
         ArrayList<Feature> independentFeatures = new ArrayList<Feature>();
         for (int i = 0; i < data.numAttributes(); i++) {

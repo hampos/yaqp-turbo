@@ -39,8 +39,6 @@ import com.hp.hpl.jena.rdf.model.SimpleSelector;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.net.URI;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -67,7 +65,6 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.converters.ArffSaver;
 
 /**
  *

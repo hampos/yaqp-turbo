@@ -34,6 +34,7 @@ package org.opentox.www.rest.resources;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.opentox.config.Configuration;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Pipeline;
 import org.opentox.io.processors.OutputProcessor;
@@ -68,6 +69,8 @@ import org.restlet.resource.ResourceException;
  * @author Charalampos Chomenides
  */
 public class AlgorithmResource extends YaqpResource {
+
+    private static final String NEWLINE = "";
 
     /** URI Template */
     public static final URITemplate template = new URITemplate("algorithm", "algorithm_id", null);
@@ -126,7 +129,7 @@ public class AlgorithmResource extends YaqpResource {
             getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
             String message =
                     "You have requested an algorithm which does not exist (" + algorithmName + "). You can"
-                    + "get a complete list of all available algorithms at " + Configuration.baseUri + "/algorithm\n";
+                    + "get a complete list of all available algorithms at " + Configuration.baseUri + "/algorithm"+NEWLINE;
             return sendMessage(message);
         }
         final Publisher publisher = new Publisher(variant.getMediaType());
@@ -141,7 +144,7 @@ public class AlgorithmResource extends YaqpResource {
                     new Fatal(getClass(), "error 500 occured when a client asked for the representation of the algorithm :"+algorithmName));
             String message = "We apologize for the inconvenience. This is an internal server error we are going to solve. "
                     + "The issue has been logged and the administrators of the site will fix it soon. "
-                    + "Thank you for your understanding!\n";
+                    + "Thank you for your understanding!"+NEWLINE;
             return sendMessage(message);
         }
     }
@@ -188,13 +191,17 @@ public class AlgorithmResource extends YaqpResource {
             final OutputProcessor representer = new OutputProcessor();
             Pipeline representationPipe = new Pipeline(publisher, representer);
             return (Representation ) representationPipe.process(trainedModel);
-        } catch (YaqpException ex) {
+        } catch (final YaqpException ex) {
             getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
-            return new StringRepresentation(ex.toString() + "\n");
-        } catch (Exception ex) {
+            if (ex.getCode() == Cause.XQF412){
+                final String tooSparseDataset = "The dataset you provided is too sparse, thus cannot be used to build a QSAR model.";
+                return sendMessage(tooSparseDataset + NEWLINE);
+            }
+            return sendMessage(ex.toString() + NEWLINE);
+        } catch (final Exception ex) {
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
             Logger.getLogger(AlgorithmResource.class.getName()).log(Level.SEVERE, null, ex);
-            return new StringRepresentation(ex.toString() + "\n");
+            return new StringRepresentation(ex.toString() + NEWLINE);
         }
     }
 

@@ -58,10 +58,7 @@ public abstract class WekaTrainer extends AbstractTrainer<Instances>{
 
     public WekaTrainer(final YaqpForm form) throws QSARException{
      super(form);
-    }
-
-    
-
+    }   
 
 
 }

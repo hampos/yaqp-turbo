@@ -38,6 +38,7 @@ import org.opentox.www.rest.components.YaqpApplication;
 import org.opentox.www.rest.resources.AlgorithmResource;
 import org.opentox.www.rest.resources.AlgorithmsResource;
 import org.opentox.www.rest.resources.ModelsResource;
+import org.opentox.www.rest.resources.ModelResource;
 import org.restlet.Context;
 import org.restlet.Restlet;
 import org.restlet.routing.Router;
@@ -61,6 +62,7 @@ final public class Applecation extends YaqpApplication {
         router.attach(AlgorithmResource.template.toString(), AlgorithmResource.class);
         router.attach(AlgorithmsResource.template.toString(), AlgorithmsResource.class);
         router.attach(ModelsResource.template.toString(), ModelsResource.class);
+        router.attach(ModelResource.template.toString(), ModelResource.class);
 
 
         return router;

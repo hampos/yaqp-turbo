@@ -29,8 +29,6 @@
  * Address: Iroon Politechniou St. 9, Zografou, Athens Greece
  * tel. +30 210 7723236
  */
-
-
 package org.opentox.ontology.components;
 
 import java.net.URI;
@@ -53,7 +51,7 @@ import org.opentox.ontology.util.YaqpAlgorithms;
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class ComponentList<H extends YaqpComponent> extends YaqpComponent implements List<H>{
+public class ComponentList<H extends YaqpComponent> extends YaqpComponent implements List<H> {
 
     private ArrayList<H> componentList = new ArrayList<H>();
 
@@ -73,12 +71,13 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent implem
     @Override
     public RDFObject getRDF() {
         RDFObject rdf = new RDFObject();
-        for (YaqpComponent comp : this){
-            if (comp!= null) rdf = new RDFObject( rdf.union(comp.getRDF()) );
+        for (YaqpComponent comp : this) {
+            if (comp != null) {
+                rdf = new RDFObject(rdf.union(comp.getRDF()));
+            }
         }
         return rdf;
     }
-
 
     @Override
     public JSONObject getJson() {
@@ -92,7 +91,7 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent implem
 
     public UriListObject getUriList() {
         ArrayList<URI> uriList = new ArrayList<URI>();
-        for (H component : componentList){
+        for (H component : componentList) {
             try {
                 uriList.add(component.uri());
             } catch (YaqpException ex) {
@@ -146,8 +145,16 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent implem
         return componentList.addAll(index, c);
     }
 
-    public H get(int i){
+    public H get(int i) {
         return componentList.get(i);
+    }
+
+    public H getFirst() {
+        return this.get(0);
+    }
+
+    public H getLast() {
+        return this.get(this.size() - 1);
     }
 
     public boolean removeAll(Collection<?> c) {
@@ -159,7 +166,7 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent implem
     }
 
     public void clear() {
-         componentList.clear();
+        componentList.clear();
     }
 
     public H set(int index, H element) {
@@ -201,5 +208,4 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent implem
     public boolean remove(Object o) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
 }

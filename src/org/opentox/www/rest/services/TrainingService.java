@@ -61,6 +61,7 @@ public class TrainingService implements Callable<QSARModel> {
     private User user;
     private Class<? extends JTrainer> trainer;
     private WekaTrainer wt;
+    private MediaType media;
 
     public TrainingService() {
     }
@@ -89,7 +90,7 @@ public class TrainingService implements Callable<QSARModel> {
         this.form = form;
         this.user = user;
         this.trainer = trainer;
-
+        this.media = outputMedia;
     }
 
     /**
