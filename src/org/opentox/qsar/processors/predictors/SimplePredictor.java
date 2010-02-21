@@ -38,8 +38,6 @@ import org.opentox.qsar.exceptions.QSARException;
 import org.opentox.qsar.processors.filters.AttributeCleanup;
 import org.opentox.qsar.processors.filters.AttributeCleanup.ATTRIBUTE_TYPE;
 import weka.classifiers.Classifier;
-import weka.classifiers.functions.SMO;
-import weka.classifiers.functions.SVMreg;
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
@@ -123,18 +121,30 @@ public final class SimplePredictor extends WekaPredictor {
                         double clsLabel = cls.classifyInstance(dataClone.instance(i));
                         predictionInstance.setValue(targetAttribute, clsLabel);
                     }else if (targetAttribute.type() == Attribute.NOMINAL) {
-                        
+
+                        long start = System.currentTimeMillis();
                         double[] clsLable = cls.distributionForInstance(dataClone.instance(i));
+                        System.out.println(System.currentTimeMillis()-start);
+
+                        start = System.currentTimeMillis();
                         int indexForNominalElement = maxInArray(clsLable).getPosition();
+                        System.out.println(System.currentTimeMillis()-start);
+
+                        start = System.currentTimeMillis();
                         Enumeration nominalValues = targetAttribute.enumerateValues();
+                        System.out.println(System.currentTimeMillis()-start);
+
+                        start = System.currentTimeMillis();
                         int counter = 0;
                         String nomValue = "";
                         while (nominalValues.hasMoreElements()) {
                             if (counter == indexForNominalElement){
                                 nomValue = nominalValues.nextElement().toString();
+                                break;
                             }
                             counter++;
                         }
+                        System.out.println(System.currentTimeMillis()-start);
                         System.out.println(nomValue);
                         predictionInstance.setValue(targetAttribute, nomValue);
 
