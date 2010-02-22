@@ -114,6 +114,7 @@ public final class SVCTrainer extends WekaClassifier {
      * @throws NullPointerException
      *      If the provided form is null.
      */
+    @SuppressWarnings({"unchecked"})
     public SVCTrainer(final YaqpForm form) throws QSARException {
         super(form);
 

@@ -88,6 +88,7 @@ public class ModelsResource extends YaqpResource {
     }
 
     @Override
+    @SuppressWarnings({"unchecked"}) 
     protected Representation get(final Variant variant) throws ResourceException {
         final MediaType requestMediaType = variant.getMediaType();
         boolean retrieveAllInformation = true;

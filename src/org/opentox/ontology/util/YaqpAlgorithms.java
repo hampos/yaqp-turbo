@@ -37,8 +37,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.config.Configuration;
 import org.opentox.ontology.components.Algorithm;
 import org.opentox.ontology.namespaces.OTAlgorithmTypes;
@@ -79,7 +77,7 @@ public class YaqpAlgorithms {
     public static final Algorithm SVM = new Algorithm(svm_metadata());
     public static final Algorithm SVC = new Algorithm(svc_metadata());
     public static final Algorithm NAIVE_BAYES = new Algorithm(naiveBayes_metadata());
-
+    public static final Algorithm CLEAN_UP = new Algorithm(cleanup_meta());
 
     /**
      * Returns an algorithm (from the set of algorithms listed in {@link YaqpAlgorithms }
@@ -287,6 +285,42 @@ public class YaqpAlgorithms {
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             meta.date = formatter.parse("2010-02-01");
+        } catch (ParseException ex) {
+            YaqpLogger.LOG.log(new Warning(YaqpAlgorithms.class, "(" + uri + ") Wrong date : " + ex));
+            meta.date = new Date(System.currentTimeMillis());
+        }
+
+        return meta;
+    }
+
+
+    public static AlgorithmMeta cleanup_meta(){
+         String name = "cleanup";
+        String uri = Configuration.BASE_URI + "/algorithm/" + name;
+        AlgorithmMeta meta = new AlgorithmMeta(uri);
+        meta.setName(name);
+        meta.setParameters(ConstantParameters.CleanUpParams());
+        meta.title = "Feature clean-up service";
+        // TODO: Provide a reference for SVM Regression
+        meta.description =
+                "Removes all features of certain type from a dataset (e.g. removes all string features) and " +
+                "ouputs the URI of a new cleaned-up dataset. Useful for all training algorithms as a preprocessing " +
+                "service.";
+        meta.subject =
+                "data cleanup, attribute cleanup, data filtering, data preprocessing, unsupervised";
+        meta.format.add(MediaType.APPLICATION_RDF_XML);
+        meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
+        meta.format.add(MediaType.TEXT_RDF_N3);
+        meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
+        meta.identifier = uri;
+        meta.type = "http://purl.org/dc/dcmitype/Service";
+        meta.audience.addAll(Audience.AllExpert);
+        meta.provenance = "Newly added algorithm on Feb 22, 2010";
+        meta.setAlgorithmType(OTAlgorithmTypes.DataCleanup);
+
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            meta.date = formatter.parse("2010-02-22");
         } catch (ParseException ex) {
             YaqpLogger.LOG.log(new Warning(YaqpAlgorithms.class, "(" + uri + ") Wrong date : " + ex));
             meta.date = new Date(System.currentTimeMillis());

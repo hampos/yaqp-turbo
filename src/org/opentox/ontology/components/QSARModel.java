@@ -382,6 +382,7 @@ public class QSARModel extends YaqpComponent {
 
 
 
+    @SuppressWarnings({"unchecked"})
     private Map<String, AlgorithmParameter> initParams() {
         Map<String,AlgorithmParameter> newParams = new HashMap<String,AlgorithmParameter>();
         newParams.put(ConstantParameters.gamma+"_min", new AlgorithmParameter(0.0));

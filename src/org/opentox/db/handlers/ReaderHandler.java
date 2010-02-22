@@ -645,6 +645,7 @@ public class ReaderHandler {
      * @see ReaderHandler#searchUser(org.opentox.ontology.components.User, org.opentox.db.util.Page)
      * @see ReaderHandler#searchQSARModelSkroutz(org.opentox.ontology.components.QSARModel, org.opentox.db.util.Page)
      */
+     @SuppressWarnings({"unchecked"})
     protected static ComponentList<QSARModel> searchQSARModel(QSARModel prototype, Page page) throws DbException {
         if(prototype == null){
              throw new NullPointerException("QSARModel prototype provided is null");

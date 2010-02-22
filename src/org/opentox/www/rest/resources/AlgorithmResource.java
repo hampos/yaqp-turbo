@@ -31,8 +31,6 @@
  */
 package org.opentox.www.rest.resources;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
@@ -54,7 +52,6 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
 
@@ -73,13 +70,8 @@ public class AlgorithmResource extends YaqpResource {
     /** URI Template */
     public static final URITemplate template = new URITemplate("algorithm", "algorithm_id", null);
 
-    private static final String NEWLINE = "\n";
 
-    private static final String _500_ =
-            "We apologize for the inconvenience - Unknown Exception Caught. "
-            + "Information about this exception are logged and "
-            + "the administrators will be notified to fix this as soon as possible. If the problem remains, "
-            + "please contant the service administrators at chvng(a)mail(d0t]ntua{D0t]gr ." + NEWLINE;
+    
     /**
      * Trainer class used to perform the training
      */
@@ -126,6 +118,7 @@ public class AlgorithmResource extends YaqpResource {
      *      In case the representation cannot be generated and returned to the client.
      */
     @Override
+    @SuppressWarnings({"unchecked"})
     protected Representation get(final Variant variant) throws ResourceException {        
         final Algorithm a = YaqpAlgorithms.getByName(algorithmName);
         // IF THE REQUESTED ALGORITHM WAS NOT FOUND, RETURN AN EXPLANATORY MESSAGE
@@ -134,7 +127,7 @@ public class AlgorithmResource extends YaqpResource {
             getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
             String message =
                     "You have requested an algorithm which does not exist (" + algorithmName + "). You can "
-                    + "get a complete list of all available algorithms at " + Configuration.BASE_URI + "/algorithm"+NEWLINE;
+                    + "get a complete list of all available algorithms at " + Configuration.BASE_URI + "/algorithm" + NEWLINE;
             return sendMessage(message);
         }
         final Publisher publisher = new Publisher(variant.getMediaType());
@@ -166,6 +159,7 @@ public class AlgorithmResource extends YaqpResource {
      *      In case the training cannot be performed due to client or server error
      */
     @Override
+    @SuppressWarnings({"unchecked"})
     protected Representation post(Representation entity, final Variant variant) throws ResourceException {
         // CHECK IF THE ALGORITHM EXISTS...
         final Algorithm a = YaqpAlgorithms.getByName(algorithmName);

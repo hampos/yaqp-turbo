@@ -48,6 +48,14 @@ import org.restlet.resource.ServerResource;
  * @author Charalampos Chomenides
  */
 public abstract class YaqpResource extends ServerResource {
+    
+    protected  static final String NEWLINE = "\n";
+
+    protected static final String _500_ =
+            "We apologize for the inconvenience - Unknown Exception Caught. "
+            + "Information about this exception are logged and "
+            + "the administrators will be notified to fix this as soon as possible. If the problem remains, "
+            + "please contant the service administrators at chvng(a)mail(d0t]ntua{D0t]gr ." + NEWLINE;
 
     public void initialize(Collection<MediaType> supportedMedia) {
         super.doInit();
@@ -82,5 +90,16 @@ public abstract class YaqpResource extends ServerResource {
         return new StringRepresentation(message, MediaType.TEXT_PLAIN, Language.ENGLISH, CharacterSet.UTF_8);
     }
 
+    protected void toggleBadRequest(){
+        getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+    }
+
+    protected void toggleNotFound(){
+        getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+    }
+
+    protected void toggleServerError(){
+        getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+    }
 
 }

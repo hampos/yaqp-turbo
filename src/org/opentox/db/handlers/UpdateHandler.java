@@ -176,6 +176,7 @@ public class UpdateHandler {
      * @throws DbException
      * @throws ImproperEntityException
      */
+    @SuppressWarnings({"unchecked"})
     private static YaqpComponent fixNull(YaqpComponent prototype) throws DbException, ImproperEntityException {
         try {
             YaqpComponent old = ReaderHandler.search(prototype.getSkroutz(), null, false).get(0);

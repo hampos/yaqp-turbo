@@ -89,6 +89,7 @@ public class PredictionService implements Callable<Representation> {
         this.form = form;
     }
 
+    @SuppressWarnings({"unchecked"})
     public Representation call() throws QSARException, YaqpException  {
         InputProcessor p1 = new InputProcessor();            // URI      -->  OntObject
         DatasetBuilder p2 = new DatasetBuilder();           // OntObject -->  Dataset

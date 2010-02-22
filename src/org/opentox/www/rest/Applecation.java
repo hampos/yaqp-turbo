@@ -39,6 +39,7 @@ import java.util.logging.Level;
 import org.opentox.www.rest.components.YaqpApplication;
 import org.opentox.www.rest.resources.AlgorithmResource;
 import org.opentox.www.rest.resources.AlgorithmsResource;
+import org.opentox.www.rest.resources.ModelMetaResource;
 import org.opentox.www.rest.resources.ModelsResource;
 import org.opentox.www.rest.resources.ModelResource;
 import org.restlet.Context;
@@ -58,7 +59,7 @@ final public class Applecation extends YaqpApplication {
         Formatter formatter = new LoggingFormatter();
         fh.setFormatter(formatter);
         Context.getCurrentLogger().addHandler(fh);
-        Context.getCurrentLogger().setLevel(Level.SEVERE);
+        Context.getCurrentLogger().setLevel(Level.OFF);
     }
 
     @Override
@@ -69,6 +70,7 @@ final public class Applecation extends YaqpApplication {
         router.attach(AlgorithmsResource.template.toString(), AlgorithmsResource.class);
         router.attach(ModelsResource.template.toString(), ModelsResource.class);
         router.attach(ModelResource.template.toString(), ModelResource.class);
+        router.attach(ModelMetaResource.template.toString(), ModelMetaResource.class);
 
         return router;
     }
