@@ -35,7 +35,7 @@ package org.opentox.www.rest.services;
 
 import org.opentox.ontology.components.Algorithm;
 import org.opentox.ontology.util.YaqpAlgorithms;
-import org.opentox.qsar.interfaces.JTrainer;
+import org.opentox.qsar.processors.filters.AttributeCleanup;
 import org.opentox.qsar.processors.trainers.classification.NaiveBayesTrainer;
 import org.opentox.qsar.processors.trainers.classification.SVCTrainer;
 import org.opentox.qsar.processors.trainers.regression.MLRTrainer;
@@ -50,13 +50,14 @@ public enum Trainers {
     mlr("mlr", MLRTrainer.class, YaqpAlgorithms.MLR),
     svm("svm", SVMTrainer.class, YaqpAlgorithms.SVM),
     svc("svc", SVCTrainer.class, YaqpAlgorithms.SVC),
-    naiveBayes("naiveBayes", NaiveBayesTrainer.class, YaqpAlgorithms.NAIVE_BAYES);
+    naiveBayes("naiveBayes", NaiveBayesTrainer.class, YaqpAlgorithms.NAIVE_BAYES),
+    cleanup("cleanup", AttributeCleanup.class, YaqpAlgorithms.CLEAN_UP);
 
     private Class trainer;
     private Algorithm algorithmEntity;
     private String name;
 
-    private Trainers(String name, Class<? extends JTrainer> trainer, Algorithm algorithmEntity) {
+    private Trainers(String name, Class trainer, Algorithm algorithmEntity) {
         this.name = name;
         this.trainer = trainer;
         this.algorithmEntity = algorithmEntity;

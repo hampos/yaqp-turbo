@@ -31,16 +31,27 @@
  */
 package org.opentox.www.rest.resources;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Pipeline;
+import org.opentox.io.processors.InputProcessor;
 import org.opentox.io.processors.OutputProcessor;
 import org.opentox.io.processors.Publisher;
 import org.opentox.ontology.components.Algorithm;
 import org.opentox.ontology.components.QSARModel;
 import org.opentox.ontology.components.User;
+import org.opentox.ontology.data.DatasetBuilder;
+import org.opentox.ontology.processors.InstancesProcessor;
 import org.opentox.ontology.util.YaqpAlgorithms;
+import org.opentox.ontology.util.vocabulary.ConstantParameters;
+import org.opentox.qsar.processors.filters.AttributeCleanup;
+import org.opentox.qsar.processors.filters.AttributeCleanup.ATTRIBUTE_TYPE;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Fatal;
 import org.opentox.www.rest.components.URITemplate;
@@ -52,8 +63,11 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
+import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
+import weka.core.Attribute;
+import weka.core.Instances;
 
 /**
  *
@@ -66,6 +80,7 @@ import org.restlet.resource.ResourceException;
  * @author Charalampos Chomenides
  */
 public class AlgorithmResource extends YaqpResource {
+    
 
     /** URI Template */
     public static final URITemplate template = new URITemplate("algorithm", "algorithm_id", null);
@@ -99,7 +114,7 @@ public class AlgorithmResource extends YaqpResource {
 
         algorithmName = Reference.decode(getRequest().getAttributes().get(template.getPrimaryKey()).toString());
         try{
-            trainer = Trainers.valueOf(algorithmName).getTrainer();
+            trainer = Trainers.valueOf(algorithmName).getTrainer();            
         } catch (IllegalArgumentException ex){
             trainer = null;
         }
@@ -124,7 +139,7 @@ public class AlgorithmResource extends YaqpResource {
         // IF THE REQUESTED ALGORITHM WAS NOT FOUND, RETURN AN EXPLANATORY MESSAGE
         // AND SET THE STATUS CODE TO 404.
         if (a == null) {
-            getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+            toggleNotFound();
             String message =
                     "You have requested an algorithm which does not exist (" + algorithmName + "). You can "
                     + "get a complete list of all available algorithms at " + Configuration.BASE_URI + "/algorithm" + NEWLINE;
@@ -134,10 +149,10 @@ public class AlgorithmResource extends YaqpResource {
         final OutputProcessor representer = new OutputProcessor();
         final Pipeline pipe = new Pipeline(publisher, representer);
         try {
-            getResponse().setStatus(Status.SUCCESS_OK);
+            toggleSuccess();
             return (Representation) pipe.process(a);
         } catch (final YaqpException ex) {
-            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+            toggleServerError();
             YaqpLogger.LOG.log(
                     new Fatal(getClass(), "error 500 occured when a client asked for the representation of the algorithm :"+algorithmName));
             return sendMessage(_500_);
@@ -164,13 +179,24 @@ public class AlgorithmResource extends YaqpResource {
         // CHECK IF THE ALGORITHM EXISTS...
         final Algorithm a = YaqpAlgorithms.getByName(algorithmName);
         if (a == null) {
-            getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+            toggleNotFound();
             String message =
                     "You have requested an algorithm which does not exist (" + algorithmName + "). You can"
                     + "get a complete list of all available algorithms at " + Configuration.BASE_URI + "/algorithm"+NEWLINE;
             return sendMessage(message);
         }
 
+        if (this.algorithmName.equals(YaqpAlgorithms.CLEAN_UP.getMeta().getName())){
+            return filterData(entity, variant);
+        }else{
+            return trainModel(entity, variant);
+        }        
+       
+    }
+
+
+
+    private Representation trainModel(final Representation entity, final Variant variant){
         // THE DEFAULT MEDIATYPE OF THE RESPONSE IS text/uri-list UNLESS THE CLIENT ASKS FOR
         // SOMETHING DIFFERENT SETTING THE 'Accept' HEADER OF THE REQUEST ACCORDINGLY, TO ONE OF THE
         // SUPPORTED MEDIATYPES.
@@ -190,10 +216,10 @@ public class AlgorithmResource extends YaqpResource {
             try{
                 trainedModel = new TrainingService(new YaqpForm(entity), new User(), trainer, responseMedia).call();
             } catch (final YaqpException ex){
-                getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                toggleBadRequest();
                 return sendMessage(ex.toString()+NEWLINE);
             } catch (final Exception ex){
-                getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+                toggleServerError();
                 return sendMessage(_500_);
             }
             /**
@@ -206,17 +232,52 @@ public class AlgorithmResource extends YaqpResource {
             Pipeline representationPipe = new Pipeline(publisher, representer);
             return (Representation ) representationPipe.process(trainedModel);
         } catch (final YaqpException ex) {
-            getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+            toggleBadRequest();
             if (ex.getCode() == Cause.XQF412){
                 final String tooSparseDataset = "The dataset you provided is too sparse, thus cannot be used to build a QSAR model.";
                 return sendMessage(tooSparseDataset + NEWLINE);
             }
             return sendMessage(ex.toString() + NEWLINE);
         } catch (final Exception ex) {
-            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+            toggleServerError();
             YaqpLogger.LOG.log(new Fatal(getClass(), ex.toString()));
             return sendMessage(_500_);
         }
+    }
+
+
+    private Representation filterData(final Representation entity, final Variant variant){
+        InputProcessor p1 = new InputProcessor();
+        DatasetBuilder p2 = new DatasetBuilder();
+        InstancesProcessor p3 = new InstancesProcessor();
+        AttributeCleanup p4 = new AttributeCleanup(ATTRIBUTE_TYPE.string);
+        Pipeline pipe = new Pipeline(p1,p2,p3,p4);
+        
+        YaqpForm form = new YaqpForm(entity);
+        URI uri;
+        try {
+            uri = new URI(form.getFirstValue(ConstantParameters.dataset_uri));
+        } catch (URISyntaxException ex) {
+            toggleBadRequest();
+            return sendMessage("Inacceptable URI ("+form.getFirstValue(ConstantParameters.dataset_uri)+")"+NEWLINE);
+        }
+        Instances filteredData = null;
+        try {
+            filteredData = (Instances) pipe.process(uri);
+        } catch (YaqpException ex) {
+            toggleBadRequest();
+            return sendMessage(ex.toString());
+        }
+
+        Enumeration attributes = filteredData.enumerateAttributes();
+        String list = "";
+        Attribute att;
+        while (attributes.hasMoreElements()){
+            att = (Attribute) attributes.nextElement();
+            list += "feature_uris[]="+att.name();
+            if (attributes.hasMoreElements()) list += "&";
+        }
+        return new StringRepresentation(uri+"?"+list, MediaType.TEXT_URI_LIST);
     }
 
 

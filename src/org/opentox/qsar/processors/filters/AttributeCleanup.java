@@ -33,6 +33,7 @@ package org.opentox.qsar.processors.filters;
 
 import org.opentox.core.exceptions.Cause;
 import org.opentox.qsar.exceptions.QSARException;
+import org.opentox.www.rest.components.YaqpForm;
 import weka.core.Instances;
 import weka.filters.unsupervised.attribute.RemoveType;
 
@@ -63,6 +64,10 @@ public class AttributeCleanup extends InstancesFilter {
     public AttributeCleanup() {
         super();
         this.toBeRemoved = new ATTRIBUTE_TYPE[]{ATTRIBUTE_TYPE.string};
+    }
+
+    public AttributeCleanup(final YaqpForm form){
+        
     }
 
     public AttributeCleanup(ATTRIBUTE_TYPE... toBeRemoved) {

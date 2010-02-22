@@ -102,4 +102,8 @@ public abstract class YaqpResource extends ServerResource {
         getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
     }
 
+    protected void toggleSuccess(){
+        getResponse().setStatus(Status.SUCCESS_OK);
+    }
+
 }
