@@ -106,6 +106,7 @@ final public class SVMTrainer extends WekaRegressor {
     private String kernel = ConstantParameters.SVMParams().get(ConstantParameters.kernel).paramValue.toString();
 
 
+    @SuppressWarnings({"unchecked"})
     public SVMTrainer(final YaqpForm form) throws QSARException {
         super(form);
         

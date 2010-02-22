@@ -104,6 +104,7 @@ public abstract class AbstractTrainer<Input> extends Processor<Input, QSARModel>
         uuid = UUID.randomUUID();
     }
 
+    @SuppressWarnings({"unchecked"})
     public AbstractTrainer(YaqpForm form) throws QSARException{
         if (form == null) throw new NullPointerException("The provided form must not be null");
         this.datasetUri = form.getFirstValue(ConstantParameters.dataset_uri);

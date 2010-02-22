@@ -64,9 +64,9 @@ import org.restlet.resource.ResourceException;
  */
 public class ModelResource extends YaqpResource {
 
-    public static final URITemplate template = new URITemplate("model", "model_id", null);
+    public static final URITemplate template = URITemplate.primarySubtemplateOf(ModelsResource.template, "modelId");
     private String model_id;
-    private static final String NEWLINE = "\n";
+    
     private static final String modelNotFoundMessage = "The model you are looking for was not found on the server. Check out "
             + Configuration.BASE_URI + ModelsResource.template.toString() + " for a complete list of the "
             + "available models." + NEWLINE;
@@ -90,7 +90,8 @@ public class ModelResource extends YaqpResource {
 
     // TODO: Better exception handling and status codes.
     @Override
-    protected Representation get(Variant variant) throws ResourceException {
+    @SuppressWarnings({"unchecked"})
+    protected Representation get(Variant variant) throws ResourceException {        
         QSARModel prototype = new QSARModel();
         try {
             prototype.setId(Integer.parseInt(model_id));
@@ -151,6 +152,10 @@ public class ModelResource extends YaqpResource {
                     + "in a while");
         }
 
+        /*
+         * Apply the prediction service to calculate the predictions and
+         * POST the results to a dataset service.
+         */
         PredictionService service;
         try {
             service = new PredictionService(new YaqpForm(entity), model_id, new User(), SimplePredictor.class, variant.getMediaType());            

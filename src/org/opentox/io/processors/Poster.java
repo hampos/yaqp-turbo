@@ -48,6 +48,7 @@ import org.opentox.ontology.util.YaqpAlgorithms;
 import org.restlet.Client;
 import org.restlet.Response;
 import org.restlet.data.Protocol;
+import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.representation.OutputRepresentation;
 
@@ -57,23 +58,19 @@ import org.restlet.representation.OutputRepresentation;
  * @author Charalampos Chomenides
  */
 public class Poster
-        extends AbstractIOProcessor<JPublishable, Response>
-{
+        extends AbstractIOProcessor<JPublishable, Response> {
 
     private String whereToPost = "";
 
-
     public Poster(String whereToPost) throws YaqpIOException {
-        try{
+        try {
             new URI(whereToPost);
             this.whereToPost = whereToPost;
-        } catch (URISyntaxException ex){
+        } catch (URISyntaxException ex) {
             throw new YaqpIOException(Cause.XIO5050,
-                    "Invalid URI parameter : {"+whereToPost+"}" , ex);
+                    "Invalid URI parameter : {" + whereToPost + "}", ex);
         }
     }
-
-
 
     public Response handle(final JPublishable objectToPost) throws YaqpException {
 
@@ -90,25 +87,21 @@ public class Poster
         };
 
         Client cli = new Client(Protocol.HTTP);
-        int N_RETRIES =5, i=0;
+        int N_RETRIES = 5, i = 0;
         boolean success = false;
 
         Response response = new Response(null);
 
-        while (!success && i < N_RETRIES){
-             response = cli.post(whereToPost, rep);
-             success = (response.getStatus().equals(Status.SUCCESS_OK));
-             i++;
-        }
+
+        response = cli.post(whereToPost, rep);
+        i++;
 
         return response;
     }
 
-    public static void main(String... args) throws YaqpException{
+    public static void main(String... args) throws YaqpException {
         RDFObject rdf = YaqpAlgorithms.MLR.getRDF();
-        Poster p = new Poster(ServerList.ambit+"/feature");
+        Poster p = new Poster(ServerList.ambit + "/feature");
         System.out.println(p.handle(rdf).toString());
     }
-
-
 }

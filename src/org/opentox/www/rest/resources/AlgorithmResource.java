@@ -31,8 +31,6 @@
  */
 package org.opentox.www.rest.resources;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
@@ -54,7 +52,6 @@ import org.restlet.data.MediaType;
 import org.restlet.data.Reference;
 import org.restlet.data.Status;
 import org.restlet.representation.Representation;
-import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
 
@@ -70,11 +67,11 @@ import org.restlet.resource.ResourceException;
  */
 public class AlgorithmResource extends YaqpResource {
 
-    private static final String NEWLINE = "";
-
     /** URI Template */
     public static final URITemplate template = new URITemplate("algorithm", "algorithm_id", null);
 
+
+    
     /**
      * Trainer class used to perform the training
      */
@@ -121,6 +118,7 @@ public class AlgorithmResource extends YaqpResource {
      *      In case the representation cannot be generated and returned to the client.
      */
     @Override
+    @SuppressWarnings({"unchecked"})
     protected Representation get(final Variant variant) throws ResourceException {        
         final Algorithm a = YaqpAlgorithms.getByName(algorithmName);
         // IF THE REQUESTED ALGORITHM WAS NOT FOUND, RETURN AN EXPLANATORY MESSAGE
@@ -128,8 +126,8 @@ public class AlgorithmResource extends YaqpResource {
         if (a == null) {
             getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
             String message =
-                    "You have requested an algorithm which does not exist (" + algorithmName + "). You can"
-                    + "get a complete list of all available algorithms at " + Configuration.BASE_URI + "/algorithm"+NEWLINE;
+                    "You have requested an algorithm which does not exist (" + algorithmName + "). You can "
+                    + "get a complete list of all available algorithms at " + Configuration.BASE_URI + "/algorithm" + NEWLINE;
             return sendMessage(message);
         }
         final Publisher publisher = new Publisher(variant.getMediaType());
@@ -142,10 +140,7 @@ public class AlgorithmResource extends YaqpResource {
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
             YaqpLogger.LOG.log(
                     new Fatal(getClass(), "error 500 occured when a client asked for the representation of the algorithm :"+algorithmName));
-            String message = "We apologize for the inconvenience. This is an internal server error we are going to solve. "
-                    + "The issue has been logged and the administrators of the site will fix it soon. "
-                    + "Thank you for your understanding!"+NEWLINE;
-            return sendMessage(message);
+            return sendMessage(_500_);
         }
     }
 
@@ -164,7 +159,17 @@ public class AlgorithmResource extends YaqpResource {
      *      In case the training cannot be performed due to client or server error
      */
     @Override
+    @SuppressWarnings({"unchecked"})
     protected Representation post(Representation entity, final Variant variant) throws ResourceException {
+        // CHECK IF THE ALGORITHM EXISTS...
+        final Algorithm a = YaqpAlgorithms.getByName(algorithmName);
+        if (a == null) {
+            getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+            String message =
+                    "You have requested an algorithm which does not exist (" + algorithmName + "). You can"
+                    + "get a complete list of all available algorithms at " + Configuration.BASE_URI + "/algorithm"+NEWLINE;
+            return sendMessage(message);
+        }
 
         // THE DEFAULT MEDIATYPE OF THE RESPONSE IS text/uri-list UNLESS THE CLIENT ASKS FOR
         // SOMETHING DIFFERENT SETTING THE 'Accept' HEADER OF THE REQUEST ACCORDINGLY, TO ONE OF THE
@@ -181,7 +186,16 @@ public class AlgorithmResource extends YaqpResource {
          * Perform the training calling a Training Service.
          */
         try {
-            QSARModel trainedModel = new TrainingService(new YaqpForm(entity), new User(), trainer, responseMedia).call();
+            QSARModel trainedModel = null;
+            try{
+                trainedModel = new TrainingService(new YaqpForm(entity), new User(), trainer, responseMedia).call();
+            } catch (final YaqpException ex){
+                getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST);
+                return sendMessage(ex.toString()+NEWLINE);
+            } catch (final Exception ex){
+                getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
+                return sendMessage(_500_);
+            }
             /**
              * In the future, training services (i.e. the class TrainingService) will be submitted in
              * an executor and a task will be created right afterwards. The URI of the created task will
@@ -200,8 +214,8 @@ public class AlgorithmResource extends YaqpResource {
             return sendMessage(ex.toString() + NEWLINE);
         } catch (final Exception ex) {
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
-            Logger.getLogger(AlgorithmResource.class.getName()).log(Level.SEVERE, null, ex);
-            return new StringRepresentation(ex.toString() + NEWLINE);
+            YaqpLogger.LOG.log(new Fatal(getClass(), ex.toString()));
+            return sendMessage(_500_);
         }
     }
 

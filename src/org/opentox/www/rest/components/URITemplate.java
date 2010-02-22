@@ -95,6 +95,14 @@ public final class URITemplate {
         return "{"+in+"}";
     }
 
+    public static URITemplate primarySubtemplateOf(URITemplate other, String primaryKey){
+        return new URITemplate(other.getBase(), primaryKey, "");
+    }
+
+    public static URITemplate secondarySubTemplateOf(URITemplate other, String metaKey){
+        return new URITemplate(other.getBase(), other.getPrimaryKey(), metaKey);
+    }
+
     public static void main(String[] args){
         URITemplate template = new URITemplate("algorithm", "algorithm_id", null);
         System.out.println(template.getPrimaryKey());

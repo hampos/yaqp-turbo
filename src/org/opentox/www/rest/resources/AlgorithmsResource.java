@@ -87,9 +87,9 @@ public class AlgorithmsResource extends YaqpResource {
             final MediaType requestMediaType = variant.getMediaType();
             final Publisher publisher = new Publisher(requestMediaType);
             final OutputProcessor representer = new OutputProcessor();
-            final Pipeline pipe = new Pipeline(publisher, representer);
+            @SuppressWarnings({"unchecked"})  final Pipeline pipe = new Pipeline(publisher, representer);
             ComponentList<YaqpComponent> algorithmList = ReaderHandler.search(new Algorithm(), new Page(), false);
-            YaqpRepresentation representation = (YaqpRepresentation) pipe.process(algorithmList);
+            @SuppressWarnings({"unchecked"})  YaqpRepresentation representation = (YaqpRepresentation) pipe.process(algorithmList);
             return representation;
         } catch (YaqpException ex) {
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);

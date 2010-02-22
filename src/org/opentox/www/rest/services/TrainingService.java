@@ -37,6 +37,7 @@ import java.net.URI;
 import java.util.concurrent.Callable;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
+import org.opentox.core.interfaces.JProcessor;
 import org.opentox.core.processors.Pipeline;
 import org.opentox.io.processors.InputProcessor;
 import org.opentox.ontology.components.QSARModel;
@@ -105,8 +106,8 @@ public class TrainingService implements Callable<QSARModel> {
      *      This is considered to be a programmatic error or bug of the code and should
      *      not be returned.
      */
+    @SuppressWarnings({"unchecked"})
     public QSARModel call() throws Exception {
-
         InputProcessor p1 = new InputProcessor();
         DatasetBuilder p2 = new DatasetBuilder();
         InstancesProcessor p3 = new InstancesProcessor();

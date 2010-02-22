@@ -53,7 +53,8 @@ public class ConstantParameters {
             cacheSize = "cacheSize",
             epsilon = "epsilon",
             prediction_feature = "prediction_feature",
-            dataset_uri="dataset_uri";
+            dataset_uri="dataset_uri",
+            attribure_type="attribute_type";
 
 
     public static Map<String, AlgorithmParameter> SVCParams() {
@@ -73,5 +74,11 @@ public class ConstantParameters {
         map.putAll(SVCParams());
         map.put(epsilon, new AlgorithmParameter<Double>(XSDDatatype.XSDdouble, 0.100, AlgorithmParameter.SCOPE.optional));
         return map;
+    }
+
+    public static Map<String, AlgorithmParameter> CleanUpParams(){
+         Map<String, AlgorithmParameter> map = new HashMap<String, AlgorithmParameter>();
+         map.put(attribure_type, new AlgorithmParameter(XSDDatatype.XSDstring, "string", AlgorithmParameter.SCOPE.optional));
+         return map;
     }
 }

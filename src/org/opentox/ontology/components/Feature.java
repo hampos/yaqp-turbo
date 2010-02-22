@@ -195,7 +195,7 @@ public class Feature extends YaqpComponent {
                         feaTure.addProperty(OWL.sameAs, it.next().getObject().toString());
                     }
                     
-                } catch (YaqpIOException ex) {
+                } catch (YaqpException ex) {
                     System.out.println(ex);
                 } catch (URISyntaxException ex) { /* What should I do??? */  System.out.println(ex);}
             }
