@@ -208,4 +208,9 @@ public class ComponentList<H extends YaqpComponent> extends YaqpComponent implem
     public boolean remove(Object o) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+    
+    @Override
+    public YaqpComponent getSkroutz(){
+        throw new UnsupportedOperationException("ComponentList Component is not searchable and does not support Skroutz mode.");
+    }
 }

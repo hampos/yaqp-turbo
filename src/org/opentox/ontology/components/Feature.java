@@ -239,4 +239,26 @@ public class Feature extends YaqpComponent {
     public UriListObject getUriList() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
+
+    @Override
+    public Feature getSkroutz(){
+        return new Feature(this.getID());
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if(obj.getClass() == this.getClass()){
+            Feature feature = (Feature) obj;
+            return (this.getID() == feature.getID());
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 37 * hash + this.id;
+        return hash;
+    }
 }

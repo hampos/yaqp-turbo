@@ -295,19 +295,19 @@ public class ReaderHandlerTest {
     }
 
 
-//    /**
-//     * Get all users - check if it works
-//     * @throws DbException
-//     */
-//    @Test
-//    public void searchForUser() throws DbException {
-//        System.out.println("-- serch user - test 1 --");
-//        User prototype = new User();
-//        ComponentList<User> list = ReaderHandler.searchUser(prototype, new Page(0, 0));
-//        for (User user : list.getComponentList()) {
-//            System.out.println(user);
-//        }
-//    }
+    /**
+     * Get all users - check if it works
+     * @throws DbException
+     */
+   // @Test
+    public void searchForUser() throws DbException {
+        System.out.println("-- serch user - test 1 --");
+        User prototype = new User();
+        ComponentList<User> list = ReaderHandler.searchUser(prototype, new Page(0, 0));
+        for (User user : list.getComponentList()) {
+            System.out.println(user);
+        }
+    }
 //
 //    /**
 //     * Check if the page size works.
@@ -477,22 +477,20 @@ public class ReaderHandlerTest {
 //        }
 //    }
 //
-//    @Test
-//    public void getTasks() throws DbException {
-//        System.out.println("---------------- search TASK ------------");
-//
-//        Task task = new Task();
-//        User u = new User();
-//
-//        u.setEmail("john@foo.goo.gr");
-//        task.setUser(u);
-//        ComponentList<Task> tasks = ReaderHandler.searchTask(task, new Page());
-//        for (Task t : tasks.getComponentList()) {
-//            System.out.println(t.getName());
-//            System.out.println(t.getUser().getEmail());
-//            System.out.println(t.getAlgorithm().getMeta().getName());
-//        }
-//    }
+    //@Test
+    public void getTasks() throws DbException {
+        System.out.println("---------------- search TASK ------------");
+
+        Task task = new Task();
+        User u = new User();
+
+        //u.setEmail("john@foo.goo.gr");
+        task.setUser(u);
+        ComponentList<Task> tasks = ReaderHandler.searchTask(task, new Page());
+        for (Task t : tasks.getComponentList()) {
+            System.out.println(t);
+        }
+    }
 //
 //    @Test
 //    public void getTasksSkroutz() throws DbException {

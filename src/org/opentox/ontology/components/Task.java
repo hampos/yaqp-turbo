@@ -86,8 +86,10 @@ public class Task extends YaqpComponent {
     
 
     public Task() {
-        //setTaskStatus(STATUS.RUNNING);
-        //httpStatus = 202;
+    }
+
+    public Task(String name){
+        this.name = name;
     }
 
     public Task(String name, STATUS taskStatus, User user, Algorithm algorithm, int httpStatus,
@@ -311,5 +313,28 @@ public class Task extends YaqpComponent {
         } catch (URISyntaxException ex) {
             throw new YaqpException(Cause.XTC743, "Improper URI", ex);
         }
+    }
+
+    @Override
+    public Task getSkroutz(){
+        return new Task(this.getName());
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if(obj.getClass() == this.getClass()){
+            Task task = (Task) obj;
+            boolean res = (getName()==null && task.getName() == null);
+            return res || (this.getName().equals(task.getName()));
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + (this.name != null ? this.name.hashCode() : 0);
+        return hash;
     }
 }

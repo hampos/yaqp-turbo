@@ -96,28 +96,7 @@ public class Algorithm extends YaqpComponent {
         this.metadata = metadata;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof Algorithm){
-            Algorithm alg = (Algorithm) obj;
-            return this.getMeta().getName().equals(alg.getMeta().getName());
-        }else return false;       
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 5;
-        hash = 79 * hash + (this.metadata != null ? this.metadata.hashCode() : 0);
-        return hash;
-    }
-
-    @Override
-    public String toString() {
-        String algorithm = "";
-        algorithm += "--ALGORITHM--\n";
-        algorithm += "NAME          : "+metadata.getName()+"\n";
-        return algorithm;
-    }
+    
 
     @Override
     public PDFObject getPDF() {
@@ -374,5 +353,35 @@ public class Algorithm extends YaqpComponent {
             return null;
         }
 
+    }
+
+    @Override
+    public YaqpComponent getSkroutz(){
+        throw new UnsupportedOperationException("Algorithm Component is not searchable and does not support Skroutz mode.");
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if(obj.getClass() == this.getClass()){
+            Algorithm alg = (Algorithm) obj;
+            boolean result = ((getMeta()==null && alg.getMeta() == null) || (getMeta().getName()==null && alg.getMeta().getName() == null));
+            return result || (this.getMeta().getName().equals(alg.getMeta().getName()));
+        }else{
+            return false;
+        }
+    }
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 79 * hash + (this.metadata != null ? this.metadata.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public String toString() {
+        String algorithm = "";
+        algorithm += "--ALGORITHM--\n";
+        algorithm += "NAME          : "+metadata.getName()+"\n";
+        return algorithm;
     }
 }

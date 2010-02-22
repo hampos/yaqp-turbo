@@ -263,4 +263,27 @@ public class UserGroup extends YaqpComponent {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public UserGroup getSkroutz(){
+        return new UserGroup(this.getName());
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if(obj.getClass() == this.getClass()){
+            UserGroup group = (UserGroup) obj;
+            boolean result = (getName()==null && group.getName() == null);
+            return result || (this.getName().equals(group.getName()));
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + (this.name != null ? this.name.hashCode() : 0);
+        return hash;
+    }
+
 }

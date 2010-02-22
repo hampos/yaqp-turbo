@@ -115,6 +115,6 @@ public abstract class YaqpComponent implements Serializable {
     }
 
     protected abstract String getTag();
-
+    public abstract YaqpComponent getSkroutz();
     
 }

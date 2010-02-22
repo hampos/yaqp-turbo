@@ -32,6 +32,8 @@
 package org.opentox.ontology.components;
 
 import java.lang.reflect.Field;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.io.publishable.JSONObject;
 import org.opentox.io.publishable.PDFObject;
@@ -51,7 +53,7 @@ import org.opentox.util.logging.levels.Trace;
  */
 public class AlgorithmOntology extends YaqpComponent {
 
-    public static final long serialVersionUID = -18477218374326540L;
+    //public static final long serialVersionUID = -18477218374326540L;
     private String name = null,
                    uri = null;
     private OTAlgorithmTypes type;
@@ -153,5 +155,32 @@ public class AlgorithmOntology extends YaqpComponent {
     @Override
     public UriListObject getUriList() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public AlgorithmOntology getSkroutz(){
+        try {
+             return new AlgorithmOntology(this.getName());
+        } catch (YaqpOntException ex) {
+            throw new IllegalArgumentException(ex);
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if(obj.getClass() == this.getClass()){
+            AlgorithmOntology ont = (AlgorithmOntology) obj;
+            boolean result = (getName()==null && ont.getName() == null);
+            return result || (this.getName().equals(ont.getName()));
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 41 * hash + (this.name != null ? this.name.hashCode() : 0);
+        return hash;
     }
 }

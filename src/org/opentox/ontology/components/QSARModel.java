@@ -80,7 +80,7 @@ public class QSARModel extends YaqpComponent {
 
     private boolean hasVec = false;
     private final double doubleMax = (double)Integer.MAX_VALUE;
-   
+
 
     public enum ModelStatus {
 
@@ -106,6 +106,10 @@ public class QSARModel extends YaqpComponent {
 
     public QSARModel() {
         super();
+    }
+
+    private QSARModel(int id) {
+        this.id = id;
     }
 
     public QSARModel(
@@ -539,6 +543,28 @@ public class QSARModel extends YaqpComponent {
         } catch (YaqpException ex) {
             return null;
         }
+    }
+
+    @Override
+    public QSARModel getSkroutz(){
+        return new QSARModel(this.getId());
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if(obj.getClass() == this.getClass()){
+            QSARModel model = (QSARModel) obj;
+            return (this.getId() == model.getId());
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 59 * hash + this.id;
+        return hash;
     }
 
 

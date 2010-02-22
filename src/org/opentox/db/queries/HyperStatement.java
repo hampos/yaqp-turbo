@@ -93,23 +93,24 @@ public class HyperStatement implements JHyperStatement {
 
     public HyperResult executeUpdate() throws SQLException {
         HyperResult result = new HyperResult();
-
         preparedStatement.executeUpdate();
         ResultSet rs = preparedStatement.getGeneratedKeys();
-        ResultSetMetaData rsmd = rs.getMetaData();
-        ArrayList<String> row = new ArrayList<String>();
+        if (rs != null) {
+            ResultSetMetaData rsmd = rs.getMetaData();
+            ArrayList<String> row = new ArrayList<String>();
 
-        for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
-            result.addColName(rsmd.getColumnName(col_index + 1), col_index + 1);
-        }
-        while (rs.next()) {
             for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
-                row.add(rs.getString(1));
+                result.addColName(rsmd.getColumnName(col_index + 1), col_index + 1);
             }
-            result.addRow(row);
-            row = new ArrayList<String>();
+            while (rs.next()) {
+                for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
+                    row.add(rs.getString(1));
+                }
+                result.addRow(row);
+                row = new ArrayList<String>();
+            }
+            rs.close();
         }
-        rs.close();
         return result;
 
     }
@@ -117,22 +118,21 @@ public class HyperStatement implements JHyperStatement {
     public HyperResult executeQuery() throws SQLException {
         HyperResult result = new HyperResult();
         ResultSet rs = preparedStatement.executeQuery();
-        ResultSetMetaData rsmd = rs.getMetaData();
-
-        ArrayList<String> row = new ArrayList<String>();
-
-        for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
-            result.addColName(rsmd.getColumnName(col_index + 1), col_index + 1);
-        }
-        while (rs.next()) {
+        if (rs != null) {
+            ResultSetMetaData rsmd = rs.getMetaData();
+            ArrayList<String> row = new ArrayList<String>();
             for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
-                row.add(rs.getString(col_index + 1));
+                result.addColName(rsmd.getColumnName(col_index + 1), col_index + 1);
             }
-            result.addRow(row);
-            row = new ArrayList<String>();
+            while (rs.next()) {
+                for (int col_index = 0; col_index < rsmd.getColumnCount(); col_index++) {
+                    row.add(rs.getString(col_index + 1));
+                }
+                result.addRow(row);
+                row = new ArrayList<String>();
+            }
+            rs.close();
         }
-
-        rs.close();
         return result;
     }
 

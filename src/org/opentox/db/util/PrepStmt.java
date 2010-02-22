@@ -113,7 +113,7 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("ADDRESS", String.class),
         new QueryParam("WEBPAGE", String.class),
         new QueryParam("ROLE", String.class)
-}),
+    }),
     /**
      * Add a new user group. A user group is characterized by its authorization
      * level which is an integer. Two groups can have the same authorization level.
@@ -828,8 +828,86 @@ public enum PrepStmt implements JPrepStmt {
     + " ON UID=FEATURE_UID" + " WHERE MODEL_UID=?",
     new QueryParam[]{
         new QueryParam("MODEL_UID", Integer.class)
-    });
+    }),
 
+    /**
+     * ****************************************************************************
+     * ----------------------------------------------------------------------------
+     *                      UPDATE QUERIES
+     * ----------------------------------------------------------------------------
+     * ****************************************************************************
+     */
+
+    /**
+     * Update a task in the Database with new parameters.
+     */
+    UPDATE_TASK("UPDATE " + TasksTable.TABLE.getTableName() +" "
+            + "SET STATUS=?, "
+            + "CREATED_BY=?, "
+            + "ALGORITHM=?, "
+            + "HTTPSTATUS=?, "
+            + "RESULT=?, "
+            + "DURATION=?, "
+            + "ENDSTAMP=? "
+            + "WHERE NAME=? ",
+    new QueryParam[]{
+            new QueryParam("STATUS", String.class),
+            new QueryParam("CREATED_BY", String.class),
+            new QueryParam("ALGORITHM", String.class),
+            new QueryParam("HTTPSTATUS", Integer.class),
+            new QueryParam("RESULT", String.class),
+            new QueryParam("DURATION", Integer.class),
+            new QueryParam("ENDSTAMP", String.class),
+            new QueryParam("NAME", String.class),
+    }),
+
+    /**
+     * Update a user in the Database with new parameters.
+     */
+    UPDATE_USER(
+    "UPDATE " + UsersTable.TABLE.getTableName() + " "
+            + "SET USERNAME=?, "
+            + "PASS=?, "
+            + "FIRSTNAME=?, "
+            + "LASTNAME=?, "
+            + "ORGANIZATION=?, "
+            + "COUNTRY=?, "
+            + "CITY=?, "
+            + "ADDRESS=?, "
+            + "WEBPAGE=?, "
+            + "ROLE=? "
+            + "WHERE EMAIL=? ",
+    new QueryParam[]{
+        new QueryParam("USERNAME", String.class),
+        new QueryParam("PASS", String.class),
+        new QueryParam("FIRSTNAME", String.class),
+        new QueryParam("LASTNAME", String.class),
+        new QueryParam("ORGANIZATION", String.class),
+        new QueryParam("COUNTRY", String.class),
+        new QueryParam("CITY", String.class),
+        new QueryParam("ADDRESS", String.class),
+        new QueryParam("WEBPAGE", String.class),
+        new QueryParam("ROLE", String.class),
+        new QueryParam("EMAIL", String.class)
+    }),
+
+    UPDATE_USER_GROUP("UPDATE " + UserAuthTable.TABLE.getTableName() + " "
+            + "SET USER_LEVEL=?, "
+            + "MODEL_AUTH=?, "
+            + "USER_AUTH=?, "
+            + "ALGORITHM_AUTH=?, "
+            + "USER_GROUP_AUTH=?, "
+            + "MAX_MODELS=? "
+            + "WHERE NAME=? ",
+    new QueryParam[]{
+        new QueryParam("USER_LEVEL", Integer.class),
+        new QueryParam("MODEL_AUTH", String.class),
+        new QueryParam("USER_AUTH", String.class),
+        new QueryParam("ALGORITHM_AUTH", String.class),
+        new QueryParam("USER_GROUP_AUTH", String.class),
+        new QueryParam("MAX_MODELS", Integer.class),
+        new QueryParam("NAME", String.class)
+    });
     
     /**
      * The SQL command for the preparation of the statement.

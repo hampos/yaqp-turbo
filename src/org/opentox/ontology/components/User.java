@@ -58,7 +58,7 @@ import org.opentox.util.logging.levels.Warning;
  * @author Charalampos Chomenides
  */
 public class User extends YaqpComponent {
-     private static final long serialVersionUID = 1726532809162869471L;
+  //   private static final long serialVersionUID = 1726532809162869471L;
 
     private String
             userName = null,
@@ -138,9 +138,9 @@ public class User extends YaqpComponent {
         return organization;
     }
 
-    public static long getSerialVersionUID() {
-        return serialVersionUID;
-    }
+//    public static long getSerialVersionUID() {
+//        return serialVersionUID;
+//    }
 
     public String getTimeStamp() {
         return timeStamp;
@@ -346,6 +346,28 @@ public class User extends YaqpComponent {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public boolean equals(Object obj){
+        if(obj.getClass() == this.getClass()){
+            User user = (User) obj;
+            boolean result = (getEmail()==null && user.getEmail() == null);
+            return result || (this.getEmail().equals(user.getEmail()));
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + (this.email != null ? this.email.hashCode() : 0);
+        return hash;
+    }
+
+    @Override
+    public User getSkroutz(){
+        return new User(this.getEmail());
+    }
 
 
 
