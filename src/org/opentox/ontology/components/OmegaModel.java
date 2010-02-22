@@ -76,6 +76,9 @@ public class OmegaModel extends YaqpComponent {
         this.timestamp = timestamp;
     }
 
+    private OmegaModel(int id) {
+        this.id = id;
+    }
 
     public String getCode() {
         return code;
@@ -176,5 +179,27 @@ public class OmegaModel extends YaqpComponent {
     @Override
     public UriListObject getUriList() {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public OmegaModel getSkroutz(){
+        return new OmegaModel(this.getId());
+    }
+
+    @Override
+    public boolean equals(Object obj){
+        if(obj.getClass() == this.getClass()){
+            OmegaModel model = (OmegaModel) obj;
+            return (this.getId() == model.getId());
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 31 * hash + this.id;
+        return hash;
     }
 }

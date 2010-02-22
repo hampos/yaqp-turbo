@@ -31,8 +31,27 @@
  */
 package org.opentox.db.handlers;
 
-import org.opentox.ontology.components.Task;
-import org.opentox.ontology.components.YaqpComponent;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.apache.derby.client.am.DateTime;
+import org.opentox.core.exceptions.Cause;
+import org.opentox.core.exceptions.YaqpException;
+import org.opentox.db.exceptions.DbException;
+import org.opentox.db.processors.DbPipeline;
+import org.opentox.db.queries.HyperResult;
+import org.opentox.db.queries.QueryFood;
+import org.opentox.db.table.collection.AlgOntTable;
+import org.opentox.db.table.collection.UserAuthTable;
+import org.opentox.db.table.collection.UsersTable;
+import org.opentox.db.util.PrepStmt;
+import org.opentox.ontology.components.*;
+import org.opentox.ontology.exceptions.ImproperEntityException;
 
 /**
  *
@@ -41,13 +60,149 @@ import org.opentox.ontology.components.YaqpComponent;
  */
 public class UpdateHandler {
 
-    public static void update(YaqpComponent before, YaqpComponent after) {
-        if (before instanceof Task && after instanceof Task) {
-            updateTask((Task) before, (Task) after);
+    public static void update(YaqpComponent component) throws DbException, ImproperEntityException {
+        if (component instanceof Task) {
+            updateTask((Task) component);
+        }else if(component instanceof User){
+            updateUser((User)component);
+        }else if(component instanceof UserGroup){
+            updateUserGroup((UserGroup)component);
+        }else{
+            throw new UnsupportedOperationException("Update operation for component "+component.getClass().toString()+" not supported.");
         }
     }
 
-    protected static void updateTask(Task before, Task after) {
+    public static void update(ComponentList<YaqpComponent> list) throws Exception{
+        for(YaqpComponent component : list){
+            update(component);
+        }
+    }
 
+    protected static void updateTask(Task prototype) throws DbException, ImproperEntityException {
+        if(prototype == null){
+            throw new NullPointerException("Task prototype provided is null");
+        }else if(prototype.getName() == null){
+            throw new NullPointerException("Task prototype provided has null name (primary key)");
+        }
+        prototype = (Task) fixNull(prototype);
+        DbPipeline<QueryFood,HyperResult> pipeline =  new DbPipeline<QueryFood, HyperResult>(PrepStmt.UPDATE_TASK);
+        Date date = new Date();
+        Timestamp ts = new Timestamp(date.getTime());
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"NAME", prototype.getName()},
+                    {"STATUS", prototype.getTaskStatus().toString()},
+                    {"CREATED_BY", prototype.getUser().getEmail()},
+                    {"ALGORITHM", prototype.getAlgorithm().getMeta().getName()},
+                    {"HTTPSTATUS", Integer.toString(prototype.getHttpStatus())},
+                    {"RESULT", prototype.getResult()},
+                    {"DURATION", Integer.toString(prototype.getDuration())},
+                    {"ENDSTAMP", ts.toString() }
+        });
+        try {
+            pipeline.process(food);
+        } catch (YaqpException ex) {
+            String message = "Could not update Task in the database for given Prototype";
+            throw new DbException(Cause.XDH1, message, ex);
+        }
+
+    }
+
+    protected static void updateUser(User prototype) throws DbException, ImproperEntityException {
+        if(prototype == null){
+            throw new NullPointerException("User prototype provided is null");
+        }else if(prototype.getEmail() == null){
+            throw new NullPointerException("User prototype provided has null email (primary key)");
+        }
+        prototype = (User) fixNull(prototype);
+        DbPipeline<QueryFood,HyperResult> pipeline =  new DbPipeline<QueryFood, HyperResult>(PrepStmt.UPDATE_USER);
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {UsersTable.USERNAME.getColumnName(), prototype.getUserName()},
+                    {UsersTable.PASSWORD.getColumnName(), prototype.getUserPass()},
+                    {UsersTable.FIRSTNAME.getColumnName(), prototype.getFirstName()},
+                    {UsersTable.LASTNAME.getColumnName(), prototype.getLastName()},
+                    {UsersTable.EMAIL.getColumnName(), prototype.getEmail()},
+                    {UsersTable.ORGANIZATION.getColumnName(), prototype.getOrganization()},
+                    {UsersTable.COUNTRY.getColumnName(), prototype.getCountry()},
+                    {UsersTable.CITY.getColumnName(), prototype.getCity()},
+                    {UsersTable.ADDRESS.getColumnName(), prototype.getAddress()},
+                    {UsersTable.WEBPAGE.getColumnName(), prototype.getWebpage()},
+                    {UsersTable.ROLE.getColumnName(), prototype.getUserGroup().getName()}
+                });
+        try {
+            pipeline.process(food);
+        } catch (YaqpException ex) {
+            String message = "Could not update User in the database for given Prototype";
+            throw new DbException(Cause.XDH1, message, ex);
+        }
+
+    }
+
+    protected static void updateUserGroup(UserGroup prototype) throws DbException, ImproperEntityException {
+        if(prototype == null){
+            throw new NullPointerException("User prototype provided is null");
+        }else if(prototype.getName() == null){
+            throw new NullPointerException("UserGroup prototype provided has null name (primary key)");
+        }
+        prototype = (UserGroup) fixNull(prototype);
+        DbPipeline<QueryFood,HyperResult> pipeline =  new DbPipeline<QueryFood, HyperResult>(PrepStmt.UPDATE_USER_GROUP);
+        QueryFood food = new QueryFood(
+                new String[][]{
+                        {UserAuthTable.NAME.getColumnName(), prototype.getName()},
+                        {UserAuthTable.USER_LEVEL.getColumnName(), Integer.toString(prototype.getLevel())},
+                        {UserAuthTable.MODEL_AUTH.getColumnName(), prototype.getModelAuth()},
+                        {UserAuthTable.USER_AUTH.getColumnName(), prototype.getUserAuth()},
+                        {UserAuthTable.ALGORITHM_AUTH.getColumnName(), prototype.getAlgorithmAuth()},
+                        {UserAuthTable.USER_GROUP_AUTH.getColumnName(), prototype.getUserGroupAuth()},
+                        {UserAuthTable.MAX_MODELS.getColumnName(), Integer.toString(prototype.getMaxModels())}
+                    });
+        try {
+            pipeline.process(food);
+        } catch (YaqpException ex) {
+            String message = "Could not update UserGroup in the database for given Prototype";
+            throw new DbException(Cause.XDH1, message, ex);
+        }
+    }
+
+
+    /**
+     * Auxiliary Method
+     * Fixes the null or empty variables of a given prototype
+     * with the correct values from the database for the prototype
+     * that has the same primary key with the given.
+     * @param prototype A valid YaqpComponent prototype.
+     * @return a YaqpComponent with no null or empty values.
+     * @throws DbException
+     * @throws ImproperEntityException
+     */
+    private static YaqpComponent fixNull(YaqpComponent prototype) throws DbException, ImproperEntityException {
+        try {
+            YaqpComponent old = ReaderHandler.search(prototype.getSkroutz(), null, false).get(0);
+            Field[] fields;
+            Class c = prototype.getClass();
+            Constructor con = c.getConstructor();
+            Object obj = con.newInstance();
+            fields = c.getDeclaredFields();
+            for (int i = 0; i < fields.length; i++) {
+                fields[i].setAccessible(true);
+                if (fields[i].get(prototype) == null || fields[i].get(prototype).equals(fields[i].get(obj))) {
+                    fields[i].set(prototype, fields[i].get(old));
+                }
+            }
+            return prototype;
+        } catch (InstantiationException ex) {
+            throw new RuntimeException(ex);
+        } catch (IllegalAccessException ex) {
+            throw new RuntimeException(ex);
+        } catch (IllegalArgumentException ex) {
+            throw new RuntimeException(ex);
+        } catch (InvocationTargetException ex) {
+            throw new RuntimeException(ex);
+        } catch (NoSuchMethodException ex) {
+            throw new RuntimeException(ex);
+        } catch (SecurityException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 }
