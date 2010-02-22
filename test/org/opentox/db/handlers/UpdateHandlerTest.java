@@ -12,6 +12,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opentox.db.exceptions.DbException;
 import org.opentox.db.util.TheDbConnector;
+import org.opentox.ontology.components.QSARModel;
 import org.opentox.ontology.components.Task;
 import org.opentox.ontology.components.User;
 import org.opentox.ontology.components.UserGroup;
@@ -61,7 +62,7 @@ public class UpdateHandlerTest {
     /**
      * Test of updateTask method, of class UpdateHandler.
      */
-    @Test
+    //@Test
     public void testUpdateTask() throws DbException, ImproperEntityException  {
         Task oldtask = (Task) ReaderHandler.search(new Task(), null, false).get(0);
         Task task = oldtask.getSkroutz();
@@ -73,7 +74,7 @@ public class UpdateHandlerTest {
         System.out.println(updatedTask);
     }
 
-    @Test
+    //@Test
     public void testUpdateUser() throws DbException, ImproperEntityException {
         User olduser = (User) ReaderHandler.search(new User("john@foo.goo.gr"), null, false).get(0);
         User user = olduser.getSkroutz();
@@ -86,7 +87,7 @@ public class UpdateHandlerTest {
         System.out.println(updatedUser);
     }
 
-    @Test
+    //@Test
     public void testUpdateUserGroup() throws DbException, ImproperEntityException {
         UserGroup oldgroup = (UserGroup) ReaderHandler.search(new UserGroup("ADMINISTRATOR"), null, false).get(0);
         UserGroup group = oldgroup.getSkroutz();
@@ -100,6 +101,15 @@ public class UpdateHandlerTest {
         System.out.println(updatedgroup.getAlgorithmAuth());
         System.out.println(updatedgroup.getModels());
         System.out.println(updatedgroup.getUserAuth());
+    }
+
+    @Test
+    public void deleteUser() throws Exception{
+        UpdateHandler.delete(new User("mike@foo.goo.gr"));
+        QSARModel m = new QSARModel();
+        m.setId(31);
+        UpdateHandler.delete(m);
+
     }
 
 }

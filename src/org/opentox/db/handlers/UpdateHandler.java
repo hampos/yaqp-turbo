@@ -47,6 +47,7 @@ import org.opentox.db.processors.DbPipeline;
 import org.opentox.db.queries.HyperResult;
 import org.opentox.db.queries.QueryFood;
 import org.opentox.db.table.collection.AlgOntTable;
+import org.opentox.db.table.collection.QSARModelsTable;
 import org.opentox.db.table.collection.UserAuthTable;
 import org.opentox.db.table.collection.UsersTable;
 import org.opentox.db.util.PrepStmt;
@@ -72,11 +73,43 @@ public class UpdateHandler {
         }
     }
 
-    public static void update(ComponentList<YaqpComponent> list) throws Exception{
+    public static void update(ComponentList<YaqpComponent> list) throws DbException, ImproperEntityException {
         for(YaqpComponent component : list){
             update(component);
         }
     }
+
+    public static void delete(YaqpComponent component) throws DbException, ImproperEntityException {
+        if (component instanceof Task) {
+            deleteTask((Task) component);
+        }else if(component instanceof User){
+            deleteUser((User)component);
+        }else if(component instanceof UserGroup){
+            deleteUserGroup((UserGroup)component);
+        }else if(component instanceof QSARModel){
+            deleteQSARModel((QSARModel)component);
+        }else if(component instanceof OmegaModel){
+            deleteOmegaModel((OmegaModel)component);
+        }else if(component instanceof Feature){
+            deleteFeature((Feature)component);
+        }else{
+            throw new UnsupportedOperationException("Delete operation for component "+component.getClass().toString()+" not supported.");
+        }
+    }
+
+    public static void delete(ComponentList<YaqpComponent> list) throws DbException, ImproperEntityException {
+        for(YaqpComponent component : list){
+            delete(component);
+        }
+    }
+
+    /**
+     * ****************************************************************************
+     * ----------------------------------------------------------------------------
+     *                      UPDATE QUERIES
+     * ----------------------------------------------------------------------------
+     * ****************************************************************************
+     */
 
     protected static void updateTask(Task prototype) throws DbException, ImproperEntityException {
         if(prototype == null){
@@ -141,7 +174,7 @@ public class UpdateHandler {
 
     protected static void updateUserGroup(UserGroup prototype) throws DbException, ImproperEntityException {
         if(prototype == null){
-            throw new NullPointerException("User prototype provided is null");
+            throw new NullPointerException("UserGroup prototype provided is null");
         }else if(prototype.getName() == null){
             throw new NullPointerException("UserGroup prototype provided has null name (primary key)");
         }
@@ -161,6 +194,130 @@ public class UpdateHandler {
             pipeline.process(food);
         } catch (YaqpException ex) {
             String message = "Could not update UserGroup in the database for given Prototype";
+            throw new DbException(Cause.XDH1, message, ex);
+        }
+    }
+
+
+    /**
+     * ****************************************************************************
+     * ----------------------------------------------------------------------------
+     *                      DELETE QUERIES
+     * ----------------------------------------------------------------------------
+     * ****************************************************************************
+     */
+
+    protected static void deleteTask(Task prototype) throws DbException, ImproperEntityException {
+        if(prototype == null){
+            throw new NullPointerException("Task prototype provided is null");
+        }else if(prototype.getName() == null){
+            throw new NullPointerException("Task prototype provided has null name (primary key)");
+        }
+        DbPipeline<QueryFood,HyperResult> pipeline =  new DbPipeline<QueryFood, HyperResult>(PrepStmt.DELETE_TASK);
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {"NAME", prototype.getName()},
+        });
+        try {
+            pipeline.process(food);
+        } catch (YaqpException ex) {
+            String message = "Could not delete Task in the database for given Prototype";
+            throw new DbException(Cause.XDH1, message, ex);
+        }
+
+    }
+
+    protected static void deleteUser(User prototype) throws DbException, ImproperEntityException {
+        if(prototype == null){
+            throw new NullPointerException("User prototype provided is null");
+        }else if(prototype.getEmail() == null){
+            throw new NullPointerException("User prototype provided has null email (primary key)");
+        }
+        DbPipeline<QueryFood,HyperResult> pipeline =  new DbPipeline<QueryFood, HyperResult>(PrepStmt.DELETE_USER);
+        QueryFood food = new QueryFood(
+                new String[][]{
+                    {UsersTable.EMAIL.getColumnName(), prototype.getEmail()},
+                });
+        try {
+            pipeline.process(food);
+        } catch (YaqpException ex) {
+            String message = "Could not delete User in the database for given Prototype";
+            throw new DbException(Cause.XDH1, message, ex);
+        }
+    }
+
+    protected static void deleteUserGroup(UserGroup prototype) throws DbException, ImproperEntityException {
+        if(prototype == null){
+            throw new NullPointerException("UserGroup prototype provided is null");
+        }else if(prototype.getName() == null){
+            throw new NullPointerException("UserGroup prototype provided has null name (primary key)");
+        }
+        DbPipeline<QueryFood,HyperResult> pipeline =  new DbPipeline<QueryFood, HyperResult>(PrepStmt.DELETE_USERGROUP);
+        QueryFood food = new QueryFood(
+                new String[][]{
+                        {UserAuthTable.NAME.getColumnName(), prototype.getName()},
+                    });
+        try {
+            pipeline.process(food);
+        } catch (YaqpException ex) {
+            String message = "Could not delete UserGroup in the database for given Prototype";
+            throw new DbException(Cause.XDH1, message, ex);
+        }
+    }
+
+    protected static void deleteQSARModel(QSARModel prototype) throws DbException, ImproperEntityException {
+        if(prototype == null){
+            throw new NullPointerException("QSARModel prototype provided is null");
+        }else if(prototype.getId() == 0){
+            throw new NullPointerException("QSARModel prototype provided has null id (primary key)");
+        }
+        DbPipeline<QueryFood,HyperResult> pipeline =  new DbPipeline<QueryFood, HyperResult>(PrepStmt.DELETE_QSARMODEL);
+        QueryFood food = new QueryFood(
+                new String[][]{
+                        {QSARModelsTable.UID.getColumnName(), Integer.toString(prototype.getId())}
+                    });
+        try {
+            pipeline.process(food);
+        } catch (YaqpException ex) {
+            String message = "Could not delete QSARModel in the database for given Prototype";
+            throw new DbException(Cause.XDH1, message, ex);
+        }
+    }
+
+    protected static void deleteOmegaModel(OmegaModel prototype) throws DbException, ImproperEntityException {
+        if(prototype == null){
+            throw new NullPointerException("OmegaModel prototype provided is null");
+        }else if(prototype.getId() == 0){
+            throw new NullPointerException("OmegaModel prototype provided has null id (primary key)");
+        }
+        DbPipeline<QueryFood,HyperResult> pipeline =  new DbPipeline<QueryFood, HyperResult>(PrepStmt.DELETE_OMEGAMODEL);
+        QueryFood food = new QueryFood(
+                new String[][]{
+                        {QSARModelsTable.UID.getColumnName(), Integer.toString(prototype.getId())}
+                    });
+        try {
+            pipeline.process(food);
+        } catch (YaqpException ex) {
+            String message = "Could not delete OmegaModel in the database for given Prototype";
+            throw new DbException(Cause.XDH1, message, ex);
+        }
+    }
+
+    protected static void deleteFeature(Feature prototype) throws DbException, ImproperEntityException {
+        if(prototype == null){
+            throw new NullPointerException("Feature prototype provided is null");
+        }else if(prototype.getID() == 0){
+            throw new NullPointerException("Feature prototype provided has null id (primary key)");
+        }
+        DbPipeline<QueryFood,HyperResult> pipeline =  new DbPipeline<QueryFood, HyperResult>(PrepStmt.DELETE_FEATURE);
+        QueryFood food = new QueryFood(
+                new String[][]{
+                        {QSARModelsTable.UID.getColumnName(), Integer.toString(prototype.getID())}
+                    });
+        try {
+            pipeline.process(food);
+        } catch (YaqpException ex) {
+            String message = "Could not delete Feature in the database for given Prototype";
             throw new DbException(Cause.XDH1, message, ex);
         }
     }
