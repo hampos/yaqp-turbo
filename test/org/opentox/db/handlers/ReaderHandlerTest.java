@@ -299,7 +299,7 @@ public class ReaderHandlerTest {
      * Get all users - check if it works
      * @throws DbException
      */
-   // @Test
+    @Test
     public void searchForUser() throws DbException {
         System.out.println("-- serch user - test 1 --");
         User prototype = new User();

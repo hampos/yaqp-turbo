@@ -907,8 +907,54 @@ public enum PrepStmt implements JPrepStmt {
         new QueryParam("USER_GROUP_AUTH", String.class),
         new QueryParam("MAX_MODELS", Integer.class),
         new QueryParam("NAME", String.class)
+    }),
+
+
+    /**
+     * ****************************************************************************
+     * ----------------------------------------------------------------------------
+     *                      DELETE QUERIES
+     * ----------------------------------------------------------------------------
+     * ****************************************************************************
+     */
+
+    DELETE_USER("DELETE FROM " + UsersTable.TABLE.getTableName() + " "
+            + "WHERE EMAIL=?",
+    new QueryParam[]{
+        new QueryParam("EMAIL", String.class)
+    }),
+
+    DELETE_USERGROUP("DELETE FROM " + UserAuthTable.TABLE.getTableName() + " "
+            + "WHERE NAME=?",
+    new QueryParam[]{
+        new QueryParam("NAME", String.class)
+    }),
+
+    DELETE_TASK("DELETE FROM " + TasksTable.TABLE.getTableName() + " "
+            + "WHERE NAME=?",
+    new QueryParam[]{
+        new QueryParam("NAME", String.class)
+    }),
+
+    DELETE_QSARMODEL("DELETE FROM " + QSARModelsTable.TABLE.getTableName() + " "
+            + "WHERE UID=?",
+    new QueryParam[]{
+        new QueryParam("UID", Integer.class)
+    }),
+
+    DELETE_OMEGAMODEL("DELETE FROM " + OmegaTable.TABLE.getTableName() + " "
+            + "WHERE UID=?",
+    new QueryParam[]{
+        new QueryParam("UID", Integer.class)
+    }),
+
+    DELETE_FEATURE("DELETE FROM " + FeaturesTable.TABLE.getTableName() + " "
+            + "WHERE UID=?",
+    new QueryParam[]{
+        new QueryParam("UID", Integer.class)
     });
-    
+
+
     /**
      * The SQL command for the preparation of the statement.
      */
