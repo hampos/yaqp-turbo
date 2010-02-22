@@ -34,27 +34,25 @@ package org.opentox.www.rest.services;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.Callable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Pipeline;
-import org.opentox.db.exceptions.DbException;
 import org.opentox.db.handlers.ReaderHandler;
 import org.opentox.db.util.Page;
 import org.opentox.io.processors.InputProcessor;
-import org.opentox.io.processors.OutputProcessor;
+import org.opentox.io.processors.Poster;
+import org.opentox.io.util.ServerList;
 import org.opentox.ontology.components.QSARModel;
 import org.opentox.ontology.components.User;
 import org.opentox.ontology.data.Dataset;
 import org.opentox.ontology.data.DatasetBuilder;
-import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.ontology.processors.InstancesProcessor;
 import org.opentox.ontology.util.vocabulary.ConstantParameters;
 import org.opentox.qsar.exceptions.QSARException;
 import org.opentox.qsar.processors.predictors.SimplePredictor;
 import org.opentox.qsar.processors.predictors.WekaPredictor;
 import org.opentox.www.rest.components.YaqpForm;
+import org.restlet.Response;
 import org.restlet.data.MediaType;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
@@ -109,7 +107,9 @@ public class PredictionService implements Callable<Representation> {
             trainingPipe.add(new DatasetBuilder());
 
             Dataset ds = (Dataset) trainingPipe.process(new URI(dset));
-            return new OutputProcessor().handle(ds.getRDF());
+            Poster poster = new Poster(ServerList.ambit+"/dataset");
+            Response response = poster.handle(ds.getRDF());
+            return new StringRepresentation(response.getLocationRef().toString()+"\n", MediaType.TEXT_URI_LIST);
         } catch (URISyntaxException ex) {
             throw new QSARException(Cause.XQPred635, "The dataset uri you provided is not a valid uri :{"+dset, ex);
         } catch (YaqpException ex) {

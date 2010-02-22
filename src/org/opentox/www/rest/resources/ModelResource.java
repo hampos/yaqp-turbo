@@ -151,6 +151,10 @@ public class ModelResource extends YaqpResource {
                     + "in a while");
         }
 
+        /*
+         * Apply the prediction service to calculate the predictions and
+         * POST the results to a dataset service.
+         */
         PredictionService service;
         try {
             service = new PredictionService(new YaqpForm(entity), model_id, new User(), SimplePredictor.class, variant.getMediaType());            

@@ -31,15 +31,12 @@
  */
 package org.opentox.www.rest.resources;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Pipeline;
 import org.opentox.db.handlers.ReaderHandler;
 import org.opentox.db.util.Page;
 import org.opentox.io.processors.OutputProcessor;
 import org.opentox.io.processors.Publisher;
-import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.components.ComponentList;
 import org.opentox.ontology.components.QSARModel;
 import org.opentox.ontology.components.YaqpComponent;
@@ -51,7 +48,6 @@ import org.opentox.www.rest.components.YaqpResource;
 import org.restlet.data.Form;
 import org.restlet.data.MediaType;
 import org.restlet.data.Status;
-import org.restlet.data.Tag;
 import org.restlet.representation.Representation;
 import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
@@ -105,7 +101,6 @@ public class ModelsResource extends YaqpResource {
             final OutputProcessor representer = new OutputProcessor();
             final Pipeline pipe = new Pipeline(publisher, representer);
             YaqpRepresentation rep = (YaqpRepresentation) pipe.process(list);
-            rep.setTag(Tag.parse("thisIsaTaG"));
             return rep;
         } catch (final YaqpException ex) {
             YaqpLogger.LOG.log(new Fatal(getClass(), "Fatal error while retrieving models from the DB : "+ex));

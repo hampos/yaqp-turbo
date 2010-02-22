@@ -208,7 +208,6 @@ public class MLRTrainer extends WekaRegressor {
      */
     public QSARModel train(Instances data) throws QSARException {
 
-        System.out.println(data);
 
         // GET A UUID AND DEFINE THE TEMPORARY FILE WHERE THE TRAINING DATA
         // ARE STORED IN ARFF FORMAT PRIOR TO TRAINING.
