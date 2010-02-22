@@ -106,7 +106,6 @@ public class TrainingService implements Callable<QSARModel> {
      *      not be returned.
      */
     public QSARModel call() throws Exception {
-
         InputProcessor p1 = new InputProcessor();
         DatasetBuilder p2 = new DatasetBuilder();
         InstancesProcessor p3 = new InstancesProcessor();

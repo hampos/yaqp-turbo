@@ -21,9 +21,12 @@
  */
 package org.opentox.io.processors;
 
+import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.core.processors.Processor;
 import org.opentox.io.interfaces.JIOProcessor;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.ScrewedUp;
 import static org.opentox.core.exceptions.Cause.XONT3;
 /**
  *
@@ -37,14 +40,15 @@ public abstract class AbstractIOProcessor<Input, Output>
         super();
     }
 
-    public Output process(Input data) throws YaqpIOException {
+    public Output process(Input data) throws YaqpIOException, YaqpException {
         if (data==null){
             throw new NullPointerException("NULL input to IO Processor");
         }
         try {
             return handle(data);
-        } catch (Exception x) {
-            throw new YaqpIOException(XONT3,x);
+        } catch (YaqpException x) {
+            YaqpLogger.LOG.log(new ScrewedUp(getClass(), x.toString()));
+            throw x;
         }
     }
 

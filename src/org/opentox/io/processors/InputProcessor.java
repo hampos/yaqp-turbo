@@ -47,6 +47,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.engines.EngineFactory;
 import org.opentox.io.util.YaqpIOStream;
@@ -54,6 +55,8 @@ import org.opentox.io.engines.IOEngine;
 import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.io.publishable.OntObject;
 import org.opentox.ontology.exceptions.YaqpOntException;
+import org.opentox.util.logging.YaqpLogger;
+import org.opentox.util.logging.levels.ScrewedUp;
 import org.restlet.data.MediaType;
 import static org.opentox.core.exceptions.Cause.*;
 
@@ -85,7 +88,7 @@ public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI
         return list;
     }
 
-    private boolean IsMimeAvailable(URI serviceUri, MediaType mime) {
+    private boolean IsMimeAvailable(final URI serviceUri, final MediaType mime) {
 
         HttpURLConnection.setFollowRedirects(true);
         HttpURLConnection connexion = null;
@@ -100,14 +103,14 @@ public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI
             } else {
                 return false;
             }
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             return false;
         } finally {
             connexion.disconnect();
         }
     }
 
-    private MediaType getAvailableMime(URI uri) {
+    private MediaType getAvailableMime(final URI uri) {
         for (int i = 0; i < supportedMediaTypes().size(); i++) {
             if (IsMimeAvailable(uri, supportedMediaTypes().get(i))) {
                 return supportedMediaTypes().get(i);
@@ -123,7 +126,7 @@ public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI
      * @throws IOException In case a communication or access issue occurs, or
      * Internet connection is down.
      */
-    private HttpURLConnection initializeConnection(URI uri) throws YaqpIOException {
+    private HttpURLConnection initializeConnection(final URI uri) throws YaqpIOException {
         HttpURLConnection con = null;
         try {
             media = getAvailableMime(uri);
@@ -138,8 +141,9 @@ public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI
             con.setUseCaches(false);
             con.setRequestProperty("Accept", media.toString());
             return con;
-        } catch (Exception ex) {
-            return null;
+        } catch (final Exception ex) {
+            YaqpLogger.LOG.log(new ScrewedUp(getClass(), "Could not connect to "+uri));
+            throw new YaqpIOException(Cause.XIO5051, "Could not connect to "+uri.toString(), ex);
         }
     }
 
@@ -150,7 +154,7 @@ public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI
      * @return The resource encapsulated in a {@link OntObject } object.
      * @throws YaqpException
      */
-    public O handle(URI uri) throws YaqpException {
+    public O handle(final URI uri) throws YaqpException {
         if (uri==null){
             throw new NullPointerException("The provided uri in the InputProcessor in null");
         }
@@ -173,14 +177,14 @@ public class InputProcessor<O extends OntObject> extends AbstractIOProcessor<URI
                         "Unable to parse the content of the resource", ex);
             }
 
-        } catch (IOException ex) {
+        } catch (final IOException ex) {
             throw new YaqpIOException(XIO76, "Cannot read from input stream of " + uri.toString(), ex);
         } finally {
             try {
                 if (remoteStream != null) {
                     remoteStream.close();
                 }
-            } catch (IOException ex) {
+            } catch (final IOException ex) {
                 throw new YaqpIOException(XIO77, "Remote Stream could not close", ex);
             }
         }
