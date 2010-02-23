@@ -68,17 +68,12 @@ public class YAQP {
     };
 
     private static void logo() throws InterruptedException {
-        System.out.print("\n\n*   ._.  ._.      ,__,   ._____.\n");
-        Thread.sleep(20);
-        System.out.print("*    \\ \\ | |/\\   /    \\ /  ___ |\n");
-        Thread.sleep(20);
-        System.out.print("*     \\ \\| /  \\ |  ()  |  _____|\n");
-        Thread.sleep(20);
-        System.out.print("*      \\  / /\\ \\|  {}  | |\n");
-        Thread.sleep(20);
-        System.out.print("*       || .--. |  [] \\\\ |\n");
-        Thread.sleep(20);
-        System.out.print("*       ||_|  |_|\\____/\\\\|\n*");
+        final String logo =
+                " __  __     __       __   _____\n/\\ \\/\\ \\  /'__`\\   /'__`\\/\\ '__`\\ \n\\ \\ \\_\\ \\/\\ \\L\\.\\_/\\ \\L\\ \\ \\ \\L\\ \\\n"
+                + " \\/`____ \\ \\__/.\\_\\ \\___, \\ \\ ,__/\n  `/___/> \\/__/\\/_/\\/___/\\ \\ \\ \\/\n     /\\___/             \\ \\_\\ \\_\\ \n"
+                + "     \\/__/               \\/_/\\/_/ \n";
+        System.out.println(logo);
+
     }
 
     private static void load() throws InterruptedException {

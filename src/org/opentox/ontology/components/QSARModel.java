@@ -40,8 +40,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.io.exceptions.YaqpIOException;
@@ -51,6 +51,7 @@ import org.opentox.io.publishable.RDFObject;
 import org.opentox.io.publishable.UriListObject;
 import org.opentox.io.util.YaqpIOStream;
 import org.opentox.ontology.namespaces.OTClass;
+import org.opentox.ontology.namespaces.OTDataTypeProperties;
 import org.opentox.ontology.namespaces.OTObjectProperties;
 import org.opentox.ontology.util.AlgorithmParameter;
 import org.opentox.ontology.util.Meta;
@@ -346,10 +347,32 @@ public class QSARModel extends YaqpComponent {
             /* */
             // Add all parameters:
             Individual iparam;
+            Map<String, AlgorithmParameter> paraMap = getParams();
+            final Set<Entry<String, AlgorithmParameter>> entrySet = paraMap.entrySet();
+            for (Entry<String, AlgorithmParameter> e : entrySet){
+                iparam = rdf.createIndividual(OTClass.Parameter.getOntClass(rdf));
+                iparam.addProperty(rdf.createAnnotationProperty(DC.title.getURI()), e.getKey());
+                iparam.addLiteral(OTDataTypeProperties.paramValue.createProperty(rdf), e.getValue().paramValue.toString());
+                qsarModel.addProperty(OTObjectProperties.parameters.createProperty(rdf), iparam);
+            }
+
+
+            /*
+             * Add the dependent feature
+             */
+            qsarModel.addProperty(OTObjectProperties.dependentVariables.createProperty(rdf), rdf.createOntResource(getDependentFeature().getURI()));
+            qsarModel.addProperty(OTObjectProperties.predictedVariables.createProperty(rdf), rdf.createOntResource(getPredictionFeature().getURI()));
+
+            /**
+             * Add the independent features
+             */
+            final ArrayList<Feature > indFeats = getIndependentFeatures();
+            for (Feature indF : indFeats){
+                qsarModel.addProperty(OTObjectProperties.independentVariables.createProperty(rdf), rdf.createOntResource(indF.getURI()));
+            }
             
             
-            
-        } catch (YaqpException ex) { /* What should be done? */  }
+        } catch (YaqpException ex) { /* What should be done? */  }        
         return rdf;
     }
 

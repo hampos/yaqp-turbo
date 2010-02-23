@@ -85,6 +85,8 @@ public abstract class OntObject extends OntModelImpl implements JOntModel{
         } catch (ClassCastException ex){
             throw new ClassCastException("The IO stream you provided cannot be used as an Input Stream " +
                     "for the construction of an OntObject.");
+        }finally {
+            ioStream.close();
         }
     }
 

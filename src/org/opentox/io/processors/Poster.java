@@ -48,8 +48,6 @@ import org.opentox.ontology.util.YaqpAlgorithms;
 import org.restlet.Client;
 import org.restlet.Response;
 import org.restlet.data.Protocol;
-import org.restlet.data.Reference;
-import org.restlet.data.Status;
 import org.restlet.representation.OutputRepresentation;
 
 /**

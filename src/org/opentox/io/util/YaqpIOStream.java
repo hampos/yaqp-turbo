@@ -22,46 +22,61 @@
  */
 package org.opentox.io.util;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
-public class YaqpIOStream {
+public class YaqpIOStream implements Closeable {
 
     private InputStream in;
     private OutputStream out;
 
-
-    public YaqpIOStream(final Object ioStream){
-        if (ioStream instanceof InputStream){
+    public YaqpIOStream(final Object ioStream) {
+        if (ioStream instanceof InputStream) {
             in = (InputStream) ioStream;
-        }else if (ioStream instanceof OutputStream){
+        } else if (ioStream instanceof OutputStream) {
             out = (OutputStream) ioStream;
-        }else{
+        } else {
             // TODO: Exception
         }
     }
 
-    public YaqpIOStream(final InputStream in){
+    public YaqpIOStream(final InputStream in) {
         this.in = in;
     }
 
-    public YaqpIOStream(final OutputStream out){
+    public YaqpIOStream(final OutputStream out) {
         this.out = out;
     }
-    
-    public Object getStream(){
-        if (in != null){
+
+    public Object getStream() {
+        if (in != null) {
             return in;
-        }else if (out != null){
+        } else if (out != null) {
             return out;
-        }else{
+        } else {
             return null;
+        }
+    }
+
+    public void close() {
+        try {
+            if (in != null) {
+
+                in.close();
+            } else if (out != null) {
+                out.close();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(YaqpIOStream.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 //
@@ -71,9 +86,4 @@ public class YaqpIOStream {
 //        YaqpIOStream ys = new YaqpIOStream(i);
 //        System.out.println(ys.getStream() instanceof InputStream);
 //    }
-
-
-
-
-
 }

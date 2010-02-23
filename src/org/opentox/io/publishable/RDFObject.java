@@ -32,7 +32,10 @@
 package org.opentox.io.publishable;
 
 import com.hp.hpl.jena.rdf.model.Model;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.opentox.io.exceptions.YaqpIOException;
 import org.opentox.io.util.YaqpIOStream;
 import org.restlet.data.MediaType;
@@ -63,18 +66,20 @@ public class RDFObject extends OntObject {
         super(other);
     }
 
-    
     public void publish(YaqpIOStream stream) throws YaqpIOException {
         if (stream == null) {
             throw new NullPointerException("Cannot publish an RDF document to a null stream");
         }
         try {
             this.write((OutputStream) stream.getStream(), "RDF/XML");
+            this.close();
         } catch (ClassCastException ex) {
-            throw new ClassCastException("The stream you provided is not a valid stream for publishing " +
-                    "an RDF document but it does not seem to be null either.");
-        } catch (Exception ex){
+            throw new ClassCastException("The stream you provided is not a valid stream for publishing "
+                    + "an RDF document but it does not seem to be null either.");
+        } catch (Exception ex) {
             throw new YaqpIOException(XRDF99, "Cannot write RDF document to this stream", ex);
+        } finally {
+            stream.close();
         }
     }
 

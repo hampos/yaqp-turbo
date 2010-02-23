@@ -75,13 +75,28 @@ public class PredictionService implements Callable<Representation> {
     private MediaType media;
     private YaqpForm form;
 
-    public PredictionService(final YaqpForm form, final String id, final User user, final Class<? extends WekaPredictor> predictor, MediaType media) throws QSARException {
-        if (id == null)  throw new NullPointerException("ID must be not null");
-        if (user == null) throw new NullPointerException("User must not be null");
-        if (predictor == null) throw new NullPointerException("The trainer must not be null");
-        if (form.getFirstValue(ConstantParameters.dataset_uri)==null) throw new QSARException(
-                Cause.XQPred634, "The parameter "+ConstantParameters.dataset_uri+" was not specified");
-        if (media == null) media = MediaType.TEXT_PLAIN;
+    public PredictionService(
+            final YaqpForm form,
+            final String id,
+            final User user,
+            final Class<? extends WekaPredictor> predictor,
+            MediaType media ) throws QSARException {
+        if (id == null) {
+            throw new NullPointerException("ID must be not null");
+        }
+        if (user == null) {
+            throw new NullPointerException("User must not be null");
+        }
+        if (predictor == null) {
+            throw new NullPointerException("The trainer must not be null");
+        }
+        if (form.getFirstValue(ConstantParameters.dataset_uri) == null) {
+            throw new QSARException(
+                    Cause.XQPred634, "The parameter " + ConstantParameters.dataset_uri + " was not specified");
+        }
+        if (media == null) {
+            media = MediaType.TEXT_PLAIN;
+        }
         this.id = id;
         this.user = user;
         this.predictor = predictor;
@@ -90,7 +105,7 @@ public class PredictionService implements Callable<Representation> {
     }
 
     @SuppressWarnings({"unchecked"})
-    public Representation call() throws QSARException, YaqpException  {
+    public Representation call() throws QSARException, YaqpException {
         InputProcessor p1 = new InputProcessor();            // URI      -->  OntObject
         DatasetBuilder p2 = new DatasetBuilder();           // OntObject -->  Dataset
         InstancesProcessor p3 = new InstancesProcessor();   // Dataset   -->  Instances
@@ -103,20 +118,22 @@ public class PredictionService implements Callable<Representation> {
 
         final String dset = form.getFirstValue(ConstantParameters.dataset_uri);
         try {
-            model = (QSARModel) ( ReaderHandler.search(prototype, new Page(), false).getFirst() );
+            model = (QSARModel) (ReaderHandler.search(prototype, new Page(), false).getFirst());
             trainingPipe.add(new SimplePredictor(model));
             trainingPipe.add(new DatasetBuilder());
 
             Dataset ds = (Dataset) trainingPipe.process(new URI(dset));
-            Poster poster = new Poster(ServerList.ambit+"/dataset");
+            Poster poster = new Poster(ServerList.ambit + "/dataset");
             Response response = poster.handle(ds.getRDF());
-            return new StringRepresentation(response.getLocationRef().toString()+"\n", MediaType.TEXT_URI_LIST);
+            String reference = response.getLocationRef().toString();
+            response.release();
+            return new StringRepresentation(reference + "\n", MediaType.TEXT_URI_LIST);
         } catch (URISyntaxException ex) {
-            throw new QSARException(Cause.XQPred635, "The dataset uri you provided is not a valid uri :{"+dset, ex);
+            throw new QSARException(Cause.XQPred635, "The dataset uri you provided is not a valid uri :{" + dset, ex);
         } catch (YaqpException ex) {
-           throw ex;
+            throw ex;
         }
-                   
+
     }
 }
 
