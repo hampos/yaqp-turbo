@@ -37,7 +37,6 @@ import java.net.URI;
 import java.util.concurrent.Callable;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
-import org.opentox.core.interfaces.JProcessor;
 import org.opentox.core.processors.Pipeline;
 import org.opentox.io.processors.InputProcessor;
 import org.opentox.ontology.components.QSARModel;

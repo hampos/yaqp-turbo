@@ -31,15 +31,22 @@
  */
 package org.opentox.www.rest.resources;
 
+import java.io.File;
+import org.opentox.config.Configuration;
+import org.opentox.config.ServerFolders;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Pipeline;
+import org.opentox.db.exceptions.DbException;
 import org.opentox.db.handlers.ReaderHandler;
+import org.opentox.db.handlers.UpdateHandler;
 import org.opentox.db.util.Page;
 import org.opentox.io.processors.OutputProcessor;
 import org.opentox.io.processors.Publisher;
 import org.opentox.ontology.components.ComponentList;
 import org.opentox.ontology.components.QSARModel;
 import org.opentox.ontology.components.YaqpComponent;
+import org.opentox.ontology.exceptions.ImproperEntityException;
+import org.opentox.ontology.util.YaqpAlgorithms;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Fatal;
 import org.opentox.www.rest.components.URITemplate;
@@ -53,7 +60,19 @@ import org.restlet.representation.Variant;
 import org.restlet.resource.ResourceException;
 
 /**
- *
+ * The following queries are provided on this uri:
+ * <ul>
+ * <li>?page=3&pagesize=10;</li>
+ * <li>?algorithm=name</li>
+ * <li>?dataset_uri=uri</li>
+ * </ul>
+ * The following queries are the next candidates (in decreasing priority order):
+ * <ul>
+ * <li>?algorithm_uri={uri}</li>
+ * <li>?prediction_feature={uri}</li>
+ * <li>?dependent_feature={uri}</li>
+ * <li>?independent_features[]={uri}&independent_features[]={uri}</li>
+ * </ul>
  * @author Pantelis Sopasakis
  * @author Charalampos Chomenides
  */
@@ -63,8 +82,19 @@ public class ModelsResource extends YaqpResource {
 
     private static final String PAGESIZE = "pagesize";
     private static final String PAGENUM = "page";
+    private static final String ALGORITHM = "algorithm";
+    private static final String DATASET_URI = "dataset_uri";
 
     private Page page;
+
+    /*
+     * The algorithm that was used to train the model (URL Query).
+     */
+    private String algorithm = null;
+    /*
+     * The training dataset (URL Query).
+     */
+    private String dataset_uri = null;
 
     @Override
     protected void doInit() throws ResourceException {
@@ -84,6 +114,9 @@ public class ModelsResource extends YaqpResource {
         try{
             pagesize = Integer.parseInt(queryForm.getFirstValue(PAGESIZE));
         } catch (final NumberFormatException ex){/* do nothing */}
+
+        algorithm = queryForm.getFirstValue(ALGORITHM);
+        dataset_uri = queryForm.getFirstValue(DATASET_URI);
         page = new Page(pagesize, pageIndex);
     }
 
@@ -97,7 +130,14 @@ public class ModelsResource extends YaqpResource {
                     && !requestMediaType.equals(MediaType.TEXT_RDF_N3) && !requestMediaType.equals(MediaType.TEXT_RDF_NTRIPLES)) {
                 retrieveAllInformation = false;
             }
-            ComponentList<YaqpComponent> list = ReaderHandler.search(new QSARModel(), page, !retrieveAllInformation);
+            QSARModel prototype = new QSARModel();
+            if (algorithm!=null){
+                prototype.setAlgorithm(YaqpAlgorithms.getByName(algorithm));
+            }
+            if (dataset_uri!=null){
+                prototype.setDataset(dataset_uri);
+            }
+            ComponentList<YaqpComponent> list = ReaderHandler.search(prototype, page, !retrieveAllInformation);
             final Publisher publisher = new Publisher(requestMediaType);
             final OutputProcessor representer = new OutputProcessor();
             final Pipeline pipe = new Pipeline(publisher, representer);
@@ -107,7 +147,34 @@ public class ModelsResource extends YaqpResource {
             YaqpLogger.LOG.log(new Fatal(getClass(), "Fatal error while retrieving models from the DB : "+ex));
             getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
             return sendMessage("Internal Server Error");
-        }
-        
+        }        
+    }
+
+    
+    @Override
+    protected Representation delete(final Variant variant) throws ResourceException {
+        try {
+            ComponentList<YaqpComponent> list = ReaderHandler.search(new QSARModel(), new Page(), false);
+            if (list.size()==0) {
+                return sendMessage("No models were found on the server" + NEWLINE);
+            }
+
+            String code = null;
+            /* DELETE ALL MODELS */
+            for (YaqpComponent component : list){
+                QSARModel model = (QSARModel) component;
+                code = model.getCode();
+                UpdateHandler.delete( (QSARModel) model);
+                new File(ServerFolders.models_weka+"/"+code).renameTo(new File(ServerFolders.Trash+"/"+code));
+                new File(ServerFolders.models_pmml+"/"+code).renameTo(new File(ServerFolders.Trash+"/"+code+".pmml"));
+            }
+                       
+        } catch (final DbException ex) {
+            toggleNotFound();
+        } catch (final ImproperEntityException ex) { /* do nothing */ }
+
+        toggleSuccess();
+        return sendMessage("All models were successfully moved to trash!"+NEWLINE);
+
     }
 }

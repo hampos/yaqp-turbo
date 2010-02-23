@@ -57,6 +57,13 @@ public abstract class YaqpResource extends ServerResource {
             + "the administrators will be notified to fix this as soon as possible. If the problem remains, "
             + "please contant the service administrators at chvng(a)mail(d0t]ntua{D0t]gr ." + NEWLINE;
 
+    protected static final String _DEAD_DB_ =
+            "Database server seems to be dead for the moment. "
+            + "A monitoring service checks for database connection flaws every 15 minutes and takes actions to restore it. "
+            + "Please try again later or contact the server administrators at chvng=atT=mail=d0T=ntua=d0t=gr if the problem is not solved automatically "
+            + "in a while" + NEWLINE;
+
+
     public void initialize(Collection<MediaType> supportedMedia) {
         super.doInit();
         for (MediaType m : supportedMedia) {
@@ -72,22 +79,36 @@ public abstract class YaqpResource extends ServerResource {
 
     }
 
+
     @Override
     protected Representation post(Representation entity, Variant variant) throws ResourceException {
-        getResponse().setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+        toggleMethodNotAllowed();
         String message = "POST method is not allowed on this URI. Please check the API documentation and do not repeat this request.\n";
-        return new StringRepresentation(message, MediaType.TEXT_PLAIN, Language.ENGLISH, CharacterSet.UTF_8);
+        return sendMessage(message);
     }
 
     @Override
     protected Representation delete(Variant variant) throws ResourceException {
-        getResponse().setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
+        toggleMethodNotAllowed();
         String message = "DELETE method is not allowed on this URI. Please check the API documentation and do not repeat this request.\n";
-        return new StringRepresentation(message, MediaType.TEXT_PLAIN, Language.ENGLISH, CharacterSet.UTF_8);
+        return sendMessage(message);
     }
+
+
+    @Override
+    protected Representation put(Representation entity, Variant variant) throws ResourceException {
+        toggleMethodNotAllowed();
+        String message = "PUT method is not allowed on this URI. Please check the API documentation and do not repeat this request.\n";
+        return sendMessage(message);
+    }
+
 
     protected Representation sendMessage(String message){
         return new StringRepresentation(message, MediaType.TEXT_PLAIN, Language.ENGLISH, CharacterSet.UTF_8);
+    }
+
+    private void toggleMethodNotAllowed(){
+        getResponse().setStatus(Status.CLIENT_ERROR_METHOD_NOT_ALLOWED);
     }
 
     protected void toggleBadRequest(){
@@ -104,6 +125,10 @@ public abstract class YaqpResource extends ServerResource {
 
     protected void toggleSuccess(){
         getResponse().setStatus(Status.SUCCESS_OK);
+    }
+
+    protected void toggleRemoteError(){
+        getResponse().setStatus(Status.SERVER_ERROR_BAD_GATEWAY);
     }
 
 }

@@ -78,7 +78,7 @@ public class ConstantParameters {
 
     public static Map<String, AlgorithmParameter> CleanUpParams(){
          Map<String, AlgorithmParameter> map = new HashMap<String, AlgorithmParameter>();
-         map.put(attribure_type, new AlgorithmParameter(XSDDatatype.XSDstring, "string", AlgorithmParameter.SCOPE.optional));
+         map.put(attribure_type, new AlgorithmParameter<String>(XSDDatatype.XSDstring, "string", AlgorithmParameter.SCOPE.optional));
          return map;
     }
 }

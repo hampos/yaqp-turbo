@@ -92,9 +92,12 @@ public class Poster
 
         Response response = new Response(null);
 
-
         response = cli.post(whereToPost, rep);
         i++;
+
+        if (response.getLocationRef()==null){
+            throw new YaqpIOException(Cause.XIO5052, "Communication error with the remote server at "+whereToPost);
+        }
 
         return response;
     }

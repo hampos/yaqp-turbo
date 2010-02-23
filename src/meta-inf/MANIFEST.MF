@@ -3,6 +3,6 @@ Main-Class: org.opentox.server.Server
 
 Name: org/opentox/
 Specification-Title: YAQP - Yet Another QSAR Project
-Specification-Version: 0.2.0.3 (alpha)
+Specification-Version: 0.2.0.4 (alpha)
 Specification-Vendor: http://www.opentox.org , OpenTox - An Open Source Predictive Toxicology Framework
 Implementation-Vendor: National Technical University of Athens, School of Chemical Engineering, Automatic Control Laboratory

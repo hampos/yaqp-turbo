@@ -78,6 +78,7 @@ public class YaqpAlgorithms {
     public static final Algorithm SVC = new Algorithm(svc_metadata());
     public static final Algorithm NAIVE_BAYES = new Algorithm(naiveBayes_metadata());
     public static final Algorithm CLEAN_UP = new Algorithm(cleanup_meta());
+    public static final Algorithm FCBF = new Algorithm(fcbf_meta());
 
     /**
      * Returns an algorithm (from the set of algorithms listed in {@link YaqpAlgorithms }
@@ -190,6 +191,7 @@ public class YaqpAlgorithms {
         meta.format.add(MediaType.TEXT_RDF_N3);
         meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
         meta.format.add(MediaType.APPLICATION_XML);
+        meta.format.add(MediaType.APPLICATION_PDF);
         meta.identifier = uri;
         meta.type = "http://purl.org/dc/dcmitype/Service";
         meta.audience.addAll(Audience.AllExpert);
@@ -231,6 +233,7 @@ public class YaqpAlgorithms {
         meta.format.add(MediaType.TEXT_RDF_N3);
         meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
         meta.format.add(MediaType.APPLICATION_XML);
+        meta.format.add(MediaType.APPLICATION_PDF);
         meta.identifier = uri;
         meta.type = "http://purl.org/dc/dcmitype/Service";
         meta.audience.addAll(Audience.AllExpert);
@@ -276,6 +279,7 @@ public class YaqpAlgorithms {
         meta.format.add(MediaType.TEXT_RDF_N3);
         meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
         meta.format.add(MediaType.APPLICATION_XML);
+        meta.format.add(MediaType.APPLICATION_PDF);
         meta.identifier = uri;
         meta.type = "http://purl.org/dc/dcmitype/Service";
         meta.audience.addAll(Audience.AllExpert);
@@ -312,6 +316,45 @@ public class YaqpAlgorithms {
         meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
         meta.format.add(MediaType.TEXT_RDF_N3);
         meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
+        meta.format.add(MediaType.APPLICATION_PDF);
+        meta.identifier = uri;
+        meta.type = "http://purl.org/dc/dcmitype/Service";
+        meta.audience.addAll(Audience.AllExpert);
+        meta.provenance = "Newly added algorithm on Feb 22, 2010";
+        meta.setAlgorithmType(OTAlgorithmTypes.DataCleanup);
+
+        try {
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            meta.date = formatter.parse("2010-02-22");
+        } catch (ParseException ex) {
+            YaqpLogger.LOG.log(new Warning(YaqpAlgorithms.class, "(" + uri + ") Wrong date : " + ex));
+            meta.date = new Date(System.currentTimeMillis());
+        }
+
+        return meta;
+    }
+
+
+    public static AlgorithmMeta fcbf_meta(){
+        String name = "fcbf";
+        String uri = Configuration.BASE_URI + "/algorithm/" + name;
+        AlgorithmMeta meta = new AlgorithmMeta(uri);
+        meta.setName(name);
+        meta.setParameters(ConstantParameters.CleanUpParams());
+        meta.title = "Feature clean-up service";
+        // TODO: Provide a reference for SVM Regression
+        meta.description =
+                "An attribute selection algorithm based on the publication by Lei Yu, Huan Liu: Feature Selection for " +
+                "High-Dimensional Data: A Fast Correlation-Based Filter Solution. In: Proceedings of the Twentieth " +
+                "International Conference on Machine Learning, 856-863, 2003. This service is based on WEKA's implementation " +
+                "for FCBF";
+        meta.subject =
+                "attribute selection, dimensionality reduction, feature selection, correlation, relevance, redundancy";
+        meta.format.add(MediaType.APPLICATION_RDF_XML);
+        meta.format.add(MediaType.APPLICATION_RDF_TURTLE);
+        meta.format.add(MediaType.TEXT_RDF_N3);
+        meta.format.add(MediaType.TEXT_RDF_NTRIPLES);
+        meta.format.add(MediaType.APPLICATION_PDF);
         meta.identifier = uri;
         meta.type = "http://purl.org/dc/dcmitype/Service";
         meta.audience.addAll(Audience.AllExpert);

@@ -53,14 +53,7 @@ public class ServerFolders {
      * Directory where all models are stored.
      */
     protected static final String models =
-            home + "/models";
-    /**
-     * Directory where all RDF representations of models produced by YAQP will be
-     * stored. Most likely, these representations will not be stored in a file
-     * but will be instead produced on the fly and upon request.
-     */
-    public static final String models_rdf =
-            models + "/rdf";
+            home + "/models";;
     /**
      * Folder where PMML representations of MLR models are stored.
      */
@@ -79,6 +72,11 @@ public class ServerFolders {
      */
     public static final String models_omega =
             models + "/omega";
+    /**
+     * Trash
+     */
+    public static final String Trash =
+            home+"/.trash";
     /**
      * Collection of resources such as images, javascripts and other auxiliary
      * files etc.

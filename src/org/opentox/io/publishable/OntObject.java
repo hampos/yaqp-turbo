@@ -51,28 +51,35 @@ import org.restlet.data.MediaType;
  */
 public abstract class OntObject extends OntModelImpl implements JOntModel{
 
-    public OntObject(){
-        super(OntModelSpec.OWL_DL_MEM);
+    private void setNamespacePrefices(){
         Map<String, String> map = new HashMap<String, String>();
         map.put("ot", OTClass.NS_OT_core);
         map.put("ota", OTClass.NS_AlgorithmTypes);
         this.setNsPrefixes(map);
     }
+    public OntObject(){
+        super(OntModelSpec.OWL_DL_MEM);
+        setNamespacePrefices();
+    }
 
     public OntObject(OntObject other){
         super(OntModelSpec.OWL_DL_MEM, other);
+        setNamespacePrefices();
     }
 
     public OntObject(Model other){
         super(OntModelSpec.OWL_DL_MEM, other);
+        setNamespacePrefices();
     }
 
     public OntObject(OntModelSpec spec){
         super(spec);
+        setNamespacePrefices();
     }
 
     public OntObject(YaqpIOStream ioStream){
         super(OntModelSpec.OWL_DL_MEM);
+        setNamespacePrefices();
         try{
         read( (InputStream)ioStream.getStream(), null);
         } catch (ClassCastException ex){

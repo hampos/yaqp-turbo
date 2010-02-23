@@ -96,7 +96,7 @@ public final class URITemplate {
     }
 
     public static URITemplate primarySubtemplateOf(URITemplate other, String primaryKey){
-        return new URITemplate(other.getBase(), primaryKey, "");
+        return new URITemplate(other.getBase(), primaryKey, null);
     }
 
     public static URITemplate secondarySubTemplateOf(URITemplate other, String metaKey){

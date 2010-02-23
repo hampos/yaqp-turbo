@@ -42,6 +42,7 @@ import org.opentox.io.processors.Publisher;
 import org.opentox.ontology.components.ComponentList;
 import org.opentox.ontology.components.Feature;
 import org.opentox.ontology.components.QSARModel;
+import org.opentox.ontology.components.YaqpComponent;
 import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.www.rest.components.URITemplate;
 import org.opentox.www.rest.components.YaqpResource;
@@ -94,6 +95,7 @@ public class ModelMetaResource extends YaqpResource {
     }
 
     @Override
+    @SuppressWarnings({"unchecked"}) 
     protected Representation get(final Variant variant) throws ResourceException {
 
         final MediaType requestMedia = variant.getMediaType();
@@ -124,7 +126,7 @@ public class ModelMetaResource extends YaqpResource {
         } catch (ImproperEntityException ex) {
         }
 
-        ComponentList listOFComponents = new ComponentList();        
+        ComponentList<YaqpComponent> listOFComponents = new ComponentList<YaqpComponent>();
 
         if (metaKey == META_KEY.dependent){
             listOFComponents.add(qsarModel.getDependentFeature());
@@ -138,9 +140,10 @@ public class ModelMetaResource extends YaqpResource {
 
         final Publisher publisher = new Publisher(requestMedia);
         final OutputProcessor representer = new OutputProcessor();
-        final Pipeline pipe = new Pipeline(publisher, representer);
+        @SuppressWarnings({"unchecked"}) final Pipeline pipe = new Pipeline(publisher, representer);
 
         Representation rep = null;
+
         try {
             rep = (Representation) pipe.process(listOFComponents);
         } catch (final YaqpException ex) {

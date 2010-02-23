@@ -32,17 +32,22 @@
 package org.opentox.www.rest.resources;
 
 
+import java.io.File;
 import org.opentox.config.Configuration;
+import org.opentox.config.ServerFolders;
+import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
 import org.opentox.core.processors.Pipeline;
+import org.opentox.db.exceptions.DbException;
 import org.opentox.db.handlers.ReaderHandler;
+import org.opentox.db.handlers.UpdateHandler;
 import org.opentox.db.util.Page;
 import org.opentox.io.processors.OutputProcessor;
 import org.opentox.io.processors.Publisher;
 import org.opentox.ontology.components.ComponentList;
 import org.opentox.ontology.components.QSARModel;
 import org.opentox.ontology.components.User;
-import org.opentox.qsar.exceptions.QSARException;
+import org.opentox.ontology.exceptions.ImproperEntityException;
 import org.opentox.qsar.processors.predictors.SimplePredictor;
 import org.opentox.util.logging.YaqpLogger;
 import org.opentox.util.logging.levels.Fatal;
@@ -103,21 +108,19 @@ public class ModelResource extends YaqpResource {
         try {
             ComponentList listOfModels = ReaderHandler.search(prototype, new Page(), false);
             if (listOfModels.size() == 0) {
-                getResponse().setStatus(Status.CLIENT_ERROR_NOT_FOUND);
+                toggleNotFound();
                 return sendMessage(modelNotFoundMessage);
             }
             QSARModel mod = (QSARModel) listOfModels.getFirst();
             final Publisher publisher = new Publisher(variant.getMediaType());
             final OutputProcessor representer = new OutputProcessor();
             final Pipeline pipe = new Pipeline(publisher, representer);
+            toggleSuccess();
             return (Representation) pipe.process(mod);
         } catch (YaqpException ex) {
             YaqpLogger.LOG.log(new Fatal(getClass(), "Excpetion caught : {" + ex + "}"));
-            return sendMessage(
-                    "Database server seems to be dead for the moment. "
-                    + "A monitoring service checks for database connection flaws every 15 minutes and takes actions to restore it. "
-                    + "Please try again later or contact the server administrators if the problem is not solved automatically "
-                    + "in a while");
+            toggleServerError();
+            return sendMessage(_DEAD_DB_);
         }
 
     }
@@ -125,6 +128,7 @@ public class ModelResource extends YaqpResource {
     // TODO: Better exception handling and status codes.
     @Override
     protected Representation post(Representation entity, Variant variant) throws ResourceException {
+
         /*
          * First try to locate the model and see if it exists...
          */
@@ -144,12 +148,8 @@ public class ModelResource extends YaqpResource {
             }
         } catch (YaqpException ex) {
             YaqpLogger.LOG.log(new Fatal(getClass(), "Excpetion caught : {" + ex + "}"));
-            getResponse().setStatus(Status.SERVER_ERROR_INTERNAL);
-            return sendMessage(
-                    "Database server seems to be dead for the moment. "
-                    + "A monitoring service checks for database connection flaws every 15 minutes and takes actions to restore it. "
-                    + "Please try again later or contact the server administrators if the problem is not solved automatically "
-                    + "in a while");
+            toggleServerError();
+            return sendMessage(_DEAD_DB_);
         }
 
         /*
@@ -159,14 +159,53 @@ public class ModelResource extends YaqpResource {
         PredictionService service;
         try {
             service = new PredictionService(new YaqpForm(entity), model_id, new User(), SimplePredictor.class, variant.getMediaType());            
-            getResponse().setStatus(Status.SERVER_ERROR_NOT_IMPLEMENTED);
+            toggleSuccess();
             return service.call();
-        } catch (final QSARException ex) {
+        } catch (final YaqpException ex) {            
+            toggleBadRequest();
+            if (ex.getCode() == Cause.XIO5052) {
+                toggleRemoteError();
+            }
             return sendMessage(ex.toString() + NEWLINE);
         } catch (Exception ex) {
             YaqpLogger.LOG.log(new Fatal(getClass(), "Excpetion caught : {" + ex + "}"));
-            return null;
-        }
-        
+            return sendMessage(_500_);
+        }       
     }
+
+    @Override
+    protected Representation delete(final Variant variant) throws ResourceException {
+        QSARModel modelToBeDeleted = new QSARModel();
+
+        try{
+            modelToBeDeleted.setId(Integer.parseInt(this.model_id));
+        }catch (final NumberFormatException nfe){
+            toggleNotFound();
+            return sendMessage("The model you attempted to delete was not found on the server" + NEWLINE);
+        }
+
+
+        try {
+            ComponentList list = ReaderHandler.search(modelToBeDeleted, new Page(), false);
+            if (list.size()==0) throw new DbException();
+            QSARModel model = (QSARModel) list.getFirst();
+            String code = model.getCode();
+            System.out.println(code);
+            UpdateHandler.delete(modelToBeDeleted);
+            new File(ServerFolders.models_weka+"/"+code).renameTo(new File(ServerFolders.Trash+"/"+code));
+            new File(ServerFolders.models_pmml+"/"+code).renameTo(new File(ServerFolders.Trash+"/"+code+".pmml"));
+        } catch (final DbException ex) {
+            toggleNotFound();
+            return sendMessage("The model "+Configuration.BASE_URI+"/model/"+this.model_id+" was not found on the server"+NEWLINE);
+        } catch (final ImproperEntityException ex) { /* do nothing */ }
+
+        toggleSuccess();
+        return sendMessage("The model "+Configuration.BASE_URI+"/model/"+this.model_id+" was successfully deleted. " +
+                "If you need to recover it, send a message to the service administrators providing the URI of the model you need to " +
+                "recover. However, once deleted, there is no guarrantee that it will be possible to recover it successfully. Note that the" +
+                "deleted model will be automatically deleted after 1 month!"+NEWLINE);
+
+    }
+
+
 }

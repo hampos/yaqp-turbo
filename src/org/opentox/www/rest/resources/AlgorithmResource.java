@@ -34,8 +34,6 @@ package org.opentox.www.rest.resources;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.opentox.config.Configuration;
 import org.opentox.core.exceptions.Cause;
 import org.opentox.core.exceptions.YaqpException;
@@ -61,7 +59,6 @@ import org.opentox.www.rest.services.Trainers;
 import org.opentox.www.rest.services.TrainingService;
 import org.restlet.data.MediaType;
 import org.restlet.data.Reference;
-import org.restlet.data.Status;
 import org.restlet.representation.Representation;
 import org.restlet.representation.StringRepresentation;
 import org.restlet.representation.Variant;
@@ -105,6 +102,7 @@ public class AlgorithmResource extends YaqpResource {
     @Override
     protected void doInit() throws ResourceException {
         super.doInit();
+        setAutoCommitting(false);
         initialize(
                 MediaType.APPLICATION_RDF_XML,
                 MediaType.APPLICATION_RDF_TURTLE,
@@ -186,6 +184,8 @@ public class AlgorithmResource extends YaqpResource {
             return sendMessage(message);
         }
 
+        // @hampos: This is not quite generic though solves the problem for now.
+        //          We should discuss about how to
         if (this.algorithmName.equals(YaqpAlgorithms.CLEAN_UP.getMeta().getName())){
             return filterData(entity, variant);
         }else{
@@ -196,6 +196,7 @@ public class AlgorithmResource extends YaqpResource {
 
 
 
+    @SuppressWarnings({"unchecked"})
     private Representation trainModel(final Representation entity, final Variant variant){
         // THE DEFAULT MEDIATYPE OF THE RESPONSE IS text/uri-list UNLESS THE CLIENT ASKS FOR
         // SOMETHING DIFFERENT SETTING THE 'Accept' HEADER OF THE REQUEST ACCORDINGLY, TO ONE OF THE
@@ -213,12 +214,13 @@ public class AlgorithmResource extends YaqpResource {
          */
         try {
             QSARModel trainedModel = null;
-            try{
+            try {
+                // trainer is any implementation of WekaTrainer.
                 trainedModel = new TrainingService(new YaqpForm(entity), new User(), trainer, responseMedia).call();
-            } catch (final YaqpException ex){
+            } catch (final YaqpException ex) {
                 toggleBadRequest();
-                return sendMessage(ex.toString()+NEWLINE);
-            } catch (final Exception ex){
+                return sendMessage(ex.toString() + NEWLINE);
+            } catch (final Exception ex) {
                 toggleServerError();
                 return sendMessage(_500_);
             }
@@ -246,6 +248,7 @@ public class AlgorithmResource extends YaqpResource {
     }
 
 
+    @SuppressWarnings({"unchecked"})
     private Representation filterData(final Representation entity, final Variant variant){
         InputProcessor p1 = new InputProcessor();
         DatasetBuilder p2 = new DatasetBuilder();
@@ -279,6 +282,10 @@ public class AlgorithmResource extends YaqpResource {
         }
         return new StringRepresentation(uri+"?"+list, MediaType.TEXT_URI_LIST);
     }
+
+    
+
+
 
 
 }
